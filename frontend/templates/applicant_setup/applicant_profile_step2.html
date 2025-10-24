@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/applicant_profile.css' %}">
+{% endblock %}
+
+{% block title %}Applicant Profile - Education{% endblock %}
+
+{% block content %}
+<main class="profile-setup-container">
+    <div class="step-navigation-wrapper">
+    <section class="step-navigation">
+            <a href="{% url 'applicant_setup:applicant_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step1' %}active{% endif %}">
+                <i class="fas fa-user icon-left"></i> Personal Info
+            </a>
+
+            {% if progress >= 2 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step2' %}active{% endif %}">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </span>
+            {% endif %}
+
+            {% if progress >= 3 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step3' %}active{% endif %}">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </span>
+            {% endif %}
+        </section>
+</div>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            <h2>Current/Last Education</h2>
+            <p class="section-hint">Provide details on your highest or most recent educational attainment.</p>
+            
+            <div class="field-container">
+                <label for="{{ form.school_name.id_for_label }}">School/University Name</label>
+                {{ form.school_name }}
+                {% if form.school_name.errors %}<div class="error-text">{{ form.school_name.errors.0 }}</div>{% endif %}
+            </div>
+            
+            <div class="input-group-row">
+                <div class="field-container flex-2">
+                    <label for="{{ form.degree.id_for_label }}">Degree/Course</label>
+                    {{ form.degree }}
+                    {% if form.degree.errors %}<div class="error-text">{{ form.degree.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="field-container flex-1">
+                    <label for="{{ form.year_level.id_for_label }}">Year Level</label>
+                    {{ form.year_level }}
+                    {% if form.year_level.errors %}<div class="error-text">{{ form.year_level.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-navigation-row centered-nav">
+            <a href="{% url 'applicant_setup:applicant_setup_step1' %}" class="btn btn-secondary">Previous</a>
+            <button type="submit" class="cta-btn save-next-btn">Save & Next &rarr;</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/applicant_profile_setup.js' %}"></script>
+{% endblock %}

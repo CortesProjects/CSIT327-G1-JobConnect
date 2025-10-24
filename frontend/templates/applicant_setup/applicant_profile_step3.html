@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/applicant_profile.css' %}">
+{% endblock %}
+
+{% block title %}Applicant Profile - Skills & Resume{% endblock %}
+
+{% block content %}
+
+<main class="profile-setup-container">
+    <div class="step-navigation-wrapper">
+    <section class="step-navigation">
+            <a href="{% url 'applicant_setup:applicant_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step1' %}active{% endif %}">
+                <i class="fas fa-user icon-left"></i> Personal Info
+            </a>
+
+            {% if progress >= 2 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step2' %}active{% endif %}">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </span>
+            {% endif %}
+
+            {% if progress >= 3 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step3' %}active{% endif %}">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </span>
+            {% endif %}
+        </section>
+</div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            <h2>Skills Summary</h2>
+            <p class="section-hint">Provide a concise list of your key technical and soft skills, separated by commas (e.g., Python, SQL, Agile, Teamwork).</p>
+            <div class="field-container">
+                <label for="{{ form.skills_summary.id_for_label }}" class="sr-only">Skills Summary</label>
+                {# This text area is for text input, not rich text, so no toolbar is needed #}
+                {{ form.skills_summary }}
+                {% if form.skills_summary.errors %}<div class="error-text">{{ form.skills_summary.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-section-card">
+            <h2>Resume Upload</h2>
+            <p class="section-hint">Uploading a resume is required before applying to any job.</p>
+            
+            {# Resume Upload Area (Uses the common upload-area styling) #}
+            <div class="upload-area resume-upload-area">
+                <label for="{{ form.resume.id_for_label }}" class="upload-label-full-area">
+                    <input type="file" id="{{ form.resume.id_for_label }}" name="{{ form.resume.name }}" accept=".pdf,.doc,.docx" class="actual-file-input">
+                    
+                    <div class="upload-content-placeholder">
+                        <i class="fas fa-file-upload"></i>
+                        <h4>Browse file or drop here</h4>
+                        <p class="upload-hint">PDF, DOC, or DOCX only. Max file size 5 MB.</p>
+                    </div>
+                    
+                    {# Content to show when file is attached (Hidden by default) #}
+                    <div class="file-attached-display" style="display: none;">
+                        <span class="file-name"></span>
+                        <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                </label>
+            </div>
+            
+            {% if form.resume.errors %}<div class="error-text">{{ form.resume.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-navigation-row centered-nav">
+            <a href="{% url 'applicant_setup:applicant_setup_step2' %}" class="btn btn-secondary">Previous</a>
+            <button type="submit" class="cta-btn save-next-btn">Finish Profile &rarr;</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/applicant_profile_setup.js' %}"></script>
+{% endblock %}

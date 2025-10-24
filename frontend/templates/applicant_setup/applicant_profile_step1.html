@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/applicant_profile.css' %}">
+{% endblock %}
+
+{% block title %}Applicant Profile - Personal Info{% endblock %}
+
+{% block content %}
+<main class="profile-setup-container">
+    <div class="step-navigation-wrapper">
+        <section class="step-navigation">
+            <a href="{% url 'applicant_setup:applicant_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step1' %}active{% endif %}">
+                <i class="fas fa-user icon-left"></i> Personal Info
+            </a>
+
+            {% if progress >= 2 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step2' %}active{% endif %}">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                </span>
+            {% endif %}
+
+            {% if progress >= 3 %}
+                <a href="{% url 'applicant_setup:applicant_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_setup_step3' %}active{% endif %}">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </a>
+            {% else %}
+                <span class="step-link disabled">
+                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                </span>
+            {% endif %}
+        </section>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            <h2>Personal Information</h2>
+            
+            <div class="input-group-row">
+                {# Full Name (Read-only/Initial data from User model) #}
+                <div class="field-container">
+                    <label>First Name</label>
+                    {# User fields are read-only, assuming they were set at registration #}
+                    <input type="text" value="{{ user.first_name }}" class="form-control">
+                </div>
+                <div class="field-container">
+                    <label>Last Name</label>
+                    <input type="text" value="{{ user.last_name }}" class="form-control">
+                </div>
+            </div>
+            
+            <div class="input-group-row">
+                <div class="field-container">
+                    <label for="{{ form.contact_number.id_for_label }}">Contact Number (10+ digits)</label>
+                    {{ form.contact_number }}
+                    {% if form.contact_number.errors %}<div class="error-text">{{ form.contact_number.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="field-container">
+                    <label for="{{ form.location.id_for_label }}">Current Location (City, Country)</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}<div class="error-text">{{ form.location.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-navigation-row">
+            <button type="submit" class="cta-btn save-next-btn">Save & Next &rarr;</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/applicant_profile_setup.js' %}"></script>
+{% endblock %}

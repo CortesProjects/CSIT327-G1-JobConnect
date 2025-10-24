@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'JobConnectApp',
     'accounts',
+    'applicant_setup',
     # allauth
     'allauth',
     'allauth.account',

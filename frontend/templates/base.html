@@ -19,56 +19,67 @@
 
 <header class="header">
     <div class="logo">JobConnect</div>
-
-    <!-- User Actions (The new dropdown structure) -->
-    <div class="user-actions">
+        {% if is_setup_page %}
+            <div id="header-progress-container" class="setup-progress-header">
+                <div class="progress-text-row">
+                    <span class="setup-text">Setup Progress</span>
+                    <span class="completion-percent">{{ progress_percent|default:0 }}% Completed</span>
+                </div>
+                <div class="progress-bar-base">
+                    <div class="progress-fill-base" style="width: {{ progress_percent|default:'0' }}%;">
+                        
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="user-actions">
         
         <!-- Profile Button/Trigger -->
             <!-- Profile Image -->
-            {% block user_actions %}
-                {% if user %}
+                {% block user_actions %}
+                    {% if user %}
                     <!-- Guest view -->
-                     <div id="userProfileButton" class="user-info-container cursor-pointer">
-                        <div class="user-profile">
-                            <img src="{% static 'user.png' %}" alt="Profile" class="profile-img">
+                        <div id="userProfileButton" class="user-info-container cursor-pointer">
+                            <div class="user-profile">
+                                <img src="{% static 'user.png' %}" alt="Profile" class="profile-img">
+                            </div>
+                            <div class="user-details hidden sm:flex">
+                                <p><strong>Username:</strong> {{ user.username }}</p>
+                                <p class="role-text">Logged in as: {{ role }}</p>
+                            </div>
+                            <i class="fas fa-chevron-down text-gray-500 text-xs ml-2 chevron-icon" id="dropdownIcon"></i>
                         </div>
-                        <div class="user-details hidden sm:flex">
-                            <p><strong>Username:</strong> {{ user.username }}</p>
-                            <p class="role-text">Logged in as: {{ role }}</p>
-                        </div>
-                        <i class="fas fa-chevron-down text-gray-500 text-xs ml-2 chevron-icon" id="dropdownIcon"></i>
-                    </div>
-                {% else %}
+                    {% else %}
                     <!-- Logged-in view -->
 
-                    <a href="{% url 'login' %}" class="login">Login</a> 
-                    <a href="{% url 'register' %}" class="register-btn">Sign Up</a>
-                {% endif %}
-            {% endblock %}
+                        <a href="{% url 'login' %}" class="login">Login</a> 
+                        <a href="{% url 'register' %}" class="register-btn">Sign Up</a>
+                    {% endif %}
+                {% endblock %}
             <!-- Dropdown Indicator Icon -->
             
-        <!-- Dropdown Menu -->
-        <div id="dropdownMenu" class="dropdown-menu">
-            <div class="dropdown-header">
-                <p class="font-bold text-sm text-color-dark">Signed in as</p>
-                <p class="email-text text-xs text-color-light">{{email}}</p>
-            </div>
+            <!-- Dropdown Menu -->
+            <div id="dropdownMenu" class="dropdown-menu">
+                <div class="dropdown-header">
+                    <p class="font-bold text-sm text-color-dark">Signed in as</p>
+                    <p class="email-text text-xs text-color-light">{{email}}</p>
+                </div>
             
-            <!-- NEW: View Profile Link -->
-            <a href="#" class="dropdown-item">
-                <i class="fas fa-user-circle mr-3"></i>
-                View Profile
-            </a>
+                <!-- NEW: View Profile Link -->
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    View Profile
+                </a>
 
-            <!-- Logout Button (The core requirement) -->
-            <a href="{% url 'logout' %}" class="dropdown-item logout-item">
-                <i class="fas fa-sign-out-alt mr-3"></i>
-                Logout
-            </a>
-
+                <!-- Logout Button (The core requirement) -->
+                <a href="{% url 'logout' %}" class="dropdown-item logout-item">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    Logout
+                </a>
+            </div>
         </div>
-    </div>
     <!-- End User Actions -->
+    {% endif %}
 </header>
 
 

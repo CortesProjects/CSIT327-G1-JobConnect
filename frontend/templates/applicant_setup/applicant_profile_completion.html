@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/applicant_profile.css' %}">
+{% endblock %}
+
+{% block title %}Profile Complete!{% endblock %}
+
+{% block content %}
+<main class="profile-completion-container">
+    <div class="completion-box">
+        <div class="completion-icon-wrapper">
+            {# Using the same SVG as the employer completion page for consistency #}
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="completion-svg-icon">
+                <path d="M9 13L13 18L22 7" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 13L5 18L14 7" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        
+        <h2>✨ Congratulations, Your Profile is 100% Complete!</h2>
+        <p>
+            Your comprehensive profile is ready. You can now apply for jobs and 
+            be easily discovered by employers seeking candidates with your skills and education.
+        </p>
+        
+        <div class="completion-actions">
+            {# Secondary Button: View Dashboard (using the employer-style secondary button class) #}
+            <a href="{% url 'accounts:applicant_dashboard' %}" class="btn-completion-secondary">View Dashboard</a>
+            
+            {# Primary Button: Browse Jobs #}
+            <a href="#" class="cta-btn save-next-btn">Browse Jobs &rarr;</a>
+        </div>
+    </div>
+</main>
+{% endblock %}

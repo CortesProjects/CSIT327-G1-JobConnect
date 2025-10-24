@@ -7,5 +7,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('allauth.urls')),  
     path('', include('JobConnectApp.urls')),
-    
+    path('applicant/', include('applicant_profile.urls')),
 ]
