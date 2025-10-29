@@ -106,7 +106,7 @@ hr {
     content: ''; 
     width: 28px; 
     height: 28px;
-    background-image: url('../img/logo.png'); 
+    background-image: url('./logo.png'); 
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent; 

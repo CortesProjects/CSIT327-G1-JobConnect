@@ -2,9 +2,10 @@ def user_context(request):
     user = None
     role = None
 
-    if request.session.get("admins"):
-        user = request.session["admins"]
+    if request.session.get("admin"):
+        user = request.session["admin"]
         role = "Admin"
+        email = user.get("email", "")
     elif request.session.get("applicant"):
         user = request.session["applicant"]
         role = "Applicant"

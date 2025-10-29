@@ -113,7 +113,7 @@ def login_site(request):
         # Check applicants and employers
         applicant_resp = supabase.table("user_applicants").select("*").eq("email", email).execute()
         employer_resp = supabase.table("user_employers").select("*").eq("email", email).execute()
-
+        admin_resp = supabase.table("user_admins").select("*").eq("email", email).execute()
         user = None
         role = None
 
@@ -123,6 +123,9 @@ def login_site(request):
         elif employer_resp.data:
             user = employer_resp.data[0]
             role = "employer"
+        elif admin_resp.data:
+            user = admin_resp.data[0]
+            role = "admin"
 
         if not user:
             context["email_error"] = "Email does not exist."
@@ -139,8 +142,11 @@ def login_site(request):
                 "username": user["username"]
             }
 
-            return redirect("homepage")
-
+            if role == "admin":
+                return redirect("admin_tab_2")
+            else:
+                return redirect("homepage")
+            
     return render(request, "authentication_page/login.html", context)
 
 
@@ -173,3 +179,34 @@ def logout_view(request):
 
 def base(request):
     return render(request, "base.html")
+
+def admin_tab_1(request):
+    return render(request, "admin_tabs_page/admin_tab_1.html")
+
+def admin_tab_2(request):
+    response = supabase.table("user_employers").select("*").eq("verified", True).execute()
+    verified_employers = response.data if response.data else []
+
+    return render(request, "admin_tabs_page/admin_tab_2.html", {
+        "verified_employers": verified_employers,
+    })
+
+def admin_tab_3(request):
+    return render(request, "admin_tabs_page/admin_tab_3.html")
+
+def admin_tab_4(request):
+    response = supabase.table("user_applicants").select("*").eq("viewed", True).execute()
+    applicants = response.data if response.data else []
+
+    return render(request, "admin_tabs_page/admin_tab_4.html", {
+        "applicants": applicants
+    })
+
+def admin_tab_5(request):
+    # Fetch all active job postings from Supabase
+    response = supabase.table("job_postings").select("*").eq("status", "Active").execute()
+    active_jobs = response.data if response.data else []
+
+    return render(request, "admin_tabs_page/admin_tab_5.html", {
+        "active_jobs": active_jobs
+    })

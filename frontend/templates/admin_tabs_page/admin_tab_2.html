@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin_tabs_page/admin_tab_2.css' %}">
+{% endblock %}
+
+{% block title %}Verified Employers | JobConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_1' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="menu-item active">
+        <a href="#"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_3' %}"><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_4' %}"><i class="fas fa-users"></i> Applicants</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_5' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
+      </li>
+    </ul>
+
+    <div class="logout-section">
+      <a href="{% url 'homepage' %}" class="logout-link">
+        <i class="fas fa-arrow-left"></i> Homepage
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="page-header">
+      <h2>Verified Employers</h2>
+    </div>
+
+    <div class="employer-list">
+      <!-- Header Row -->
+      <div class="employer-list-header">
+        <span>Job</span>
+        <span>Date Verified</span>
+        <span>Status</span>
+      </div>
+
+      <!-- Dynamic Employer Cards -->
+      {% if verified_employers %}
+        {% for employer in verified_employers %}
+          {% if employer.verified %}
+          <div class="employer-card">
+            <div class="employer-left">
+              <img src="{% static 'cover.png' %}" alt="{{ employer.username }}" class="job-logo">
+              <p class="job-name">{{ employer.username }}</p>
+
+              {% if employer.badge == "Full Time" %}
+                <span class="badge fulltime">Full Time</span>
+              {% elif employer.badge == "Remote" %}
+                <span class="badge remote">Remote</span>
+              {% elif employer.badge == "Contract Base" %}
+                <span class="badge contract">Contract Base</span>
+              {% elif employer.badge == "Temporary" %}
+                <span class="badge temporary">Temporary</span>
+              {% else %}
+                {% if employer.badge %}
+                  <span class="badge">{{ employer.badge }}</span>
+                {% endif %}
+              {% endif %}
+            </div>
+
+            <div class="employer-center">
+              {% if employer.date_verified %}
+                <p>{{ employer.date_verified|date:"M d, Y H:i" }}</p>
+              {% else %}
+                <p>-</p>
+              {% endif %}
+            </div>
+
+            <div class="employer-right">
+              <span class="status active"><i class="fas fa-check"></i> Active</span>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <p class="no-employers">No verified employers found.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

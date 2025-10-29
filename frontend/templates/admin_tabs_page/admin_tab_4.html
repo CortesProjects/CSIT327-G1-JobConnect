@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin_tabs_page/admin_tab_4.css' %}">
+{% endblock %}
+
+{% block title %}Applicants | JobConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_1' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_2' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_3' %}"><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
+      </li>
+      <li class="menu-item active">
+        <a href=""><i class="fas fa-users"></i> Applicants</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_5' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
+      </li>
+    </ul>
+
+    <div class="logout-section">
+      <a href="{% url 'homepage' %}" class="logout-link">
+        <i class="fas fa-arrow-left"></i> Homepage
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="page-header">
+      <h2>Applicants</h2>
+    </div>
+
+    <div class="applicants-list">
+      {% if applicants %}
+        {% for applicant in applicants %}
+          <div class="applicant-card">
+            <div class="applicant-left">
+              <div class="profile-placeholder"></div>
+              <div>
+                <h4 class="applicant-name">{{ applicant.full_name }}</h4>
+                <div class="applicant-info">
+                  <span><i class="fas fa-map-marker-alt"></i> {{ applicant.location|default:"N/A" }}</span>
+                  <span><i class="fas fa-dollar-sign"></i> {{ applicant.experience|default:"Unknown" }} Years experience</span>
+                </div>
+              </div>
+            </div>
+            <div class="applicant-right">
+              <i class="far fa-bookmark save-icon"></i>
+              <button class="view-btn">
+                View Profile <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No applicants have viewed yet.</p>
+      {% endif %}
+    </div>
+
+  </section>
+</div>
+{% endblock %}

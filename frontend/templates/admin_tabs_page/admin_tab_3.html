@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin_tabs_page/admin_tab_3.css' %}">
+{% endblock %}
+
+{% block title %}Accept / Reject Employer | JobConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_1' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_2' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
+      </li>
+      <li class="menu-item active">
+        <a href=""><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_4' %}"><i class="fas fa-users"></i> Applicants</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'admin_tab_5' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
+      </li>
+    </ul>
+
+    <div class="logout-section">
+      <a href="{% url 'homepage' %}" class="logout-link">
+        <i class="fas fa-arrow-left"></i> Homepage
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="page-header">
+      <h2>Accept / Reject Employer</h2>
+    </div>
+
+    <div class="employer-list">
+      <!-- Header Row -->
+      <div class="employer-list-header">
+        <span>Job</span>
+        <span>Date Applied</span>
+        <span></span>
+      </div>
+
+      <!-- Employer Card 1 -->
+      <div class="employer-card">
+        <div class="employer-left">
+          <img src="{% static 'cover.png' %}" alt="Upwork" class="company-logo">
+          <p class="company-name">asas</p>
+        </div>
+        <div class="employer-center">
+          <p>Feb 2, 2019 19:28</p>
+        </div>
+        <div class="employer-right">
+          <button class="accept-btn">Accept <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Employer Card 2 -->
+      <div class="employer-card">
+        <div class="employer-left">
+          <img src="{% static 'cover.png' %}" alt="Dribbble" class="company-logo">
+          <p class="company-name">ASDSSSDASD</p>
+        </div>
+        <div class="employer-center">
+          <p>Dec 7, 2019 23:26</p>
+        </div>
+        <div class="employer-right">
+          <button class="accept-btn">Accept <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Employer Card 3 -->
+      <div class="employer-card">
+        <div class="employer-left">
+          <img src="{% static 'cover.png' %}" alt="Apple" class="company-logo">
+          <p class="company-name">ASDASDASDASDA</p>
+        </div>
+        <div class="employer-center">
+          <p>Feb 2, 2019 19:28</p>
+        </div>
+        <div class="employer-right">
+          <button class="accept-btn">Accept <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Employer Card 4 -->
+      <div class="employer-card">
+        <div class="employer-left">
+          <img src="{% static 'cover.png' %}" alt="Microsoft" class="company-logo">
+          <p class="company-name">SDASDSDASDASDAS</p>
+        </div>
+        <div class="employer-center">
+          <p>Dec 7, 2019 23:26</p>
+        </div>
+        <div class="employer-right">
+          <button class="accept-btn">Accept <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

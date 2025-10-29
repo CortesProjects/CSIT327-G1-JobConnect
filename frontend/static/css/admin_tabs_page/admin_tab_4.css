@@ -1,0 +1,173 @@
+.dashboard-layout {
+  display: flex;
+  background: #fff;
+  min-height: calc(100vh - 60px);
+}
+
+.sidebar {
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .menu-item {
+  display: block;
+  padding: 12px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.sidebar .menu-item.active {
+  background: #ffeaea;
+  color: #f54d4d;
+  font-weight: 500;
+}
+
+.menu-item a {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu-item.active a {
+  background: #ffecec;
+  color: #e74c3c;
+  font-weight: bold;
+  border-left: 4px solid #e74c3c;
+}
+
+.menu-item a i {
+  margin-right: 10px;
+}
+
+.logout-section {
+  margin-top: 40px;
+  padding: 0 20px;
+}
+
+.logout-link {
+  color: #999;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
+}
+
+.page-header h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.applicants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.applicant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px 25px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.applicant-card:hover {
+  border: 1px solid;
+  border-color: #f54d4d;
+  border-radius: 8px;
+  background: #fff7f7;
+}
+
+.applicant-card:hover .view-btn {
+  background: #ff4d4d;
+  border-color: #ff4d4d;
+  color: #fff;
+}
+
+.applicant-card:hover .applicant-name{
+  color: #e74c3c;
+}
+
+.applicant-card:hover .save-icon{
+  color: #e74c3c;
+}
+
+.profile-placeholder {
+  width: 60px;
+  height: 60px;
+  background: #ccc;
+  border-radius: 8px;
+}
+
+.applicant-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.applicant-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.applicant-info {
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  gap: 15px;
+  margin-top: 3px;
+}
+
+.applicant-info i {
+  color: #aaa;
+  margin-right: 3px;
+}
+
+.applicant-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.view-btn {
+  background: #ffe2e2;
+  border: 1px solid #ffb3b3;
+  color: #e74c3c;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn i {
+  margin-left: 5px;
+}
+
+.save-icon {
+  color: #767F8C;
+}
+
+.view-btn:hover {
+  background: #ffcccc;
+  transform: translateY(-2px);
+}

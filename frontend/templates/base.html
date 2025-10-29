@@ -18,7 +18,9 @@
 <body class="bg-white min-h-screen">
 
 <header class="header">
-    <div class="logo">JobConnect</div>
+    <div class="logo">
+        JobConnect
+    </div>
 
     <!-- User Actions (The new dropdown structure) -->
     <div class="user-actions">
@@ -59,6 +61,13 @@
                 <i class="fas fa-user-circle mr-3"></i>
                 View Profile
             </a>
+
+            {% if role == 'Admin' %}
+            <a href="{% url 'admin_tab_1' %}" class="dropdown-item">
+                <i class="fas fa-tools mr-3"></i>
+                Admin
+            </a>
+            {% endif %}
 
             <!-- Logout Button (The core requirement) -->
             <a href="{% url 'logout' %}" class="dropdown-item logout-item">

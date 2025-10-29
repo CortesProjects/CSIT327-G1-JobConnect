@@ -13,4 +13,9 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path("logout/", views.logout_view, name="logout"),
     path('base/', views.base, name='base'),
+    path('admin_tab_1', views.admin_tab_1, name='admin_tab_1'),
+    path('admin_tab_2', views.admin_tab_2, name='admin_tab_2'),
+    path('admin_tab_3', views.admin_tab_3, name='admin_tab_3'),
+    path('admin_tab_4', views.admin_tab_4, name='admin_tab_4'),
+    path('admin_tab_5', views.admin_tab_5, name='admin_tab_5'),
 ]
