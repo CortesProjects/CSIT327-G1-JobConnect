@@ -1,0 +1,156 @@
+/* Employer Dashboard Specific Styles */
+
+/* Employer Overview Header */
+.employer-header {
+    margin-bottom: 30px;
+}
+
+.employer-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.employer-header p {
+    color: #6c757d;
+}
+
+/* Recently Posted Jobs Table */
+.recently-posted-jobs {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.view-all-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+.jobs-table tbody tr.selected-row {
+    background-color: #f0f7ff;
+    border: 1px solid #007bff;
+}
+
+.job-title-cell {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.job-meta-info {
+    font-size: 13px;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+.applications-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #495057;
+}
+
+.applications-count i {
+    color: #6c757d;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-view-applications {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-view-applications:hover {
+    background-color: #0056b3;
+}
+
+.btn-action-menu {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+    position: relative;
+}
+
+.btn-action-menu:hover {
+    color: #495057;
+}
+
+.action-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    min-width: 150px;
+    margin-top: 5px;
+}
+
+.action-dropdown.show {
+    display: block;
+}
+
+.action-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+}
+
+.action-dropdown button:hover {
+    background-color: #f8f9fa;
+}
+
+.action-dropdown button:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.action-dropdown button:last-child {
+    border-radius: 0 0 6px 6px;
+}

@@ -1,0 +1,56 @@
+{% extends 'dashboard/applicant/applicant_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Applicant Dashboard - Overview{% endblock %}
+
+{% block dashboard_content %}
+<div class="main-content-header">
+    <h2>Hello, {{ user.first_name|default:user.username }}</h2>
+    <p>Here is your daily activities and job alerts</p>
+</div>
+
+<div class="stats-cards-container">
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-number">589</span>
+            <span class="stat-label">Applied jobs</span>
+        </div>
+        <div class="stat-icon-bg" style="background-color: #E7F0FF;">
+            <i class="fas fa-briefcase" style="color: #4D89FF;"></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-number">238</span>
+            <span class="stat-label">Favorite jobs</span>
+        </div>
+        <div class="stat-icon-bg" style="background-color: #FFF8E1;">
+            <i class="fas fa-bookmark" style="color: #FFC107;"></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-number">574</span>
+            <span class="stat-label">Job Alerts</span>
+        </div>
+        <div class="stat-icon-bg" style="background-color: #E8F5E9;">
+            <i class="fas fa-bell" style="color: #4CAF50;"></i>
+        </div>
+    </div>
+</div>
+
+{% if not user.profile.is_complete %}
+<div class="profile-completion-prompt">
+    <div class="prompt-content">
+        <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="prompt-profile-img">
+        <div class="prompt-text">
+            <h4>Your profile editing is not completed.</h4>
+            <p>Complete your profile editing & build your custom Resume</p>
+        </div>
+    </div>
+    <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="edit-profile-btn">
+        Edit Profile <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
+{% endif %}
+{% endblock %}

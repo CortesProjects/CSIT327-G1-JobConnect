@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/employer_profile_create.css' %}">
+{% endblock %}
+
+{% block title %}Profile Complete!{% endblock %}
+
+{% block content %}
+<main class="profile-completion-container">
+    <div class="completion-box">
+        <div class="completion-icon-wrapper">
+            {# Replaced Font Awesome with an SVG for the specific double checkmark icon #}
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="completion-svg-icon">
+                <path d="M9 13L13 18L22 7" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 13L5 18L14 7" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        
+        <h2>✨ Congratulations, Your profile is 100% complete!</h2>
+        <p>
+            Your business profile is now active. You can start posting jobs and connecting with top candidates immediately.
+        </p>
+        
+        <div class="completion-actions">
+            {# Changed class for "View Dashboard" to a custom one for specific styling #}
+            <a href="{% url 'dashboard:dashboard' %}" class="btn-completion-secondary">View Dashboard</a>
+            <a href="#" class="cta-btn save-next-btn">Post Job &rarr;</a>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{# If you have any JS specific to this page, include it here #}
+{% endblock %}
+```

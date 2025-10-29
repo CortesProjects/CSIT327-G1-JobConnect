@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/accounts/login.css' %}">
+{% endblock %}
+
+{% block title %}JobConnect - Sign In{% endblock %}
+
+{% block user_actions %}
+    {% endblock %}
+
+{% block content %}
+<div class="login-page-wrapper">
+    
+    <div class="login-form-container">
+        <a href="{% url 'home' %}" class="backbtn" title="Go back to Homepage">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
+        <div class="login-header-section">
+            <h2>Sign in.</h2>
+            <p>Don't have account? <a href="{% url 'accounts:register' %}" class="create-account-link">Create Account</a></p>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="alert error-message">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:login' %}" id="login-form">{% csrf_token %}
+            
+            <div class="field-container">
+                {{ form.username }} 
+                <div class="error-text" id="username-error">
+                    {% if form.username.errors %}{{ form.username.errors.0 }}{% endif %}
+                </div>
+            </div>
+
+            <div class="password-field field-container">
+                {{ form.password }}
+                <i class="fas fa-eye password-toggle"></i>
+                <div class="error-text" id="password-error">
+                    {% if form.password.errors %}{{ form.password.errors.0 }}{% endif %}
+                </div>
+            </div>
+
+            <div class="options-row">
+                <div class="checkbox-group">
+                    {% comment %} {{ form.remember_me }} {% endcomment %}
+                    <input type="checkbox" id="id_remember_me" name="remember_me">
+                    <label for="id_remember_me">Remember Me</label>
+                </div>
+                
+                <a href="#" class="forgot-password-link">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="cta-btn login-submit">
+                Sign In <i class="fas fa-arrow-right"></i>
+            </button>
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}" />
+            {% endif %}
+        </form>
+
+        <div class="separator">
+            <span>or</span>
+        </div> 
+        <div class="social-login">
+            <a style="text-decoration: none;" href="#" class="social-btn facebook-btn">
+                <i class="fab fa-facebook-f"></i> Sign in with Facebook
+            </a>
+            <a style="text-decoration: none;" href="#" class="social-btn google-btn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </a>
+        </div>
+    </div>
+
+    <div class="login-illustration-container">
+        <img src="{% static 'img/Illustration.png' %}" alt="Illustration of a person working on a laptop for login">
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %} 
+    <script src="{% static 'js/accounts/login.js' %}"></script>
+{% endblock %}

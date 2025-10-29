@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JobConnect - Find Your Dream Job{% endblock %}</title> 
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    
+    {% block extra_css %}
+    {% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">JobConnect</div>
+        {% if is_setup_page %}
+            <div id="header-progress-container" class="setup-progress-header">
+                <div class="progress-text-row">
+                    <span class="setup-text">Setup Progress</span>
+                    <span class="completion-percent">{{ progress_percent|default:0 }}% Completed</span>
+                </div>
+                <div class="progress-bar-base">
+                    <div class="progress-fill-base" style="width: {{ progress_percent|default:'0' }}%;">
+                        
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            {# Normal Header Layout #}
+            <div class="user-actions">
+                {% block user_actions %}
+                    {% if user.is_authenticated %}
+                        <div class="authenticated-controls">
+                            <a href="#" class="notification-bell">
+                                <i class="fas fa-bell"></i>
+                            </a>
+                            <div class="user-profile">
+                                <img src="{{ user.profile.image.url }}" alt="Profile Picture">
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="login">Login</a> 
+                        <a href="{% url 'accounts:register' %}" class="register-btn">Sign Up</a>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endif %}
+    </header>
+    
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="{% if 'error' in message.tags or 'danger' in message.tags %}alert error-message{% else %}alert{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    {% block footer %}
+    {% endblock %}
+
+    {% block extra_js %} 
+    {% endblock %} 
+</body>
+</html>

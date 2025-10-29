@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/accounts/register.css' %}">
+{% endblock %}
+
+{% block title %}JobConnect - Create Account{% endblock %}
+
+{% block user_actions %}
+    <!-- Hides login/signup buttons on the register page -->
+{% endblock %}
+
+{% block content %}
+<div class="register-page-wrapper">
+    
+    <div class="register-form-container">
+        <a href="{% url 'home' %}" class="backbtn" title="Go back to Homepage">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <form method="post" action="{% url 'accounts:register' %}" id="registration-form">{% csrf_token %}
+            <div class="register-header-row">
+                <h2>Create account.</h2>
+                <div class="select-wrapper">
+                    {{ form.account_type }}
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+            </div>
+            <div class="error-text" id="account-type-error">
+                {% if form.account_type.errors %}
+                    {% for error in form.account_type.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        <p>Already have account? <a href="{% url 'accounts:login' %}" class="log-in-link">Log In</a></p>
+        {% if form.non_field_errors %}
+            <div class="alert error-message">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+            
+            <div class="form-group-row">
+                <div class="field-container">
+                    {{ form.full_name }}
+                    <div class="error-text" id="full-name-error">
+                        {# Display client-side error AND server-side errors here #}
+                        {% if form.full_name.errors %}
+                            {% for error in form.full_name.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="field-container">
+                    {{ form.username }}
+                    <div class="error-text" id="username-error">
+                        {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="field-container">
+                {{ form.email }}
+                <div class="error-text" id="email-error">
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="password-field field-container">
+                {{ form.password1 }}
+                <i class="fas fa-eye password-toggle"></i>
+                <div class="error-text" id="password1-error">
+                    {% if form.password1.errors %}
+                        {% for error in form.password1.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="password-field field-container">
+                {{ form.password2 }}
+                <i class="fas fa-eye password-toggle"></i>
+                <div class="error-text" id="password2-error">
+                    {% if form.password2.errors %}
+                        {% for error in form.password2.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="checkbox-group">
+                {{ form.terms_and_conditions }}
+                <label for="{{ form.terms_and_conditions.id_for_label }}">
+                    I've read and agree with your <a href="#" class="terms-link">Terms of Services</a>
+                </label>
+            </div>
+            <div class="error-text" id="terms-error">
+                {% if form.terms_and_conditions.errors %}{{ form.terms_and_conditions.errors.0 }}{% endif %}
+            </div>
+        
+            <button type="submit" class="cta-btn register-submit">
+                Create Account <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+    
+        <div class="separator">
+            <span>or</span>
+        </div>    
+        <div class="social-login">
+            <a style="text-decoration: none;" href="#" class="social-btn facebook-btn">
+                <i class="fab fa-facebook-f"></i> Sign up with Facebook
+            </a>
+            <a style="text-decoration: none;" href="#" class="social-btn google-btn">
+                <i class="fab fa-google"></i> Sign up with Google
+            </a>
+        </div>
+    </div>
+
+    <div class="register-illustration-container">
+        <img src="{% static 'img/Illustration.png' %}" alt="Illustration of person creating an account">
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %} 
+    <script src="{% static 'js/accounts/register.js' %}"></script>
+{% endblock %}  

@@ -1,0 +1,9 @@
+Django==4.2.25
+dj-database-url==3.0.1
+django-storages==1.14.6
+boto3==1.40.54
+python-dotenv==1.1.1
+whitenoise==6.11.0
+psycopg2-binary==2.9.11
+Pillow==11.3.0
+gunicorn==21.2.0

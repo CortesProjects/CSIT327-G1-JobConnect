@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/employer_profile_create.css' %}">
+{% endblock %}
+
+{% block title %}Employer Profile - Contact{% endblock %}
+
+{% block content %}
+<div class="step-navigation-wrapper">
+    <section class="step-navigation">
+        {# Step 1: Company Info (Always clickable from here) #}
+        <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link">
+            <i class="fas fa-building icon-left"></i> Company Info
+        </a>
+        
+        {# Step 2: Founding Info (Always clickable from here) #}
+        <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="step-link">
+            <i class="fas fa-info-circle icon-left"></i> Founding Info
+        </a>
+        
+        {# Step 3: Contact (Active step) #}
+        <div class="step-link active">
+            <i class="fas fa-envelope icon-left"></i> Contact
+        </div>
+    </section>
+</div>
+
+<main class="profile-setup-container">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            
+            {# --- Phone Input --- #}
+            <h2>Phone</h2>
+            <div class="input-group-row phone-input-group">
+                {# ADJUSTED: Added class to make the phone prefix column narrower #}
+                <div class="field-container phone-prefix narrow-prefix">
+                    <label for="phone-code-select">Code</label>
+                    <select class="form-select phone-code" id="phone-code-select" name="phone_country_code">
+                        <option value="+880" selected>+880</option>
+                        <option value="+63">+63 (PH)</option>
+                        <option value="+1">+1 (US/CA)</option>
+                    </select>
+                </div>
+                
+                
+                {# Phone Number Field (Django field) #}
+                <div class="field-container phone-number-input">
+                    <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}<div class="error-text">{{ form.phone_number.errors }}</div>{% endif %}
+                </div>
+            </div>
+
+            {# --- Email Input --- #}
+            <h2>Email</h2>
+            <div class="field-container">
+                <label for="{{ form.contact_email.id_for_label }}">Contact Email Address</label>
+                {{ form.contact_email }}
+                {% if form.contact_email.errors %}<div class="error-text">{{ form.contact_email.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-navigation-row">
+            {# The 'Previous' button uses prev_url passed from the view #}
+            <a href="{% url prev_url %}" class="btn btn-secondary">Previous</a>
+            
+            <button type="submit" class="cta-btn save-next-btn">
+                Finish Editing &rarr;
+            </button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{# Reusing the employer profile JS for consistency #}
+<script src="{% static 'js/employer_profile.js' %}"></script>
+{% endblock %}

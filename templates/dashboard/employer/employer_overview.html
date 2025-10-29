@@ -1,0 +1,220 @@
+{% extends 'dashboard/employer/employer_dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="employer-overview">
+    <div class="employer-header">
+        <h2>Hello, {{ user.first_name|default:user.username }}</h2>
+        <p>Here is your daily activities and applications</p>
+    </div>
+
+    <div class="stats-cards-container">
+        <div class="stat-card">
+            <div class="stat-info">
+                <span class="stat-number">589</span>
+                <span class="stat-label">Open Jobs</span>
+            </div>
+            <div class="stat-icon-bg blue">
+                <i class="fas fa-briefcase"></i>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <span class="stat-number">2,517</span>
+                <span class="stat-label">Saved Candidates</span>
+            </div>
+            <div class="stat-icon-bg yellow">
+                <i class="fas fa-bookmark"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="recently-posted-jobs">
+        <div class="section-header">
+            <h3>Recently Posted Jobs</h3>
+            <a href="#" class="view-all-link">
+                View all <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="jobs-table-wrapper">
+            <table class="jobs-table">
+                <thead>
+                    <tr>
+                        <th>JOBS</th>
+                        <th>STATUS</th>
+                        <th>APPLICATIONS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="job-title-cell">UI/UX Designer</div>
+                            <div class="job-meta-info">Full Time • 27 days remaining</div>
+                        </td>
+                        <td>
+                            <span class="status-badge active">
+                                <i class="fas fa-circle"></i> Active
+                            </span>
+                        </td>
+                        <td>
+                            <span class="applications-count">
+                                <i class="fas fa-users"></i> 798 Applications
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn-view-applications">View Applications</a>
+                                <button class="btn-action-menu" onclick="toggleActionMenu(event)">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button><i class="fas fa-eye"></i> View Detail</button>
+                                    <button><i class="fas fa-times-circle"></i> Mark as expired</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="job-title-cell">Senior UX Designer</div>
+                            <div class="job-meta-info">Internship • 8 days remaining</div>
+                        </td>
+                        <td>
+                            <span class="status-badge active">
+                                <i class="fas fa-circle"></i> Active
+                            </span>
+                        </td>
+                        <td>
+                            <span class="applications-count">
+                                <i class="fas fa-users"></i> 185 Applications
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn-view-applications">View Applications</a>
+                                <button class="btn-action-menu" onclick="toggleActionMenu(event)">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button><i class="fas fa-eye"></i> View Detail</button>
+                                    <button><i class="fas fa-times-circle"></i> Mark as expired</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="selected-row">
+                        <td>
+                            <div class="job-title-cell">Technical Support Specialist</div>
+                            <div class="job-meta-info">Part Time • 4 days remaining</div>
+                        </td>
+                        <td>
+                            <span class="status-badge active">
+                                <i class="fas fa-circle"></i> Active
+                            </span>
+                        </td>
+                        <td>
+                            <span class="applications-count">
+                                <i class="fas fa-users"></i> 556 Applications
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn-view-applications">View Applications</a>
+                                <button class="btn-action-menu" onclick="toggleActionMenu(event)">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button><i class="fas fa-eye"></i> View Detail</button>
+                                    <button><i class="fas fa-times-circle"></i> Mark as expired</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="job-title-cell">Junior Graphic Designer</div>
+                            <div class="job-meta-info">Full Time • 24 days remaining</div>
+                        </td>
+                        <td>
+                            <span class="status-badge active">
+                                <i class="fas fa-circle"></i> Active
+                            </span>
+                        </td>
+                        <td>
+                            <span class="applications-count">
+                                <i class="fas fa-users"></i> 583 Applications
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn-view-applications">View Applications</a>
+                                <button class="btn-action-menu" onclick="toggleActionMenu(event)">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button><i class="fas fa-eye"></i> View Detail</button>
+                                    <button><i class="fas fa-times-circle"></i> Mark as expired</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="job-title-cell">Front End Developer</div>
+                            <div class="job-meta-info">Full Time • Dec 7, 2019</div>
+                        </td>
+                        <td>
+                            <span class="status-badge expired">
+                                <i class="fas fa-circle"></i> Expire
+                            </span>
+                        </td>
+                        <td>
+                            <span class="applications-count">
+                                <i class="fas fa-users"></i> 740 Applications
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn-view-applications">View Applications</a>
+                                <button class="btn-action-menu" onclick="toggleActionMenu(event)">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button><i class="fas fa-eye"></i> View Detail</button>
+                                    <button><i class="fas fa-times-circle"></i> Mark as expired</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleActionMenu(event) {
+    event.stopPropagation();
+    const dropdown = event.currentTarget.nextElementSibling;
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.action-dropdown').forEach(d => {
+        if (d !== dropdown) {
+            d.classList.remove('show');
+        }
+    });
+    
+    // Toggle current dropdown
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function() {
+    document.querySelectorAll('.action-dropdown').forEach(d => {
+        d.classList.remove('show');
+    });
+});
+</script>
+{% endblock %}

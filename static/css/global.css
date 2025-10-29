@@ -1,0 +1,213 @@
+:root {
+    --primary-color: #CC0A0D; 
+    --secondary-color: #FFCFD0;
+    --text-color-dark: #333333;
+    --text-color-light: #666666;
+    --bg-light: #F9F9F9;
+    --bg-white: #FFFFFF;
+    --border-color: #EEEEEE;
+    --success-green: #4CAF50;
+    --error-color: #dc3545; 
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif; 
+}
+
+body {
+    background-color: var(--bg-white);
+    color: var(--text-color-dark);
+    line-height: 1.6;
+    padding-top: 70px;
+}
+
+main {
+    padding: 0; 
+}
+
+.page-content-wrapper {
+    padding: 0 10%; 
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 40px 0;
+}
+
+/* --- Buttons and Utility Classes --- */
+.register-btn, .search-btn, .apply-btn, .cta-btn, .login, .logout {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.search-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}
+
+.view-all {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid rgb(77, 77, 77);
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.bg-green { background-color: var(--success-green); }
+.bg-dark { background-color: var(--text-color-dark); }
+.bg-red { background-color: var(--primary-color); }
+
+/* --- Header Styles --- */
+.header {
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    right: 0; 
+    width: 100%; 
+    z-index: 1000; 
+    background-color: var(--bg-white); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10%;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+.logo::before {
+    content: ''; 
+    width: 28px; 
+    height: 28px;
+    background-image: url('../img/logo.png'); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent; 
+}
+
+.nav a {
+    text-decoration: none;
+    color: var(--text-color-dark);
+    margin-left: 25px;
+    font-size: 14px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+}
+
+.user-actions .login {
+    text-decoration: none;
+    color: var(--primary-color);
+    background-color: transparent;
+    margin-right: 0;
+    border: 1px solid var(--primary-color);
+}
+.user-actions .login:hover {
+    background-color: var(--secondary-color);
+}
+
+.user-actions .register-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}
+.user-actions .register-btn:hover {
+    opacity: 0.9;
+}
+
+.authenticated-controls {
+    display: flex;
+    align-items: center;
+    gap: 25px; 
+}
+
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px; 
+    cursor: pointer; 
+}
+
+.user-profile img {
+    width: 42px;                 
+    height: 42px;              
+    border-radius: 50%;         
+    object-fit: cover;         
+    border: 2px solid var(--border-color); 
+    background-color: #e0e0e0;   
+    flex-shrink: 0;              
+}
+
+.user-profile .welcome {
+    font-weight: 600;
+    color: var(--text-color-dark);
+    white-space: nowrap; 
+}
+
+.notification-bell {
+    font-size: 1.5rem; 
+    color: var(--text-color-light);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.notification-bell:hover {
+    color: var(--primary-color);
+}
+
+.logout {
+    color: var(--text-color-light);
+    font-size: 14px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+}
+.logout:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.alert.error-message {
+    background-color: var(--secondary-color); 
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.alert.error-message p {
+    margin: 0;
+    font-weight: 500;
+}

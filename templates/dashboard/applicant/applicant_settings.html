@@ -1,0 +1,380 @@
+{% extends 'dashboard/applicant/applicant_dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="settings-container">
+    <div class="settings-header">
+        <h2>Settings</h2>
+        <div class="settings-nav">
+            <a href="#personal" data-tab="personal" class="active">Personal</a>
+            <a href="#profile" data-tab="profile" >Profile</a>
+            <a href="#social" data-tab="social">Social Links</a>
+            <a href="#account" data-tab="account">Account Setting</a>
+        </div>
+    </div>
+
+    <!-- Personal Tab -->
+    <div class="settings-content" id="personal-tab" >
+        <div class="basic-information">
+            <h3>Basic Information</h3>
+            <div class="form-row">
+                <div class="form-group profile-picture">
+                    <label>Profile Picture</label>
+                    <div class="file-upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p><span>Browse photo</span> or drop here</p>
+                        <small>A photo is 10x more likely to get a response. Max photo size 5 MB.</small>
+                    </div>
+                </div>
+                <div class="form-group-wrapper">
+                    <div class="form-group">
+                        <label for="full-name">Full name</label>
+                        <input type="text" id="full-name" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="title-headline">Tittle/headline</label>
+                        <input type="text" id="title-headline" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Experience</label>
+                        <select id="experience">
+                            <option>Select...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="education">Educations</label>
+                        <select id="education">
+                            <option>Select...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="personal-website">Personal Website</label>
+                        <input type="text" id="personal-website" placeholder="Website url...">
+                    </div>
+                </div>
+            </div>
+            <button class="btn-save">Save Changes</button>
+        </div>
+
+        <div class="cv-resume-section">
+            <h3>Your CV/Resume</h3>
+            <div class="resume-list">
+                <div class="resume-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="resume-info">
+                        <p>Professional Resume</p>
+                        <small>3.3 MB</small>
+                    </div>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="resume-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="resume-info">
+                        <p>Product Designer</p>
+                        <small>4.7 MB</small>
+                    </div>
+                    <div class="resume-actions">
+                        <button class="btn-edit-resume">Edit Resume</button>
+                        <button class="btn-delete-resume">Delete</button>
+                    </div>
+                    <i class="fas fa-ellipsis-h menu-icon"></i>
+                </div>
+                <div class="resume-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="resume-info">
+                        <p>Visual Designer</p>
+                        <small>1.3 MB</small>
+                    </div>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="add-resume-item" id="addCvBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    <p>Add CV/Resume</p>
+                    <small>Browse file or drop here, only pdf</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="settings-content" id="profile-tab" style="display: none;">
+        <div class="profile-form-section">
+            <div class="form-row-two-columns">
+                <div class="form-group">
+                    <label for="nationality">Nationality</label>
+                    <select id="nationality">
+                        <option>Select...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date-of-birth">Date of Birth</label>
+                    <div class="input-with-icon">
+                        <input type="text" id="date-of-birth" placeholder="dd/mm/yyyy">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row-two-columns">
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option>Select...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="marital-status">Marital Status</label>
+                    <select id="marital-status">
+                        <option>Select...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-two-columns">
+                <div class="form-group">
+                    <label for="education-profile">Education</label>
+                    <select id="education-profile">
+                        <option>Select...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="experience-profile">Experience</label>
+                    <select id="experience-profile">
+                        <option>Select...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="biography">Biography</label>
+                <div class="rich-text-editor">
+                    <textarea id="biography" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
+                    <div class="editor-toolbar">
+                        <button type="button" class="editor-btn"><i class="fas fa-bold"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-italic"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-underline"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-strikethrough"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-link"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-list-ul"></i></button>
+                        <button type="button" class="editor-btn"><i class="fas fa-list-ol"></i></button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-save">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Social Links Tab -->
+    <div class="settings-content" id="social-tab" style="display: none;">
+        <div class="social-links-form-section">
+            <div class="social-link-item">
+                <label>Social Link 1</label>
+                <div class="social-link-input-group">
+                    <select class="social-platform-select">
+                        <option value="facebook"><i class="fab fa-facebook"></i> Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">Youtube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
+                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
+                </div>
+            </div>
+            <div class="social-link-item">
+                <label>Social Link 2</label>
+                <div class="social-link-input-group">
+                    <select class="social-platform-select">
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter" selected>Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">Youtube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
+                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
+                </div>
+            </div>
+            <div class="social-link-item">
+                <label>Social Link 2</label>
+                <div class="social-link-input-group">
+                    <select class="social-platform-select">
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram" selected>Instagram</option>
+                        <option value="youtube">Youtube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
+                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
+                </div>
+            </div>
+            <div class="social-link-item">
+                <label>Social Link 3</label>
+                <div class="social-link-input-group">
+                    <select class="social-platform-select">
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube" selected>Youtube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
+                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
+                </div>
+            </div>
+            <button type="button" class="btn-add-social-link">
+                <i class="fas fa-plus-circle"></i> Add New Social Link
+            </button>
+            <button class="btn-save">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Account Settings Tab -->
+    <div class="settings-content" id="account-tab" style="display: none;">
+        <div class="account-settings-section">
+            <div class="account-section-block">
+                <h3>Contact Info</h3>
+                <div class="form-row-two-columns">
+                    <div class="form-group">
+                        <label for="phone-number">Phone</label>
+                        <div class="phone-input-group">
+                            <select class="country-code-select">
+                                <option value="+880">🇧🇩 +880</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                            </select>
+                            <input type="text" id="phone-number" placeholder="Phone number...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-address">Email</label>
+                        <input type="email" id="email-address" placeholder="Email address...">
+                    </div>
+                </div>
+                <button class="btn-save">Save Changes</button>
+            </div>
+
+            <div class="account-section-block">
+                <h3>Notification</h3>
+                <div class="notification-checkboxes">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="notify-shortlisted" checked>
+                        <label for="notify-shortlisted">Notify me when employers shortlist me</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="notify-applications">
+                        <label for="notify-applications">Notify me when my applications are open</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="notify-job-alerts" checked>
+                        <label for="notify-job-alerts">Notify me when I have an job alerts</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-section-block">
+                <h3>Job Alerts</h3>
+                <div class="form-row-two-columns">
+                    <div class="form-group">
+                        <label for="job-role">Role</label>
+                        <input type="text" id="job-role" placeholder="Your job roles">
+                    </div>
+                    <div class="form-group">
+                        <label for="job-location">Location</label>
+                        <input type="text" id="job-location" placeholder="City, state, country name">
+                    </div>
+                </div>
+                <button class="btn-save">Save Changes</button>
+            </div>
+
+            <div class="account-section-block">
+                <h3>Profile Privacy</h3>
+                <div class="privacy-toggle-row">
+                    <div class="privacy-info">
+                        <label class="toggle-label">
+                            <input type="checkbox" class="privacy-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="privacy-status">Yes</span>
+                    </div>
+                    <span class="privacy-description">Your profile is public now</span>
+                </div>
+            </div>
+
+            <div class="account-section-block">
+                <h3>Resume Privacy</h3>
+                <div class="privacy-toggle-row">
+                    <div class="privacy-info">
+                        <label class="toggle-label">
+                            <input type="checkbox" class="privacy-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="privacy-status">No</span>
+                    </div>
+                    <span class="privacy-description">Your resume is private now</span>
+                </div>
+            </div>
+
+            <div class="account-section-block">
+                <h3>Change Password</h3>
+                <div class="form-row-three-columns">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" id="current-password" placeholder="Password">
+                            <i class="fas fa-eye toggle-password"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" id="new-password" placeholder="Password">
+                            <i class="fas fa-eye toggle-password"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" id="confirm-password" placeholder="Password">
+                            <i class="fas fa-eye toggle-password"></i>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-save">Save Changes</button>
+            </div>
+
+            <div class="account-section-block delete-account-section">
+                <h3>Delete Your Account</h3>
+                <p class="delete-warning">If you delete your JobConnect account, you will no longer be able to get information about the matched jobs, following employers, and job alerts. You will be abandoned from all the services of JobConnect.</p>
+                <button class="btn-delete-account">Close Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add CV/Resume Modal -->
+<div id="addCvModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add CV/Resume</h2>
+            <span class="close-button">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="cv-name">CV/Resume Name</label>
+                <input type="text" id="cv-name" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>Upload your CV/Resume</label>
+                <div class="file-upload-modal">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><span>Browse File</span> or drop here</p>
+                    <small>Only PDF format available. Max file size 12 MB.</small>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel">Cancel</button>
+            <button class="btn-add-cv">Add CV/Resume</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

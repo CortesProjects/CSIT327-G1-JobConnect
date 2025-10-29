@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/employer_profile_create.css' %}">
+{% endblock %}
+
+{% block title %}Employer Profile - Company Info{% endblock %}
+
+{% block content %}
+
+
+<main class="profile-setup-container">
+    <div class="step-navigation-wrapper">
+    <section class="step-navigation">
+        {# Step 1: Company Info (ALWAYS ACTIVE/CLICKABLE ON THIS PAGE) #}
+    <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link active">
+        <i class="fas fa-building icon-left"></i> Company Info
+    </a>
+    
+    {# Step 2: Founding Info #}
+    {% if current_step >= 2 %}
+        {# If user has completed step 1 (i.e., current_step >= 2), make it clickable #}
+        <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="step-link {% if current_step == 2 %}active{% endif %}">
+            <i class="fas fa-info-circle icon-left"></i> Founding Info
+        </a>
+    {% else %}
+        {# If user has NOT completed step 1, render as non-clickable text #}
+        <span class="step-link">
+            <i class="fas fa-info-circle icon-left"></i> Founding Info
+        </span>
+    {% endif %}
+    
+    {# Step 3: Contact #}
+    {% if current_step >= 3 %}
+        {# If user has completed step 2 (i.e., current_step >= 3), make it clickable #}
+        <a href="{% url 'employer_profile:employer_profile_setup_step3' %}" class="step-link {% if current_step == 3 %}active{% endif %}">
+            <i class="fas fa-envelope icon-left"></i> Contact
+        </a>
+    {% else %}
+        {# If user has NOT completed step 2, render as non-clickable text #}
+        <span class="step-link">
+            <i class="fas fa-envelope icon-left"></i> Contact
+        </span>
+    {% endif %}
+    </section>
+</div>
+    <form method="post" enctype="multipart="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            <h2>Logo & Business Permit</h2>
+            <div class="upload-group-row">
+                
+                {# LEFT UPLOAD AREA: Logo #}
+                <div class="upload-column">
+                    <h3 class="upload-column-title">Company Logo</h3>
+                    <label for="{{ form.logo.id_for_label }}" class="upload-area square-logo-area">
+                        <input type="file" id="{{ form.logo.id_for_label }}" name="{{ form.logo.name }}" accept="image/*" class="actual-file-input">
+                        <div class="upload-content-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>Browse photo or drop here</h4>
+                            <p class="upload-hint">A photo larger than 400 pixels work best. Max photo size 5 Mb.</p>
+                        </div>
+                        <div class="file-attached-display" style="display: none;"> {# Content to show when file attached #}
+                            <span class="file-name"></span>
+                            <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                        <span class="upload-label"></span>
+                    </label>
+                    {% if form.logo.errors %}<div class="error-text">{{ form.logo.errors }}</div>{% endif %}
+                </div>
+                
+                {# RIGHT UPLOAD AREA: Business Permit #}
+                <div class="upload-column">
+                    <h3 class="upload-column-title">Business Permit</h3> {# NEW TITLE #}
+                    <label for="{{ form.business_permit.id_for_label }}" class="upload-area business-permit-area">
+                        <input type="file" id="{{ form.business_permit.id_for_label }}" name="{{ form.business_permit.name }}" accept="image/*, application/pdf" class="actual-file-input">
+                        <div class="upload-content-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>Browse photo or drop here</h4>
+                            <p class="upload-hint">Banner images optical dimension 1920x400. Supported format JPEG, PNG, PDF. Max photo size 5 Mb.</p>
+                        </div>
+                        <div class="file-attached-display" style="display: none;">
+                            <span class="file-name"></span>
+                            <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                        <span class="upload-label"></span>
+                    </label>
+                    {% if form.business_permit.errors %}<div class="error-text">{{ form.business_permit.errors }}</div>{% endif %}
+                </div>
+            </div>
+            
+            {% comment %} Moved error messages into their respective upload-column divs above {% endcomment %}
+        </div>
+        <hr>
+        <div class="form-section-card">
+            <h2>Personal Information</h2>
+            
+            <div class="input-group-row">
+                {# Username (Read-only from User model) #}
+                <div class="field-container">
+                    <label>Username</label>
+                    <input type="text" value="{{ user.username }}" class="form-control" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                    <small class="form-text text-muted">Username cannot be changed</small>
+                </div>
+            </div>
+            
+            <div class="input-group-row">
+                {# First Name, Middle Name, Last Name #}
+                <div class="field-container">
+                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<div class="error-text">{{ form.first_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="field-container">
+                    <label for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
+                    {{ form.middle_name }}
+                    {% if form.middle_name.errors %}<div class="error-text">{{ form.middle_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="field-container">
+                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}<div class="error-text">{{ form.last_name.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="form-section-card">
+            <h2>Company name</h2>
+            <div class="field-container">
+                {{ form.company_name }} 
+                {% if form.company_name.errors %}<div class="error-text">{{ form.company_name.errors }}</div>{% endif %}
+            </div>
+            <h2>About Us</h2>
+            <div class="field-container">
+                {{ form.about_us }}
+                <div id="about-us-editor" class="form-control" contenteditable="true" 
+                    data-linked-input="#{{ form.about_us.id_for_label }}">
+                    Write down about your company here. Let the candidate know who we are...
+                </div>
+               <div class="rich-text-toolbar">
+                    <button type="button" data-command="bold">B</button>
+                    <button type="button" data-command="italic">I</button>
+                    <button type="button" data-command="underline">U</button>
+                    <button type="button" data-command="strikeThrough"><i class="fas fa-s"></i></button>
+                    <button type="button" data-command="createLink"><i class="fas fa-link"></i></button> 
+                    
+                    {# List Commands #}
+                    <button type="button" data-command="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+                    <button type="button" data-command="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+
+                    {# --- NEW INDENTATION BUTTONS --- #}
+                    <button type="button" data-command="indent"><i class="fas fa-indent"></i></button>
+                    <button type="button" data-command="outdent"><i class="fas fa-outdent"></i></button>
+                    {# --------------------------------- #}
+                </div>
+                {% if form.about_us.errors %}<div class="error-text">{{ form.about_us.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-navigation-row">
+            <button type="submit" class="cta-btn save-next-btn" id="submit">Save & Next &rarr;</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile_setup/employer_profile_create.js' %}"></script>
+{% endblock %}

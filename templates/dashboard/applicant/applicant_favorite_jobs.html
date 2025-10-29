@@ -1,0 +1,58 @@
+{% extends 'dashboard/applicant/applicant_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Favorite Jobs{% endblock %}
+
+{% block dashboard_content %}
+<div class="favorite-jobs-container">
+    <h2 class="container-title">Favorite Jobs (17)</h2>
+    <div class="favorite-jobs-list">
+        <!-- Sample Job Card 1 -->
+        <div class="job-card">
+            <div class="job-card-main">
+                <img src="https://via.placeholder.com/40" alt="Company Logo" class="company-logo">
+                <div class="job-card-details">
+                    <span class="job-title">Technical Support Specialist</span>
+                    <span class="job-type-badge full-time">Full Time</span>
+                    <div class="job-meta">
+                        <span><i class="fas fa-map-marker-alt"></i> Idaho, USA</span>
+                        <span><i class="fas fa-dollar-sign"></i> $15k-$20k</span>
+                        <span class="job-expiry"><i class="fas fa-clock"></i> Job Expire</span>
+                    </div>
+                </div>
+            </div>
+            <div class="job-card-action">
+                <a href="#" class="action-btn disabled">Deadline Expired</a>
+            </div>
+        </div>
+        <!-- Sample Job Card 2 (Active) -->
+        <div class="job-card active">
+            <div class="job-card-main">
+                <img src="https://via.placeholder.com/40" alt="Company Logo" class="company-logo">
+                <div class="job-card-details">
+                    <span class="job-title">Senior UX Designer</span>
+                    <span class="job-type-badge full-time">Full Time</span>
+                    <div class="job-meta">
+                        <span><i class="fas fa-map-marker-alt"></i> United Kingdom of Great Britain</span>
+                        <span><i class="fas fa-dollar-sign"></i> $30k-$35k</span>
+                        <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
+                    </div>
+                </div>
+            </div>
+            <div class="job-card-action">
+                <a href="#" class="action-btn active">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <!-- Add more job cards as needed -->
+    </div>
+    <div class="pagination-container">
+        <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
+        <a href="#" class="pagination-number active">01</a>
+        <a href="#" class="pagination-number">02</a>
+        <a href="#" class="pagination-number">03</a>
+        <a href="#" class="pagination-number">04</a>
+        <a href="#" class="pagination-number">05</a>
+        <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
+    </div>
+</div>
+{% endblock %}

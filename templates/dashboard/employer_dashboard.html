@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Employer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Employer Dashboard</h1>
+    <p>Welcome, {{ user.full_name|default:user.username }}!</p>
+    <p>This is your dashboard. More content to come.</p>
+</div>
+{% endblock %}

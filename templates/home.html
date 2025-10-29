@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block title %}JobConnect - Home{% endblock %}
+
+{% block content %}
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Find a job that suits your interest & skills.</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Job Title, Keyword...">
+                <input type="text" placeholder="Location">
+                <button class="search-btn">Search</button>
+            </div>
+            <p class="search-hint">Popular Searches: UI Designer, UX Designer, Product Manager</p>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'img/Illustration.png' %}" alt="Illustration of person finding a job">
+        </div>
+    </section>
+    
+    <div class="page-content-wrapper">
+        <section class="stats-section-wrapper">
+            <div class="stats-section">
+                <div class="stat-card">
+                    <span class="stat-icon-wrapper">
+                        <i class="fas fa-briefcase"></i>
+                    </span>
+                    <div class="stat-text"> 
+                        <p class="stat-number">175,324</p>
+                        <p class="stat-label">Live Job</p>
+                    </div> 
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon-wrapper">
+                        <i class="fas fa-building"></i>
+                    </span>
+                    <div class="stat-text"> 
+                        <p class="stat-number">97,354</p>
+                        <p class="stat-label">Companies</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon-wrapper">
+                        <i class="fas fa-users"></i>
+                    </span>
+                    <div class="stat-text"> 
+                        <p class="stat-number">38,47,154</p>
+                        <p class="stat-label">Candidates</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon-wrapper">
+                        <i class="fas fa-thumbs-up"></i>
+                    </span>
+                    <div class="stat-text"> 
+                        <p class="stat-number">7,532</p>
+                        <p class="stat-label">Total Jobs</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <hr>
+
+        <section class="popular-category-section">
+            <div class="section-header">
+                <h2>Popular category</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="category-grid">
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-palette"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Graphics & Design</h4>
+                        <p>195 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-code"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Code & Programming</h4>
+                        <p>125 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-bullhorn"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Digital Marketing</h4>
+                        <p>110 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-video"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Video & Animation</h4>
+                        <p>140 Jobs</p>
+                    </div>  
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-music"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Music & Audio</h4>
+                        <p>255 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-chart-line"></i>
+                    </span> 
+                    <div class="category-text-content">
+                        <h4>Account & Finance</h4>
+                        <p>97 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-heartbeat"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Health & Care</h4>
+                        <p>65 Jobs</p>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon-wrapper">
+                        <i class="fas fa-flask"></i>
+                    </span>
+                    <div class="category-text-content">
+                        <h4>Data & Science</h4>
+                        <p>115 Jobs</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <section class="featured-jobs-section">
+            <div class="section-header">
+                <h2>Featured job</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="job-list">
+                <div class="job-card">
+                    <div class="job-info-left">
+                        <span class="company-logo bg-dark">A</span> 
+                        <div class="job-details">
+                            <div class="job-title-line">
+                                <h4>Senior UX Designer</h4> 
+                                <span class="badge">Full Time</span>
+                            </div>
+                            <div class="job-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> New York, USA</span>
+                                <span><i class="fas fa-money-bill-wave"></i> $12k - $15k</span>
+                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-info-left">
+                        <span class="company-logo bg-dark">B</span> 
+                        <div class="job-details">
+                            <div class="job-title-line">
+                                <h4>Software Engineer</h4> 
+                                <span class="badge ">Full Time</span>
+                            </div>
+                            <div class="job-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> China</span>
+                                <span><i class="fas fa-money-bill-wave"></i> $50K-$60K</span>
+                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-info-left">
+                        <span class="company-logo bg-dark">C</span> 
+                        <div class="job-details">
+                            <div class="job-title-line">
+                                <h4>Junior Graphic Designer</h4> 
+                                <span class="badge">Full Time</span>
+                            </div>
+                            <div class="job-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Canada </span>
+                                <span><i class="fas fa-money-bill-wave"></i> $50k - $70k</span>
+                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <section class="cta-section">
+            <div class="cta-card candidate-cta">
+                <h3>Become a Candidate</h3>
+                <p>Register and explore thousands of job opportunities.</p>
+                <a href="{% url 'accounts:register' %}?account_type=applicant" class="cta-btn light">Register Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="cta-card employer-cta">
+                <h3>Become an Employer</h3>
+                <p>Post your job vacancies and hire the best talent.</p>
+                <a href="{% url 'accounts:register' %}?account_type=employer" class="cta-btn dark">Register Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+    </div> 
+
+{% endblock content %}
+
+{% block footer %}
+<footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="logo">JobConnect</div>
+                <p>Find the job that suits your skills.</p>
+                <p>Call: +63 9223344222</p>
+                <p>Cebu City</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li> 
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Candidate</h4>
+                <ul>
+                    <li><a href="#">Browse Jobs</a></li>
+                    <li><a href="#">Browse Employers</a></li> 
+                    <li><a href="#">Candidate Dashboard</a></li>
+                    <li><a href="#">Saved Jobs</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Employer</h4>
+                <ul>
+                    <li><a href="#">Post a Job</a></li>
+                    <li><a href="#">Browse Candidates</a></li> 
+                    <li><a href="#">Employers Dashboard</a></li>
+                    <li><a href="#">Applications</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Support</h4>
+                 <ul>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Privacy Policy</a></li> 
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 JobConnect. All rights reserved.</p>
+            <div class="social-icons">
+                <i class="fab fa-facebook-f"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-linkedin-in"></i>
+            </div>
+        </div>
+    </footer>
+
+    {% endblock footer %}
