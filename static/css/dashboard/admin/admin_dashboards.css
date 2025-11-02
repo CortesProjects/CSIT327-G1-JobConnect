@@ -1,0 +1,137 @@
+.dashboard-layout {
+  display: flex;
+  background: #fff;
+  min-height: calc(100vh - 60px);
+}
+
+.sidebar {
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .menu-item {
+  display: block;
+  padding: 12px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.sidebar .menu-item.active {
+  background: #ffeaea;
+  color: #f54d4d;
+  font-weight: 500;
+}
+
+.menu-item a {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu-item.active a {
+  background: #ffecec;
+  color: #e74c3c;
+  font-weight: bold;
+  border-left: 4px solid #e74c3c;
+}
+
+.menu-item a i {
+  margin-right: 10px;
+}
+
+.logout-section {
+  margin-top: 40px;
+  padding: 0 20px;
+}
+
+.logout-link {
+  color: #999;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px 50px;
+}
+
+.greeting {
+  color: #e74c3c;
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.card-row {
+  display: flex;
+  gap: 25px;
+}
+
+.dashboard-card {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  padding: 20px 25px;
+  transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+}
+
+.dashboard-card.red {
+  background: #fde4e4;
+}
+
+.dashboard-card.gray {
+  background: #ece8e8;
+}
+
+.card-text .card-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.card-text .card-label {
+  font-size: 13px;
+  color: #666;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon i {
+  font-size: 16px;
+  color: #e74c3c;
+}
+
+.card-icon.yellow i {
+  color: #f5b921;
+}
