@@ -1,3 +1,4 @@
+#dashboard/urls.py
 from django.urls import path
 from . import views
 
@@ -15,4 +16,12 @@ urlpatterns = [
     path('employer/post-job/', views.post_job, name='post_job'),
     path('employer/my-jobs/', views.my_jobs, name='my_jobs'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),
+    # Admin URLs
+    path('admin_tab_1', views.admin_dashboards, name='admin_dashboards'),
+    path('admin_tab_2', views.admin_total_employers_verified, name='admin_total_employers_verified'),
+    path('admin_tab_3', views.admin_accept_reject_employer, name='admin_accept_reject_employer'),
+    path('admin/approve-employer/<int:employer_id>/', views.approve_employer, name='approve_employer'),
+    path('admin_tab_4', views.admin_applicants, name='admin_applicants'),
+    path('admin_tab_5', views.admin_job_postings, name='admin_job_postings'),
+    
 ]

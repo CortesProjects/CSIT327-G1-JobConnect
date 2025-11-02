@@ -1,3 +1,4 @@
+#accounts/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator, FileExtensionValidator
@@ -32,7 +33,9 @@ class User(AbstractUser):
         default='applicant',
         verbose_name='User Type'
     )
-    
+
+    is_verified = models.BooleanField(default=False)
+
     @property
     def full_name(self):
         """Returns the full name combining first, middle, and last name."""
@@ -191,6 +194,17 @@ class EmployerProfile(models.Model):
     # --- Step 3: Contact (NEW FIELDS) ---
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
+    badge = models.CharField(
+        max_length=20, 
+        choices=[
+            ('Remote', 'Remote'), 
+            ('Full Time', 'Full Time'), 
+            ('Contract base', 'Contract Base'), 
+            ('Temporary', 'Temporary')
+        ],
+        blank=True,
+        null=True
+    )
 
     setup_step = models.IntegerField(default=1) 
     

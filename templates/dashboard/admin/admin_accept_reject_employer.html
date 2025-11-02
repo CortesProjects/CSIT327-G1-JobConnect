@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_accept_reject_employer.css' %}">
+{% endblock %}
+
+{% block title %}Accept / Reject Employer | JobConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_dashboards' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_total_employers_verified' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
+      </li>
+      <li class="menu-item active">
+        <a href=""><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_applicants' %}"><i class="fas fa-users"></i> Applicants</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_job_postings' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
+      </li>
+    </ul>
+
+    <div class="logout-section">
+      <a href="{% url 'accounts:logout' %}">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Log-out</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="page-header">
+      <h2>Accept / Reject Employer</h2>
+    </div>
+
+    <div class="employer-list">
+      <!-- Header Row -->
+      <div class="employer-list-header">
+        <span>Company</span>
+        <span>Date Applied</span>
+        <span></span>
+      </div>
+
+      {% for employer in unverified_employers %}
+      <div class="employer-card">
+        <div class="employer-left">
+          {% if employer.employer_profile_rel.logo %}
+              <img src="{{ employer.employer_profile_rel.logo.url }}" class="job-logo" alt="Company Logo">
+          {% else %}
+              <img src="{% static 'img/default-avatar.png' %}" class="job-logo" alt="Default Logo">
+          {% endif %}
+          <p class="job-name">{{ employer.username }}</p>
+        </div>
+        <div class="employer-center">
+          <p>{{ employer.date_joined|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div class="employer-right">
+          <form method="post" action="{% url 'dashboard:approve_employer' employer.id %}">
+            {% csrf_token %}
+            <button type="submit" class="accept-btn">Accept <i class="fas fa-arrow-right"></i></button>
+          </form>
+        </div>
+      </div>
+      {% empty %}
+        <p>No unverified employers found.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

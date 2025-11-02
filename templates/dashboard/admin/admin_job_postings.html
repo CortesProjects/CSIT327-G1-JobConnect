@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_job_postings.css' %}">
+{% endblock %}
+
+{% block title %}Active Job Posting | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="main-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_dashboards' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_total_employers_verified' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_accept_reject_employer' %}"><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
+      </li>
+      <li class="menu-item">
+        <a href="{% url 'dashboard:admin_applicants' %}"><i class="fas fa-users"></i> Applicants</a>
+      </li>
+      <li class="menu-item active">
+        <a href="#"><i class="fas fa-file-alt"></i> Active Job Posting</a>
+      </li>
+    </ul>
+
+    <div class="logout-section">
+      <a href="{% url 'accounts:logout' %}">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Log-out</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <section class="content">
+    <h2 class="page-title">Active Job Postings</h2>
+
+    <div class="job-list">
+      <div class="job-list-header">
+        <span>Job</span>
+        <span>Date Applied</span>
+        <span>Status</span>
+        <span>Action</span>
+      </div>
+
+      {% if active_jobs %}
+        {% for job in active_jobs %}
+        <!-- Reusable Job Card Start -->
+        <div class="job-card">
+          <div class="job-left">
+            <img src="{% static 'cover.png' %}" alt="{{ job.company_name }} Logo" class="job-logo">
+            <div class="job-info">
+              <div class="job-info-left">
+                <p class="job-name">{{ job.job_title }}</p>
+
+                {% if job.badge == "Full Time" %}
+                  <span class="badge fulltime">Full Time</span>
+                {% elif job.badge == "Remote" %}
+                  <span class="badge remote">Remote</span>
+                {% elif job.badge == "Contract Base" %}
+                  <span class="badge contract">Contract Base</span>
+                {% elif job.badge == "Temporary" %}
+                  <span class="badge temporary">Temporary</span>
+                {% elif job.badge %}
+                  <span class="badge">{{ job.badge }}</span>
+                {% endif %}
+              </div>
+              <div class="job-meta">
+                <span><i class="fas fa-map-marker-alt"></i> {{ job.place }}</span>
+                {% if job.salary %}
+                  <span><i class="fas fa-dollar-sign"></i> {{ job.salary }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="job-right">
+            <span class="job-date">{{ job.date_posted }} · {{ job.time_posted }}</span>
+            <span class="status active"><i class="fas fa-circle"></i> {{ job.status }}</span>
+            <button class="view-btn">View Details <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+        <!-- Reusable Job Card End -->
+        {% endfor %}
+      {% else %}
+        <p class="no-jobs">No active job postings found.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
