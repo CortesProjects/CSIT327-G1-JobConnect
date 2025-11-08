@@ -1,0 +1,424 @@
+{% extends "dashboard/employer/employer_dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_settings.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="settings-container">
+    <h1 class="page-title">Settings</h1>
+
+    <!-- Tabs Navigation -->
+    <div class="settings-tabs">
+        <button class="tab-btn active" data-tab="company-info">
+            <i class="fas fa-user"></i>
+            Company Info
+        </button>
+        <button class="tab-btn" data-tab="founding-info">
+            <i class="fas fa-globe"></i>
+            Founding Info
+        </button>
+        <button class="tab-btn" data-tab="social-media">
+            <i class="fas fa-share-alt"></i>
+            Social Media Profile
+        </button>
+        <button class="tab-btn" data-tab="account-setting">
+            <i class="fas fa-cog"></i>
+            Account Setting
+        </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content-wrapper">
+        <!-- Company Info Tab -->
+        <div class="tab-content active" id="company-info">
+            <form method="post" enctype="multipart/form-data" class="settings-form">
+                {% csrf_token %}
+                
+                <!-- Logo & Banner Image -->
+                <div class="form-section">
+                    <h3 class="section-title">Logo & Banner Image</h3>
+                    <div class="image-uploads">
+                        <div class="upload-item">
+                            <label class="upload-label">Upload Logo</label>
+                            <div class="image-preview" id="logo-preview">
+                                <div class="preview-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <input type="file" id="logo-upload" name="logo" accept="image/*" hidden>
+                            </div>
+                            <div class="upload-actions">
+                                <span class="file-size">3.5 MB</span>
+                                <button type="button" class="btn-text remove-btn" data-target="logo">Remove</button>
+                                <button type="button" class="btn-text replace-btn" data-target="logo">Replace</button>
+                            </div>
+                        </div>
+
+                        <div class="upload-item banner">
+                            <label class="upload-label">Banner Image</label>
+                            <div class="image-preview banner-preview" id="banner-preview">
+                                <div class="preview-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <input type="file" id="banner-upload" name="banner" accept="image/*" hidden>
+                            </div>
+                            <div class="upload-actions">
+                                <span class="file-size">4.3 MB</span>
+                                <button type="button" class="btn-text remove-btn" data-target="banner">Remove</button>
+                                <button type="button" class="btn-text replace-btn" data-target="banner">Replace</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Name -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="company-name">Company name</label>
+                        <input type="text" id="company-name" name="company_name" placeholder="Company name">
+                    </div>
+                </div>
+
+                <!-- About Us -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="about-us">About us</label>
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="strikethrough" title="Strikethrough">
+                                <i class="fas fa-strikethrough"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="link" title="Insert Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                        </div>
+                        <div contenteditable="true" class="editor-content" id="about-us" data-placeholder="Write down about your company here. Let the candidate know who we are..."></div>
+                        <input type="hidden" name="about_us" id="about-us-hidden">
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Change</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Founding Info Tab -->
+        <div class="tab-content" id="founding-info">
+            <form method="post" class="settings-form">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="organization-type">Organization Type</label>
+                            <select id="organization-type" name="organization_type">
+                                <option value="">Select...</option>
+                                <option value="private">Private Company</option>
+                                <option value="public">Public Company</option>
+                                <option value="nonprofit">Non-Profit</option>
+                                <option value="government">Government</option>
+                                <option value="startup">Startup</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="industry-type">Industry Types</label>
+                            <select id="industry-type" name="industry_type">
+                                <option value="">Select...</option>
+                                <option value="technology">Technology</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                                <option value="education">Education</option>
+                                <option value="retail">Retail</option>
+                                <option value="manufacturing">Manufacturing</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="establishment-year">Year of Establishment</label>
+                            <input type="text" id="establishment-year" name="establishment_year" placeholder="dd/mm/yyyy">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="company-website">Company Website</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-link"></i>
+                                <input type="url" id="company-website" name="company_website" placeholder="Website url...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Vision -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="company-vision">Company Vision</label>
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="strikethrough" title="Strikethrough">
+                                <i class="fas fa-strikethrough"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="link" title="Insert Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                        </div>
+                        <div contenteditable="true" class="editor-content" id="company-vision" data-placeholder="Tell us what Vision of your company..."></div>
+                        <input type="hidden" name="company_vision" id="company-vision-hidden">
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Social Media Profile Tab -->
+        <div class="tab-content" id="social-media">
+            <form method="post" class="settings-form">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <div id="social-links-container">
+                        <!-- Social Link 1 -->
+                        <div class="social-link-row">
+                            <div class="form-group">
+                                <label>Social Link 1</label>
+                                <select class="social-select" name="social_platform_1">
+                                    <option value="facebook">
+                                        <i class="fab fa-facebook"></i> Facebook
+                                    </option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="pinterest">Pinterest</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <input type="url" name="social_url_1" placeholder="Profile link/url...">
+                            </div>
+                            <button type="button" class="btn-remove-social">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+
+                        <!-- Social Link 2 -->
+                        <div class="social-link-row">
+                            <div class="form-group">
+                                <label>Social Link 2</label>
+                                <select class="social-select" name="social_platform_2">
+                                    <option value="facebook">Facebook</option>
+                                    <option value="twitter" selected>Twitter</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="pinterest">Pinterest</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <input type="url" name="social_url_2" placeholder="Profile link/url...">
+                            </div>
+                            <button type="button" class="btn-remove-social">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+
+                        <!-- Social Link 3 -->
+                        <div class="social-link-row">
+                            <div class="form-group">
+                                <label>Social Link 2</label>
+                                <select class="social-select" name="social_platform_3">
+                                    <option value="facebook">Facebook</option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="instagram" selected>Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="pinterest">Pinterest</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <input type="url" name="social_url_3" placeholder="Profile link/url...">
+                            </div>
+                            <button type="button" class="btn-remove-social">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+
+                        <!-- Social Link 4 -->
+                        <div class="social-link-row">
+                            <div class="form-group">
+                                <label>Social Link 3</label>
+                                <select class="social-select" name="social_platform_4">
+                                    <option value="facebook">Facebook</option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="youtube" selected>YouTube</option>
+                                    <option value="pinterest">Pinterest</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <input type="url" name="social_url_4" placeholder="Profile link/url...">
+                            </div>
+                            <button type="button" class="btn-remove-social">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add New Social Link Button -->
+                    <button type="button" class="btn-add-social" id="add-social-link">
+                        <i class="fas fa-plus-circle"></i>
+                        Add New Social Link
+                    </button>
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Account Setting Tab -->
+        <div class="tab-content" id="account-setting">
+            <form method="post" class="settings-form">
+                {% csrf_token %}
+                
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h3 class="section-title">Contact Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <div class="phone-input">
+                            <select class="country-code" name="country_code">
+                                <option value="+880" data-flag="🇧🇩">+880</option>
+                                <option value="+1">+1</option>
+                                <option value="+44">+44</option>
+                                <option value="+91">+91</option>
+                            </select>
+                            <input type="tel" id="phone" name="phone" placeholder="Phone number..">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" name="email" placeholder="Email address">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Contact Info Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+
+            <!-- Change Password Section -->
+            <form method="post" class="settings-form">
+                {% csrf_token %}
+                <div class="form-section">
+                    <h3 class="section-title">Change Password</h3>
+                    
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <div class="password-input">
+                            <input type="password" id="current-password" name="current_password" placeholder="Password">
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <div class="password-input">
+                                <input type="password" id="new-password" name="new_password" placeholder="Password">
+                                <button type="button" class="toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <div class="password-input">
+                                <input type="password" id="confirm-password" name="confirm_password" placeholder="Password">
+                                <button type="button" class="toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Change Password</button>
+                </div>
+            </form>
+
+            <!-- Delete Company Section -->
+            <div class="form-section danger-zone">
+                <h3 class="section-title">Delete Your Company</h3>
+                <p class="danger-text">
+                    If you delete your Jobpilot account, you will no longer be able to get information 
+                    about the matched jobs, following employers, and job alert, shortlisted jobs and 
+                    more. You will be abandoned from all the services of Jobpilot.com.
+                </p>
+                <button type="button" class="btn-close-account" id="close-account-btn">
+                    <i class="fas fa-times-circle"></i>
+                    Close Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard/employer/employer_settings.js' %}"></script>
+{% endblock %}

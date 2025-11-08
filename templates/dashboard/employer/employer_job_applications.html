@@ -1,0 +1,327 @@
+{% extends "dashboard/employer/employer_dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_job_applications.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="job-applications-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'dashboard:dashboard' %}">Home</a>
+        <span>/</span>
+        <a href="#">Job</a>
+        <span>/</span>
+        <a href="#">Senior UI/UX Designer</a>
+        <span>/</span>
+        <span class="current">Applications</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Job Applications</h1>
+        <div class="header-actions">
+            <button class="btn-filter" id="filterBtn">
+                Filter
+                <i class="fas fa-sliders-h"></i>
+            </button>
+            <button class="btn-sort active" id="sortBtn">
+                Sort
+                <i class="fas fa-sort"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sort Dropdown -->
+    <div class="sort-dropdown" id="sortDropdown">
+        <div class="sort-options">
+            <h3 class="dropdown-title">SORT APPLICATION</h3>
+            <label class="sort-option">
+                <input type="radio" name="sort" value="newest" checked>
+                <span>Newest</span>
+            </label>
+            <label class="sort-option">
+                <input type="radio" name="sort" value="oldest">
+                <span>Oldest</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Applications Grid -->
+    <div class="applications-layout">
+        <!-- All Applications Column -->
+        <div class="applications-column">
+            <div class="column-header">
+                <h2 class="column-title">All Application <span class="count">(213)</span></h2>
+                <button class="btn-menu">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+            </div>
+
+            <div class="applications-list">
+                <!-- Application Card 1 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Ronald Richards">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Ronald Richards</h3>
+                                <p class="applicant-title">UI/UX Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: Master Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Application Card 2 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Theresa Webb">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Theresa Webb</h3>
+                                <p class="applicant-title">Product Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: High School Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Application Card 3 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Devon Lane">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Devon Lane</h3>
+                                <p class="applicant-title">User Experience Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: Master Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Application Card 4 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Kathryn Murphy">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Kathryn Murphy</h3>
+                                <p class="applicant-title">Senior UX Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: Master Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shortlisted Column -->
+        <div class="applications-column">
+            <div class="column-header">
+                <h2 class="column-title">Shortlisted <span class="count">(2)</span></h2>
+                <button class="btn-menu">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="column-menu-dropdown">
+                    <button class="menu-item">
+                        <i class="fas fa-edit"></i>
+                        Edit Column
+                    </button>
+                    <button class="menu-item delete">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <div class="applications-list">
+                <!-- Application Card 1 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Darrell Steward">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Darrell Steward</h3>
+                                <p class="applicant-title">UI/UX Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: Intermediate Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Application Card 2 -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Jenny Wilson">
+                            </div>
+                            <div class="applicant-details">
+                                <h3 class="applicant-name">Jenny Wilson</h3>
+                                <p class="applicant-title">UI Designer</p>
+                            </div>
+                        </div>
+                        <button class="btn-card-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>7 Years Experience</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education: Bachelor Degree</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Applied: Jan 23, 2022</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                            Download Cv
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create New Column Button -->
+        <div class="create-column">
+            <button class="btn-create-column">
+                <i class="fas fa-plus"></i>
+                Create New
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard/employer/employer_job_applications.js' %}"></script>
+{% endblock %}

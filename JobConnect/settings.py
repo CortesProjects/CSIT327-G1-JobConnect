@@ -136,6 +136,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Media files are stored in Supabase S3 bucket (handled by django-storages)
+MEDIA_URL = f"https://{os.getenv('SUPABASE_PROJECT_ID')}.supabase.co/storage/v1/object/public/{os.getenv('SUPABASE_BUCKET_NAME')}/"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'

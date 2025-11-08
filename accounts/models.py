@@ -1,4 +1,3 @@
-#accounts/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator, FileExtensionValidator
@@ -33,9 +32,7 @@ class User(AbstractUser):
         default='applicant',
         verbose_name='User Type'
     )
-
-    is_verified = models.BooleanField(default=False)
-
+    
     @property
     def full_name(self):
         """Returns the full name combining first, middle, and last name."""
@@ -150,7 +147,8 @@ class EmployerProfile(models.Model):
     )
     
     # --- Step 1: Company Info (Existing Fields) ---
-    # Name fields (editable during profile setup)
+    # DEPRECATED: Name fields are not used for employer profiles (company_name is used instead)
+    # Kept for backwards compatibility - can be removed in future migration
     first_name = models.CharField(max_length=150, blank=True, default='')
     middle_name = models.CharField(max_length=150, blank=True, default='')
     last_name = models.CharField(max_length=150, blank=True, default='')
@@ -194,17 +192,6 @@ class EmployerProfile(models.Model):
     # --- Step 3: Contact (NEW FIELDS) ---
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
-    badge = models.CharField(
-        max_length=20, 
-        choices=[
-            ('Remote', 'Remote'), 
-            ('Full Time', 'Full Time'), 
-            ('Contract base', 'Contract Base'), 
-            ('Temporary', 'Temporary')
-        ],
-        blank=True,
-        null=True
-    )
 
     setup_step = models.IntegerField(default=1) 
     

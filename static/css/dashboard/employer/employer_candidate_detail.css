@@ -1,0 +1,495 @@
+/* Candidate Detail Page Styles */
+
+.candidate-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+}
+
+/* Close Button */
+.btn-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.btn-close:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.btn-close i {
+    font-size: 18px;
+    color: #666;
+}
+
+/* Candidate Header */
+.candidate-header {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.candidate-main-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.candidate-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #e0e0e0;
+    flex-shrink: 0;
+}
+
+.candidate-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.candidate-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.candidate-name {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.candidate-title {
+    font-size: 15px;
+    color: #666;
+    margin: 0;
+}
+
+.candidate-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-bookmark {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-bookmark:hover {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.btn-bookmark i {
+    font-size: 18px;
+    color: #ffc107;
+}
+
+.btn-send-mail,
+.btn-hire {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 1px solid #0066ff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-send-mail {
+    background: white;
+    color: #0066ff;
+}
+
+.btn-send-mail:hover {
+    background-color: #f0f7ff;
+}
+
+.btn-hire {
+    background: #0066ff;
+    color: white;
+    border-color: #0066ff;
+}
+
+.btn-hire:hover {
+    background-color: #0052cc;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.btn-filter,
+.btn-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover,
+.btn-sort:hover {
+    border-color: #0066ff;
+    color: #0066ff;
+}
+
+.btn-filter.active {
+    background-color: #0066ff;
+    color: white;
+    border-color: #0066ff;
+}
+
+/* Content Layout */
+.candidate-content {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+}
+
+/* Main Content */
+.content-main {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.content-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 20px 0;
+}
+
+.section-content {
+    color: #666;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.section-content p {
+    margin: 0 0 15px 0;
+}
+
+.section-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Social Media Links */
+.social-media-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.social-link {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.social-link i {
+    font-size: 18px;
+    color: white;
+}
+
+.social-link.facebook {
+    background-color: #1877f2;
+}
+
+.social-link.twitter {
+    background-color: #1da1f2;
+}
+
+.social-link.linkedin {
+    background-color: #0077b5;
+}
+
+.social-link.reddit {
+    background-color: #ff4500;
+}
+
+.social-link.instagram {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.social-link.youtube {
+    background-color: #ff0000;
+}
+
+.social-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar */
+.content-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.info-row {
+    display: flex;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:first-child {
+    padding-top: 0;
+}
+
+.info-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon i {
+    font-size: 16px;
+    color: #666;
+}
+
+.info-details {
+    flex: 1;
+}
+
+.info-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.info-value:last-child {
+    margin-bottom: 0;
+}
+
+.info-value a {
+    color: #0066ff;
+    text-decoration: none;
+}
+
+.info-value a:hover {
+    text-decoration: underline;
+}
+
+.info-subtext {
+    font-size: 12px;
+    color: #999;
+    margin: 8px 0 3px 0;
+}
+
+/* Download Section */
+.download-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.download-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 20px 0;
+}
+
+.btn-download-resume {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-download-resume:hover {
+    border-color: #0066ff;
+    background-color: #f8f9ff;
+}
+
+.resume-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.resume-info i {
+    font-size: 32px;
+    color: #e74c3c;
+}
+
+.resume-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: left;
+}
+
+.resume-format {
+    font-size: 12px;
+    color: #999;
+    text-align: left;
+}
+
+.btn-download-resume > i {
+    font-size: 18px;
+    color: #0066ff;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .candidate-content {
+        grid-template-columns: 1fr;
+    }
+
+    .content-sidebar {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .candidate-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .candidate-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .btn-send-mail,
+    .btn-hire {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-close {
+        top: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .candidate-detail-container {
+        padding: 20px 15px;
+    }
+
+    .candidate-header {
+        padding: 20px;
+    }
+
+    .candidate-name {
+        font-size: 22px;
+    }
+
+    .content-section {
+        padding: 20px;
+    }
+
+    .social-media-links {
+        gap: 8px;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+    }
+
+    .social-link i {
+        font-size: 16px;
+    }
+}

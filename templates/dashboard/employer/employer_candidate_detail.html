@@ -1,0 +1,250 @@
+{% extends "dashboard/employer/employer_dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_candidate_detail.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="candidate-detail-container">
+    <!-- Close Button -->
+    <button class="btn-close" onclick="window.history.back()">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Candidate Header -->
+    <div class="candidate-header">
+        <div class="candidate-main-info">
+            <div class="candidate-avatar">
+                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Esther Howard">
+            </div>
+            <div class="candidate-details">
+                <h1 class="candidate-name">Esther Howard</h1>
+                <p class="candidate-title">Website Designer (UI/UX)</p>
+            </div>
+        </div>
+        <div class="candidate-actions">
+            <button class="btn-bookmark">
+                <i class="far fa-star"></i>
+            </button>
+            <button class="btn-send-mail">
+                <i class="fas fa-envelope"></i>
+                Send Mail
+            </button>
+            <button class="btn-hire">
+                <i class="fas fa-user-check"></i>
+                Hire Candidates
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter and Sort -->
+    <div class="filter-bar">
+        <button class="btn-filter active">
+            Filter
+            <i class="fas fa-sliders-h"></i>
+        </button>
+        <button class="btn-sort">
+            Sort
+            <i class="fas fa-sort"></i>
+        </button>
+    </div>
+
+    <!-- Candidate Content -->
+    <div class="candidate-content">
+        <!-- Left Column - Main Info -->
+        <div class="content-main">
+            <!-- Biography Section -->
+            <section class="content-section">
+                <h2 class="section-title">BIOGRAPHY</h2>
+                <div class="section-content">
+                    <p>I've been passionate about graphic design and digital art from an early age, with a keen interest in Website and Mobile Application User Interfaces. I can create high-quality and aesthetically pleasing designs in a quick turnaround time. Check out my portfolio section at my website for some of my work, and feel free to discuss your designing needs with me.</p>
+                    <p>I have just completed my Bachelor of Science degree in Elementary Education and have successfully completed Praxis I and Praxis II. During my student teaching experience, I created and implemented lesson plans for students at three grade levels in accordance with state and federal laws...</p>
+                    <p>During my student teaching experience, I developed and initiated a Three-Week curriculum sequence in annual species and ant to discuss your designing needs with me.</p>
+                </div>
+            </section>
+
+            <!-- Cover Letter Section -->
+            <section class="content-section">
+                <h2 class="section-title">COVER LETTER</h2>
+                <div class="section-content">
+                    <p>Dear Sir,</p>
+                    <p>I am writing to express my interest in the fourth grade instructional position that is currently available at the Fort Wayne Community School System. I learned of the opening through a notice posted on JobZip.com, IPFW's job database. I am confident that my academic background and curriculum development skills would be an asset to your Elementary School teaching team.</p>
+                    <p>I have just completed my Bachelor of Science degree in Elementary Education and have successfully completed Praxis I and Praxis II. During my student teaching experience, I initiated and developed a Three-Week curriculum sequence on animal species and ant habitat. This collaborative and involved working with three third grade teachers within my team, and culminated in a field trip to the Indianapolis Zoo Animal Research Unit.</p>
+                    <p>As evidenced by my resume, I am knowledgeable about creating and adapting lesson plans for students at three grade levels in accordance with state and federal laws. For example, I have created lesson plans for students of varying ages in reading, arithmetic, social studies, and science. I also incorporate the use of technology when creating.</p>
+                    <p>Sincerely,</p>
+                    <p><strong>Esther Howard</strong></p>
+                </div>
+            </section>
+
+            <!-- Social Media Section -->
+            <section class="content-section">
+                <h2 class="section-title">Follow me Social Media</h2>
+                <div class="social-media-links">
+                    <a href="#" class="social-link facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link linkedin">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link reddit">
+                        <i class="fab fa-reddit-alien"></i>
+                    </a>
+                    <a href="#" class="social-link instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link youtube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column - Sidebar Info -->
+        <div class="content-sidebar">
+            <!-- Contact Information -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">DATE OF BIRTH</div>
+                        <div class="info-value">14 June, 2021</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">NATIONALITY</div>
+                        <div class="info-value">Bangladesh</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-venus-mars"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">MARITAL STATUS</div>
+                        <div class="info-value">Single</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-mars"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">GENDER</div>
+                        <div class="info-value">Male</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EXPERIENCE</div>
+                        <div class="info-value">7 Years</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EDUCATIONS</div>
+                        <div class="info-value">Master Degree</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Website -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">WEBSITE</div>
+                        <div class="info-value">
+                            <a href="https://www.estherhoward.com" target="_blank">www.estherhoward.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">LOCATION</div>
+                        <div class="info-value">Beverly Hills, CA 90210</div>
+                        <div class="info-subtext">Zone/Block Basement 1 Unit B2, 1372 Spring Avenue Newyork...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">PHONE</div>
+                        <div class="info-value">+1-202-555-0141</div>
+                        <div class="info-subtext">SECONDARY PHONE</div>
+                        <div class="info-value">+1-202-555-0189</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EMAIL ADDRESS</div>
+                        <div class="info-value">
+                            <a href="mailto:esther.howard@gmail.com">esther.howard@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Resume -->
+            <div class="download-section">
+                <h3 class="download-title">Download My Resume</h3>
+                <button class="btn-download-resume">
+                    <div class="resume-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div>
+                            <div class="resume-name">Esther Howard</div>
+                            <div class="resume-format">PDF</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard/employer/employer_candidate_detail.js' %}"></script>
+{% endblock %}
