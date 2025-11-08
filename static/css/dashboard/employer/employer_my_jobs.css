@@ -1,0 +1,428 @@
+/* My Jobs Page Styles */
+
+.my-jobs-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.job-count {
+    color: #666;
+    font-weight: 400;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.filter-select {
+    padding: 10px 35px 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    appearance: none;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #0066ff;
+}
+
+/* Jobs Table */
+.jobs-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr 1.5fr;
+    gap: 20px;
+    padding: 20px 25px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.header-cell {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Job Item */
+.job-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr 1.5fr;
+    gap: 20px;
+    padding: 25px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.job-item:hover {
+    background-color: #fafafa;
+}
+
+.job-item:last-child {
+    border-bottom: none;
+}
+
+/* Job Info Column */
+.job-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.job-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.job-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+}
+
+.job-type {
+    position: relative;
+    padding-right: 12px;
+}
+
+.job-type::after {
+    content: "•";
+    position: absolute;
+    right: 0;
+    color: #ccc;
+}
+
+.job-time {
+    color: #666;
+}
+
+/* Status Column */
+.job-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.active i {
+    color: #2e7d32;
+}
+
+.status-badge.expire {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.expire i {
+    color: #c62828;
+}
+
+/* Applications Column */
+.job-applications {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.job-applications i {
+    color: #999;
+    font-size: 16px;
+}
+
+/* Actions Column */
+.job-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-view-applications {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: #0066ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-view-applications:hover {
+    background-color: #0052cc;
+}
+
+.btn-view-applications i {
+    font-size: 12px;
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.btn-more {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.btn-more:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    display: none;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.dropdown.active .dropdown-menu {
+    display: block;
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item i {
+    color: #666;
+    font-size: 14px;
+    width: 16px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    padding: 20px 0;
+}
+
+.pagination-arrow,
+.pagination-number {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.pagination-arrow:hover,
+.pagination-number:hover {
+    border-color: #0066ff;
+    color: #0066ff;
+}
+
+.pagination-number.active {
+    background-color: #0066ff;
+    color: white;
+    border-color: #0066ff;
+}
+
+.pagination-arrow i {
+    font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .table-header,
+    .job-item {
+        grid-template-columns: 2fr 1fr 1fr 1.3fr;
+    }
+
+    .btn-view-applications {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-header {
+        display: none;
+    }
+
+    .job-item {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .job-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .btn-view-applications {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .my-jobs-container {
+        padding: 20px 15px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .job-title {
+        font-size: 15px;
+    }
+
+    .pagination {
+        gap: 5px;
+    }
+
+    .pagination-arrow,
+    .pagination-number {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+}

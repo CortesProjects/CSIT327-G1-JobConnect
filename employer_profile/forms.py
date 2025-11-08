@@ -17,7 +17,8 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
         label='Last Name'
     )
     company_name = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Company name', 'class': 'form-control'})
+        widget=forms.TextInput(attrs={'placeholder': 'Enter your company name', 'class': 'form-control'}),
+        label='Company Name'
     )
     # FIX: Change widget to HiddenInput
     about_us = forms.CharField(
@@ -28,7 +29,7 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
 
     class Meta:
         model = EmployerProfile
-        fields = ['first_name', 'middle_name', 'last_name', 'company_name', 'about_us', 'logo', 'business_permit']
+        fields = ['company_name', 'about_us', 'logo', 'business_permit']
 
 # --- Step 2: Founding Info Form ---
 class EmployerProfileFoundingInfoForm(forms.ModelForm):

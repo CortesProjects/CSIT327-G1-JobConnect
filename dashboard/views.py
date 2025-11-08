@@ -41,16 +41,24 @@ def employer_profile(request):
     return render(request, 'dashboard/employer/employer_profile.html')
 
 @login_required
-def post_job(request):
-    return render(request, 'dashboard/employer/post_job.html')
+def employer_post_job(request):
+    return render(request, 'dashboard/employer/employer_post_job.html')
 
 @login_required
-def my_jobs(request):
-    return render(request, 'dashboard/employer/my_jobs.html')
+def employer_my_jobs(request):
+    return render(request, 'dashboard/employer/employer_my_jobs.html')
 
 @login_required
 def employer_settings(request):
     return render(request, 'dashboard/employer/employer_settings.html')
+
+@login_required
+def employer_job_applications(request):
+    return render(request, 'dashboard/employer/employer_job_applications.html')
+
+@login_required
+def employer_candidate_detail(request):
+    return render(request, 'dashboard/employer/employer_candidate_detail.html')
 
 #------------------------------------------
 #              Admin Stuff

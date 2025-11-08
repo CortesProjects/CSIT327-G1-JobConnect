@@ -4,7 +4,7 @@
 {% block dashboard_content %}
 <div class="employer-overview">
     <div class="employer-header">
-        <h2>Hello, {{ user.first_name|default:user.username }}</h2>
+        <h2>Hello, {{ user.employer_profile_rel.company_name|default:user.username }}</h2>
         <p>Here is your daily activities and applications</p>
     </div>
 

@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard/dashboard_base.css' %}">
-<link rel="stylesheet" href="{% static 'css/dashboard/employer_dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -25,13 +25,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard:post_job' %}" class="{% if request.resolver_match.url_name == 'post_job' %}active{% endif %}">
+                    <a href="{% url 'dashboard:employer_post_job' %}" class="{% if request.resolver_match.url_name == 'employer_post_job' %}active{% endif %}">
                         <i class="fas fa-plus-circle"></i>
                         <span>Post a Job</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
+                    <a href="{% url 'dashboard:employer_my_jobs' %}" class="{% if request.resolver_match.url_name == 'employer_my_jobs' %}active{% endif %}">
                         <i class="fas fa-briefcase"></i>
                         <span>My Jobs</span>
                     </a>
