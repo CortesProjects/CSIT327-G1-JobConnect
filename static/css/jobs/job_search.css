@@ -1,0 +1,148 @@
+.search-results-container {
+    width: 90%;
+    margin: 40px auto;
+}
+
+.search-header h2 {
+    margin-bottom: 10px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.search-bar input {
+    padding: 10px;
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.search-btn {
+    padding: 10px 20px;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    margin-top: 30px;
+    gap: 25px;
+}
+
+/* FILTER SIDEBAR */
+
+.filters {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-group h4 {
+    margin-bottom: 10px;
+}
+
+.apply-filters-btn, .clear-filters-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.apply-filters-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+}
+
+.clear-filters-btn {
+    background: #ddd;
+    color: black;
+    text-decoration: none;
+}
+
+/* RESULTS SECTION */
+
+.results-section .results-count {
+    margin-bottom: 15px;
+}
+
+.job-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.job-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.company-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.job-meta span {
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+.job-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.apply-btn {
+    background: black;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+/* NO RESULTS */
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+}
+
+.no-results img {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+.clear-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #ff4d4d;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+}
