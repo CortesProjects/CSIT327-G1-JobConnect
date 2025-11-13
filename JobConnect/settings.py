@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'applicant_profile',
     'dashboard',
     'storages',
+    'jobs',
 ]
 
 AWS_ACCESS_KEY_ID = os.getenv('SUPABASE_S3_ACCESS_KEY')
@@ -97,11 +98,11 @@ WSGI_APPLICATION = 'JobConnect.wsgi.application'
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default="sqlite:///db.sqlite3",
-        conn_max_age=600,
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=0,               # Supabase free tier hates long-lived connections
         conn_health_checks=True,
-        ssl_require=True,
+        ssl_require=True              # REQUIRED or Supabase will reject connection
     )
 }
 

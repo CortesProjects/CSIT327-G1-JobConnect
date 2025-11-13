@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/jobs/job_search.css' %}">
+{% endblock %}
+
+{% block title %}Job Search Results{% endblock %}
+
+{% block content %}
+
+<div class="search-results-container">
+
+    <!-- 🔍 Search Header -->
+    <section class="search-header">
+        <h2>Search Results</h2>
+
+        <form class="search-bar" method="get" action="{% url 'jobs:job_search' %}">
+            <input
+                type="text"
+                name="query"
+                value="{{ query }}"
+                placeholder="Job Title, Keyword..."
+            >
+            <input
+                type="text"
+                name="location"
+                value="{{ location }}"
+                placeholder="Location"
+            >
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </section>
+
+    <div class="content-wrapper">
+
+        <!-- 🧩 Filters Sidebar -->
+        <aside class="filters">
+
+            <form method="get">
+
+                <h3>Filters</h3>
+
+                <!-- Hidden values so keyword/location persist -->
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="location" value="{{ location }}">
+
+                <!-- Job Type Filter -->
+                <div class="filter-group">
+                    <h4>Job Type</h4>
+                    {% for value, label in job_types %}
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="job_type"
+                            value="{{ value }}"
+                            {% if value in selected_job_types %}checked{% endif %}
+                        >
+                        {{ label }}
+                    </label><br>
+                    {% endfor %}
+                </div>
+
+                <!-- Industry Filter -->
+                <div class="filter-group">
+                    <h4>Industry</h4>
+                    <select name="industry" multiple>
+                        {% for industry in industries %}
+                        <option
+                            value="{{ industry }}"
+                            {% if industry in selected_industries %}selected{% endif %}
+                        >
+                            {{ industry }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Salary Range -->
+                <div class="filter-group">
+                    <h4>Salary Range (PHP)</h4>
+                    <input
+                        type="number"
+                        name="salary_min"
+                        value="{{ salary_min }}"
+                        placeholder="Min"
+                    >
+                    <input
+                        type="number"
+                        name="salary_max"
+                        value="{{ salary_max }}"
+                        placeholder="Max"
+                    >
+                </div>
+
+                <button type="submit" class="apply-filters-btn">Apply Filters</button>
+                <a href="{% url 'jobs:job_search' %}" class="clear-filters-btn">Clear All Filters</a>
+
+            </form>
+
+        </aside>
+
+        <!-- 📄 Results Section -->
+        <section class="results-section">
+
+            {% if jobs %}
+                <p class="results-count">{{ jobs.count }} jobs found</p>
+
+                <div class="job-list">
+                    {% for job in jobs %}
+                    <div class="job-card">
+
+                        <div class="job-info-left">
+
+                            <!-- Company logo placeholder -->
+                            <span class="company-logo bg-dark">
+                                {{ job.title|first|upper }}
+                            </span>
+
+                            <div class="job-details">
+                                <div class="job-title-line">
+                                    <h4>{{ job.title }}</h4>
+                                    <span class="badge">{{ job.get_job_type_display }}</span>
+                                </div>
+
+                                <div class="job-meta">
+                                    <span>
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ job.location }}
+                                    </span>
+
+                                    <span>
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        ₱{{ job.salary_min }} - ₱{{ job.salary_max }}
+                                    </span>
+
+                                    <span>
+                                        <i class="fas fa-building"></i>
+                                        {{ job.industry }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="job-actions">
+                            <span class="bookmark-btn">
+                                <i class="far fa-bookmark"></i>
+                            </span>
+                            <a href="#" class="apply-btn">
+                                Apply Now <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- ❌ No Results -->
+                <div class="no-results">
+                    <img src="{% static 'img/no-results.png' %}" width="150">
+                    <h3>No jobs match your criteria</h3>
+                    <p>Try adjusting your filters or use more general keywords.</p>
+                    <a href="{% url 'jobs:job_search' %}" class="clear-btn">Reset Search</a>
+                </div>
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

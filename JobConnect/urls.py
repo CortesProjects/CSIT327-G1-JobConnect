@@ -27,4 +27,5 @@ urlpatterns = [
     path('employer/', include('employer_profile.urls')),
     path('applicant/', include('applicant_profile.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path("jobs/", include(("jobs.urls", "jobs"), namespace="jobs")),
 ]

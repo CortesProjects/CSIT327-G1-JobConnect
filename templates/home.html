@@ -8,19 +8,44 @@
 
 {% block content %}
     <section class="hero-section">
-        <div class="hero-content">
-            <h1>Find a job that suits your interest & skills.</h1>
-            <div class="search-bar">
-                <input type="text" placeholder="Job Title, Keyword...">
-                <input type="text" placeholder="Location">
-                <button class="search-btn">Search</button>
+    <div class="hero-content">
+        <h1>Find a job that suits your interest & skills.</h1>
+
+        <!-- Search Form -->
+        <form class="search-bar" method="get" action="{% url 'jobs:job_search' %}">
+            <div class="input-group">
+                <input
+                    type="text"
+                    name="query"
+                    id="job-search-input"
+                    placeholder="Job Title, Keyword..."
+                    minlength="1"
+                    maxlength="100"
+                    autocomplete="off"
+                >
+                <div id="suggestions-box" class="suggestions"></div>
             </div>
-            <p class="search-hint">Popular Searches: UI Designer, UX Designer, Product Manager</p>
-        </div>
-        <div class="hero-image">
-            <img src="{% static 'img/Illustration.png' %}" alt="Illustration of person finding a job">
-        </div>
-    </section>
+
+            <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                autocomplete="off"
+            >
+
+            <button class="search-btn" type="submit">Find Job</button>
+        </form>
+
+        <p class="search-hint">
+            Suggestion: Designer, Programming,
+            <span style="color:red;">Digital Marketing</span>, Video, Animation.
+        </p>
+    </div>
+
+    <div class="hero-image">
+        <img src="{% static 'img/Illustration.png' %}" alt="Illustration of person finding a job">
+    </div>
+</section>
     
     <div class="page-content-wrapper">
         <section class="stats-section-wrapper">
@@ -233,7 +258,9 @@
                 <a href="{% url 'accounts:register' %}?account_type=employer" class="cta-btn dark">Register Now <i class="fas fa-arrow-right"></i></a>
             </div>
         </section>
-    </div> 
+    </div>
+
+<script src="{% static 'js/search_suggestions.js' %}"></script>
 
 {% endblock content %}
 
