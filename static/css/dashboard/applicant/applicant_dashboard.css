@@ -64,105 +64,6 @@
     background-color: #f8d7da;
 }
 
-/* Applied Jobs Table */
-.applied-jobs-container {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 30px;
-    border: 1px solid #e0e0e0;
-}
-
-.container-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.job-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.company-logo {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
-    object-fit: contain;
-}
-
-.job-title {
-    font-weight: 600;
-    display: block;
-}
-
-.job-meta {
-    display: flex;
-    gap: 15px;
-    font-size: 13px;
-    color: #6c757d;
-}
-
-.status-active {
-    color: #2e7d32;
-    font-weight: 500;
-}
-
-.status-active i {
-    margin-right: 5px;
-}
-
-.action-btn {
-    background-color: #f0f0f0;
-    color: #333;
-    padding: 8px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.action-btn:hover,
-.action-btn.active {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.jobs-table tr.active-row {
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
-    border: 1px solid #007bff;
-}
-
-/* Pagination */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-    gap: 8px;
-}
-
-.pagination-arrow,
-.pagination-number {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #6c757d;
-    background-color: #f0f0f0;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.pagination-arrow:hover,
-.pagination-number:hover,
-.pagination-number.active {
-    background-color: #007bff;
-    color: #fff;
-}
-
 /* Favorite Jobs List */
 .favorite-jobs-container {
     background-color: #fff;
@@ -203,9 +104,10 @@
 .job-card-details .job-title {
     font-weight: 600;
     margin-bottom: 5px;
+    
 }
 
-.job-card-details .job-type-badge {
+.job-info-details .job-type-badge {
     margin-left: 10px;
 }
 

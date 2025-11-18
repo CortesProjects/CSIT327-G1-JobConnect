@@ -1,0 +1,23 @@
+<tr>
+    <td>
+        <div class="job-info">
+            <img src="{{ job.employer.logo.url|default:'https://via.placeholder.com/50' }}" alt="{{ job.employer.company_name }}" class="company-logo">
+            <div>
+                <span class="job-title">{{ job.title }}
+                    {% if job.job_type %}
+                        <span class="job-type-badge {{ job.job_type|lower }}">{{ job.get_job_type_display }}</span>
+                    {% endif %}
+                </span>
+                <div class="job-meta">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                    {% if job.salary_min and job.salary_max %}
+                        <span><i class="fas fa-dollar-sign"></i> ${{ job.salary_min }}-{{ job.salary_max }}/month</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </td>
+    <td><span class="date-applied">{{ application.applied_at|date:"M d, Y" }}<br>{{ application.applied_at|date:"H:i" }}</span></td>
+    <td><span class="status-active"><i class="fas fa-check-circle"></i> {{ application.get_status_display }}</span></td>
+    <td><a href="{% url 'job_detail' job.id %}" class="action-btn">View Details</a></td>
+</tr>

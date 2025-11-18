@@ -1,0 +1,240 @@
+/* Applied Jobs Page Styles */
+
+/* Main Content Header */
+.main-content-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #2d3748;
+}
+
+.jobs-table-wrapper {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.jobs-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.jobs-table thead th {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.jobs-table tbody tr {
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.jobs-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.jobs-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.jobs-table tbody td {
+    padding: 20px;
+    vertical-align: middle;
+}
+
+/* Job Info */
+.job-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.job-info > div {
+    flex: 1;
+}
+
+.job-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2d3748;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.job-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.job-meta i {
+    margin-right: 4px;
+    font-size: 12px;
+}
+
+/* Job Type Badge */
+.job-type-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    margin-left: 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.job-type-badge.remote {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.job-type-badge.contract {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+/* Date Applied */
+.date-applied {
+    font-size: 14px;
+    color: #495057;
+    white-space: nowrap;
+}
+
+/* Status Styles */
+.status-active {
+    display: inline-flex;
+    align-items: center;
+    color: #28a745;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.status-active i {
+    margin-right: 6px;
+    font-size: 16px;
+}
+
+/* Action Button */
+.action-btn {
+    display: inline-block;
+    background-color: transparent;
+    color: #dc3545;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 8px;
+}
+
+.pagination-arrow,
+.pagination-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #495057;
+    background-color: #e9ecef;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pagination-arrow:hover,
+.pagination-number:hover {
+    background-color: #dee2e6;
+}
+
+.pagination-number.active {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.pagination-arrow i {
+    font-size: 14px;
+}
+
+/* Empty State */
+.empty-state {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 60px 30px;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 25px;
+}
+
+.empty-state-btn {
+    display: inline-block;
+    background-color: #dc3545;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.empty-state-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.empty-state-btn i {
+    margin-right: 8px;
+}
