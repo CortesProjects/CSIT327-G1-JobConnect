@@ -5,6 +5,8 @@ body {
 
 .dashboard-layout {
     display: flex;
+    padding: 0 20px;
+    margin: 0px 100px 0px 100px;
     min-height: calc(100vh - 70px);
     max-height: calc(100vh - 70px);
     overflow: hidden;
@@ -12,17 +14,18 @@ body {
 
 .dashboard-sidebar {
     width: 260px;
-    background-color: #fff;
     border-right: 1px solid #e0e0e0;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 60px 0px 60px 20px;
     flex-shrink: 0;
+    position: sticky;
+    top: 40px;
     overflow-y: auto;
 }
 
 .sidebar-title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #6c757d;
     margin-bottom: 20px;
@@ -41,20 +44,21 @@ body {
     padding: 12px 15px;
     text-decoration: none;
     color: #495057;
-    border-radius: 6px;
+    
     margin-bottom: 5px;
     transition: background-color 0.2s, color 0.2s;
     font-weight: 500;
 }
 
 .sidebar-nav a:hover {
-    background-color: #e7f0ff;
-    color: #0056b3;
+    background-color: #ffefef;
+    color: var(--primary-color);
 }
 
 .sidebar-nav a.active {
-    background-color: #e7f0ff;
-    color: #0056b3;
+    background-color: #ffe4e5;
+    border-left: 3px solid var(--primary-color);
+    color: var(--primary-color);
     font-weight: 600;
 }
 
@@ -83,11 +87,15 @@ body {
     padding: 12px 15px;
     text-decoration: none;
     color: #6c757d;
-    border-radius: 6px;
+}
+
+.sidebar-footer a i {
+    margin-right: 15px;
 }
 
 .sidebar-footer a:hover {
-    background-color: #f8f9fa;
+    background-color: #ffefef;
+    color: var(--primary-color);
 }
 
 .dashboard-main-content {
@@ -96,9 +104,35 @@ body {
     overflow-y: auto;
     overflow-x: auto;
     max-height: calc(100vh - 70px);
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    -ms-overflow-style: none;
 }
 
-/* Stats Cards - Common */
+.dashboard-main-content:hover,
+.dashboard-main-content:focus-within {
+    scrollbar-color: rgba(0,0,0,0.28) transparent;
+    -ms-overflow-style: auto;
+}
+
+.dashboard-main-content::-webkit-scrollbar {
+    width: 8px;
+}
+.dashboard-main-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dashboard-main-content::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0); 
+    border-radius: 6px;
+}
+.dashboard-main-content:hover::-webkit-scrollbar-thumb,
+.dashboard-main-content:focus-within::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.12); 
+}
+.dashboard-main-content:hover::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.28); 
+}
+
 .stats-cards-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -107,8 +141,6 @@ body {
 }
 
 .stat-card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 20px;
     display: flex;
@@ -123,7 +155,7 @@ body {
 }
 
 .stat-info .stat-label {
-    color: #6c757d;
+    color: #323232;
     font-size: 14px;
 }
 
@@ -134,29 +166,41 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #ffffff;
 }
 
 .stat-icon-bg i {
     font-size: 20px;
 }
 
-.stat-icon-bg.blue {
+.stat-card.blue {
     background-color: #e7f0ff;
+}
+
+.stat-card.yellow {
+    background-color: #fff8e1;
+}
+
+.stat-card.green {
+    background-color: #e8f5e9;
+}
+
+.stat-card.red {
+    background-color: #ffebee;
+}
+.stat-icon-bg.blue {
     color: #007bff;
 }
 
 .stat-icon-bg.yellow {
-    background-color: #fff8e1;
     color: #ffc107;
 }
 
 .stat-icon-bg.green {
-    background-color: #e8f5e9;
     color: #2e7d32;
 }
 
 .stat-icon-bg.red {
-    background-color: #ffebee;
     color: #d32f2f;
 }
 
@@ -213,21 +257,38 @@ body {
 
 .jobs-table {
     width: 100%;
-    border-collapse: collapse;
+    /* Use separate collapse so we can round row corners cleanly without
+       affecting column borders. Keep spacing at 0 so cells sit flush. */
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .jobs-table thead {
     background-color: #f8f9fa;
 }
 
+
+/* Round outer corners of the header row only (no radius between cells) */
+.jobs-table thead th:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    background-clip: padding-box;
+    overflow: hidden;
+}
+.jobs-table thead th:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background-clip: padding-box;
+    overflow: hidden;
+}
 .jobs-table th {
     padding: 15px;
     text-align: left;
     font-size: 12px;
     font-weight: 600;
-    color: #6c757d;
+    background-color: #F1F2F4;
+    color: #474C54;
     text-transform: uppercase;
-    border-bottom: 1px solid #e0e0e0;
 }
 
 .jobs-table td {
@@ -237,11 +298,40 @@ body {
 }
 
 .jobs-table tbody tr {
-    transition: background-color 0.2s;
+    transition: background-color 0.18s, box-shadow 0.18s;
 }
 
-.jobs-table tbody tr:hover {
-    background-color: #f8f9fa;
+.jobs-table tbody tr:hover td {
+    background: #fff;
+    border-bottom: none;
+    border-top: 1px solid var(--primary-color);
+    border-bottom: 1px solid var(--primary-color);
+    box-shadow: 
+        1px 0 0 white,
+        -1px 0 0 white,        
+        0 3px 1px rgba(220, 53, 69, 0.15), 
+        0 -3px 1px rgba(220, 53, 69, 0.15);
+}
+
+.jobs-table tbody tr:hover td:first-child {
+    box-shadow: 
+        1px 0 0 white, 
+        -3px 0 1px rgba(220, 53, 69, 0.15),
+        0 3px 1px rgba(220, 53, 69, 0.15),
+        0 -3px 1px rgba(220, 53, 69, 0.15);
+    border-left: 1px solid var(--primary-color);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.jobs-table tbody tr:hover td:last-child {
+    box-shadow: 
+        3px 0 1px rgba(220, 53, 69, 0.15),
+        -1px 0 0 white,
+        0 3px 1px rgba(220, 53, 69, 0.15),
+        0 -3px 1px rgba(220, 53, 69, 0.15);
+    border-right: 1px solid var(--primary-color);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 /* Job Type Badges */
