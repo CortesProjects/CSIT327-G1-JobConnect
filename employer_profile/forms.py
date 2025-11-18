@@ -21,11 +21,37 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make company_name required, files handled by JavaScript
+        # Make all fields required
         self.fields['company_name'].required = True
-        self.fields['logo'].required = False
-        self.fields['business_permit'].required = False
+        self.fields['logo'].required = False  # Validated in clean()
+        self.fields['business_permit'].required = False  # Validated in clean()
         self.fields['about_us'].required = False
+    
+    def clean_company_name(self):
+        company_name = self.cleaned_data.get('company_name')
+        if not company_name or not company_name.strip():
+            raise forms.ValidationError('Company name is required.')
+        return company_name.strip()
+    
+    def clean_logo(self):
+        logo = self.cleaned_data.get('logo')
+        # If editing and logo already exists, it's optional
+        if self.instance and self.instance.pk and self.instance.logo and not logo:
+            return self.instance.logo
+        # If new profile or no existing logo, require it
+        if not logo and (not self.instance.pk or not self.instance.logo):
+            raise forms.ValidationError('Company logo is required.')
+        return logo
+    
+    def clean_business_permit(self):
+        permit = self.cleaned_data.get('business_permit')
+        # If editing and permit already exists, it's optional
+        if self.instance and self.instance.pk and self.instance.business_permit and not permit:
+            return self.instance.business_permit
+        # If new profile or no existing permit, require it
+        if not permit and (not self.instance.pk or not self.instance.business_permit):
+            raise forms.ValidationError('Business permit is required.')
+        return permit
 
 # --- Step 2: Founding Info Form ---
 class EmployerProfileFoundingInfoForm(forms.ModelForm):
@@ -88,6 +114,22 @@ class EmployerProfileContactForm(forms.ModelForm):
         widget=forms.EmailInput(attrs={'placeholder': 'Email address', 'class': 'form-control', 'required': 'required'}),
         label='Contact Email *'
     )
+
+    def __init__(self, *args, **kwargs):
+        # Pre-fill contact_email from the related user if profile doesn't have one
+        super().__init__(*args, **kwargs)
+        
+        # Check if profile already has a contact_email saved
+        if self.instance and self.instance.contact_email:
+            # If profile already has a contact_email, use it (instance will handle it)
+            return
+
+        # If no contact_email on profile, and the profile is linked to a user, use user's email
+        if self.instance and hasattr(self.instance, 'user') and self.instance.user:
+            user_email = getattr(self.instance.user, 'email', None)
+            if user_email:
+                # Set in form.initial dict, not field.initial, for ModelForm with instance
+                self.initial['contact_email'] = user_email
 
     class Meta:
         model = EmployerProfile

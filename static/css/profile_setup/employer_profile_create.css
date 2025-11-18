@@ -545,3 +545,14 @@
     margin-bottom: 5px;
     display: block; 
 }
+/* Error field highlighting */
+.field-container:has(.error-text:not(:empty)) .form-control,
+.field-container:has(.error-text:not(:empty)) .form-select {
+    border-color: #dc3545;
+}
+
+/* Highlight upload areas with errors */
+.upload-column:has(.error-text:not(:empty)) .upload-area {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
