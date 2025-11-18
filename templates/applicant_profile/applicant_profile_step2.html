@@ -46,19 +46,19 @@
             <div class="field-container">
                 <label for="{{ form.school_name.id_for_label }}">School/University Name</label>
                 {{ form.school_name }}
-                {% if form.school_name.errors %}<div class="error-text">{{ form.school_name.errors.0 }}</div>{% endif %}
+                <div id="school-name-error" class="error-text">{% if form.school_name.errors %}{{ form.school_name.errors.0 }}{% endif %}</div>
             </div>
             
             <div class="input-group-row">
                 <div class="field-container flex-2">
                     <label for="{{ form.degree.id_for_label }}">Degree/Course</label>
                     {{ form.degree }}
-                    {% if form.degree.errors %}<div class="error-text">{{ form.degree.errors.0 }}</div>{% endif %}
+                    <div id="degree-error" class="error-text">{% if form.degree.errors %}{{ form.degree.errors.0 }}{% endif %}</div>
                 </div>
                 <div class="field-container flex-1">
                     <label for="{{ form.year_level.id_for_label }}">Year Level</label>
                     {{ form.year_level }}
-                    {% if form.year_level.errors %}<div class="error-text">{{ form.year_level.errors.0 }}</div>{% endif %}
+                    <div id="year-level-error" class="error-text">{% if form.year_level.errors %}{{ form.year_level.errors.0 }}{% endif %}</div>
                 </div>
             </div>
         </div>

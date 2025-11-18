@@ -56,17 +56,17 @@
                 <div class="field-container">
                     <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
                     {{ form.first_name }}
-                    {% if form.first_name.errors %}<div class="error-text">{{ form.first_name.errors.0 }}</div>{% endif %}
+                    <div id="first-name-error" class="error-text">{% if form.first_name.errors %}{{ form.first_name.errors.0 }}{% endif %}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
                     {{ form.middle_name }}
-                    {% if form.middle_name.errors %}<div class="error-text">{{ form.middle_name.errors.0 }}</div>{% endif %}
+                    <div id="middle-name-error" class="error-text">{% if form.middle_name.errors %}{{ form.middle_name.errors.0 }}{% endif %}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
                     {{ form.last_name }}
-                    {% if form.last_name.errors %}<div class="error-text">{{ form.last_name.errors.0 }}</div>{% endif %}
+                    <div id="last-name-error" class="error-text">{% if form.last_name.errors %}{{ form.last_name.errors.0 }}{% endif %}</div>
                 </div>
             </div>
             
@@ -74,12 +74,12 @@
                 <div class="field-container">
                     <label for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
                     {{ form.contact_number }}
-                    {% if form.contact_number.errors %}<div class="error-text">{{ form.contact_number.errors.0 }}</div>{% endif %}
+                    <div id="contact-number-error" class="error-text">{% if form.contact_number.errors %}{{ form.contact_number.errors.0 }}{% endif %}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
                     {{ form.location }}
-                    {% if form.location.errors %}<div class="error-text">{{ form.location.errors.0 }}</div>{% endif %}
+                    <div id="location-error" class="error-text">{% if form.location.errors %}{{ form.location.errors.0 }}{% endif %}</div>
                 </div>
             </div>
         </div>
