@@ -1,0 +1,33 @@
+<div class="job-card">
+    <div class="job-card-main">
+        <img src="{{ job.employer.logo.url|default:'https://via.placeholder.com/50' }}" alt="{{ job.employer.company_name }}" class="company-logo">
+        <div class="job-card-details">
+            <span class="job-title">{{ job.title }}
+                {% if job.job_type %}
+                    <span class="job-type-badge {{ job.job_type|lower }}">{{ job.get_job_type_display }}</span>
+                {% endif %}
+            </span>
+            <div class="job-meta">
+                <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                {% if job.salary_min and job.salary_max %}
+                    <span><i class="fas fa-dollar-sign"></i> ${{ job.salary_min }}-{{ job.salary_max }}</span>
+                {% endif %}
+                {% if job.is_expired %}
+                    <span class="job-expiry expired"><i class="fas fa-times-circle"></i> Job Expired</span>
+                {% else %}
+                    <span class="job-expiry"><i class="fas fa-clock"></i> {{ job.days_remaining }} Days Remaining</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="job-card-action">
+        {% if job.is_expired %}
+            <a href="#" class="action-btn disabled">Deadline Expired</a>
+        {% else %}
+            <a href="{% url 'job_detail' job.id %}" class="action-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+        {% endif %}
+        <button class="favorite-btn active" data-job-id="{{ job.id }}" title="Remove from favorites">
+            <i class="fas fa-heart"></i>
+        </button>
+    </div>
+</div>
