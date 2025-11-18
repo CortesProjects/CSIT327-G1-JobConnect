@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from accounts.models import ApplicantProfile
-from .forms import PersonalInfoForm, EducationForm, SkillsResumeForm
+from .forms import PersonalInfoForm, ProfileDetailsForm, ContactInfoForm
 
 @login_required
 def applicant_profile_setup_step1(request):
     profile, created = ApplicantProfile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
-        form = PersonalInfoForm(request.POST, instance=profile)
+        form = PersonalInfoForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             saved_profile = form.save()
             # Update progress to allow access to step 2
@@ -36,7 +36,7 @@ def applicant_profile_setup_step2(request):
         return redirect('applicant_profile:applicant_profile_setup_step1')
 
     if request.method == 'POST':
-        form = EducationForm(request.POST, instance=profile)
+        form = ProfileDetailsForm(request.POST, instance=profile)
         if form.is_valid():
             saved_profile = form.save()
             # Update progress to allow access to step 3
@@ -45,7 +45,7 @@ def applicant_profile_setup_step2(request):
                 saved_profile.save()
             return redirect('applicant_profile:applicant_profile_setup_step3')
     else:
-        form = EducationForm(instance=profile)
+        form = ProfileDetailsForm(instance=profile)
     
     context = {
         'form': form,
@@ -64,13 +64,13 @@ def applicant_profile_setup_step3(request):
         return redirect('applicant_profile:applicant_profile_setup_step2')
 
     if request.method == 'POST':
-        form = SkillsResumeForm(request.POST, request.FILES, instance=profile)
+        form = ContactInfoForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             profile.calculate_completeness()
             return redirect('applicant_profile:applicant_profile_setup_complete')
     else:
-        form = SkillsResumeForm(instance=profile)
+        form = ContactInfoForm(instance=profile)
         
     context = {
         'form': form,
