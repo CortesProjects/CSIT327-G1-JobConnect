@@ -9,7 +9,8 @@ class PersonalInfoForm(forms.ModelForm):
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., Juan'
+                'placeholder': 'e.g., Juan',
+                'required': 'required'
             }),
             'middle_name': forms.TextInput(attrs={
                 'class': 'form-control', 
@@ -17,26 +18,37 @@ class PersonalInfoForm(forms.ModelForm):
             }),
             'last_name': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., Dela Cruz'
+                'placeholder': 'e.g., Dela Cruz',
+                'required': 'required'
             }),
             'contact_number': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., 09123456789'
+                'placeholder': 'e.g., 09123456789',
+                'required': 'required'
             }),
             'location': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., Cebu City, PH'
+                'placeholder': 'e.g., Cebu City, PH',
+                'required': 'required'
             }),
         }
         labels = {
-            'first_name': 'First Name',
+            'first_name': 'First Name *',
             'middle_name': 'Middle Name (Optional)',
-            'last_name': 'Last Name',
-            'contact_number': 'Contact Number (10+ digits)',
-            'location': 'Current Location (City, Country)'
+            'last_name': 'Last Name *',
+            'contact_number': 'Contact Number (10+ digits) *',
+            'location': 'Current Location (City, Country) *'
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make fields required except middle_name
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['contact_number'].required = True
+        self.fields['location'].required = True
+        self.fields['middle_name'].required = False
 
-# Form for Step 2: Education Details
 class EducationForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
@@ -44,17 +56,32 @@ class EducationForm(forms.ModelForm):
         widgets = {
             'school_name': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., University of San Carlos'
+                'placeholder': 'e.g., University of San Carlos',
+                'required': 'required'
             }),
             'degree': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., BS in Computer Science'
+                'placeholder': 'e.g., BS in Computer Science',
+                'required': 'required'
             }),
             'year_level': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'e.g., 4th Year'
+                'placeholder': 'e.g., 4th Year',
+                'required': 'required'
             }),
         }
+        labels = {
+            'school_name': 'School Name *',
+            'degree': 'Degree/Course *',
+            'year_level': 'Year Level *'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all fields required
+        self.fields['school_name'].required = True
+        self.fields['degree'].required = True
+        self.fields['year_level'].required = True
 
 # Form for Step 3: Skills and Resume
 class SkillsResumeForm(forms.ModelForm):
@@ -65,11 +92,22 @@ class SkillsResumeForm(forms.ModelForm):
             'skills_summary': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Enter your skills separated by commas...'
+                'placeholder': 'Enter your skills separated by commas...',
+                'required': 'required'
             }),
             # The actual file input is styled via the label in your HTML
-            'resume': forms.FileInput(),
+            'resume': forms.FileInput(attrs={'required': 'required'}),
         }
+        labels = {
+            'skills_summary': 'Skills Summary *',
+            'resume': 'Upload Resume (PDF, DOC, DOCX - Max 5MB) *'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make fields required
+        self.fields['skills_summary'].required = True
+        self.fields['resume'].required = True
         
     def clean_resume(self):
         """Custom validator to check the resume file size."""
