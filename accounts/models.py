@@ -105,6 +105,10 @@ class ApplicantProfile(models.Model):
         blank=True, 
         help_text="Comma-separated list of your key skills."
     )
+    biography = models.TextField(
+        blank=True,
+        help_text="Tell employers about yourself, your experience, and career goals."
+    )
     resume = models.FileField(
         upload_to='applicant_documents/resumes/',
         validators=[
@@ -136,6 +140,36 @@ class ApplicantProfile(models.Model):
     
     def __str__(self):
         return f"Applicant Profile for {self.user.email}"
+
+
+class ApplicantSocialLink(models.Model):
+    """Social media links for applicant profiles"""
+    PLATFORM_CHOICES = [
+        ('facebook', 'Facebook'),
+        ('twitter', 'Twitter'),
+        ('instagram', 'Instagram'),
+        ('linkedin', 'LinkedIn'),
+        ('youtube', 'YouTube'),
+        ('github', 'GitHub'),
+        ('portfolio', 'Portfolio'),
+    ]
+    
+    profile = models.ForeignKey(
+        ApplicantProfile,
+        on_delete=models.CASCADE,
+        related_name='social_links'
+    )
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
+    url = models.URLField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['profile', 'platform']
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"{self.profile.user.email} - {self.get_platform_display()}"
+
 
 # ... (Your EmployerProfile model remains unchanged) ...
 class EmployerProfile(models.Model):

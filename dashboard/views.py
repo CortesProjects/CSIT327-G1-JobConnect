@@ -1,7 +1,18 @@
 # dashboards/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from accounts.models import User
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from accounts.models import User, ApplicantProfile, ApplicantSocialLink
+from .forms import (
+    ApplicantPersonalInfoForm, 
+    ApplicantProfileDetailsForm,
+    ApplicantContactInfoForm,
+    ApplicantProfilePrivacyForm,
+    ApplicantResumeForm,
+    ApplicantSocialLinkForm
+)
 
 @login_required
 def dashboard_view(request):
@@ -34,7 +45,117 @@ def applicant_job_alerts(request):
 
 @login_required
 def applicant_settings(request):
-    return render(request, 'dashboard/applicant/applicant_settings.html')
+    profile = get_object_or_404(ApplicantProfile, user=request.user)
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'personal_info':
+            form = ApplicantPersonalInfoForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Personal information updated successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'profile_details':
+            form = ApplicantProfileDetailsForm(request.POST, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile details updated successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'social_link':
+            social_link_id = request.POST.get('social_link_id')
+            if social_link_id:
+                # Edit existing social link
+                social_link = get_object_or_404(ApplicantSocialLink, id=social_link_id, profile=profile)
+                form = ApplicantSocialLinkForm(request.POST, instance=social_link)
+            else:
+                # Add new social link
+                form = ApplicantSocialLinkForm(request.POST)
+            
+            if form.is_valid():
+                social_link = form.save(commit=False)
+                social_link.profile = profile
+                social_link.save()
+                messages.success(request, 'Social link saved successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'delete_social_link':
+            social_link_id = request.POST.get('social_link_id')
+            social_link = get_object_or_404(ApplicantSocialLink, id=social_link_id, profile=profile)
+            social_link.delete()
+            messages.success(request, 'Social link deleted successfully!')
+            return redirect('dashboard:applicant_settings')
+        
+        elif form_type == 'contact_info':
+            form = ApplicantContactInfoForm(request.POST, instance=profile, user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Contact information updated successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'profile_privacy':
+            form = ApplicantProfilePrivacyForm(request.POST, instance=profile)
+            if form.is_valid():
+                form.save()
+                status = 'public' if form.cleaned_data['is_public'] else 'private'
+                messages.success(request, f'Profile privacy set to {status}!')
+                return redirect('dashboard:applicant_settings')
+        
+        elif form_type == 'resume':
+            form = ApplicantResumeForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                profile.calculate_completeness()
+                messages.success(request, 'Resume uploaded successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'change_password':
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Keep user logged in
+                messages.success(request, 'Password changed successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors in the password form.')
+    
+    # Initialize all forms with current data
+    personal_info_form = ApplicantPersonalInfoForm(instance=profile)
+    profile_details_form = ApplicantProfileDetailsForm(instance=profile)
+    contact_info_form = ApplicantContactInfoForm(instance=profile, user=request.user)
+    profile_privacy_form = ApplicantProfilePrivacyForm(instance=profile)
+    resume_form = ApplicantResumeForm(instance=profile)
+    password_form = PasswordChangeForm(request.user)
+    social_link_form = ApplicantSocialLinkForm()
+    
+    # Get existing social links
+    social_links = profile.social_links.all()
+    
+    context = {
+        'profile': profile,
+        'personal_info_form': personal_info_form,
+        'profile_details_form': profile_details_form,
+        'contact_info_form': contact_info_form,
+        'profile_privacy_form': profile_privacy_form,
+        'resume_form': resume_form,
+        'password_form': password_form,
+        'social_link_form': social_link_form,
+        'social_links': social_links,
+    }
+    
+    return render(request, 'dashboard/applicant/applicant_settings.html', context)
 
 @login_required
 def employer_profile(request):
