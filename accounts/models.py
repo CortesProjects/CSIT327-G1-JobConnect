@@ -199,6 +199,40 @@ class ApplicantProfile(models.Model):
         self.profile_completeness = int((filled_fields / total_fields) * 100)
         self.save(update_fields=['profile_completeness'])
     
+    @property
+    def is_complete(self):
+        """
+        Check if profile has all required fields filled.
+        Returns True only if ALL required fields are completed.
+        """
+        # Check required fields from Personal Info
+        if not self.image or self.image.name == 'defaults/default-avatar.png':
+            return False
+        if not self.first_name or not self.last_name:
+            return False
+        if not self.experience or not self.education:
+            return False
+        if not self.resume:
+            return False
+        
+        # Check required fields from Profile Details
+        if not self.date_of_birth:
+            return False
+        
+        # Check required fields from Contact Info
+        if not self.contact_number:
+            return False
+        if not self.user.email:
+            return False
+        
+        # Optional but recommended: location and biography
+        if not self.location:
+            return False
+        if not self.biography:
+            return False
+        
+        return True
+    
     def __str__(self):
         return f"Applicant Profile for {self.user.email}"
 
