@@ -1,6 +1,10 @@
 /* Applicant Dashboard Specific Styles */
 
 /* Overview Page */
+
+.main-content-header{
+    margin-bottom: 30px;
+}
 .main-content-header h2 {
     font-size: 24px;
     font-weight: 600;
@@ -11,9 +15,8 @@
     color: #6c757d;
 }
 
-/* Profile Completion Prompt */
 .profile-completion-prompt {
-    background-color: #dc3545;
+    background-color: #E05151;
     color: #fff;
     border-radius: 8px;
     padding: 20px;
