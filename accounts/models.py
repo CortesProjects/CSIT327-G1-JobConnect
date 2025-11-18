@@ -79,10 +79,15 @@ class ApplicantProfile(models.Model):
     setup_step_progress = models.IntegerField(default=1)
     
     # Step 1: Personal Info
-    # Name fields (editable during profile setup)
     first_name = models.CharField(max_length=150, blank=True, default='')
     middle_name = models.CharField(max_length=150, blank=True, default='')
     last_name = models.CharField(max_length=150, blank=True, default='')
+    
+    title = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Professional title or headline (e.g., 'Software Developer' or 'Marketing Specialist')"
+    )
     
     contact_number = models.CharField(
         max_length=15, 
@@ -94,11 +99,68 @@ class ApplicantProfile(models.Model):
         help_text="e.g., Cebu City, Philippines",
         blank=True
     )
+    
+    website = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text="Your personal website, portfolio, or blog URL"
+    )
 
     # Step 2: Education
     school_name = models.CharField(max_length=255, blank=True)
     degree = models.CharField(max_length=255, help_text="e.g., BS in Information Technology", blank=True)
     year_level = models.CharField(max_length=50, help_text="e.g., 3rd Year, Graduate", blank=True)
+    education = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Highest education level (e.g., Bachelor's Degree, Master's, PhD)"
+    )
+    
+    # Experience level
+    experience = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Years of experience (e.g., '0-1 years', '2-5 years', '5+ years')"
+    )
+    
+    # Profile Details (Demographics)
+    nationality = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Your nationality"
+    )
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Your date of birth"
+    )
+    
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+        ('prefer_not_to_say', 'Prefer not to say'),
+    ]
+    gender = models.CharField(
+        max_length=20,
+        choices=GENDER_CHOICES,
+        blank=True,
+        help_text="Your gender"
+    )
+    
+    MARITAL_STATUS_CHOICES = [
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('divorced', 'Divorced'),
+        ('widowed', 'Widowed'),
+        ('prefer_not_to_say', 'Prefer not to say'),
+    ]
+    marital_status = models.CharField(
+        max_length=20,
+        choices=MARITAL_STATUS_CHOICES,
+        blank=True,
+        help_text="Your marital status"
+    )
 
     # Step 3: Skills & Resume
     skills_summary = models.TextField(
@@ -124,8 +186,7 @@ class ApplicantProfile(models.Model):
     is_public = models.BooleanField(default=True, help_text="Allow employers to view your profile.")
     
     def calculate_completeness(self):
-        """Calculates and updates the profile completion percentage."""
-        total_fields = 6 # contact, location, school, degree, year, resume
+        total_fields = 6
         filled_fields = 0
         
         if self.contact_number: filled_fields += 1
@@ -143,7 +204,6 @@ class ApplicantProfile(models.Model):
 
 
 class ApplicantSocialLink(models.Model):
-    """Social media links for applicant profiles"""
     PLATFORM_CHOICES = [
         ('facebook', 'Facebook'),
         ('twitter', 'Twitter'),
@@ -181,8 +241,6 @@ class EmployerProfile(models.Model):
     )
     
     # --- Step 1: Company Info (Existing Fields) ---
-    # DEPRECATED: Name fields are not used for employer profiles (company_name is used instead)
-    # Kept for backwards compatibility - can be removed in future migration
     first_name = models.CharField(max_length=150, blank=True, default='')
     middle_name = models.CharField(max_length=150, blank=True, default='')
     last_name = models.CharField(max_length=150, blank=True, default='')
