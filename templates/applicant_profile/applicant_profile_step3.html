@@ -13,26 +13,26 @@
     <div class="step-navigation-wrapper">
     <section class="step-navigation">
             <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step1' %}active{% endif %}">
-                <i class="fas fa-user icon-left"></i> Personal Info
+                <i class="fas fa-user icon-left"></i> Personal
             </a>
 
             {% if progress >= 2 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </span>
             {% endif %}
 
             {% if progress >= 3 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </span>
             {% endif %}
         </section>
@@ -42,39 +42,21 @@
         {% csrf_token %}
 
         <div class="form-section-card">
-            <h2>Skills Summary</h2>
-            <p class="section-hint">Provide a concise list of your key technical and soft skills, separated by commas (e.g., Python, SQL, Agile, Teamwork).</p>
-            <div class="field-container">
-                <label for="{{ form.skills_summary.id_for_label }}" class="sr-only">Skills Summary</label>
-                {# This text area is for text input, not rich text, so no toolbar is needed #}
-                {{ form.skills_summary }}
-                <div id="skills-summary-error" class="error-text">{% if form.skills_summary.errors %}{{ form.skills_summary.errors.0 }}{% endif %}</div>
-            </div>
-        </div>
-
-        <div class="form-section-card">
-            <h2>Resume Upload</h2>
-            <p class="section-hint">Uploading a resume is required before applying to any job.</p>
+            <h2>Contact Information</h2>
+            <p class="section-hint">Provide your contact details so employers can reach you.</p>
             
-            {# Resume Upload Area (Uses the common upload-area styling) #}
-            <div class="upload-area resume-upload-area">
-                <label for="{{ form.resume.id_for_label }}" class="upload-label-full-area">
-                    <input type="file" id="{{ form.resume.id_for_label }}" name="{{ form.resume.name }}" accept=".pdf,.doc,.docx" class="actual-file-input">
-                    
-                    <div class="upload-content-placeholder">
-                        <i class="fas fa-file-upload"></i>
-                        <h4>Browse file or drop here</h4>
-                        <p class="upload-hint">PDF, DOC, or DOCX only. Max file size 5 MB.</p>
-                    </div>
-                    
-                    {# Content to show when file is attached (Hidden by default) #}
-                    <div class="file-attached-display" style="display: none;">
-                        <span class="file-name"></span>
-                        <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
-                    </div>
-                </label>
+            <div class="field-container">
+                <label for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
+                {{ form.contact_number }}
+                <div id="contact-number-error" class="error-text">{% if form.contact_number.errors %}{{ form.contact_number.errors.0 }}{% endif %}</div>
             </div>
-            <div id="resume-error" class="error-text">{% if form.resume.errors %}{{ form.resume.errors.0 }}{% endif %}</div>
+
+            <div class="field-container">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                {{ form.email }}
+                <small class="form-text text-muted">Email is linked to your account</small>
+                <div id="email-error" class="error-text">{% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}</div>
+            </div>
         </div>
 
         <div class="form-navigation-row centered-nav">

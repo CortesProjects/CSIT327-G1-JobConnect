@@ -12,31 +12,31 @@
     <div class="step-navigation-wrapper">
         <section class="step-navigation">
             <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step1' %}active{% endif %}">
-                <i class="fas fa-user icon-left"></i> Personal Info
+                <i class="fas fa-user icon-left"></i> Personal
             </a>
 
             {% if progress >= 2 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </span>
             {% endif %}
 
             {% if progress >= 3 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </span>
             {% endif %}
         </section>
     </div>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="form-section-card">
@@ -49,6 +49,46 @@
                     <input type="text" value="{{ user.username }}" class="form-control" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
                     <small class="form-text text-muted">Username cannot be changed</small>
                 </div>
+            </div>
+
+            {# Profile Picture Upload #}
+            <div class="field-container profile-picture-container">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                <div class="profile-picture-wrapper">
+                    {% if form.instance.image and form.instance.image.url != '/media/defaults/default-avatar.png' %}
+                    <div class="image-preview-setup has-image" id="profile-preview-setup" onclick="document.getElementById('{{ form.image.id_for_label }}').click()">
+                        <img src="{{ form.instance.image.url }}" alt="Profile Picture">
+                        <div class="hover-overlay-setup">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><span>Change photo</span> or drop here</p>
+                            <small>Max photo size 5 MB</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="image-preview-setup" id="profile-preview-setup" onclick="document.getElementById('{{ form.image.id_for_label }}').click()">
+                        <div class="upload-content-placeholder">
+                            <i class="fas fa-user-circle"></i>
+                            <h4>Upload Photo</h4>
+                            <p class="upload-hint">JPG, PNG, or GIF. Max 5 MB.</p>
+                        </div>
+                        <div class="hover-overlay-setup">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><span>Browse photo</span> or drop here</p>
+                            <small>Max photo size 5 MB</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {{ form.image }}
+                </div>
+                <div id="image-error" class="error-text">{% if form.image.errors %}{{ form.image.errors.0 }}{% endif %}</div>
+            </div>
+
+            {# Professional Title #}
+            <div class="field-container">
+                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+                <small class="form-text text-muted">e.g., Software Developer, Marketing Specialist</small>
+                <div id="title-error" class="error-text">{% if form.title.errors %}{{ form.title.errors.0 }}{% endif %}</div>
             </div>
             
             <div class="input-group-row">
@@ -72,15 +112,36 @@
             
             <div class="input-group-row">
                 <div class="field-container">
-                    <label for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
-                    {{ form.contact_number }}
-                    <div id="contact-number-error" class="error-text">{% if form.contact_number.errors %}{{ form.contact_number.errors.0 }}{% endif %}</div>
+                    <label for="{{ form.experience.id_for_label }}">{{ form.experience.label }}</label>
+                    {{ form.experience }}
+                    <small class="form-text text-muted">Total years of professional experience</small>
+                    <div id="experience-error" class="error-text">{% if form.experience.errors %}{{ form.experience.errors.0 }}{% endif %}</div>
                 </div>
                 <div class="field-container">
-                    <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
-                    {{ form.location }}
-                    <div id="location-error" class="error-text">{% if form.location.errors %}{{ form.location.errors.0 }}{% endif %}</div>
+                    <label for="{{ form.education.id_for_label }}">{{ form.education.label }}</label>
+                    {{ form.education }}
+                    <div id="education-error" class="error-text">{% if form.education.errors %}{{ form.education.errors.0 }}{% endif %}</div>
                 </div>
+            </div>
+
+            {# Resume Upload #}
+            <div class="field-container">
+                <label for="{{ form.resume.id_for_label }}">{{ form.resume.label }}</label>
+                <div class="upload-area resume-upload-area {% if form.instance.resume %}file-attached{% endif %}">
+                    <label for="{{ form.resume.id_for_label }}" class="upload-label-full-area">
+                        {{ form.resume }}
+                        <div class="upload-content-placeholder" {% if form.instance.resume %}style="display: none;"{% endif %}>
+                            <i class="fas fa-file-upload"></i>
+                            <h4>Browse file or drop here</h4>
+                            <p class="upload-hint">PDF, DOC, or DOCX only. Max file size 5 MB.</p>
+                        </div>
+                        <div class="file-attached-display" {% if form.instance.resume %}style="display: flex;"{% else %}style="display: none;"{% endif %}>
+                            <span class="file-name">{% if form.instance.resume %}{{ form.instance.resume.name|slice:"28:" }}{% endif %}</span>
+                            <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                    </label>
+                </div>
+                <div id="resume-error" class="error-text">{% if form.resume.errors %}{{ form.resume.errors.0 }}{% endif %}</div>
             </div>
         </div>
 

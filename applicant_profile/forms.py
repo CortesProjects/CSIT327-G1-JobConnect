@@ -5,8 +5,17 @@ from accounts.models import ApplicantProfile
 class PersonalInfoForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
-        fields = ['first_name', 'middle_name', 'last_name', 'contact_number', 'location']
+        fields = ['image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education', 'resume']
         widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+                'required': 'required'
+            }),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Software Developer, Marketing Specialist'
+            }),
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control', 
                 'placeholder': 'e.g., Juan',
@@ -21,23 +30,44 @@ class PersonalInfoForm(forms.ModelForm):
                 'placeholder': 'e.g., Dela Cruz',
                 'required': 'required'
             }),
-            'contact_number': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'e.g., 09123456789',
+            'experience': forms.Select(attrs={
+                'class': 'form-control',
                 'required': 'required'
-            }),
-            'location': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'e.g., Cebu City, PH',
+            }, choices=[
+                ('', 'Select experience level'),
+                ('0-1', '0-1 years (Entry Level)'),
+                ('1-3', '1-3 years'),
+                ('3-5', '3-5 years'),
+                ('5-10', '5-10 years'),
+                ('10+', '10+ years (Senior)'),
+            ]),
+            'education': forms.Select(attrs={
+                'class': 'form-control',
+                'required': 'required'
+            }, choices=[
+                ('', 'Select highest education level'),
+                ('high_school', 'High School'),
+                ('associate', 'Associate Degree'),
+                ('bachelor', "Bachelor's Degree"),
+                ('master', "Master's Degree"),
+                ('doctorate', 'Doctorate/PhD'),
+                ('vocational', 'Vocational/Technical'),
+            ]),
+            'resume': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.doc,.docx',
                 'required': 'required'
             }),
         }
         labels = {
+            'image': 'Profile Picture *',
+            'title': 'Professional Title/Headline',
             'first_name': 'First Name *',
             'middle_name': 'Middle Name (Optional)',
             'last_name': 'Last Name *',
-            'contact_number': 'Contact Number (10+ digits) *',
-            'location': 'Current Location (City, Country) *'
+            'experience': 'Experience *',
+            'education': 'Education *',
+            'resume': 'Resume/CV *'
         }
     
     def __init__(self, *args, **kwargs):
@@ -45,9 +75,12 @@ class PersonalInfoForm(forms.ModelForm):
 
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
-        self.fields['contact_number'].required = True
-        self.fields['location'].required = True
         self.fields['middle_name'].required = False
+        self.fields['image'].required = True
+        self.fields['title'].required = False
+        self.fields['experience'].required = True
+        self.fields['education'].required = True
+        self.fields['resume'].required = True
     
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name', '').strip()
@@ -69,6 +102,89 @@ class PersonalInfoForm(forms.ModelForm):
             raise forms.ValidationError("Last name can only contain letters, spaces, and hyphens.")
         return last_name
     
+
+class ProfileDetailsForm(forms.ModelForm):
+    class Meta:
+        model = ApplicantProfile
+        fields = [
+            'nationality', 'date_of_birth', 'gender', 'marital_status', 'biography'
+        ]
+        widgets = {
+            'nationality': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Filipino'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'required': 'required'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'marital_status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'biography': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Tell employers about yourself, your experience, and career goals...'
+            }),
+        }
+        labels = {
+            'nationality': 'Nationality',
+            'date_of_birth': 'Date of Birth *',
+            'gender': 'Gender',
+            'marital_status': 'Marital Status',
+            'biography': 'Biography'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['nationality'].required = False
+        self.fields['date_of_birth'].required = True
+        self.fields['gender'].required = False
+        self.fields['marital_status'].required = False
+        self.fields['biography'].required = False
+    
+
+# Form for Step 3: Contact Information and Resume
+class ContactInfoForm(forms.ModelForm):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'readonly': 'readonly',
+            'style': 'background-color: #f0f0f0; cursor: not-allowed;'
+        }),
+        label='Email *',
+        required=True
+    )
+    
+    class Meta:
+        model = ApplicantProfile
+        fields = ['contact_number']
+        widgets = {
+            'contact_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 09123456789',
+                'required': 'required'
+            }),
+        }
+        labels = {
+            'contact_number': 'Phone *'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set email from user instance if available
+        if self.instance and self.instance.user:
+            self.fields['email'].initial = self.instance.user.email
+        
+        self.fields['contact_number'].required = True
+       
+    
     def clean_contact_number(self):
         contact_number = self.cleaned_data.get('contact_number', '').strip()
         if not contact_number:
@@ -81,124 +197,3 @@ class PersonalInfoForm(forms.ModelForm):
             raise forms.ValidationError("Contact number cannot exceed 15 digits.")
         return contact_number
     
-    def clean_location(self):
-        location = self.cleaned_data.get('location', '').strip()
-        if not location:
-            raise forms.ValidationError("Location is required.")
-        if len(location) < 3:
-            raise forms.ValidationError("Please provide a valid location (e.g., Cebu City, PH).")
-        return location
-
-class EducationForm(forms.ModelForm):
-    class Meta:
-        model = ApplicantProfile
-        fields = ['school_name', 'degree', 'year_level']
-        widgets = {
-            'school_name': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'e.g., University of San Carlos',
-                'required': 'required'
-            }),
-            'degree': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'e.g., BS in Computer Science',
-                'required': 'required'
-            }),
-            'year_level': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'e.g., 4th Year',
-                'required': 'required'
-            }),
-        }
-        labels = {
-            'school_name': 'School Name *',
-            'degree': 'Degree/Course *',
-            'year_level': 'Year Level *'
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        self.fields['school_name'].required = True
-        self.fields['degree'].required = True
-        self.fields['year_level'].required = True
-    
-    def clean_school_name(self):
-        school_name = self.cleaned_data.get('school_name', '').strip()
-        if not school_name:
-            raise forms.ValidationError("School/University name is required.")
-        if len(school_name) < 3:
-            raise forms.ValidationError("School name must be at least 3 characters long.")
-        return school_name
-    
-    def clean_degree(self):
-        degree = self.cleaned_data.get('degree', '').strip()
-        if not degree:
-            raise forms.ValidationError("Degree/Course is required.")
-        if len(degree) < 2:
-            raise forms.ValidationError("Degree/Course must be at least 2 characters long.")
-        return degree
-    
-    def clean_year_level(self):
-        year_level = self.cleaned_data.get('year_level', '').strip()
-        if not year_level:
-            raise forms.ValidationError("Year level is required.")
-        return year_level
-
-# Form for Step 3: Skills and Resume
-class SkillsResumeForm(forms.ModelForm):
-    class Meta:
-        model = ApplicantProfile
-        fields = ['skills_summary', 'resume']
-        widgets = {
-            'skills_summary': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Enter your skills separated by commas...',
-                'required': 'required'
-            }),
-            
-            'resume': forms.FileInput(attrs={'required': 'required'}),
-        }
-        labels = {
-            'skills_summary': 'Skills Summary *',
-            'resume': 'Upload Resume (PDF, DOC, DOCX - Max 5MB) *'
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)        # Make fields required for new profiles
-        self.fields['skills_summary'].required = True
-        
-        if self.instance and self.instance.pk and self.instance.resume:
-            self.fields['resume'].required = False
-        else:
-            self.fields['resume'].required = True
-    
-    def clean_skills_summary(self):
-        skills_summary = self.cleaned_data.get('skills_summary', '').strip()
-        if not skills_summary:
-            raise forms.ValidationError("Skills summary is required.")
-        if len(skills_summary) < 10:
-            raise forms.ValidationError("Please provide a more detailed skills summary (at least 10 characters).")
-        
-        skills_list = [s.strip() for s in skills_summary.split(',') if s.strip()]
-        if len(skills_list) < 1:
-            raise forms.ValidationError("Please provide at least one skill.")
-        return skills_summary
-        
-    def clean_resume(self):
-        
-        resume = self.cleaned_data.get('resume', False)
-        
-        if resume:
-            if resume.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Resume file cannot be larger than 5MB.")
-            
-            allowed_extensions = ['pdf', 'doc', 'docx']
-            file_extension = resume.name.split('.')[-1].lower()
-            if file_extension not in allowed_extensions:
-                raise forms.ValidationError(f"Only {', '.join(allowed_extensions).upper()} files are allowed.")
-        elif not self.instance.resume:
-            raise forms.ValidationError("Uploading a resume is required.")
-        
-        return resume

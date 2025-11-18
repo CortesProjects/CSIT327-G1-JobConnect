@@ -12,26 +12,26 @@
     <div class="step-navigation-wrapper">
     <section class="step-navigation">
             <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step1' %}active{% endif %}">
-                <i class="fas fa-user icon-left"></i> Personal Info
+                <i class="fas fa-user icon-left"></i> Personal
             </a>
 
             {% if progress >= 2 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-graduation-cap icon-left"></i> Education
+                    <i class="fas fa-id-card icon-left"></i> Profile
                 </span>
             {% endif %}
 
             {% if progress >= 3 %}
                 <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </a>
             {% else %}
                 <span class="step-link disabled">
-                    <i class="fas fa-laptop-code icon-left"></i> Skills & Resume
+                    <i class="fas fa-phone icon-left"></i> Contact
                 </span>
             {% endif %}
         </section>
@@ -40,26 +40,40 @@
         {% csrf_token %}
 
         <div class="form-section-card">
-            <h2>Current/Last Education</h2>
-            <p class="section-hint">Provide details on your highest or most recent educational attainment.</p>
-            
-            <div class="field-container">
-                <label for="{{ form.school_name.id_for_label }}">School/University Name</label>
-                {{ form.school_name }}
-                <div id="school-name-error" class="error-text">{% if form.school_name.errors %}{{ form.school_name.errors.0 }}{% endif %}</div>
-            </div>
+            <h2>Profile Details</h2>
+            <p class="section-hint">Additional information to help employers understand your background (optional).</p>
             
             <div class="input-group-row">
-                <div class="field-container flex-2">
-                    <label for="{{ form.degree.id_for_label }}">Degree/Course</label>
-                    {{ form.degree }}
-                    <div id="degree-error" class="error-text">{% if form.degree.errors %}{{ form.degree.errors.0 }}{% endif %}</div>
+                <div class="field-container">
+                    <label for="{{ form.nationality.id_for_label }}">{{ form.nationality.label }}</label>
+                    {{ form.nationality }}
+                    <div id="nationality-error" class="error-text">{% if form.nationality.errors %}{{ form.nationality.errors.0 }}{% endif %}</div>
                 </div>
-                <div class="field-container flex-1">
-                    <label for="{{ form.year_level.id_for_label }}">Year Level</label>
-                    {{ form.year_level }}
-                    <div id="year-level-error" class="error-text">{% if form.year_level.errors %}{{ form.year_level.errors.0 }}{% endif %}</div>
+                <div class="field-container">
+                    <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
+                    {{ form.date_of_birth }}
+                    <div id="date-of-birth-error" class="error-text">{% if form.date_of_birth.errors %}{{ form.date_of_birth.errors.0 }}{% endif %}</div>
                 </div>
+            </div>
+
+            <div class="input-group-row">
+                <div class="field-container">
+                    <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
+                    {{ form.gender }}
+                    <div id="gender-error" class="error-text">{% if form.gender.errors %}{{ form.gender.errors.0 }}{% endif %}</div>
+                </div>
+                <div class="field-container">
+                    <label for="{{ form.marital_status.id_for_label }}">{{ form.marital_status.label }}</label>
+                    {{ form.marital_status }}
+                    <div id="marital-status-error" class="error-text">{% if form.marital_status.errors %}{{ form.marital_status.errors.0 }}{% endif %}</div>
+                </div>
+            </div>
+
+            <div class="field-container">
+                <label for="{{ form.biography.id_for_label }}">{{ form.biography.label }}</label>
+                {{ form.biography }}
+                <small class="form-text text-muted">Tell us about yourself and your career goals</small>
+                <div id="biography-error" class="error-text">{% if form.biography.errors %}{{ form.biography.errors.0 }}{% endif %}</div>
             </div>
         </div>
 
