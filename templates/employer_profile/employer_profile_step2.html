@@ -51,17 +51,23 @@
                 <div class="field-container">
                     <label for="{{ form.organization_type.id_for_label }}">Organization Type</label>
                     {{ form.organization_type }}
-                    {% if form.organization_type.errors %}<div class="error-text">{{ form.organization_type.errors }}</div>{% endif %}
+                    <div class="error-text" id="organization-type-error">
+                        {% if form.organization_type.errors %}{{ form.organization_type.errors.0 }}{% endif %}
+                    </div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.industry_type.id_for_label }}">Industry Type</label>
                     {{ form.industry_type }}
-                    {% if form.industry_type.errors %}<div class="error-text">{{ form.industry_type.errors }}</div>{% endif %}
+                    <div class="error-text" id="industry-type-error">
+                        {% if form.industry_type.errors %}{{ form.industry_type.errors.0 }}{% endif %}
+                    </div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.team_size.id_for_label }}">Team Size</label>
                     {{ form.team_size }}
-                    {% if form.team_size.errors %}<div class="error-text">{{ form.team_size.errors }}</div>{% endif %}
+                    <div class="error-text" id="team-size-error">
+                        {% if form.team_size.errors %}{{ form.team_size.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -71,17 +77,21 @@
                     <label for="{{ form.year_established.id_for_label }}">Year of Establishment</label>
                     {{ form.year_established }}
                     <i class="fas fa-calendar-alt date-icon"></i>
-                    {% if form.year_established.errors %}<div class="error-text">{{ form.year_established.errors }}</div>{% endif %}
+                    <div class="error-text" id="year-established-error">
+                        {% if form.year_established.errors %}{{ form.year_established.errors.0 }}{% endif %}
+                    </div>
                 </div>
                 <div class="field-container">
-                    <label for="{{ form.company_website.id_for_label }}">Company Website</label>
+                    <label for="{{ form.company_website.id_for_label }}">Company Website (Optional)</label>
                     {{ form.company_website }}
-                    {% if form.company_website.errors %}<div class="error-text">{{ form.company_website.errors }}</div>{% endif %}
+                    <div class="error-text" id="company-website-error">
+                        {% if form.company_website.errors %}{{ form.company_website.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
 
             {# --- Company Vision (Rich Text Area) --- #}
-            <h3>Company Vision</h3>
+            <h3>Company Vision (Optional)</h3>
             <div class="field-container">
                 {# Assuming company_vision is set up like about_us for rich text editing #}
                 {# Render the hidden input field for saving data #}
@@ -105,7 +115,9 @@
                     <button type="button" data-command="outdent"><i class="fas fa-outdent"></i></button>
                 </div>
             </div>
-            {% if form.company_vision.errors %}<div class="error-text">{{ form.company_vision.errors }}</div>{% endif %}
+            <div class="error-text" id="company-vision-error">
+                {% if form.company_vision.errors %}{{ form.company_vision.errors.0 }}{% endif %}
+            </div>
             
         </div>
 

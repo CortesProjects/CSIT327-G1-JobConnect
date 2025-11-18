@@ -4,7 +4,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // Select main elements
     const richTextToolbar = document.querySelector('.rich-text-toolbar');
     const uploadColumns = document.querySelectorAll('.upload-column');
-    const form = document.querySelector('form'); 
+    const form = document.querySelector('form');
+    
+    // =========================================================
+    // ERROR HANDLING: Auto-scroll to first error on page load
+    // =========================================================
+    const firstError = document.querySelector('.error-text:not(:empty)');
+    if (firstError) {
+        // Scroll to the first error message
+        setTimeout(() => {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
     
     // --- NEW: Date Picker Logic Setup ---
     document.querySelectorAll('.date-input-wrapper').forEach(wrapper => {
@@ -68,10 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const fileAttachedDisplay = uploadArea.querySelector('.file-attached-display');
         const fileNameSpan = fileAttachedDisplay.querySelector('.file-name');
         const removeFileBtn = fileAttachedDisplay.querySelector('.remove-file-btn');
+        const existingFile = uploadArea.dataset.existingFile;
 
         // Function to update display based on file presence
         const updateFileDisplay = () => {
-            if (fileInput.files.length > 0) {
+            const hasNewFile = fileInput.files.length > 0;
+            const hasExistingFile = existingFile && existingFile.trim() !== '';
+            
+            if (hasNewFile) {
                 const fileName = fileInput.files[0].name;
                 fileNameSpan.textContent = fileName;
                 
@@ -81,7 +96,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 // Update CSS classes for visual feedback
                 uploadArea.classList.add('file-attached'); 
-                uploadArea.classList.remove('drag-over'); 
+                uploadArea.classList.remove('drag-over');
+            } else if (hasExistingFile) {
+                // Show existing file name
+                const fileName = existingFile.split('/').pop();
+                fileNameSpan.textContent = fileName + ' (uploaded)';
+                
+                contentPlaceholder.style.display = 'none';
+                fileAttachedDisplay.style.display = 'flex';
+                uploadArea.classList.add('file-attached');
             } else {
                 // Show placeholder, Hide file display
                 contentPlaceholder.style.display = 'flex';
@@ -104,7 +127,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 e.stopPropagation(); 
                 
                 // Reset file input value
-                fileInput.value = ''; 
+                fileInput.value = '';
+                // Clear the existing file reference
+                uploadArea.dataset.existingFile = '';
                 updateFileDisplay(); 
             });
         }
@@ -198,37 +223,57 @@ document.addEventListener("DOMContentLoaded", function () {
                         hiddenInput.value = pair.editor.innerHTML;
                     }
                 });
+                // Backend will handle validation
+            });
+        }
 
-                // Validate file uploads for step 1
-                const logoInput = document.querySelector('input[name="logo"]');
-                const permitInput = document.querySelector('input[name="business_permit"]');
-                const logoError = document.getElementById('logo-error');
-                const permitError = document.getElementById('business-permit-error');
-                
-                if (logoInput && permitInput && logoError && permitError) {
-                    // Clear previous errors
-                    logoError.textContent = '';
-                    permitError.textContent = '';
-                    
-                    const hasLogo = logoInput.files.length > 0;
-                    const hasPermit = permitInput.files.length > 0;
-                    
-                    let isValid = true;
-                    
-                    if (!hasLogo) {
-                        logoError.textContent = 'Company logo is required.';
-                        isValid = false;
+        // === Phone code auto-detection (Step 3) ===
+        const phoneCodeSelect = document.getElementById('phone-code-select');
+        const phoneInput = document.querySelector('input[name="phone_number"]');
+        if (phoneCodeSelect && phoneInput) {
+            const normalize = s => (s||"").toString().replace(/^\+|\s|\-|\.|\(|\)/g,'');
+            const tryDetect = () => {
+                const raw = phoneInput.value.trim();
+                if (!raw) return;
+                // 1) +NNN prefix
+                let match = raw.match(/^(\+\d{1,3})/);
+                let code = null;
+                if (match) code = match[1];
+                else {
+                    // 2) 00NNN prefix
+                    let m2 = raw.match(/^00(\d{1,3})/);
+                    if (m2) code = '+' + m2[1];
+                    else {
+                        // 3) try to match available options by numeric prefix without plus
+                        const norm = normalize(raw);
+                        for (const opt of phoneCodeSelect.options) {
+                            const optCode = normalize(opt.value);
+                            if (optCode && norm.startsWith(optCode)) { code = '+' + optCode; break; }
+                        }
                     }
-                    
-                    if (!hasPermit) {
-                        permitError.textContent = 'Business permit is required.';
-                        isValid = false;
-                    }
-                    
-                    if (!isValid) {
-                        e.preventDefault();
-                        return false;
-                    }
+                }
+                if (code) {
+                    if (phoneCodeSelect.value !== code) phoneCodeSelect.value = code;
+                    // remove the detected code from the input so number holds the national part
+                    const codeNoPlus = code.replace('+','');
+                    let cleaned = raw.replace(new RegExp('^\\+?' + codeNoPlus), '');
+                    // handle leading 0s, spaces, dashes
+                    cleaned = cleaned.replace(/^[-.\s\(\)0]+/, '');
+                    phoneInput.value = cleaned;
+                }
+            };
+            // run on blur and on load
+            phoneInput.addEventListener('blur', tryDetect);
+            tryDetect();
+
+            // when select changes, ensure number doesn't duplicate code
+            phoneCodeSelect.addEventListener('change', () => {
+                const raw = phoneInput.value.trim();
+                if (!raw) return;
+                const normRaw = normalize(raw);
+                const selected = normalize(phoneCodeSelect.value);
+                if (selected && normRaw.startsWith(selected)) {
+                    phoneInput.value = raw.replace(new RegExp('^\\+?' + selected), '');
                 }
             });
         }

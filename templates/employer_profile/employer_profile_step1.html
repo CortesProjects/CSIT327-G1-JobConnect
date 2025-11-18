@@ -45,7 +45,7 @@
     {% endif %}
     </section>
 </div>
-    <form method="post" enctype="multipart="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-section-card">
             <h2>Username</h2>
@@ -60,7 +60,7 @@
             <div class="upload-group-row">
                 <div class="upload-column">
                     <h3 class="upload-column-title">Company Logo</h3>
-                    <label for="{{ form.logo.id_for_label }}" class="upload-area square-logo-area">
+                    <label for="{{ form.logo.id_for_label }}" class="upload-area square-logo-area" data-existing-file="{% if form.instance.logo %}{{ form.instance.logo.name }}{% endif %}">
                         <input type="file" id="{{ form.logo.id_for_label }}" name="{{ form.logo.name }}" accept="image/*" class="actual-file-input">
                         <div class="upload-content-placeholder">
                             <i class="fas fa-cloud-upload-alt"></i>
@@ -81,7 +81,7 @@
                 {# RIGHT UPLOAD AREA: Business Permit #}
                 <div class="upload-column">
                     <h3 class="upload-column-title">Business Permit</h3> 
-                    <label for="{{ form.business_permit.id_for_label }}" class="upload-area business-permit-area">
+                    <label for="{{ form.business_permit.id_for_label }}" class="upload-area business-permit-area" data-existing-file="{% if form.instance.business_permit %}{{ form.instance.business_permit.name }}{% endif %}">
                         <input type="file" id="{{ form.business_permit.id_for_label }}" name="{{ form.business_permit.name }}" accept="image/*, application/pdf" class="actual-file-input">
                         <div class="upload-content-placeholder">
                             <i class="fas fa-cloud-upload-alt"></i>
@@ -105,8 +105,10 @@
         <div class="form-section-card">
             <h2>Company name</h2>
             <div class="field-container">
-                {{ form.company_name }} 
-                {% if form.company_name.errors %}<div class="error-text">{{ form.company_name.errors }}</div>{% endif %}
+                {{ form.company_name }}
+                <div class="error-text" id="company-name-error">
+                    {% if form.company_name.errors %}{{ form.company_name.errors.0 }}{% endif %}
+                </div>
             </div>
             <h2>About Us</h2>
             <div class="field-container">
