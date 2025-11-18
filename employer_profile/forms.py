@@ -3,22 +3,10 @@ from accounts.models import EmployerProfile
 
 # --- Step 1: Company Info Form (For Image/File Uploads) ---
 class EmployerProfileCompanyInfoForm(forms.ModelForm):
-    first_name = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., Juan', 'class': 'form-control'}),
-        label='First Name'
-    )
-    middle_name = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., Santos (Optional)', 'class': 'form-control'}),
-        label='Middle Name (Optional)'
-    )
-    last_name = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., Dela Cruz', 'class': 'form-control'}),
-        label='Last Name'
-    )
     company_name = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Enter your company name', 'class': 'form-control'}),
-        label='Company Name'
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter your company name', 'class': 'form-control', 'required': 'required'}),
+        label='Company Name *'
     )
     # FIX: Change widget to HiddenInput
     about_us = forms.CharField(
@@ -30,6 +18,14 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
     class Meta:
         model = EmployerProfile
         fields = ['company_name', 'about_us', 'logo', 'business_permit']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make company_name required, files handled by JavaScript
+        self.fields['company_name'].required = True
+        self.fields['logo'].required = False
+        self.fields['business_permit'].required = False
+        self.fields['about_us'].required = False
 
 # --- Step 2: Founding Info Form ---
 class EmployerProfileFoundingInfoForm(forms.ModelForm):

@@ -47,12 +47,17 @@
 </div>
     <form method="post" enctype="multipart="multipart/form-data">
         {% csrf_token %}
-
+        <div class="form-section-card">
+            <h2>Username</h2>
+            <div class="field-container">
+                <input type="text" value="{{ user.username }}" class="form-control" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small class="form-text text-muted">Username cannot be changed</small>
+            </div>
+        </div>
+        <hr>
         <div class="form-section-card">
             <h2>Logo & Business Permit</h2>
             <div class="upload-group-row">
-                
-                {# LEFT UPLOAD AREA: Logo #}
                 <div class="upload-column">
                     <h3 class="upload-column-title">Company Logo</h3>
                     <label for="{{ form.logo.id_for_label }}" class="upload-area square-logo-area">
@@ -68,12 +73,14 @@
                         </div>
                         <span class="upload-label"></span>
                     </label>
-                    {% if form.logo.errors %}<div class="error-text">{{ form.logo.errors }}</div>{% endif %}
+                    <div class="error-text" id="logo-error">
+                        {% if form.logo.errors %}{{ form.logo.errors.0 }}{% endif %}
+                    </div>
                 </div>
                 
                 {# RIGHT UPLOAD AREA: Business Permit #}
                 <div class="upload-column">
-                    <h3 class="upload-column-title">Business Permit</h3> {# NEW TITLE #}
+                    <h3 class="upload-column-title">Business Permit</h3> 
                     <label for="{{ form.business_permit.id_for_label }}" class="upload-area business-permit-area">
                         <input type="file" id="{{ form.business_permit.id_for_label }}" name="{{ form.business_permit.name }}" accept="image/*, application/pdf" class="actual-file-input">
                         <div class="upload-content-placeholder">
@@ -87,43 +94,12 @@
                         </div>
                         <span class="upload-label"></span>
                     </label>
-                    {% if form.business_permit.errors %}<div class="error-text">{{ form.business_permit.errors }}</div>{% endif %}
+                    <div class="error-text" id="business-permit-error">
+                        {% if form.business_permit.errors %}{{ form.business_permit.errors.0 }}{% endif %}
+                    </div>
                 </div>
             </div>
             
-            {% comment %} Moved error messages into their respective upload-column divs above {% endcomment %}
-        </div>
-        <hr>
-        <div class="form-section-card">
-            <h2>Personal Information</h2>
-            
-            <div class="input-group-row">
-                {# Username (Read-only from User model) #}
-                <div class="field-container">
-                    <label>Username</label>
-                    <input type="text" value="{{ user.username }}" class="form-control" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
-                    <small class="form-text text-muted">Username cannot be changed</small>
-                </div>
-            </div>
-            
-            <div class="input-group-row">
-                {# First Name, Middle Name, Last Name #}
-                <div class="field-container">
-                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}<div class="error-text">{{ form.first_name.errors.0 }}</div>{% endif %}
-                </div>
-                <div class="field-container">
-                    <label for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
-                    {{ form.middle_name }}
-                    {% if form.middle_name.errors %}<div class="error-text">{{ form.middle_name.errors.0 }}</div>{% endif %}
-                </div>
-                <div class="field-container">
-                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}<div class="error-text">{{ form.last_name.errors.0 }}</div>{% endif %}
-                </div>
-            </div>
         </div>
         <hr>
         <div class="form-section-card">
