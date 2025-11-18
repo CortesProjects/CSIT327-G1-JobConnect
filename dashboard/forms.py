@@ -33,28 +33,133 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
     
     class Meta:
         model = ApplicantProfile
-        fields = ['image', 'first_name', 'middle_name', 'last_name', 'school_name', 'degree']
+        fields = ['image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education', 'website', 'resume']
         widgets = {
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
-            'middle_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Middle name (Optional)'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
-            'school_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'School/University'}),
-            'degree': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Degree/Course'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'e.g., Software Developer, Marketing Specialist'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'First name'
+            }),
+            'middle_name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Middle name (Optional)'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Last name'
+            }),
+            'experience': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'education': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://yourwebsite.com'
+            }),
+            'resume': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.doc,.docx'
+            }),
         }
         labels = {
             'image': 'Profile Picture',
+            'title': 'Title/Headline',
             'first_name': 'First Name',
             'middle_name': 'Middle Name (Optional)',
             'last_name': 'Last Name',
-            'school_name': 'Education',
-            'degree': 'Degree/Course',
+            'experience': 'Experience',
+            'education': 'Educations',
+            'website': 'Personal Website URL',
+            'resume': 'Resume/CV',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['middle_name'].required = False
         self.fields['image'].required = False
+        self.fields['title'].required = False
+        self.fields['website'].required = False
+        self.fields['resume'].required = False
+        self.fields['experience'].required = False
+        self.fields['education'].required = False
+        
+        # Set choices for experience field
+        self.fields['experience'].widget.choices = [
+            ('', 'Select experience level'),
+            ('0-1', '0-1 years (Entry Level)'),
+            ('1-3', '1-3 years'),
+            ('3-5', '3-5 years'),
+            ('5-10', '5-10 years'),
+            ('10+', '10+ years (Senior)'),
+        ]
+        
+        # Set choices for education field
+        self.fields['education'].widget.choices = [
+            ('', 'Select highest education level'),
+            ('high_school', 'High School'),
+            ('associate', 'Associate Degree'),
+            ('bachelor', "Bachelor's Degree"),
+            ('master', "Master's Degree"),
+            ('doctorate', 'Doctorate/PhD'),
+            ('vocational', 'Vocational/Technical'),
+        ]
+    
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name', '').strip()
+        if first_name and len(first_name) < 2:
+            raise forms.ValidationError("First name must be at least 2 characters long.")
+        if first_name and not all(c.isalpha() or c.isspace() or c == '-' for c in first_name):
+            raise forms.ValidationError("First name can only contain letters, spaces, and hyphens.")
+        return first_name
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name', '').strip()
+        if last_name and len(last_name) < 2:
+            raise forms.ValidationError("Last name must be at least 2 characters long.")
+        if last_name and not all(c.isalpha() or c.isspace() or c == '-' for c in last_name):
+            raise forms.ValidationError("Last name can only contain letters, spaces, and hyphens.")
+        return last_name
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        # If image is False, it means no new file was uploaded (unchanged)
+        if image is False:
+            return image
+        # If image exists and is not False, validate it
+        if image:
+            # Check file size (max 5MB)
+            if hasattr(image, 'size') and image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Image file size must be less than 5MB.")
+            # Check file type
+            if hasattr(image, 'content_type') and image.content_type not in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']:
+                raise forms.ValidationError("Only JPG, PNG, and GIF images are allowed.")
+        return image
+    
+    def clean_resume(self):
+        resume = self.cleaned_data.get('resume')
+        # If resume is False, it means no new file was uploaded (unchanged)
+        if resume is False:
+            return resume
+        # If resume exists and is not False, validate it
+        if resume:
+            # Check file size (max 5MB)
+            if hasattr(resume, 'size') and resume.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Resume file size must be less than 5MB.")
+            # Check file type
+            allowed_types = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ]
+            if hasattr(resume, 'content_type') and resume.content_type not in allowed_types:
+                raise forms.ValidationError("Only PDF, DOC, and DOCX files are allowed.")
+        return resume
 
 
 class ApplicantProfileDetailsForm(forms.ModelForm):
@@ -62,14 +167,21 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
     
     class Meta:
         model = ApplicantProfile
-        fields = ['location', 'year_level', 'skills_summary', 'biography']
+        fields = ['nationality', 'date_of_birth', 'gender', 'marital_status', 'biography']
         widgets = {
-            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City, Country'}),
-            'year_level': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Year level/Experience'}),
-            'skills_summary': forms.Textarea(attrs={
+            'nationality': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., Python, JavaScript, SQL, Django, React, Problem Solving...',
-                'rows': 3
+                'placeholder': 'e.g., Filipino'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'marital_status': forms.Select(attrs={
+                'class': 'form-control'
             }),
             'biography': forms.Textarea(attrs={
                 'class': 'form-control', 
@@ -78,11 +190,32 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
             }),
         }
         labels = {
-            'location': 'Location',
-            'year_level': 'Experience',
-            'skills_summary': 'Skills',
+            'nationality': 'Nationality',
+            'date_of_birth': 'Date of Birth',
+            'gender': 'Gender',
+            'marital_status': 'Marital Status',
             'biography': 'Biography',
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nationality'].required = False
+        self.fields['date_of_birth'].required = False
+        self.fields['gender'].required = False
+        self.fields['marital_status'].required = False
+        self.fields['biography'].required = False
+    
+    def clean_date_of_birth(self):
+        from datetime import date
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age < 16:
+                raise forms.ValidationError("You must be at least 16 years old.")
+            if age > 100:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+        return dob
 
 
 class ApplicantContactInfoForm(forms.ModelForm):
@@ -110,6 +243,17 @@ class ApplicantContactInfoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields['email'].initial = self.user.email
+    
+    def clean_contact_number(self):
+        contact_number = self.cleaned_data.get('contact_number', '').strip()
+        if contact_number:
+            # Remove any non-digit characters for validation
+            digits_only = ''.join(c for c in contact_number if c.isdigit())
+            if len(digits_only) < 10:
+                raise forms.ValidationError("Contact number must be at least 10 digits.")
+            if len(digits_only) > 15:
+                raise forms.ValidationError("Contact number cannot exceed 15 digits.")
+        return contact_number
     
     def save(self, commit=True):
         profile = super().save(commit=False)

@@ -1200,6 +1200,163 @@ input[type="file"]::file-selector-button:hover {
     background-color: #c82333;
 }
 
+/* =====================================================
+   VALIDATION STYLES
+===================================================== */
+
+/* Error styling for form fields */
+input.error,
+select.error,
+textarea.error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+}
+
+input.error:focus,
+select.error:focus,
+textarea.error:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Error text styling */
+.error-text {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+    font-weight: 500;
+}
+
+.form-group .error-text {
+    margin-top: 8px;
+}
+
+/* Success styling for valid fields */
+input.valid:not([type="file"]),
+select.valid,
+textarea.valid {
+    border-color: #28a745;
+}
+
+input.valid:focus,
+select.valid:focus,
+textarea.valid:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Notification Toast */
+.notification-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    display: none;
+    min-width: 300px;
+    max-width: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-toast.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+.notification-toast.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.notification-toast.info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.notification-toast.warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Loading state for forms */
+form.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+form.loading button[type="submit"] {
+    position: relative;
+}
+
+form.loading button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Field focus enhancement */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+    transition: all 0.2s ease;
+}
+
+/* Disabled field styling */
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Required field indicator */
+.form-group label[for] {
+    position: relative;
+}
+
+input[required] + label::after,
+select[required] + label::after,
+textarea[required] + label::after {
+    content: ' *';
+    color: #dc3545;
+    font-weight: bold;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .form-row {

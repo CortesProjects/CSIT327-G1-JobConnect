@@ -57,20 +57,78 @@ def applicant_settings(request):
         if form_type == 'personal_info':
             form = ApplicantPersonalInfoForm(request.POST, request.FILES, instance=profile)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Personal information updated successfully!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    form.save()
+                    messages.success(request, 'Personal information updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving personal information: {str(e)}')
             else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
                 messages.error(request, 'Please correct the errors below.')
         
         elif form_type == 'profile_details':
             form = ApplicantProfileDetailsForm(request.POST, instance=profile)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Profile details updated successfully!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    form.save()
+                    messages.success(request, 'Profile details updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving profile details: {str(e)}')
             else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
                 messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'social_links_bulk':
+            try:
+                # Get arrays from POST data
+                platforms = request.POST.getlist('platform[]')
+                urls = request.POST.getlist('url[]')
+                link_ids = request.POST.getlist('link_id[]')
+                
+                # Get existing social link IDs for this profile
+                existing_ids = set(profile.social_links.values_list('id', flat=True))
+                submitted_ids = set()
+                
+                # Process each submitted link
+                for i, (platform, url) in enumerate(zip(platforms, urls)):
+                    if not platform or not url:
+                        continue
+                    
+                    link_id = link_ids[i] if i < len(link_ids) and link_ids[i] else None
+                    
+                    if link_id:
+                        # Update existing link
+                        link_id = int(link_id)
+                        submitted_ids.add(link_id)
+                        social_link = ApplicantSocialLink.objects.filter(id=link_id, profile=profile).first()
+                        if social_link:
+                            social_link.platform = platform
+                            social_link.url = url
+                            social_link.save()
+                    else:
+                        # Create new link
+                        social_link = ApplicantSocialLink.objects.create(
+                            profile=profile,
+                            platform=platform,
+                            url=url
+                        )
+                        submitted_ids.add(social_link.id)
+                
+                # Delete links that were removed (in existing but not in submitted)
+                ids_to_delete = existing_ids - submitted_ids
+                if ids_to_delete:
+                    ApplicantSocialLink.objects.filter(id__in=ids_to_delete, profile=profile).delete()
+                
+                messages.success(request, 'Social links updated successfully!')
+                return redirect('dashboard:applicant_settings')
+            except Exception as e:
+                messages.error(request, f'Error updating social links: {str(e)}')
         
         elif form_type == 'social_link':
             social_link_id = request.POST.get('social_link_id')
@@ -101,10 +159,16 @@ def applicant_settings(request):
         elif form_type == 'contact_info':
             form = ApplicantContactInfoForm(request.POST, instance=profile, user=request.user)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Contact information updated successfully!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    form.save()
+                    messages.success(request, 'Contact information updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving contact information: {str(e)}')
             else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
                 messages.error(request, 'Please correct the errors below.')
         
         elif form_type == 'profile_privacy':

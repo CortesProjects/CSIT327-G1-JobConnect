@@ -254,16 +254,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="{{ profile_details_form.skills_summary.id_for_label }}">Skills</label>
-                    <small style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 5px;">
-                        List your key technical and soft skills (e.g., Python, SQL, Communication, Teamwork)
-                    </small>
-                    {{ profile_details_form.skills_summary }}
-                    {% if profile_details_form.skills_summary.errors %}
-                      <div class="error-text">{{ profile_details_form.skills_summary.errors.0 }}</div>
-                    {% endif %}
-                </div>
+                
                 <div class="form-group">
                     <label for="{{ profile_details_form.biography.id_for_label }}">Biography</label>
                     {{ profile_details_form.biography }}
@@ -846,6 +837,263 @@ document.addEventListener('keydown', function(e) {
         closeResumeModal();
     }
 });
+
+// Dynamic Form Validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time validation for text inputs
+    const textInputs = document.querySelectorAll('input[type="text"], input[type="url"], input[type="email"]');
+    textInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            // Remove error styling while typing
+            if (this.classList.contains('error')) {
+                this.classList.remove('error');
+                const errorDiv = this.parentElement.querySelector('.error-text');
+                if (errorDiv && !errorDiv.textContent.trim()) {
+                    errorDiv.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    // Validate date of birth
+    const dobInput = document.querySelector('input[type="date"]');
+    if (dobInput) {
+        dobInput.addEventListener('change', function() {
+            validateDateOfBirth(this);
+        });
+    }
+    
+    // Validate file uploads
+    const imageInput = document.getElementById('id_image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            validateImageFile(this);
+        });
+    }
+    
+    const resumeInputs = document.querySelectorAll('input[name="resume"]');
+    resumeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            validateResumeFile(this);
+        });
+    });
+    
+    // Form submission validation
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const invalidFields = [];
+            const formInputs = this.querySelectorAll('input[required], select[required], textarea[required]');
+            
+            formInputs.forEach(field => {
+                if (!validateField(field)) {
+                    invalidFields.push(field);
+                }
+            });
+            
+            if (invalidFields.length > 0) {
+                e.preventDefault();
+                invalidFields[0].focus();
+                showNotification('Please correct the errors in the form', 'error');
+            }
+        });
+    });
+});
+
+function validateField(field) {
+    const value = field.value.trim();
+    const fieldName = field.name;
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Required field check
+    if (field.hasAttribute('required') && !value) {
+        isValid = false;
+        errorMessage = 'This field is required';
+    }
+    
+    // Name validation
+    if (isValid && (fieldName.includes('name') && !fieldName.includes('resume'))) {
+        if (value.length > 0 && value.length < 2) {
+            isValid = false;
+            errorMessage = 'Must be at least 2 characters';
+        }
+    }
+    
+    // Email validation
+    if (isValid && field.type === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            isValid = false;
+            errorMessage = 'Please enter a valid email address';
+        }
+    }
+    
+    // URL validation
+    if (isValid && field.type === 'url' && value) {
+        try {
+            new URL(value);
+        } catch {
+            isValid = false;
+            errorMessage = 'Please enter a valid URL';
+        }
+    }
+    
+    // Contact number validation
+    if (isValid && fieldName === 'contact_number' && value) {
+        const digits = value.replace(/\D/g, '');
+        if (digits.length < 10) {
+            isValid = false;
+            errorMessage = 'Contact number must be at least 10 digits';
+        } else if (digits.length > 15) {
+            isValid = false;
+            errorMessage = 'Contact number cannot exceed 15 digits';
+        }
+    }
+    
+    // Update field styling
+    if (!isValid) {
+        field.classList.add('error');
+        showFieldError(field, errorMessage);
+    } else {
+        field.classList.remove('error');
+        hideFieldError(field);
+    }
+    
+    return isValid;
+}
+
+function validateDateOfBirth(field) {
+    const value = field.value;
+    if (!value) return true;
+    
+    const dob = new Date(value);
+    const today = new Date();
+    const age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+    
+    let isValid = true;
+    let errorMessage = '';
+    
+    if (age < 16 || (age === 16 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))) {
+        isValid = false;
+        errorMessage = 'You must be at least 16 years old';
+    } else if (age > 100) {
+        isValid = false;
+        errorMessage = 'Please enter a valid date of birth';
+    }
+    
+    if (!isValid) {
+        field.classList.add('error');
+        showFieldError(field, errorMessage);
+    } else {
+        field.classList.remove('error');
+        hideFieldError(field);
+    }
+    
+    return isValid;
+}
+
+function validateImageFile(input) {
+    const file = input.files[0];
+    if (!file) return true;
+    
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        isValid = false;
+        errorMessage = 'Image must be less than 5MB';
+    }
+    
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (isValid && !validTypes.includes(file.type)) {
+        isValid = false;
+        errorMessage = 'Only JPG, PNG, and GIF images are allowed';
+    }
+    
+    if (!isValid) {
+        input.value = '';
+        showNotification(errorMessage, 'error');
+    }
+    
+    return isValid;
+}
+
+function validateResumeFile(input) {
+    const file = input.files[0];
+    if (!file) return true;
+    
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        isValid = false;
+        errorMessage = 'Resume must be less than 5MB';
+    }
+    
+    // Check file type
+    const validTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    if (isValid && !validTypes.includes(file.type)) {
+        isValid = false;
+        errorMessage = 'Only PDF, DOC, and DOCX files are allowed';
+    }
+    
+    if (!isValid) {
+        input.value = '';
+        showNotification(errorMessage, 'error');
+    }
+    
+    return isValid;
+}
+
+function showFieldError(field, message) {
+    let errorDiv = field.parentElement.querySelector('.error-text');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'error-text';
+        field.parentElement.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+function hideFieldError(field) {
+    const errorDiv = field.parentElement.querySelector('.error-text');
+    if (errorDiv && !errorDiv.textContent.includes('{{')) {
+        errorDiv.style.display = 'none';
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element if it doesn't exist
+    let notification = document.querySelector('.notification-toast');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.className = 'notification-toast';
+        document.body.appendChild(notification);
+    }
+    
+    notification.textContent = message;
+    notification.className = 'notification-toast ' + type;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
 </script>
 
 <!-- Remove the Add CV/Resume Modal as it's no longer needed -->
