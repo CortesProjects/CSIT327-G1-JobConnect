@@ -94,11 +94,6 @@ class ApplicantProfile(models.Model):
         validators=[MinLengthValidator(10, message="Contact number must be at least 10 digits.")],
         blank=True
     )
-    location = models.CharField(
-        max_length=255, 
-        help_text="e.g., Cebu City, Philippines",
-        blank=True
-    )
     
     website = models.URLField(
         max_length=500,
@@ -163,10 +158,6 @@ class ApplicantProfile(models.Model):
     )
 
     # Step 3: Skills & Resume
-    skills_summary = models.TextField(
-        blank=True, 
-        help_text="Comma-separated list of your key skills."
-    )
     biography = models.TextField(
         blank=True,
         help_text="Tell employers about yourself, your experience, and career goals."
@@ -190,7 +181,6 @@ class ApplicantProfile(models.Model):
         filled_fields = 0
         
         if self.contact_number: filled_fields += 1
-        if self.location: filled_fields += 1
         if self.school_name: filled_fields += 1
         if self.degree: filled_fields += 1
         if self.year_level: filled_fields += 1
@@ -225,9 +215,7 @@ class ApplicantProfile(models.Model):
         if not self.user.email:
             return False
         
-        # Optional but recommended: location and biography
-        if not self.location:
-            return False
+        # Optional but recommended: biography
         if not self.biography:
             return False
         
