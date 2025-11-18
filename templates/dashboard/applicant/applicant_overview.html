@@ -39,7 +39,7 @@
     </div>
 </div>
 
-{% if not user.profile.is_complete %}
+{% if user.user_type == 'applicant' and not user.profile.is_complete %}
 <div class="profile-completion-prompt">
     <div class="prompt-content">
         <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="prompt-profile-img">
@@ -48,7 +48,7 @@
             <p>Complete your profile editing & build your custom Resume</p>
         </div>
     </div>
-    <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="edit-profile-btn">
+    <a href="{% url 'dashboard:applicant_settings' %}" class="edit-profile-btn">
         Edit Profile <i class="fas fa-arrow-right"></i>
     </a>
 </div>
