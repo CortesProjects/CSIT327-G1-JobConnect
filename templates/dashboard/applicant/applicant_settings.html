@@ -1,8 +1,23 @@
 {% extends 'dashboard/applicant/applicant_dashboard_base.html' %}
 {% load static %}
 
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_settings.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="settings-container">
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div >
     <div class="settings-header">
         <h2>Settings</h2>
         <div class="settings-nav">
@@ -15,366 +30,332 @@
 
     <!-- Personal Tab -->
     <div class="settings-content" id="personal-tab" >
-        <div class="basic-information">
-            <h3>Basic Information</h3>
-            <div class="form-row">
-                <div class="form-group profile-picture">
-                    <label>Profile Picture</label>
-                    <div class="file-upload-area">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><span>Browse photo</span> or drop here</p>
-                        <small>A photo is 10x more likely to get a response. Max photo size 5 MB.</small>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="personal_info">
+            
+            <div class="basic-information">
+                <h3>Basic Information</h3>
+                <div class="form-row">
+                    <div class="form-group profile-picture">
+                        <label>Profile Picture</label>
+                        <div class="file-upload-area">
+                            {% if profile.image and profile.image.url != '/media/defaults/default-avatar.png' %}
+                            <img src="{{ profile.image.url }}" alt="Profile" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+                            {% endif %}
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><span>Browse photo</span> or drop here</p>
+                            <small>A photo is 10x more likely to get a response. Max photo size 5 MB.</small>
+                            {{ personal_info_form.image }}
+                        </div>
+                        {% if personal_info_form.image.errors %}
+                            <div class="error-text">{{ personal_info_form.image.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group-wrapper">
+                        <div class="form-group">
+                            <label for="{{ personal_info_form.first_name.id_for_label }}">First Name</label>
+                            {{ personal_info_form.first_name }}
+                            {% if personal_info_form.first_name.errors %}
+                                <div class="error-text">{{ personal_info_form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ personal_info_form.middle_name.id_for_label }}">Middle Name (Optional)</label>
+                            {{ personal_info_form.middle_name }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ personal_info_form.last_name.id_for_label }}">Last Name</label>
+                            {{ personal_info_form.last_name }}
+                            {% if personal_info_form.last_name.errors %}
+                                <div class="error-text">{{ personal_info_form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ personal_info_form.school_name.id_for_label }}">Education</label>
+                            {{ personal_info_form.school_name }}
+                            {% if personal_info_form.school_name.errors %}
+                                <div class="error-text">{{ personal_info_form.school_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ personal_info_form.degree.id_for_label }}">Degree/Course</label>
+                            {{ personal_info_form.degree }}
+                            {% if personal_info_form.degree.errors %}
+                                <div class="error-text">{{ personal_info_form.degree.errors.0 }}</div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="form-group-wrapper">
-                    <div class="form-group">
-                        <label for="full-name">Full name</label>
-                        <input type="text" id="full-name" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <label for="title-headline">Tittle/headline</label>
-                        <input type="text" id="title-headline" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <label for="experience">Experience</label>
-                        <select id="experience">
-                            <option>Select...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="education">Educations</label>
-                        <select id="education">
-                            <option>Select...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="personal-website">Personal Website</label>
-                        <input type="text" id="personal-website" placeholder="Website url...">
-                    </div>
-                </div>
+                <button type="submit" class="btn-save">Save Changes</button>
             </div>
-            <button class="btn-save">Save Changes</button>
-        </div>
+        </form>
 
-        <div class="cv-resume-section">
-            <h3>Your CV/Resume</h3>
-            <div class="resume-list">
-                <div class="resume-item">
-                    <i class="fas fa-file-alt"></i>
-                    <div class="resume-info">
-                        <p>Professional Resume</p>
-                        <small>3.3 MB</small>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="resume">
+            
+            <div class="cv-resume-section">
+                <h3>Your CV/Resume</h3>
+                <div class="resume-list">
+                    {% if profile.resume %}
+                    <div class="resume-item">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="resume-info">
+                            <p>{{ profile.resume.name|slice:"28:" }}</p>
+                            <small>{{ profile.resume.size|filesizeformat }}</small>
+                        </div>
+                        <a href="{{ profile.resume.url }}" target="_blank" class="btn-edit-resume">View Resume</a>
                     </div>
-                    <i class="fas fa-ellipsis-h"></i>
-                </div>
-                <div class="resume-item">
-                    <i class="fas fa-file-alt"></i>
-                    <div class="resume-info">
-                        <p>Product Designer</p>
-                        <small>4.7 MB</small>
+                    {% endif %}
+                    <div class="add-resume-item" id="addCvBtn">
+                        <i class="fas fa-plus-circle"></i>
+                        <p>{{ profile.resume|yesno:"Update,Add" }} CV/Resume</p>
+                        <small>Browse file or drop here, PDF/DOC/DOCX only (Max 5MB)</small>
+                        {{ resume_form.resume }}
                     </div>
-                    <div class="resume-actions">
-                        <button class="btn-edit-resume">Edit Resume</button>
-                        <button class="btn-delete-resume">Delete</button>
-                    </div>
-                    <i class="fas fa-ellipsis-h menu-icon"></i>
+                    {% if resume_form.resume.errors %}
+                        <div class="error-text">{{ resume_form.resume.errors.0 }}</div>
+                    {% endif %}
                 </div>
-                <div class="resume-item">
-                    <i class="fas fa-file-alt"></i>
-                    <div class="resume-info">
-                        <p>Visual Designer</p>
-                        <small>1.3 MB</small>
-                    </div>
-                    <i class="fas fa-ellipsis-h"></i>
-                </div>
-                <div class="add-resume-item" id="addCvBtn">
-                    <i class="fas fa-plus-circle"></i>
-                    <p>Add CV/Resume</p>
-                    <small>Browse file or drop here, only pdf</small>
-                </div>
+                <button type="submit" class="btn-save">Upload Resume</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Profile Tab -->
     <div class="settings-content" id="profile-tab" style="display: none;">
-        <div class="profile-form-section">
-            <div class="form-row-two-columns">
-                <div class="form-group">
-                    <label for="nationality">Nationality</label>
-                    <select id="nationality">
-                        <option>Select...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="date-of-birth">Date of Birth</label>
-                    <div class="input-with-icon">
-                        <input type="text" id="date-of-birth" placeholder="dd/mm/yyyy">
-                        <i class="fas fa-eye"></i>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="profile_details">
+            
+            <div class="profile-form-section">
+                <div class="form-row-two-columns">
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.location.id_for_label }}">Location</label>
+                        {{ profile_details_form.location }}
+                        {% if profile_details_form.location.errors %}
+                            <div class="error-text">{{ profile_details_form.location.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.year_level.id_for_label }}">Experience/Year Level</label>
+                        {{ profile_details_form.year_level }}
+                        {% if profile_details_form.year_level.errors %}
+                            <div class="error-text">{{ profile_details_form.year_level.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="form-row-two-columns">
                 <div class="form-group">
-                    <label for="gender">Gender</label>
-                    <select id="gender">
-                        <option>Select...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="marital-status">Marital Status</label>
-                    <select id="marital-status">
-                        <option>Select...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row-two-columns">
-                <div class="form-group">
-                    <label for="education-profile">Education</label>
-                    <select id="education-profile">
-                        <option>Select...</option>
-                    </select>
+                    <label for="{{ profile_details_form.skills_summary.id_for_label }}">Skills</label>
+                    <small style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 5px;">
+                        List your key technical and soft skills (e.g., Python, SQL, Communication, Teamwork)
+                    </small>
+                    {{ profile_details_form.skills_summary }}
+                    {% if profile_details_form.skills_summary.errors %}
+                        <div class="error-text">{{ profile_details_form.skills_summary.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group">
-                    <label for="experience-profile">Experience</label>
-                    <select id="experience-profile">
-                        <option>Select...</option>
-                    </select>
+                    <label for="{{ profile_details_form.biography.id_for_label }}">Biography</label>
+                    <small style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 5px;">
+                        Tell employers about yourself, your experience, and career goals
+                    </small>
+                    {{ profile_details_form.biography }}
+                    
+                    {% if profile_details_form.biography.errors %}
+                        <div class="error-text">{{ profile_details_form.biography.errors.0 }}</div>
+                    {% endif %}
                 </div>
+                <button type="submit" class="btn-save">Save Changes</button>
             </div>
-            <div class="form-group">
-                <label for="biography">Biography</label>
-                <div class="rich-text-editor">
-                    <textarea id="biography" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
-                    <div class="editor-toolbar">
-                        <button type="button" class="editor-btn"><i class="fas fa-bold"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-italic"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-underline"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-strikethrough"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-link"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-list-ul"></i></button>
-                        <button type="button" class="editor-btn"><i class="fas fa-list-ol"></i></button>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-save">Save Changes</button>
-        </div>
+        </form>
     </div>
 
     <!-- Social Links Tab -->
     <div class="settings-content" id="social-tab" style="display: none;">
         <div class="social-links-form-section">
-            <div class="social-link-item">
-                <label>Social Link 1</label>
-                <div class="social-link-input-group">
-                    <select class="social-platform-select">
-                        <option value="facebook"><i class="fab fa-facebook"></i> Facebook</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="youtube">Youtube</option>
-                        <option value="linkedin">LinkedIn</option>
-                    </select>
-                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
-                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
-                </div>
+            {% if social_links %}
+                {% for link in social_links %}
+                <form method="post" class="social-link-item">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="social_link">
+                    <input type="hidden" name="social_link_id" value="{{ link.id }}">
+                    
+                    <label>{{ link.get_platform_display }}</label>
+                    <div class="social-link-input-group">
+                        <select name="platform" class="social-platform-select">
+                            {% for value, label in social_link_form.fields.platform.choices %}
+                                <option value="{{ value }}" {% if link.platform == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="url" name="url" value="{{ link.url }}" placeholder="Profile link/url..." class="social-link-input">
+                        <button type="submit" class="btn-save-link" title="Save"><i class="fas fa-check"></i></button>
+                    </div>
+                </form>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_social_link">
+                    <input type="hidden" name="social_link_id" value="{{ link.id }}">
+                    <button type="submit" class="btn-remove-link" onclick="return confirm('Are you sure you want to delete this social link?')">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </form>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; text-align: center; padding: 20px;">No social links added yet. Click the button below to add your first social link.</p>
+            {% endif %}
+            
+            <div id="add-social-link-form" style="{% if not show_add_form %}display: none;{% endif %}">
+                <form method="post" class="social-link-item">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="social_link">
+                    
+                    <label>New Social Link</label>
+                    <div class="social-link-input-group">
+                        {{ social_link_form.platform }}
+                        {{ social_link_form.url }}
+                        <button type="submit" class="btn-save-link"><i class="fas fa-check"></i> Save</button>
+                        <button type="button" class="btn-cancel-link" onclick="document.getElementById('add-social-link-form').style.display='none'">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% if social_link_form.platform.errors %}
+                        <div class="error-text">{{ social_link_form.platform.errors.0 }}</div>
+                    {% endif %}
+                    {% if social_link_form.url.errors %}
+                        <div class="error-text">{{ social_link_form.url.errors.0 }}</div>
+                    {% endif %}
+                </form>
             </div>
-            <div class="social-link-item">
-                <label>Social Link 2</label>
-                <div class="social-link-input-group">
-                    <select class="social-platform-select">
-                        <option value="facebook">Facebook</option>
-                        <option value="twitter" selected>Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="youtube">Youtube</option>
-                        <option value="linkedin">LinkedIn</option>
-                    </select>
-                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
-                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
-                </div>
-            </div>
-            <div class="social-link-item">
-                <label>Social Link 2</label>
-                <div class="social-link-input-group">
-                    <select class="social-platform-select">
-                        <option value="facebook">Facebook</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram" selected>Instagram</option>
-                        <option value="youtube">Youtube</option>
-                        <option value="linkedin">LinkedIn</option>
-                    </select>
-                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
-                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
-                </div>
-            </div>
-            <div class="social-link-item">
-                <label>Social Link 3</label>
-                <div class="social-link-input-group">
-                    <select class="social-platform-select">
-                        <option value="facebook">Facebook</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="youtube" selected>Youtube</option>
-                        <option value="linkedin">LinkedIn</option>
-                    </select>
-                    <input type="text" placeholder="Profile link/url..." class="social-link-input">
-                    <button type="button" class="btn-remove-link"><i class="fas fa-times-circle"></i></button>
-                </div>
-            </div>
-            <button type="button" class="btn-add-social-link">
+            
+            <button type="button" class="btn-add-social-link" onclick="document.getElementById('add-social-link-form').style.display='block'; this.style.display='none'">
                 <i class="fas fa-plus-circle"></i> Add New Social Link
             </button>
-            <button class="btn-save">Save Changes</button>
         </div>
     </div>
 
-    <!-- Account Settings Tab -->
     <div class="settings-content" id="account-tab" style="display: none;">
         <div class="account-settings-section">
-            <div class="account-section-block">
-                <h3>Contact Info</h3>
-                <div class="form-row-two-columns">
-                    <div class="form-group">
-                        <label for="phone-number">Phone</label>
-                        <div class="phone-input-group">
-                            <select class="country-code-select">
-                                <option value="+880">🇧🇩 +880</option>
-                                <option value="+1">🇺🇸 +1</option>
-                                <option value="+44">🇬🇧 +44</option>
-                            </select>
-                            <input type="text" id="phone-number" placeholder="Phone number...">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="contact_info">
+                
+                <div class="account-section-block">
+                    <h3>Contact Info</h3>
+                    <div class="form-row-two-columns">
+                        <div class="form-group">
+                            <label for="{{ contact_info_form.contact_number.id_for_label }}">Phone</label>
+                            {{ contact_info_form.contact_number }}
+                            {% if contact_info_form.contact_number.errors %}
+                                <div class="error-text">{{ contact_info_form.contact_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ contact_info_form.email.id_for_label }}">Email</label>
+                            {{ contact_info_form.email }}
+                            {% if contact_info_form.email.errors %}
+                                <div class="error-text">{{ contact_info_form.email.errors.0 }}</div>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email-address">Email</label>
-                        <input type="email" id="email-address" placeholder="Email address...">
-                    </div>
+                    <button type="submit" class="btn-save">Save Changes</button>
                 </div>
-                <button class="btn-save">Save Changes</button>
-            </div>
+            </form>
 
             <div class="account-section-block">
                 <h3>Notification</h3>
                 <div class="notification-checkboxes">
                     <div class="checkbox-item">
-                        <input type="checkbox" id="notify-shortlisted" checked>
-                        <label for="notify-shortlisted">Notify me when employers shortlist me</label>
+                        <input type="checkbox" id="notify-shortlisted" disabled>
+                        <label for="notify-shortlisted">Notify me when employers shortlist me (Coming soon)</label>
                     </div>
                     <div class="checkbox-item">
-                        <input type="checkbox" id="notify-applications">
-                        <label for="notify-applications">Notify me when my applications are open</label>
+                        <input type="checkbox" id="notify-applications" disabled>
+                        <label for="notify-applications">Notify me when my applications are open (Coming soon)</label>
                     </div>
                     <div class="checkbox-item">
-                        <input type="checkbox" id="notify-job-alerts" checked>
-                        <label for="notify-job-alerts">Notify me when I have an job alerts</label>
+                        <input type="checkbox" id="notify-job-alerts" disabled>
+                        <label for="notify-job-alerts">Notify me when I have an job alerts (Coming soon)</label>
                     </div>
                 </div>
             </div>
 
             <div class="account-section-block">
                 <h3>Job Alerts</h3>
-                <div class="form-row-two-columns">
-                    <div class="form-group">
-                        <label for="job-role">Role</label>
-                        <input type="text" id="job-role" placeholder="Your job roles">
-                    </div>
-                    <div class="form-group">
-                        <label for="job-location">Location</label>
-                        <input type="text" id="job-location" placeholder="City, state, country name">
-                    </div>
-                </div>
-                <button class="btn-save">Save Changes</button>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Coming soon - Set up automatic job alerts based on your preferences.</p>
             </div>
 
-            <div class="account-section-block">
-                <h3>Profile Privacy</h3>
-                <div class="privacy-toggle-row">
-                    <div class="privacy-info">
-                        <label class="toggle-label">
-                            <input type="checkbox" class="privacy-toggle" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="privacy-status">Yes</span>
+            <form method="post" id="privacy-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="profile_privacy">
+                
+                <div class="account-section-block">
+                    <h3>Profile Privacy</h3>
+                    <div class="privacy-toggle-row">
+                        <div class="privacy-info">
+                            <label class="toggle-label">
+                                {{ profile_privacy_form.is_public }}
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="privacy-status">{{ profile.is_public|yesno:"Yes,No" }}</span>
+                        </div>
+                        <span class="privacy-description">Your profile is {{ profile.is_public|yesno:"public,private" }} now</span>
                     </div>
-                    <span class="privacy-description">Your profile is public now</span>
+                    <button type="submit" class="btn-save" style="margin-top: 15px;">Save Privacy Settings</button>
                 </div>
-            </div>
+            </form>
 
-            <div class="account-section-block">
-                <h3>Resume Privacy</h3>
-                <div class="privacy-toggle-row">
-                    <div class="privacy-info">
-                        <label class="toggle-label">
-                            <input type="checkbox" class="privacy-toggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="privacy-status">No</span>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="change_password">
+                
+                <div class="account-section-block">
+                    <h3>Change Password</h3>
+                    <div class="form-row-three-columns">
+                        <div class="form-group">
+                            <label for="{{ password_form.old_password.id_for_label }}">Current Password</label>
+                            <div class="input-with-icon">
+                                {{ password_form.old_password }}
+                                <i class="fas fa-eye toggle-password"></i>
+                            </div>
+                            {% if password_form.old_password.errors %}
+                                <div class="error-text">{{ password_form.old_password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ password_form.new_password1.id_for_label }}">New Password</label>
+                            <div class="input-with-icon">
+                                {{ password_form.new_password1 }}
+                                <i class="fas fa-eye toggle-password"></i>
+                            </div>
+                            {% if password_form.new_password1.errors %}
+                                <div class="error-text">{{ password_form.new_password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ password_form.new_password2.id_for_label }}">Confirm Password</label>
+                            <div class="input-with-icon">
+                                {{ password_form.new_password2 }}
+                                <i class="fas fa-eye toggle-password"></i>
+                            </div>
+                            {% if password_form.new_password2.errors %}
+                                <div class="error-text">{{ password_form.new_password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <span class="privacy-description">Your resume is private now</span>
+                    <button type="submit" class="btn-save">Save Changes</button>
                 </div>
-            </div>
-
-            <div class="account-section-block">
-                <h3>Change Password</h3>
-                <div class="form-row-three-columns">
-                    <div class="form-group">
-                        <label for="current-password">Current Password</label>
-                        <div class="input-with-icon">
-                            <input type="password" id="current-password" placeholder="Password">
-                            <i class="fas fa-eye toggle-password"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-password">New Password</label>
-                        <div class="input-with-icon">
-                            <input type="password" id="new-password" placeholder="Password">
-                            <i class="fas fa-eye toggle-password"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm-password">Confirm Password</label>
-                        <div class="input-with-icon">
-                            <input type="password" id="confirm-password" placeholder="Password">
-                            <i class="fas fa-eye toggle-password"></i>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn-save">Save Changes</button>
-            </div>
+            </form>
 
             <div class="account-section-block delete-account-section">
                 <h3>Delete Your Account</h3>
                 <p class="delete-warning">If you delete your JobConnect account, you will no longer be able to get information about the matched jobs, following employers, and job alerts. You will be abandoned from all the services of JobConnect.</p>
-                <button class="btn-delete-account">Close Account</button>
+                <button class="btn-delete-account" disabled>Close Account (Contact Admin)</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add CV/Resume Modal -->
-<div id="addCvModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Add CV/Resume</h2>
-            <span class="close-button">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="cv-name">CV/Resume Name</label>
-                <input type="text" id="cv-name" placeholder="">
-            </div>
-            <div class="form-group">
-                <label>Upload your CV/Resume</label>
-                <div class="file-upload-modal">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p><span>Browse File</span> or drop here</p>
-                    <small>Only PDF format available. Max file size 12 MB.</small>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel">Cancel</button>
-            <button class="btn-add-cv">Add CV/Resume</button>
-        </div>
-    </div>
-</div>
+<!-- Remove the Add CV/Resume Modal as it's no longer needed -->
 {% endblock %}

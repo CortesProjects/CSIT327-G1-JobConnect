@@ -1,0 +1,697 @@
+/* =====================================================
+   APPLICANT SETTINGS PAGE STYLES
+   Color Palette: Primary #dc3545 (Red)
+===================================================== */
+
+/* Settings Container */
+.settings-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Settings Header */
+.settings-header {
+    padding: 30px;
+}
+
+.settings-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 25px 0;
+}
+
+/* Settings Navigation Tabs */
+.settings-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.settings-nav a {
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.settings-nav a:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.settings-nav a.active {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-color: #dc3545;
+}
+
+/* Settings Content */
+.settings-content {
+    padding: 35px;
+}
+
+/* Section Titles */
+.settings-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* Form Sections */
+.basic-information,
+.cv-resume-section,
+.profile-form-section,
+.social-links-form-section,
+.account-settings-section {
+    margin-bottom: 40px;
+}
+
+.account-section-block {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #e9ecef;
+}
+
+.account-section-block h3 {
+    font-size: 18px;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Form Layout */
+.form-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 25px;
+}
+
+.form-row-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row-three-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="url"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group small {
+    display: block;
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.form-group-wrapper {
+    flex: 1;
+}
+
+/* Profile Picture Upload */
+.profile-picture {
+    flex-shrink: 0;
+}
+
+.file-upload-area {
+    border: 2px dashed #dc3545;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    background-color: #fff5f5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 250px;
+}
+
+.file-upload-area:hover {
+    background-color: #ffe5e5;
+    border-color: #c82333;
+}
+
+.file-upload-area i {
+    font-size: 40px;
+    color: #dc3545;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.file-upload-area p {
+    color: #495057;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.file-upload-area span {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.file-upload-area small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.file-upload-area img {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 3px solid #dc3545;
+}
+
+/* Resume Section */
+.resume-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resume-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.resume-item:hover {
+    border-color: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+}
+
+.resume-item i.fa-file-alt {
+    font-size: 32px;
+    color: #dc3545;
+}
+
+.resume-info {
+    flex: 1;
+}
+
+.resume-info p {
+    margin: 0;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 15px;
+}
+
+.resume-info small {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.add-resume-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    border: 2px dashed #dc3545;
+    border-radius: 10px;
+    background-color: #fff5f5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-resume-item:hover {
+    background-color: #ffe5e5;
+    border-color: #c82333;
+}
+
+.add-resume-item i {
+    font-size: 36px;
+    color: #dc3545;
+    margin-bottom: 10px;
+}
+
+.add-resume-item p {
+    margin: 5px 0;
+    font-weight: 600;
+    color: #495057;
+    font-size: 15px;
+}
+
+.add-resume-item small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Social Links */
+.social-link-item {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+}
+
+.social-link-item label {
+    display: block;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.social-link-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.social-platform-select {
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: #ffffff;
+    min-width: 150px;
+    transition: all 0.3s ease;
+}
+
+.social-platform-select:focus {
+    outline: none;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.social-link-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.social-link-input:focus {
+    outline: none;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+#add-social-link-form {
+    background-color: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #e9ecef;
+}
+
+/* Buttons */
+.btn-save {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.btn-save:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+.btn-save-link {
+    background-color: #28a745;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-save-link:hover {
+    background-color: #218838;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+.btn-cancel-link {
+    background-color: #6c757d;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel-link:hover {
+    background-color: #5a6268;
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+}
+
+.btn-remove-link {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-remove-link:hover {
+    color: #c82333;
+    transform: scale(1.1);
+}
+
+.btn-add-social-link {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: #fff5f5;
+    border: 2px dashed #dc3545;
+    border-radius: 10px;
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-social-link:hover {
+    background-color: #ffe5e5;
+    border-color: #c82333;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.15);
+}
+
+.btn-add-social-link i {
+    margin-right: 8px;
+}
+
+.btn-edit-resume {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-edit-resume:hover {
+    background-color: #c82333;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete-account {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete-account:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete-account:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Privacy Toggle */
+.privacy-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.privacy-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+    margin: 0;
+}
+
+.toggle-label input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 28px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-label input:checked + .toggle-slider {
+    background-color: #dc3545;
+}
+
+.toggle-label input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.privacy-status {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.privacy-description {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Notifications */
+.notification-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #dc3545;
+}
+
+.checkbox-item label {
+    color: #495057;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Delete Account Section */
+.delete-account-section {
+    background-color: #fff5f5;
+    border: 2px solid #dc3545;
+}
+
+.delete-warning {
+    color: #721c24;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* Password Input with Icon */
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon input {
+    padding-right: 45px !important;
+}
+
+.input-with-icon i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.input-with-icon i:hover {
+    color: #dc3545;
+}
+
+/* File Input Styling */
+input[type="file"] {
+    display: block !important;
+    margin-top: 10px;
+    padding: 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    width: 100%;
+    background-color: #f8f9fa;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #c82333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row-two-columns,
+    .form-row-three-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-nav {
+        flex-direction: column;
+    }
+    
+    .settings-nav a {
+        text-align: center;
+    }
+    
+    .social-link-input-group {
+        flex-direction: column;
+    }
+    
+    .social-platform-select {
+        width: 100%;
+    }
+}
