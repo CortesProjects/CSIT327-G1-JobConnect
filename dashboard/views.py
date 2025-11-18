@@ -11,7 +11,11 @@ from .forms import (
     ApplicantContactInfoForm,
     ApplicantProfilePrivacyForm,
     ApplicantResumeForm,
-    ApplicantSocialLinkForm
+    ApplicantSocialLinkForm,
+    EmployerCompanyInfoForm,
+    EmployerFoundingInfoForm,
+    EmployerContactInfoForm,
+    EmployerBusinessPermitForm
 )
 
 @login_required
@@ -171,7 +175,85 @@ def employer_my_jobs(request):
 
 @login_required
 def employer_settings(request):
-    return render(request, 'dashboard/employer/employer_settings.html')
+    """Handle employer settings with multiple form types"""
+    try:
+        profile = request.user.employer_profile_rel
+    except:
+        messages.error(request, "Employer profile not found.")
+        return redirect('dashboard:employer_dashboard')
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        # Company Info Form
+        if form_type == 'company_info':
+            form = EmployerCompanyInfoForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Company information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        # Founding Info Form
+        elif form_type == 'founding_info':
+            form = EmployerFoundingInfoForm(request.POST, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Founding information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        # Contact Info Form
+        elif form_type == 'contact_info':
+            form = EmployerContactInfoForm(request.POST, instance=profile, user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Contact information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        # Business Permit Form
+        elif form_type == 'business_permit':
+            form = EmployerBusinessPermitForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Business permit uploaded successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        # Change Password Form
+        elif form_type == 'change_password':
+            form = PasswordChangeForm(user=request.user, data=request.POST)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Password changed successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                for error in form.errors.values():
+                    messages.error(request, error[0])
+    
+    # Initialize all forms with current data
+    company_info_form = EmployerCompanyInfoForm(instance=profile)
+    founding_info_form = EmployerFoundingInfoForm(instance=profile)
+    contact_info_form = EmployerContactInfoForm(instance=profile, user=request.user)
+    business_permit_form = EmployerBusinessPermitForm(instance=profile)
+    password_form = PasswordChangeForm(user=request.user)
+    
+    context = {
+        'profile': profile,
+        'company_info_form': company_info_form,
+        'founding_info_form': founding_info_form,
+        'contact_info_form': contact_info_form,
+        'business_permit_form': business_permit_form,
+        'password_form': password_form,
+    }
+    
+    return render(request, 'dashboard/employer/employer_settings.html', context)
 
 @login_required
 def employer_job_applications(request):

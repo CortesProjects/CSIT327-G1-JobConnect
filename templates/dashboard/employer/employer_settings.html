@@ -7,22 +7,28 @@
 {% endblock %}
 
 {% block dashboard_content %}
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="settings-container">
     <h1 class="page-title">Settings</h1>
 
     <!-- Tabs Navigation -->
     <div class="settings-tabs">
         <button class="tab-btn active" data-tab="company-info">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-building"></i>
             Company Info
         </button>
         <button class="tab-btn" data-tab="founding-info">
             <i class="fas fa-globe"></i>
             Founding Info
-        </button>
-        <button class="tab-btn" data-tab="social-media">
-            <i class="fas fa-share-alt"></i>
-            Social Media Profile
         </button>
         <button class="tab-btn" data-tab="account-setting">
             <i class="fas fa-cog"></i>
@@ -36,39 +42,52 @@
         <div class="tab-content active" id="company-info">
             <form method="post" enctype="multipart/form-data" class="settings-form">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="company_info">
                 
-                <!-- Logo & Banner Image -->
+                <!-- Logo & Banner Upload -->
                 <div class="form-section">
-                    <h3 class="section-title">Logo & Banner Image</h3>
-                    <div class="image-uploads">
+                    <h3 class="section-title">Logo & Banner</h3>
+                    <div class="form-row">
                         <div class="upload-item">
-                            <label class="upload-label">Upload Logo</label>
-                            <div class="image-preview" id="logo-preview">
-                                <div class="preview-placeholder">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                                <input type="file" id="logo-upload" name="logo" accept="image/*" hidden>
+                            <label class="section-subtitle">Logo</label>
+                            {% if profile.logo %}
+                            <div class="image-preview has-image" id="logo-preview">
+                                <img src="{{ profile.logo.url }}" alt="Company Logo">
                             </div>
                             <div class="upload-actions">
-                                <span class="file-size">3.5 MB</span>
-                                <button type="button" class="btn-text remove-btn" data-target="logo">Remove</button>
-                                <button type="button" class="btn-text replace-btn" data-target="logo">Replace</button>
+                                <button type="button" class="btn-text replace-btn" onclick="document.getElementById('id_logo').click()">Replace</button>
                             </div>
+                            {% else %}
+                            <div class="empty-state-box">
+                                <i class="fas fa-image"></i>
+                                <p>No logo uploaded yet</p>
+                                <button type="button" class="btn-upload-empty" onclick="document.getElementById('id_logo').click()">
+                                    <i class="fas fa-upload"></i> Upload Logo
+                                </button>
+                            </div>
+                            {% endif %}
+                            {{ company_info_form.logo }}
                         </div>
 
-                        <div class="upload-item banner">
-                            <label class="upload-label">Banner Image</label>
-                            <div class="image-preview banner-preview" id="banner-preview">
-                                <div class="preview-placeholder">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                                <input type="file" id="banner-upload" name="banner" accept="image/*" hidden>
+                        <div class="upload-item">
+                            <label class="section-subtitle">Banner / Cover Image</label>
+                            {% if profile.banner %}
+                            <div class="image-preview has-image" id="banner-preview">
+                                <img src="{{ profile.banner.url }}" alt="Banner Image">
                             </div>
                             <div class="upload-actions">
-                                <span class="file-size">4.3 MB</span>
-                                <button type="button" class="btn-text remove-btn" data-target="banner">Remove</button>
-                                <button type="button" class="btn-text replace-btn" data-target="banner">Replace</button>
+                                <button type="button" class="btn-text replace-btn" onclick="document.getElementById('id_banner').click()">Replace</button>
                             </div>
+                            {% else %}
+                            <div class="empty-state-box">
+                                <i class="fas fa-image"></i>
+                                <p>No banner uploaded yet</p>
+                                <button type="button" class="btn-upload-empty" onclick="document.getElementById('id_banner').click()">
+                                    <i class="fas fa-upload"></i> Upload Banner
+                                </button>
+                            </div>
+                            {% endif %}
+                            {{ company_info_form.banner }}
                         </div>
                     </div>
                 </div>
@@ -76,46 +95,64 @@
                 <!-- Company Name -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="company-name">Company name</label>
-                        <input type="text" id="company-name" name="company_name" placeholder="Company name">
+                        <label for="id_company_name">Company name</label>
+                        {{ company_info_form.company_name }}
+                        {% if not profile.company_name %}
+                        <small class="empty-hint">Please enter your company name</small>
+                        {% endif %}
                     </div>
                 </div>
 
                 <!-- About Us -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="about-us">About us</label>
-                        <div class="editor-toolbar">
-                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
-                                <i class="fas fa-bold"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
-                                <i class="fas fa-italic"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
-                                <i class="fas fa-underline"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="strikethrough" title="Strikethrough">
-                                <i class="fas fa-strikethrough"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="link" title="Insert Link">
-                                <i class="fas fa-link"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
-                                <i class="fas fa-list-ul"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
-                                <i class="fas fa-list-ol"></i>
-                            </button>
-                        </div>
-                        <div contenteditable="true" class="editor-content" id="about-us" data-placeholder="Write down about your company here. Let the candidate know who we are..."></div>
-                        <input type="hidden" name="about_us" id="about-us-hidden">
+                        <label for="id_about_us">About us</label>
+                        {{ company_info_form.about_us }}
+                        {% if not profile.about_us %}
+                        <small class="empty-hint">Tell candidates about your company</small>
+                        {% endif %}
                     </div>
+                </div>
+
+                <!-- Business Permit -->
+                <div class="form-section">
+                    <h3 class="section-title">Business Permit</h3>
+                    {% if profile.business_permit %}
+                    <div class="file-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="file-info">
+                            <p>{{ profile.business_permit.name|default:"business_permit.pdf" }}</p>
+                            <small>Uploaded</small>
+                        </div>
+                        <a href="{{ profile.business_permit.url }}" target="_blank" class="btn-view-file">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="empty-state-box">
+                        <i class="fas fa-file-contract"></i>
+                        <p>No business permit uploaded</p>
+                        <small>Upload your business permit (PDF, JPG, PNG - Max 10MB)</small>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Save Button -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-save">Save Change</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+
+            <!-- Separate Business Permit Upload Form -->
+            <form method="post" enctype="multipart/form-data" class="settings-form" style="margin-top: 20px;">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="business_permit">
+                <div class="form-group">
+                    <label for="id_business_permit">{% if profile.business_permit %}Replace{% else %}Upload{% endif %} Business Permit</label>
+                    {{ business_permit_form.business_permit }}
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Upload Permit</button>
                 </div>
             </form>
         </div>
@@ -124,194 +161,66 @@
         <div class="tab-content" id="founding-info">
             <form method="post" class="settings-form">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="founding_info">
                 
                 <div class="form-section">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="organization-type">Organization Type</label>
-                            <select id="organization-type" name="organization_type">
-                                <option value="">Select...</option>
-                                <option value="private">Private Company</option>
-                                <option value="public">Public Company</option>
-                                <option value="nonprofit">Non-Profit</option>
-                                <option value="government">Government</option>
-                                <option value="startup">Startup</option>
-                            </select>
+                            <label for="id_organization_type">Organization Type</label>
+                            {{ founding_info_form.organization_type }}
+                            {% if not profile.organization_type %}
+                            <small class="empty-hint">Select your organization type</small>
+                            {% endif %}
                         </div>
 
                         <div class="form-group">
-                            <label for="industry-type">Industry Types</label>
-                            <select id="industry-type" name="industry_type">
-                                <option value="">Select...</option>
-                                <option value="technology">Technology</option>
-                                <option value="healthcare">Healthcare</option>
-                                <option value="finance">Finance</option>
-                                <option value="education">Education</option>
-                                <option value="retail">Retail</option>
-                                <option value="manufacturing">Manufacturing</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <label for="id_industry_type">Industry Types</label>
+                            {{ founding_info_form.industry_type }}
+                            {% if not profile.industry_type %}
+                            <small class="empty-hint">Select your industry</small>
+                            {% endif %}
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="establishment-year">Year of Establishment</label>
-                            <input type="text" id="establishment-year" name="establishment_year" placeholder="dd/mm/yyyy">
+                            <label for="id_team_size">Team Size</label>
+                            {{ founding_info_form.team_size }}
+                            {% if not profile.team_size %}
+                            <small class="empty-hint">Select your team size</small>
+                            {% endif %}
                         </div>
 
                         <div class="form-group">
-                            <label for="company-website">Company Website</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-link"></i>
-                                <input type="url" id="company-website" name="company_website" placeholder="Website url...">
-                            </div>
+                            <label for="id_year_established">Year of Establishment</label>
+                            {{ founding_info_form.year_established }}
+                            {% if not profile.year_established %}
+                            <small class="empty-hint">When was your company established?</small>
+                            {% endif %}
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_company_website">Company Website</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-link"></i>
+                            {{ founding_info_form.company_website }}
+                        </div>
+                        {% if not profile.company_website %}
+                        <small class="empty-hint">Add your company website URL</small>
+                        {% endif %}
                     </div>
                 </div>
 
                 <!-- Company Vision -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="company-vision">Company Vision</label>
-                        <div class="editor-toolbar">
-                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
-                                <i class="fas fa-bold"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
-                                <i class="fas fa-italic"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
-                                <i class="fas fa-underline"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="strikethrough" title="Strikethrough">
-                                <i class="fas fa-strikethrough"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="link" title="Insert Link">
-                                <i class="fas fa-link"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
-                                <i class="fas fa-list-ul"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
-                                <i class="fas fa-list-ol"></i>
-                            </button>
-                        </div>
-                        <div contenteditable="true" class="editor-content" id="company-vision" data-placeholder="Tell us what Vision of your company..."></div>
-                        <input type="hidden" name="company_vision" id="company-vision-hidden">
+                        <label for="id_company_vision">Company Vision</label>
+                        {{ founding_info_form.company_vision }}
+                        {% if not profile.company_vision %}
+                        <small class="empty-hint">Share your company's vision and goals</small>
+                        {% endif %}
                     </div>
-                </div>
-
-                <!-- Save Button -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">Save Changes</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Social Media Profile Tab -->
-        <div class="tab-content" id="social-media">
-            <form method="post" class="settings-form">
-                {% csrf_token %}
-                
-                <div class="form-section">
-                    <div id="social-links-container">
-                        <!-- Social Link 1 -->
-                        <div class="social-link-row">
-                            <div class="form-group">
-                                <label>Social Link 1</label>
-                                <select class="social-select" name="social_platform_1">
-                                    <option value="facebook">
-                                        <i class="fab fa-facebook"></i> Facebook
-                                    </option>
-                                    <option value="twitter">Twitter</option>
-                                    <option value="instagram">Instagram</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                    <option value="youtube">YouTube</option>
-                                    <option value="pinterest">Pinterest</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <input type="url" name="social_url_1" placeholder="Profile link/url...">
-                            </div>
-                            <button type="button" class="btn-remove-social">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-
-                        <!-- Social Link 2 -->
-                        <div class="social-link-row">
-                            <div class="form-group">
-                                <label>Social Link 2</label>
-                                <select class="social-select" name="social_platform_2">
-                                    <option value="facebook">Facebook</option>
-                                    <option value="twitter" selected>Twitter</option>
-                                    <option value="instagram">Instagram</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                    <option value="youtube">YouTube</option>
-                                    <option value="pinterest">Pinterest</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <input type="url" name="social_url_2" placeholder="Profile link/url...">
-                            </div>
-                            <button type="button" class="btn-remove-social">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-
-                        <!-- Social Link 3 -->
-                        <div class="social-link-row">
-                            <div class="form-group">
-                                <label>Social Link 2</label>
-                                <select class="social-select" name="social_platform_3">
-                                    <option value="facebook">Facebook</option>
-                                    <option value="twitter">Twitter</option>
-                                    <option value="instagram" selected>Instagram</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                    <option value="youtube">YouTube</option>
-                                    <option value="pinterest">Pinterest</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <input type="url" name="social_url_3" placeholder="Profile link/url...">
-                            </div>
-                            <button type="button" class="btn-remove-social">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-
-                        <!-- Social Link 4 -->
-                        <div class="social-link-row">
-                            <div class="form-group">
-                                <label>Social Link 3</label>
-                                <select class="social-select" name="social_platform_4">
-                                    <option value="facebook">Facebook</option>
-                                    <option value="twitter">Twitter</option>
-                                    <option value="instagram">Instagram</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                    <option value="youtube" selected>YouTube</option>
-                                    <option value="pinterest">Pinterest</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <input type="url" name="social_url_4" placeholder="Profile link/url...">
-                            </div>
-                            <button type="button" class="btn-remove-social">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Add New Social Link Button -->
-                    <button type="button" class="btn-add-social" id="add-social-link">
-                        <i class="fas fa-plus-circle"></i>
-                        Add New Social Link
-                    </button>
                 </div>
 
                 <!-- Save Button -->
@@ -323,52 +232,72 @@
 
         <!-- Account Setting Tab -->
         <div class="tab-content" id="account-setting">
+            <!-- Contact Information Form -->
             <form method="post" class="settings-form">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="contact_info">
                 
-                <!-- Contact Information -->
                 <div class="form-section">
                     <h3 class="section-title">Contact Information</h3>
                     
                     <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <div class="phone-input">
-                            <select class="country-code" name="country_code">
-                                <option value="+880" data-flag="🇧🇩">+880</option>
-                                <option value="+1">+1</option>
-                                <option value="+44">+44</option>
-                                <option value="+91">+91</option>
-                            </select>
-                            <input type="tel" id="phone" name="phone" placeholder="Phone number..">
-                        </div>
+                        <label for="id_phone_number">Phone</label>
+                        {{ contact_info_form.phone_number }}
+                        {% if not profile.phone_number %}
+                        <small class="empty-hint">Add your contact phone number</small>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email</label>
+                        <label for="id_email">Email</label>
                         <div class="input-with-icon">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" name="email" placeholder="Email address">
+                            {{ contact_info_form.email }}
                         </div>
+                        <small class="form-hint">This email is used for login and notifications</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_contact_email">Contact Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            {{ contact_info_form.contact_email }}
+                        </div>
+                        {% if not profile.contact_email %}
+                        <small class="empty-hint">Add a contact email for applicants</small>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Save Contact Info Button -->
                 <div class="form-actions">
                     <button type="submit" class="btn-save">Save Changes</button>
                 </div>
             </form>
 
-            <!-- Change Password Section -->
-            <form method="post" class="settings-form">
+            <!-- Change Password Form -->
+            <form method="post" class="settings-form" style="margin-top: 30px;">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="change_password">
+                
                 <div class="form-section">
+                    {% if password_form.errors %}
+                    <div class="form-errors">
+                        <ul>
+                            {% for field, errors in password_form.errors.items %}
+                                {% for err in errors %}
+                                <li class="error-item">{{ err }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                     <h3 class="section-title">Change Password</h3>
                     
                     <div class="form-group">
-                        <label for="current-password">Current Password</label>
+                        <label for="id_old_password">Current Password</label>
                         <div class="password-input">
-                            <input type="password" id="current-password" name="current_password" placeholder="Password">
-                            <button type="button" class="toggle-password">
+                            {{ password_form.old_password }}
+                            <button type="button" class="toggle-password" onclick="togglePassword('id_old_password', this)">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -376,40 +305,44 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="new-password">New Password</label>
+                            <label for="id_new_password1">New Password</label>
                             <div class="password-input">
-                                <input type="password" id="new-password" name="new_password" placeholder="Password">
-                                <button type="button" class="toggle-password">
+                                {{ password_form.new_password1 }}
+                                <button type="button" class="toggle-password" onclick="togglePassword('id_new_password1', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="confirm-password">Confirm Password</label>
+                            <label for="id_new_password2">Confirm Password</label>
                             <div class="password-input">
-                                <input type="password" id="confirm-password" name="confirm_password" placeholder="Password">
-                                <button type="button" class="toggle-password">
+                                {{ password_form.new_password2 }}
+                                <button type="button" class="toggle-password" onclick="togglePassword('id_new_password2', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    <ul class="password-requirements">
+                        <li><i class="fas fa-info-circle"></i> Password must be at least 8 characters</li>
+                        <li><i class="fas fa-info-circle"></i> Cannot be too similar to your other personal information</li>
+                        <li><i class="fas fa-info-circle"></i> Cannot be entirely numeric</li>
+                    </ul>
                 </div>
 
-                <!-- Change Password Button -->
                 <div class="form-actions">
                     <button type="submit" class="btn-save">Change Password</button>
                 </div>
             </form>
 
             <!-- Delete Company Section -->
-            <div class="form-section danger-zone">
-                <h3 class="section-title">Delete Your Company</h3>
+            <div class="form-section danger-zone" style="margin-top: 40px;">
+                <h3 class="section-title">Delete Your Company Account</h3>
                 <p class="danger-text">
-                    If you delete your Jobpilot account, you will no longer be able to get information 
-                    about the matched jobs, following employers, and job alert, shortlisted jobs and 
-                    more. You will be abandoned from all the services of Jobpilot.com.
+                    If you delete your JobConnect company account, you will no longer be able to post jobs, 
+                    view applications, or access any employer services. This action cannot be undone.
                 </p>
                 <button type="button" class="btn-close-account" id="close-account-btn">
                     <i class="fas fa-times-circle"></i>
@@ -420,5 +353,92 @@
     </div>
 </div>
 
-<script src="{% static 'js/dashboard/employer/employer_settings.js' %}"></script>
+<script>
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const targetTab = this.getAttribute('data-tab');
+        
+        // Remove active classes
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active classes
+        this.classList.add('active');
+        document.getElementById(targetTab).classList.add('active');
+    });
+});
+
+// Password toggle function
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// File input preview
+const logoInput = document.getElementById('id_logo');
+if (logoInput) {
+    logoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('logo-preview');
+                if (preview) {
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview">`;
+                    preview.classList.add('has-image');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+// Banner preview (cover image)
+const bannerInput = document.getElementById('id_banner');
+if (bannerInput) {
+    bannerInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('banner-preview');
+                if (preview) {
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Banner Preview">`;
+                    preview.classList.add('has-image');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// Close account confirmation
+const closeBtn = document.getElementById('close-account-btn');
+if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to permanently delete your company account? This action cannot be undone.')) {
+            alert('Account deletion feature will be implemented');
+        }
+    });
+}
+
+// Auto-dismiss messages after 5 seconds
+setTimeout(function() {
+    const messages = document.querySelector('.messages-container');
+    if (messages) {
+        messages.style.opacity = '0';
+        setTimeout(() => messages.remove(), 300);
+    }
+}, 5000);
+</script>
 {% endblock %}

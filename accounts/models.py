@@ -190,6 +190,7 @@ class EmployerProfile(models.Model):
     company_name = models.CharField(max_length=255, blank=True, null=True)
     about_us = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='employer_documents/logos/', blank=True, null=True)
+    banner = models.ImageField(upload_to='employer_documents/banners/', blank=True, null=True)
     business_permit = models.FileField(upload_to='employer_documents/permits/', blank=True, null=True)
 
     # --- Step 2: Founding Info (NEW FIELDS) ---
