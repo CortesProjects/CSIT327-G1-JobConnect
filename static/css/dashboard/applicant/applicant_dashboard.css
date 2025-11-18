@@ -90,8 +90,8 @@
 
 .job-card:hover,
 .job-card.active {
-    border-color: #007bff;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.15),
 }
 
 .job-card-main {
