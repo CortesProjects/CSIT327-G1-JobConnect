@@ -4,32 +4,35 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard JavaScript loaded.');
 
-    // Settings Tab Switching
+    // Settings Tab Switching (legacy) — only run if legacy `.settings-content` panels exist.
     const tabLinks = document.querySelectorAll('.settings-nav a[data-tab]');
-    
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all tabs
-            tabLinks.forEach(tab => tab.classList.remove('active'));
-            
-            // Add active class to clicked tab
-            this.classList.add('active');
-            
-            // Hide all tab contents
-            document.querySelectorAll('.settings-content').forEach(content => {
-                content.style.display = 'none';
+    const legacyTabContents = document.querySelectorAll('.settings-content');
+
+    if (tabLinks.length && legacyTabContents.length) {
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Remove active class from all tabs
+                tabLinks.forEach(tab => tab.classList.remove('active'));
+
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                // Hide all legacy tab contents
+                legacyTabContents.forEach(content => {
+                    content.style.display = 'none';
+                });
+
+                // Show selected tab content only if it's a legacy `.settings-content` panel
+                const tabName = this.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabName + '-tab');
+                if (tabContent && tabContent.classList.contains('settings-content')) {
+                    tabContent.style.display = 'flex';
+                }
             });
-            
-            // Show selected tab content
-            const tabName = this.getAttribute('data-tab');
-            const tabContent = document.getElementById(tabName + '-tab');
-            if (tabContent) {
-                tabContent.style.display = 'flex';
-            }
         });
-    });
+    }
 
     // Modal handling for "Add CV/Resume"
     const addCvModal = document.getElementById('addCvModal');

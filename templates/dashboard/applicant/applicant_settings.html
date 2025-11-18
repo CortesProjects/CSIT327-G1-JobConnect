@@ -18,131 +18,239 @@
 {% endif %}
 
 <div >
-    <div class="settings-header">
-        <h2>Settings</h2>
+    <div class="main-content-header">
+        <h2>Setting</h2>
         <div class="settings-nav">
-            <a href="#personal" data-tab="personal" class="active">Personal</a>
-            <a href="#profile" data-tab="profile" >Profile</a>
-            <a href="#social" data-tab="social">Social Links</a>
-            <a href="#account" data-tab="account">Account Setting</a>
+            <a href="#personal" data-tab="personal" class="active">
+                <i class="fas fa-user"></i>Personal
+            </a>
+            <a href="#profile" data-tab="profile">
+                <i class="fas fa-id-card"></i>Profile
+            </a>
+            <a href="#social" data-tab="social">
+                <i class="fas fa-share-alt"></i>Social Links
+            </a>
+            <a href="#account" data-tab="account">
+                <i class="fas fa-cog"></i>Account Setting
+            </a>
         </div>
     </div>
 
     <!-- Personal Tab -->
-    <div class="settings-content" id="personal-tab" >
+    <div id="personal-tab" class="tab-content active">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="personal_info">
             
             <div class="basic-information">
                 <h3>Basic Information</h3>
-                <div class="form-row">
+                <div class="basic-info-container">
                     <div class="form-group profile-picture">
                         <label>Profile Picture</label>
-                        <div class="file-upload-area">
-                            {% if profile.image and profile.image.url != '/media/defaults/default-avatar.png' %}
-                            <img src="{{ profile.image.url }}" alt="Profile" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
-                            {% endif %}
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <p><span>Browse photo</span> or drop here</p>
-                            <small>A photo is 10x more likely to get a response. Max photo size 5 MB.</small>
-                            {{ personal_info_form.image }}
+                        {% if profile.image and profile.image.url != '/media/defaults/default-avatar.png' %}
+                        <div class="image-preview has-image" id="profile-preview" onclick="document.getElementById('id_image').click()">
+                            <img src="{{ profile.image.url }}" alt="Profile Picture">
+                            <div class="hover-overlay">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p><span>Browse photo</span> or drop here</p>
+                                <small>Max photo size 5 MB</small>
+                            </div>
                         </div>
-                        {% if personal_info_form.image.errors %}
-                            <div class="error-text">{{ personal_info_form.image.errors.0 }}</div>
+                        {% else %}
+                        <div class="empty-state-box" onclick="document.getElementById('id_image').click()">
+                            <i class="fas fa-user-circle"></i>
+                            <p>No profile picture uploaded yet</p>
+                            <button type="button" class="btn-upload-empty">
+                                <i class="fas fa-upload"></i> Upload Photo
+                            </button>
+                        </div>
                         {% endif %}
                     </div>
                     <div class="form-group-wrapper">
                         <div class="form-group">
-                            <label for="{{ personal_info_form.first_name.id_for_label }}">First Name</label>
-                            {{ personal_info_form.first_name }}
-                            {% if personal_info_form.first_name.errors %}
-                                <div class="error-text">{{ personal_info_form.first_name.errors.0 }}</div>
+                            <label for="{{ personal_info_form.title.id_for_label }}">Title/headline</label>
+                            {{ personal_info_form.title }}
+                            {% if personal_info_form.title.errors %}
+                                <div class="error-text">{{ personal_info_form.title.errors.0 }}</div>
                             {% endif %}
                         </div>
-                        <div class="form-group">
-                            <label for="{{ personal_info_form.middle_name.id_for_label }}">Middle Name (Optional)</label>
-                            {{ personal_info_form.middle_name }}
+                        <div class="form-row-three-columns">
+                            <div class="form-group">
+                                <label for="{{ personal_info_form.first_name.id_for_label }}">First Name</label>
+                                {{ personal_info_form.first_name }}
+                                {% if personal_info_form.first_name.errors %}
+                                    <div class="error-text">{{ personal_info_form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ personal_info_form.middle_name.id_for_label }}">Middle Name (Optional)</label>
+                                {{ personal_info_form.middle_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ personal_info_form.last_name.id_for_label }}">Last Name</label>
+                                {{ personal_info_form.last_name }}
+                                {% if personal_info_form.last_name.errors %}
+                                    <div class="error-text">{{ personal_info_form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-row-two-columns">
+                            <div class="form-group">
+                                <label for="{{ personal_info_form.experience.id_for_label }}">Experience</label>
+                                {{ personal_info_form.experience }}
+                                {% if personal_info_form.experience.errors %}
+                                    <div class="error-text">{{ personal_info_form.experience.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ personal_info_form.education.id_for_label }}">Educations</label>
+                                {{ personal_info_form.education }}
+                                {% if personal_info_form.education.errors %}
+                                    <div class="error-text">{{ personal_info_form.education.errors.0 }}</div>
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="{{ personal_info_form.last_name.id_for_label }}">Last Name</label>
-                            {{ personal_info_form.last_name }}
-                            {% if personal_info_form.last_name.errors %}
-                                <div class="error-text">{{ personal_info_form.last_name.errors.0 }}</div>
+                            <label for="{{ personal_info_form.website.id_for_label }}">Personal Website URL</label>
+                            {{ personal_info_form.website }}
+                            {% if personal_info_form.website.errors %}
+                                <div class="error-text">{{ personal_info_form.website.errors.0 }}</div>
                             {% endif %}
                         </div>
-                        <div class="form-group">
-                            <label for="{{ personal_info_form.school_name.id_for_label }}">Education</label>
-                            {{ personal_info_form.school_name }}
-                            {% if personal_info_form.school_name.errors %}
-                                <div class="error-text">{{ personal_info_form.school_name.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="form-group">
-                            <label for="{{ personal_info_form.degree.id_for_label }}">Degree/Course</label>
-                            {{ personal_info_form.degree }}
-                            {% if personal_info_form.degree.errors %}
-                                <div class="error-text">{{ personal_info_form.degree.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+                        <button type="submit" class="btn-save">Save Changes</button>
                     </div>
                 </div>
-                <button type="submit" class="btn-save">Save Changes</button>
+                
             </div>
         </form>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="resume">
-            
-            <div class="cv-resume-section">
-                <h3>Your CV/Resume</h3>
-                <div class="resume-list">
-                    {% if profile.resume %}
-                    <div class="resume-item">
-                        <i class="fas fa-file-alt"></i>
-                        <div class="resume-info">
-                            <p>{{ profile.resume.name|slice:"28:" }}</p>
-                            <small>{{ profile.resume.size|filesizeformat }}</small>
-                        </div>
-                        <a href="{{ profile.resume.url }}" target="_blank" class="btn-edit-resume">View Resume</a>
+        <div class="cv-resume-section">
+            <h3>Your CV/Resume</h3>
+            <div class="resume-list">
+                {% if profile.resume %}
+                <div class="resume-card">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="resume-info">
+                        <p class="resume-title">{{ profile.resume.name|slice:"28:" }}</p>
+                        <small class="resume-size">{{ profile.resume.size|filesizeformat }}</small>
                     </div>
-                    {% endif %}
-                    <div class="add-resume-item" id="addCvBtn">
-                        <i class="fas fa-plus-circle"></i>
-                        <p>{{ profile.resume|yesno:"Update,Add" }} CV/Resume</p>
-                        <small>Browse file or drop here, PDF/DOC/DOCX only (Max 5MB)</small>
+                    <button type="button" class="action-menu-btn" onclick="toggleResumeMenu(this)">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <div class="action-menu">
+                        <a href="{{ profile.resume.url }}" target="_blank" class="menu-item edit">
+                            <i class="fas fa-edit"></i> Edit Resume
+                        </a>
+                        <button type="button" class="menu-item delete" onclick="confirmDeleteResume()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="add-resume-card" onclick="openResumeModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    <div class="add-resume-card-info">
+                        <p class="add-title">Add CV/Resume</p>
+                        <small class="add-hint">Browse file or drop here. only pdf</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume Upload Modal -->
+        <div class="modal" id="resumeModal">
+            <div class="modal-overlay" onclick="closeResumeModal()"></div>
+            <div class="modal-content">
+                <button type="button" class="modal-close" onclick="closeResumeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h2 class="modal-title">Add CV/Resume</h2>
+                
+                <form method="post" enctype="multipart/form-data" id="resumeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="resume">
+                    
+                    <div class="modal-form-group">
+                        <label for="resume_name">CV/Resume Name</label>
+                        <input type="text" id="resume_name" name="resume_name" class="modal-input" placeholder="e.g., Professional Resume">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label>Upload your CV/Resume</label>
+                        <div class="modal-upload-area" id="uploadArea" onclick="document.getElementById('id_resume').click()">
+                            <div class="upload-prompt">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p><strong>Browse File</strong> or drop here</p>
+                                <small>Only PDF format available . Max file size 12 MB.</small>
+                            </div>
+                            <div class="file-attached" id="fileAttached">
+                                <i class="fas fa-file-pdf"></i>
+                                <div class="file-details">
+                                    <p class="file-name" id="attachedFileName"></p>
+                                    <small class="file-size" id="attachedFileSize"></small>
+                                </div>
+                                <button type="button" class="remove-file-btn" onclick="removeFile(event)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                         {{ resume_form.resume }}
                     </div>
+                    
                     {% if resume_form.resume.errors %}
                         <div class="error-text">{{ resume_form.resume.errors.0 }}</div>
                     {% endif %}
-                </div>
-                <button type="submit" class="btn-save">Upload Resume</button>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel" onclick="closeResumeModal()">Cancel</button>
+                        <button type="submit" class="btn-submit">Add CV/Resume</button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- Profile Tab -->
-    <div class="settings-content" id="profile-tab" style="display: none;">
+    <div class="tab-content" id="profile-tab">
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="profile_details">
             
             <div class="profile-form-section">
+                <h3>Profile Details</h3>
+                
                 <div class="form-row-two-columns">
                     <div class="form-group">
-                        <label for="{{ profile_details_form.location.id_for_label }}">Location</label>
-                        {{ profile_details_form.location }}
-                        {% if profile_details_form.location.errors %}
-                            <div class="error-text">{{ profile_details_form.location.errors.0 }}</div>
+                        <label for="{{ profile_details_form.nationality.id_for_label }}">Nationality</label>
+                        {{ profile_details_form.nationality }}
+                        {% if profile_details_form.nationality.errors %}
+                            <div class="error-text">{{ profile_details_form.nationality.errors.0 }}</div>
                         {% endif %}
                     </div>
                     <div class="form-group">
-                        <label for="{{ profile_details_form.year_level.id_for_label }}">Experience/Year Level</label>
-                        {{ profile_details_form.year_level }}
-                        {% if profile_details_form.year_level.errors %}
-                            <div class="error-text">{{ profile_details_form.year_level.errors.0 }}</div>
+                        <label for="{{ profile_details_form.date_of_birth.id_for_label }}">Date of Birth</label>
+                        {{ profile_details_form.date_of_birth }}
+                        {% if profile_details_form.date_of_birth.errors %}
+                            <div class="error-text">{{ profile_details_form.date_of_birth.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row-two-columns">
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.gender.id_for_label }}">Gender</label>
+                        {{ profile_details_form.gender }}
+                        {% if profile_details_form.gender.errors %}
+                            <div class="error-text">{{ profile_details_form.gender.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.marital_status.id_for_label }}">Marital Status</label>
+                        {{ profile_details_form.marital_status }}
+                        {% if profile_details_form.marital_status.errors %}
+                            <div class="error-text">{{ profile_details_form.marital_status.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -153,89 +261,83 @@
                     </small>
                     {{ profile_details_form.skills_summary }}
                     {% if profile_details_form.skills_summary.errors %}
-                        <div class="error-text">{{ profile_details_form.skills_summary.errors.0 }}</div>
+                      <div class="error-text">{{ profile_details_form.skills_summary.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="form-group">
                     <label for="{{ profile_details_form.biography.id_for_label }}">Biography</label>
-                    <small style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 5px;">
-                        Tell employers about yourself, your experience, and career goals
-                    </small>
                     {{ profile_details_form.biography }}
-                    
                     {% if profile_details_form.biography.errors %}
                         <div class="error-text">{{ profile_details_form.biography.errors.0 }}</div>
                     {% endif %}
                 </div>
+                
                 <button type="submit" class="btn-save">Save Changes</button>
             </div>
         </form>
     </div>
 
     <!-- Social Links Tab -->
-    <div class="settings-content" id="social-tab" style="display: none;">
-        <div class="social-links-form-section">
-            {% if social_links %}
-                {% for link in social_links %}
-                <form method="post" class="social-link-item">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="social_link">
-                    <input type="hidden" name="social_link_id" value="{{ link.id }}">
-                    
-                    <label>{{ link.get_platform_display }}</label>
-                    <div class="social-link-input-group">
-                        <select name="platform" class="social-platform-select">
-                            {% for value, label in social_link_form.fields.platform.choices %}
-                                <option value="{{ value }}" {% if link.platform == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        <input type="url" name="url" value="{{ link.url }}" placeholder="Profile link/url..." class="social-link-input">
-                        <button type="submit" class="btn-save-link" title="Save"><i class="fas fa-check"></i></button>
-                    </div>
-                </form>
-                <form method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="delete_social_link">
-                    <input type="hidden" name="social_link_id" value="{{ link.id }}">
-                    <button type="submit" class="btn-remove-link" onclick="return confirm('Are you sure you want to delete this social link?')">
-                        <i class="fas fa-times-circle"></i>
-                    </button>
-                </form>
-                {% endfor %}
-            {% else %}
-                <p style="color: #666; text-align: center; padding: 20px;">No social links added yet. Click the button below to add your first social link.</p>
-            {% endif %}
+    <div class="tab-content" id="social-tab">
+        <form method="post" id="social-links-form">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="social_links_bulk">
             
-            <div id="add-social-link-form" style="{% if not show_add_form %}display: none;{% endif %}">
-                <form method="post" class="social-link-item">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="social_link">
-                    
-                    <label>New Social Link</label>
-                    <div class="social-link-input-group">
-                        {{ social_link_form.platform }}
-                        {{ social_link_form.url }}
-                        <button type="submit" class="btn-save-link"><i class="fas fa-check"></i> Save</button>
-                        <button type="button" class="btn-cancel-link" onclick="document.getElementById('add-social-link-form').style.display='none'">
-                            <i class="fas fa-times"></i>
-                        </button>
+            <div class="social-links-form-section">
+                <div id="social-links-list">
+                    {% if social_links %}
+                        {% for link in social_links %}
+                        <div class="social-link-item" data-link-id="{{ link.id }}">
+                            <div class="social-link-input-group">
+                                <select name="platform[]" class="social-platform-select">
+                                    {% for value, label in social_link_form.fields.platform.choices %}
+                                        <option value="{{ value }}" {% if link.platform == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="url" name="url[]" value="{{ link.url }}" placeholder="Profile link/url..." class="social-link-input">
+                                <input type="hidden" name="link_id[]" value="{{ link.id }}">
+                                <button type="button" class="btn-icon-action btn-delete-link" data-action="delete-link" title="Delete">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-social-message">No social links added yet. Click the button below to add your first social link.</p>
+                    {% endif %}
+                </div>
+                
+                <div id="add-social-link-form" class="social-link-form {% if not show_add_form %}is-hidden{% endif %}">
+                    <div class="social-link-item new-link-item">
+                        <div class="social-link-input-group">
+                            <select id="new-platform" class="social-platform-select">
+                                {% for value, label in social_link_form.fields.platform.choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="url" id="new-url" placeholder="Profile link/url..." class="social-link-input">
+                            <button type="button" class="btn-icon-action btn-confirm-add" data-action="confirm-add" title="Add">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="btn-icon-action btn-cancel-add" data-action="cancel-add-social-link" title="Cancel">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
-                    {% if social_link_form.platform.errors %}
-                        <div class="error-text">{{ social_link_form.platform.errors.0 }}</div>
-                    {% endif %}
-                    {% if social_link_form.url.errors %}
-                        <div class="error-text">{{ social_link_form.url.errors.0 }}</div>
-                    {% endif %}
-                </form>
+                </div>
+                
+                <button type="button" class="btn-add-social-link {% if show_add_form %}is-hidden{% endif %}" data-action="show-add-social-link">
+                    <i class="fas fa-plus-circle"></i> Add New Social Link
+                </button>
+                
+                <button type="submit" class="btn-save is-hidden" id="save-social-changes">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </div>
-            
-            <button type="button" class="btn-add-social-link" onclick="document.getElementById('add-social-link-form').style.display='block'; this.style.display='none'">
-                <i class="fas fa-plus-circle"></i> Add New Social Link
-            </button>
-        </div>
+        </form>
     </div>
 
-    <div class="settings-content" id="account-tab" style="display: none;">
+    <div class="tab-content" id="account-tab">
         <div class="account-settings-section">
             <form method="post">
                 {% csrf_token %}
@@ -262,7 +364,7 @@
                     <button type="submit" class="btn-save">Save Changes</button>
                 </div>
             </form>
-
+            <hr>
             <div class="account-section-block">
                 <h3>Notification</h3>
                 <div class="notification-checkboxes">
@@ -280,12 +382,12 @@
                     </div>
                 </div>
             </div>
-
+            <hr>
             <div class="account-section-block">
                 <h3>Job Alerts</h3>
                 <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Coming soon - Set up automatic job alerts based on your preferences.</p>
             </div>
-
+            <hr
             <form method="post" id="privacy-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="profile_privacy">
@@ -305,7 +407,7 @@
                     <button type="submit" class="btn-save" style="margin-top: 15px;">Save Privacy Settings</button>
                 </div>
             </form>
-
+            <hr>
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="change_password">
@@ -347,7 +449,7 @@
                     <button type="submit" class="btn-save">Save Changes</button>
                 </div>
             </form>
-
+            <hr>  
             <div class="account-section-block delete-account-section">
                 <h3>Delete Your Account</h3>
                 <p class="delete-warning">If you delete your JobConnect account, you will no longer be able to get information about the matched jobs, following employers, and job alerts. You will be abandoned from all the services of JobConnect.</p>
@@ -356,6 +458,395 @@
         </div>
     </div>
 </div>
+
+<script>
+// Profile picture preview
+const imageInput = document.getElementById('id_image');
+if (imageInput) {
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('profile-preview');
+                if (preview) {
+                    const img = preview.querySelector('img');
+                    if (img) {
+                        img.src = event.target.result;
+                    } else {
+                        preview.innerHTML = `
+                            <img src="${event.target.result}" alt="Profile Preview">
+                            <div class="hover-overlay">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p><span>Browse photo</span> or drop here</p>
+                                <small>Max photo size 5 MB</small>
+                            </div>
+                        `;
+                    }
+                    preview.classList.add('has-image');
+                } else {
+                    // Create preview if it doesn't exist (empty state)
+                    const emptyBox = document.querySelector('.profile-picture .empty-state-box');
+                    if (emptyBox) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-preview has-image';
+                        previewDiv.id = 'profile-preview';
+                        previewDiv.onclick = function() { document.getElementById('id_image').click(); };
+                        previewDiv.innerHTML = `
+                            <img src="${event.target.result}" alt="Profile Preview">
+                            <div class="hover-overlay">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p><span>Browse photo</span> or drop here</p>
+                                <small>Max photo size 5 MB</small>
+                            </div>
+                        `;
+                        emptyBox.parentNode.insertBefore(previewDiv, emptyBox);
+                        emptyBox.style.display = 'none';
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+const tabLinks = Array.from(document.querySelectorAll('.settings-nav a'));
+const tabPanels = Array.from(document.querySelectorAll('.tab-content'));
+const addSocialLinkForm = document.getElementById('add-social-link-form');
+const addSocialLinkButton = document.querySelector('[data-action="show-add-social-link"]');
+const cancelSocialLinkButton = document.querySelector('[data-action="cancel-add-social-link"]');
+
+tabPanels.forEach(panel => panel.setAttribute('role', 'tabpanel'));
+
+function hideAddSocialLinkForm() {
+    if (addSocialLinkForm) addSocialLinkForm.classList.add('is-hidden');
+    if (addSocialLinkButton) addSocialLinkButton.classList.remove('is-hidden');
+}
+
+function showAddSocialLinkForm() {
+    if (addSocialLinkForm) addSocialLinkForm.classList.remove('is-hidden');
+    if (addSocialLinkButton) addSocialLinkButton.classList.add('is-hidden');
+}
+
+if (addSocialLinkButton) {
+    addSocialLinkButton.addEventListener('click', showAddSocialLinkForm);
+}
+
+if (cancelSocialLinkButton) {
+    cancelSocialLinkButton.addEventListener('click', hideAddSocialLinkForm);
+}
+
+function activateTab(targetTab, { updateHash = true, resetTransient = true } = {}) {
+    tabLinks.forEach(link => {
+        const isActive = link.dataset.tab === targetTab;
+        link.classList.toggle('active', isActive);
+        link.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    tabPanels.forEach(panel => {
+        const isActive = panel.id === `${targetTab}-tab`;
+        panel.classList.toggle('active', isActive);
+        panel.toggleAttribute('hidden', !isActive);
+        if (isActive) {
+            panel.removeAttribute('aria-hidden');
+        } else {
+            panel.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    if (resetTransient) {
+        document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('active'));
+        hideAddSocialLinkForm();
+
+        const resumeModal = document.getElementById('resumeModal');
+        if (resumeModal && resumeModal.classList.contains('active')) {
+            resumeModal.classList.remove('active');
+            document.body.style.overflow = '';
+            if (typeof resetUploadArea === 'function') resetUploadArea();
+        }
+    }
+
+    if (updateHash) {
+        if (window.history && typeof history.replaceState === 'function') {
+            history.replaceState(null, '', `#${targetTab}`);
+        } else {
+            window.location.hash = targetTab;
+        }
+    }
+}
+
+tabLinks.forEach(link => {
+    link.setAttribute('role', 'tab');
+    link.setAttribute('aria-controls', `${link.dataset.tab}-tab`);
+    link.addEventListener('click', event => {
+        event.preventDefault();
+        activateTab(link.dataset.tab);
+    });
+});
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && tabLinks.some(link => link.dataset.tab === hash)) {
+        activateTab(hash, { updateHash: false });
+    }
+});
+
+const initialTab = (() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && tabLinks.some(link => link.dataset.tab === hash)) {
+        return hash;
+    }
+
+    const activeLink = tabLinks.find(link => link.classList.contains('active'));
+    return activeLink ? activeLink.dataset.tab : tabLinks[0]?.dataset.tab;
+})();
+
+if (initialTab) {
+    activateTab(initialTab, { updateHash: false, resetTransient: false });
+}
+
+// Password toggle functionality
+document.querySelectorAll('.toggle-password').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.classList.remove('fa-eye');
+            this.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            this.classList.remove('fa-eye-slash');
+            this.classList.add('fa-eye');
+        }
+    });
+});
+
+// Social Links Management
+const socialLinksList = document.getElementById('social-links-list');
+const saveButton = document.getElementById('save-social-changes');
+const emptySocialMessage = document.querySelector('.empty-social-message');
+let socialLinksModified = false;
+
+function showSaveButton() {
+    if (saveButton) {
+        saveButton.classList.remove('is-hidden');
+        socialLinksModified = true;
+    }
+}
+
+function hideSaveButtonIfNoChanges() {
+    if (!socialLinksModified && saveButton) {
+        saveButton.classList.add('is-hidden');
+    }
+}
+
+function updateEmptyMessage() {
+    const hasLinks = socialLinksList && socialLinksList.querySelectorAll('.social-link-item').length > 0;
+    if (emptySocialMessage) {
+        emptySocialMessage.classList.toggle('is-hidden', hasLinks);
+    }
+}
+
+// Confirm add new social link
+const confirmAddButton = document.querySelector('[data-action="confirm-add"]');
+if (confirmAddButton) {
+    confirmAddButton.addEventListener('click', function() {
+        const platformSelect = document.getElementById('new-platform');
+        const urlInput = document.getElementById('new-url');
+        
+        if (!platformSelect || !urlInput) return;
+        
+        const platform = platformSelect.value;
+        const platformLabel = platformSelect.options[platformSelect.selectedIndex].text;
+        const url = urlInput.value.trim();
+        
+        if (!url) {
+            alert('Please enter a URL');
+            return;
+        }
+        
+        // Validate URL format
+        try {
+            new URL(url);
+        } catch (e) {
+            alert('Please enter a valid URL (e.g., https://example.com)');
+            return;
+        }
+        
+        // Create new link item
+        const newLinkItem = document.createElement('div');
+        newLinkItem.className = 'social-link-item';
+        newLinkItem.innerHTML = `
+            <div class="social-link-input-group">
+                <select name="platform[]" class="social-platform-select">
+                    ${Array.from(platformSelect.options).map(opt => 
+                        `<option value="${opt.value}" ${opt.value === platform ? 'selected' : ''}>${opt.text}</option>`
+                    ).join('')}
+                </select>
+                <input type="url" name="url[]" value="${url}" placeholder="Profile link/url..." class="social-link-input">
+                <input type="hidden" name="link_id[]" value="">
+                <button type="button" class="btn-icon-action btn-delete-link" data-action="delete-link" title="Delete">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Add to list
+        if (socialLinksList) {
+            socialLinksList.appendChild(newLinkItem);
+        }
+        
+        // Clear form and hide it
+        platformSelect.selectedIndex = 0;
+        urlInput.value = '';
+        hideAddSocialLinkForm();
+        
+        // Show save button and update empty message
+        showSaveButton();
+        updateEmptyMessage();
+        
+        // Bind delete handler to new item
+        const deleteBtn = newLinkItem.querySelector('[data-action="delete-link"]');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', handleDeleteLink);
+        }
+    });
+}
+
+// Delete link handler
+function handleDeleteLink(e) {
+    if (!confirm('Remove this social link? (Changes will apply after clicking Save Changes)')) {
+        return;
+    }
+    
+    const linkItem = e.currentTarget.closest('.social-link-item');
+    if (linkItem) {
+        linkItem.remove();
+        showSaveButton();
+        updateEmptyMessage();
+    }
+}
+
+// Bind delete handlers to existing links
+document.querySelectorAll('[data-action="delete-link"]').forEach(btn => {
+    btn.addEventListener('click', handleDeleteLink);
+});
+
+// Detect changes in existing links
+if (socialLinksList) {
+    socialLinksList.addEventListener('input', function(e) {
+        if (e.target.matches('.social-platform-select, .social-link-input')) {
+            showSaveButton();
+        }
+    });
+}
+
+// Resume menu toggle
+function toggleResumeMenu(button) {
+    const menu = button.nextElementSibling;
+    const allMenus = document.querySelectorAll('.action-menu');
+    
+    // Close all other menus
+    allMenus.forEach(m => {
+        if (m !== menu) {
+            m.classList.remove('active');
+        }
+    });
+    
+    // Toggle current menu
+    menu.classList.toggle('active');
+}
+
+// Close menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.resume-card')) {
+        document.querySelectorAll('.action-menu').forEach(menu => {
+            menu.classList.remove('active');
+        });
+    }
+});
+
+// Delete resume confirmation
+function confirmDeleteResume() {
+    if (confirm('Are you sure you want to delete this resume? This action cannot be undone.')) {
+        // Add delete logic here - you may need to submit a form or make an AJAX request
+        alert('Delete functionality will be implemented');
+    }
+}
+
+// Modal functions
+function openResumeModal() {
+    document.getElementById('resumeModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeResumeModal() {
+    document.getElementById('resumeModal').classList.remove('active');
+    document.body.style.overflow = '';
+    document.getElementById('resumeForm').reset();
+    resetUploadArea();
+}
+
+function resetUploadArea() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileAttached = document.getElementById('fileAttached');
+    const uploadPrompt = uploadArea.querySelector('.upload-prompt');
+    
+    uploadArea.classList.remove('has-file');
+    if (fileAttached) fileAttached.style.display = 'none';
+    if (uploadPrompt) uploadPrompt.style.display = 'flex';
+}
+
+function removeFile(e) {
+    e.stopPropagation();
+    const resumeInput = document.getElementById('id_resume');
+    if (resumeInput) {
+        resumeInput.value = '';
+    }
+    resetUploadArea();
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// File input change handler
+const resumeInput = document.getElementById('id_resume');
+if (resumeInput) {
+    resumeInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const uploadArea = document.getElementById('uploadArea');
+        const fileAttached = document.getElementById('fileAttached');
+        const uploadPrompt = uploadArea.querySelector('.upload-prompt');
+        const fileNameEl = document.getElementById('attachedFileName');
+        const fileSizeEl = document.getElementById('attachedFileSize');
+        
+        if (file) {
+            // Update file details
+            fileNameEl.textContent = file.name;
+            fileSizeEl.textContent = formatFileSize(file.size);
+            
+            // Show file attached, hide upload prompt
+            uploadArea.classList.add('has-file');
+            if (uploadPrompt) uploadPrompt.style.display = 'none';
+            if (fileAttached) fileAttached.style.display = 'flex';
+        } else {
+            resetUploadArea();
+        }
+    });
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeResumeModal();
+    }
+});
+</script>
 
 <!-- Remove the Add CV/Resume Modal as it's no longer needed -->
 {% endblock %}
