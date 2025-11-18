@@ -1,5 +1,3 @@
-/* Employer Dashboard Specific Styles */
-
 /* Employer Overview Header */
 .employer-header {
     margin-bottom: 30px;
@@ -15,14 +13,6 @@
     color: #6c757d;
 }
 
-/* Recently Posted Jobs Table */
-.recently-posted-jobs {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 30px;
-    border: 1px solid #e0e0e0;
-}
-
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -36,7 +26,7 @@
 }
 
 .view-all-link {
-    color: #007bff;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
     display: flex;
@@ -48,9 +38,42 @@
     text-decoration: underline;
 }
 
-.jobs-table tbody tr.selected-row {
-    background-color: #f0f7ff;
-    border: 1px solid #007bff;
+.recently-posted-jobs.empty .view-all-link {
+    display: none;
+}
+
+.empty-jobs-placeholder {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 30px;
+    border-radius: 8px;
+}
+.empty-jobs-content h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #343a40;
+}
+.empty-jobs-content .muted {
+    color: #6c757d;
+    margin-bottom: 14px;
+}
+.btn-post-job {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.12s ease, transform 0.06s ease;
+}
+.btn-post-job:hover {
+    background-color: #6c0000;
+}
+.btn-post-job:active {
+    transform: translateY(1px);
 }
 
 .job-title-cell {
@@ -78,15 +101,16 @@
 .action-buttons {
     display: flex;
     gap: 10px;
+    position: relative;
 }
 
 .btn-view-applications {
-    background-color: #007bff;
-    color: #fff;
+    background-color: #F1F2F4;
+    color: var(--primary-color);
     padding: 8px 16px;
     border-radius: 6px;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 14px;
     transition: background-color 0.2s;
     border: none;
@@ -94,21 +118,40 @@
 }
 
 .btn-view-applications:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .btn-action-menu {
     background: none;
     border: none;
     color: #6c757d;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
-    padding: 5px 10px;
+    padding: 6px;
     position: relative;
+    border-radius: 8px;
+    transition: background-color 0.12s ease, color 0.12s ease, transform 0.06s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
 }
 
 .btn-action-menu:hover {
-    color: #495057;
+    background-color: rgba(0,0,0,0.04);
+    color: var(--primary-color);
+}
+
+.btn-action-menu:active {
+    transform: translateX(2px);
+    background-color: rgba(0,0,0,0.06);
+}
+
+.btn-action-menu:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.1);
 }
 
 .action-dropdown {
