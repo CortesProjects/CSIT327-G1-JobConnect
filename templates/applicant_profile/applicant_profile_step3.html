@@ -48,7 +48,7 @@
                 <label for="{{ form.skills_summary.id_for_label }}" class="sr-only">Skills Summary</label>
                 {# This text area is for text input, not rich text, so no toolbar is needed #}
                 {{ form.skills_summary }}
-                {% if form.skills_summary.errors %}<div class="error-text">{{ form.skills_summary.errors.0 }}</div>{% endif %}
+                <div id="skills-summary-error" class="error-text">{% if form.skills_summary.errors %}{{ form.skills_summary.errors.0 }}{% endif %}</div>
             </div>
         </div>
 
@@ -74,8 +74,7 @@
                     </div>
                 </label>
             </div>
-            
-            {% if form.resume.errors %}<div class="error-text">{{ form.resume.errors.0 }}</div>{% endif %}
+            <div id="resume-error" class="error-text">{% if form.resume.errors %}{{ form.resume.errors.0 }}{% endif %}</div>
         </div>
 
         <div class="form-navigation-row centered-nav">

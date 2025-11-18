@@ -1,6 +1,5 @@
 /* =====================================================================
    APPLICANT PROFILE SETUP STYLES
-   - Mirrored from employer_profile_create.css for consistency -
 ===================================================================== */
 .setup-progress-header {
     display: flex;
@@ -13,7 +12,6 @@
 .setup-progress-header .progress-text-row {
     display: flex;
     justify-content: space-between;
-    /* Increased width */
     width: 250px; 
     margin-bottom: 3px;
 }
@@ -54,14 +52,12 @@
    1. MAIN CONTENT LAYOUT & NAVIGATION
 ===================================================================== */
 
-/* Main container for the form content (800px wide for applicant) */
 .profile-setup-container {
     max-width: 800px;
     margin: 20px auto 40px;
     padding: 0 20px;
 }
 
-/* Wrapper to hold and center the step navigation */
 .step-navigation-wrapper {
     width: 100%;
     margin-bottom: 30px;
@@ -70,13 +66,12 @@
     background-color: #fff;
 }
 
-/* Step Navigation Tabs (Centered over the content) */
 .step-navigation {
     display: flex;
     justify-content: center;
     max-width: 800px;
     width: 100%;
-    margin: 0 auto; /* Centers the navigation block */
+    margin: 0 auto; 
     gap: 30px;
 }
 
@@ -102,18 +97,18 @@
 
 
 .step-link.active {
-    color: #DC3545; /* Primary Color */
+    color: #DC3545; 
     border-bottom-color: #DC3545;
 }
 
 .step-link.disabled {
-    color: #b0b0b0; /* Lighter grey text */
-    cursor: not-allowed; /* Show a 'not allowed' cursor on hover */
+    color: #b0b0b0; 
+    cursor: not-allowed;
     border-bottom-color: transparent;
 }
 
 .step-link.disabled:hover {
-    color: #b0b0b0; /* Ensure color doesn't change on hover */
+    color: #b0b0b0; 
 }
 
 /* =====================================================================
@@ -141,7 +136,6 @@
     font-size: 0.9rem;
 }
 
-/* --- Row Layouts --- */
 .input-group-row {
     display: flex;
     gap: 20px;
@@ -171,7 +165,6 @@
     margin-bottom: 8px;
 }
 
-/* Hide labels that are for screen readers only */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -209,7 +202,6 @@
     margin-top: 5px;
 }
 
-/* --- RESUME UPLOAD AREA (REPLACE THIS ENTIRE SECTION) --- */
 .upload-area {
     width: 100%;
     border-radius: 8px;
@@ -218,21 +210,18 @@
     text-align: center;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s ease-in-out; /* Smooth transition between states */
-
-    /* STYLES FOR THE INITIAL "EMPTY" STATE */
+    transition: all 0.2s ease-in-out; 
     padding: 2rem;
-    min-height: 180px; /* Ample height for the placeholder text */
+    min-height: 180px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* NEW: STYLES FOR THE "FILE ATTACHED" STATE */
 .upload-area.file-attached {
-    padding: 0.75rem; /* Make it much more compact */
-    min-height: auto; /* Allow it to shrink to the content height */
+    padding: 0.75rem; 
+    min-height: auto; 
     background-color: #fff;
 }
 
@@ -241,7 +230,6 @@
     background-color: #fef8f8;
 }
 
-/* Prevent hover effect on the attached state from looking weird */
 .upload-area.file-attached:hover {
     background-color: #f8f9fa;
 }
@@ -251,7 +239,7 @@
 }
 
 .upload-content-placeholder {
-    display: flex; /* Use flex for easy centering */
+    display: flex; 
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -274,9 +262,8 @@
     color: #6c757d;
 }
 
-/* Attached file display */
 .file-attached-display {
-    display: none; /* Hidden by default, shown by JS */
+    display: none;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -321,7 +308,6 @@
     justify-content: space-between;
 }
 
-/* Primary "Save & Next" button */
 .cta-btn {
     background-color: #DC3545;
     color: white;
@@ -339,12 +325,11 @@
     background-color: #c82333;
 }
 
-/* Secondary "Previous" button */
 .btn.btn-secondary {
     background-color: transparent;
     color: #DC3545;
     border: 1px solid #DC3545;
-    padding: 11px 25px; /* 1px less padding to account for border */
+    padding: 11px 25px; 
     border-radius: 8px;
     text-decoration: none;
     font-size: 1.05rem;
@@ -423,4 +408,27 @@
 
 .btn-completion-secondary:hover {
     background-color: #e2e6ea;
+}
+
+/* =====================================================================
+   ERROR HIGHLIGHTING STYLES
+===================================================================== */
+
+.error-text {
+    color: #dc3545 !important;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Highlight field containers with errors */
+.field-container:has(.error-text:not(:empty)) input,
+.field-container:has(.error-text:not(:empty)) select,
+.field-container:has(.error-text:not(:empty)) textarea {
+    border-color: #dc3545 !important;
+}
+
+/* Highlight upload areas with errors */
+.upload-area:has(+ .error-text:not(:empty)) {
+    border-color: #dc3545 !important;
 }
