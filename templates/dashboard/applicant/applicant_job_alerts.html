@@ -3,59 +3,47 @@
 
 {% block title %}Job Alerts{% endblock %}
 
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_job_alerts.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="job-alerts-container">
-    <div class="container-header">
-        <h2 class="container-title">Job Alerts <span class="new-jobs-count">(9 new jobs)</span></h2>
-        <a href="#" class="edit-alerts-btn"><i class="fas fa-pencil-alt"></i> Edit Job Alerts</a>
+<div class="main-content-header">
+    <div class="header-left">
+        <h2>Job Alerts {% if alert_jobs %}<span class="new-jobs-count">({{ alert_jobs.count }} new jobs)</span>{% endif %}</h2>
     </div>
-    <div class="favorite-jobs-list"> <!-- Reusing the same list style as favorite jobs -->
-        <!-- Sample Job Card 1 -->
-        <div class="job-card">
-            <div class="job-card-main">
-                <img src="https://via.placeholder.com/40" alt="Company Logo" class="company-logo">
-                <div class="job-card-details">
-                    <span class="job-title">Technical Support Specialist</span>
-                    <span class="job-type-badge full-time">Full Time</span>
-                    <div class="job-meta">
-                        <span><i class="fas fa-map-marker-alt"></i> Idaho, USA</span>
-                        <span><i class="fas fa-dollar-sign"></i> $15k-$20k</span>
-                        <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
-                    </div>
-                </div>
-            </div>
-            <div class="job-card-action">
-                <a href="#" class="action-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-        <!-- Sample Job Card 2 (Active) -->
-        <div class="job-card active">
-            <div class="job-card-main">
-                <img src="https://via.placeholder.com/40" alt="Company Logo" class="company-logo">
-                <div class="job-card-details">
-                    <span class="job-title">Senior UX Designer</span>
-                    <span class="job-type-badge full-time">Full Time</span>
-                    <div class="job-meta">
-                        <span><i class="fas fa-map-marker-alt"></i> United Kingdom of Great Britain</span>
-                        <span><i class="fas fa-dollar-sign"></i> $30k-$35k</span>
-                        <span><i class="fas fa-clock"></i> 4 Days Remaining</span>
-                    </div>
-                </div>
-            </div>
-            <div class="job-card-action">
-                <a href="#" class="action-btn active">Apply Now <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-        <!-- Add more job cards as needed -->
-    </div>
-    <div class="pagination-container">
-        <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
-        <a href="#" class="pagination-number active">01</a>
-        <a href="#" class="pagination-number">02</a>
-        <a href="#" class="pagination-number">03</a>
-        <a href="#" class="pagination-number">04</a>
-        <a href="#" class="pagination-number">05</a>
-        <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
-    </div>
+    {% if has_configured_alerts %}
+    <a href="#" class="edit-alerts-btn"><i class="fas fa-pencil-alt"></i> Edit Job Alerts</a>
+    {% endif %}
 </div>
+
+{% if alert_jobs %}
+<div class="job-alerts-list">
+    {% for job in alert_jobs %}
+        {% include 'dashboard/applicant/components/job_card.html' with job=job %}
+    {% endfor %}
+</div>
+
+<div class="pagination-container">
+    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
+    <a href="#" class="pagination-number active">01</a>
+    <a href="#" class="pagination-number">02</a>
+    <a href="#" class="pagination-number">03</a>
+    <a href="#" class="pagination-number">04</a>
+    <a href="#" class="pagination-number">05</a>
+    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <i class="fas fa-bell"></i>
+    </div>
+    <h3>No Job Alerts</h3>
+    <p>You don't have any job alerts set up yet. Configure your preferences to start receiving personalized job recommendations!</p>
+    <a href="#" class="empty-state-btn">
+        <i class="fas fa-cog"></i> Set Up Alerts
+    </a>
+</div>
+{% endif %}
 {% endblock %}
