@@ -32,7 +32,7 @@ class User(AbstractUser):
         default='applicant',
         verbose_name='User Type'
     )
-    
+    is_verified = models.BooleanField(default=False)
     @property
     def full_name(self):
         """Returns the full name combining first, middle, and last name."""
