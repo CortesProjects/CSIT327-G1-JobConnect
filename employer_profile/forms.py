@@ -21,10 +21,10 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make company_name, logo, and business_permit required
+        # Make company_name required, files handled by JavaScript
         self.fields['company_name'].required = True
-        self.fields['logo'].required = True
-        self.fields['business_permit'].required = True
+        self.fields['logo'].required = False
+        self.fields['business_permit'].required = False
         self.fields['about_us'].required = False
 
 # --- Step 2: Founding Info Form ---

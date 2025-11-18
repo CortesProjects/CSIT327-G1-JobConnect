@@ -95,8 +95,7 @@ class ApplicantRegistrationForm(UserCreationForm):
             elif user.user_type == 'employer':
                 EmployerProfile.objects.create(
                     user=user,
-                    first_name=user.first_name,
-                    last_name=user.last_name
+                    company_name=self.cleaned_data['full_name']
                 )
 
         return user

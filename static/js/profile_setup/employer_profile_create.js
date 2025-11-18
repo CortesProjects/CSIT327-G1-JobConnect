@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // --- C. Data Sync on Form Submission (CRITICAL) ---
         if (form) {
-             form.addEventListener('submit', function() {
+             form.addEventListener('submit', function(e) {
                 // Ensure all editors are synced before submitting the form
                 editorPairs.forEach(pair => {
                     const hiddenInputId = pair.editor.dataset.linkedInput;
@@ -198,6 +198,38 @@ document.addEventListener("DOMContentLoaded", function () {
                         hiddenInput.value = pair.editor.innerHTML;
                     }
                 });
+
+                // Validate file uploads for step 1
+                const logoInput = document.querySelector('input[name="logo"]');
+                const permitInput = document.querySelector('input[name="business_permit"]');
+                const logoError = document.getElementById('logo-error');
+                const permitError = document.getElementById('business-permit-error');
+                
+                if (logoInput && permitInput && logoError && permitError) {
+                    // Clear previous errors
+                    logoError.textContent = '';
+                    permitError.textContent = '';
+                    
+                    const hasLogo = logoInput.files.length > 0;
+                    const hasPermit = permitInput.files.length > 0;
+                    
+                    let isValid = true;
+                    
+                    if (!hasLogo) {
+                        logoError.textContent = 'Company logo is required.';
+                        isValid = false;
+                    }
+                    
+                    if (!hasPermit) {
+                        permitError.textContent = 'Business permit is required.';
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
             });
         }
     }
