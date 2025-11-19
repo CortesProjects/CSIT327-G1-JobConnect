@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editorContents = document.querySelectorAll('.editor-content');
     editorContents.forEach(editor => {
         editor.addEventListener('focus', function() {
-            this.parentElement.querySelector('.editor-toolbar').style.borderColor = '#0066ff';
+            this.parentElement.querySelector('.editor-toolbar').style.borderColor = 'var(--primary-color)';
         });
 
         editor.addEventListener('blur', function() {

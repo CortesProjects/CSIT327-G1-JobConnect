@@ -67,8 +67,8 @@
 .form-group input[type="number"]:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #0066ff;
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
 }
 
 .form-group input::placeholder {
@@ -176,8 +176,8 @@
 
 .editor-content:focus {
     outline: none;
-    border-color: #0066ff;
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
 }
 
 .editor-content:empty:before {
@@ -195,7 +195,7 @@
 
 .submit-btn {
     padding: 14px 32px;
-    background-color: #0066ff;
+    background-color: var(--primary-color);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -209,9 +209,9 @@
 }
 
 .submit-btn:hover {
-    background-color: #0052cc;
+    background-color: var(--secondary-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
 }
 
 .submit-btn:active {
@@ -361,7 +361,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background-color: #0066FF;
+    background-color: var(--primary-color);
     color: white;
     padding: 12px 28px;
     border-radius: 6px;
@@ -372,7 +372,7 @@
 }
 
 .modal-btn:hover {
-    background-color: #0052cc;
+    background-color: var(--secondary-color);
 }
 
 .modal-btn i {
