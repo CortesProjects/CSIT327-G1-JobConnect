@@ -196,8 +196,6 @@ class ApplicantProfile(models.Model):
         Returns True only if ALL required fields are completed.
         """
         # Check required fields from Personal Info
-        if not self.image or self.image.name == 'defaults/default-avatar.png':
-            return False
         if not self.first_name or not self.last_name:
             return False
         if not self.experience or not self.education:

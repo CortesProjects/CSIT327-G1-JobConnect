@@ -9,8 +9,7 @@ class PersonalInfoForm(forms.ModelForm):
         widgets = {
             'image': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': 'image/*',
-                'required': 'required'
+                'accept': 'image/*'
             }),
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -60,7 +59,7 @@ class PersonalInfoForm(forms.ModelForm):
             }),
         }
         labels = {
-            'image': 'Profile Picture *',
+            'image': 'Profile Picture (Optional)',
             'title': 'Professional Title/Headline',
             'first_name': 'First Name *',
             'middle_name': 'Middle Name (Optional)',
@@ -76,7 +75,7 @@ class PersonalInfoForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['middle_name'].required = False
-        self.fields['image'].required = True
+        self.fields['image'].required = False
         self.fields['title'].required = False
         self.fields['experience'].required = True
         self.fields['education'].required = True
