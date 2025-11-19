@@ -20,11 +20,11 @@ urlpatterns = [
     path('employer/job-applications/', views.employer_job_applications, name='employer_job_applications'),
     path('employer/candidate-detail/', views.employer_candidate_detail, name='employer_candidate_detail'),
     # Admin URLs
-    path('admin_tab_1', views.admin_dashboards, name='admin_dashboards'),
-    path('admin_tab_2', views.admin_total_employers_verified, name='admin_total_employers_verified'),
-    path('admin_tab_3', views.admin_accept_reject_employer, name='admin_accept_reject_employer'),
+    path('admin/dashboards', views.admin_dashboards, name='admin_dashboards'),
+    path('admin/total-employers-verified', views.admin_total_employers_verified, name='admin_total_employers_verified'),
+    path('admin/accept-reject-employer', views.admin_accept_reject_employer, name='admin_accept_reject_employer'),
     path('admin/approve-employer/<int:employer_id>/', views.approve_employer, name='approve_employer'),
-    path('admin_tab_4', views.admin_applicants, name='admin_applicants'),
-    path('admin_tab_5', views.admin_job_postings, name='admin_job_postings'),
+    path('admin/applicants', views.admin_applicants, name='admin_applicants'),
+    path('admin/job-postings', views.admin_job_postings, name='admin_job_postings'),
     
 ]
