@@ -11,7 +11,7 @@
     <div class="stats-cards-container">
         <div class="stat-card blue">
             <div class="stat-info">
-                <span class="stat-number">0</span>
+                <span class="stat-number">{{ open_jobs_count|default:0 }}</span>
                 <span class="stat-label">Open Jobs</span>
             </div>
             <div class="stat-icon-bg blue">
@@ -20,7 +20,7 @@
         </div>
         <div class="stat-card yellow">
             <div class="stat-info">
-                <span class="stat-number">0</span>
+                <span class="stat-number">{{ saved_candidates_count|default:0 }}</span>
                 <span class="stat-label">Saved Candidates</span>
             </div>
             <div class="stat-icon-bg yellow">
@@ -29,11 +29,14 @@
         </div>
     </div>
 
-    <div class="recently-posted-jobs empty">
+    <div class="recently-posted-jobs {% if not has_jobs %}empty{% endif %}">
         <div class="section-header">
             <h3>Recently Posted Jobs</h3>
-            <a href="#" class="view-all-link">View all <i class="fas fa-arrow-right"></i>
-            </a>
+            {% if has_jobs %}
+                <a href="{% url 'dashboard:employer_my_jobs' %}" class="view-all-link">
+                    View all <i class="fas fa-arrow-right"></i>
+                </a>
+            {% endif %}
         </div>
 
         <div class="jobs-table-wrapper">
@@ -47,44 +50,35 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="4">
-                            <div class="empty-jobs-placeholder">
-                                <div class="empty-jobs-content">
-                                    <h4>You haven't posted a job yet</h4>
-                                    <p class="muted">Create your first job posting to start receiving applications.</p>
-                                    <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">Post a Job</a>
+                    {% if has_jobs %}
+                        {# Job rows will be displayed here when implemented #}
+                        {% comment %}
+                        {% for job in recent_jobs %}
+                            {% include 'dashboard/employer/components/job_row.html' with job=job %}
+                        {% endfor %}
+                        {% endcomment %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-jobs-placeholder">
+                                    <div class="empty-jobs-content">
+                                        <h4>You haven't posted a job yet</h4>
+                                        <p class="muted">Create your first job posting to start receiving applications.</p>
+                                        <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
+                                            <i class="fas fa-plus"></i> Post a Job
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<script>
-function toggleActionMenu(event) {
-    event.stopPropagation();
-    const dropdown = event.currentTarget.nextElementSibling;
-    
-    // Close all other dropdowns
-    document.querySelectorAll('.action-dropdown').forEach(d => {
-        if (d !== dropdown) {
-            d.classList.remove('show');
-        }
-    });
-    
-    // Toggle current dropdown
-    dropdown.classList.toggle('show');
-}
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function() {
-    document.querySelectorAll('.action-dropdown').forEach(d => {
-        d.classList.remove('show');
-    });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'js/dashboard/employer/job_table.js' %}"></script>
+{% endblock %}
 {% endblock %}

@@ -1,0 +1,67 @@
+{% load static %}
+{# Reusable job row component #}
+{# Usage: {% include 'dashboard/employer/components/job_row.html' with job=job_instance %} #}
+
+<tr class="job-row" data-job-id="{{ job.id }}">
+    <td>
+        <div class="job-title-cell">{{ job.title }}</div>
+        <div class="job-meta-info">
+            {{ job.get_job_type_display }} • 
+            {% if job.deadline %}
+                {{ job.deadline|timeuntil }} remaining
+            {% else %}
+                No deadline
+            {% endif %}
+        </div>
+    </td>
+    <td>
+        {% if job.status == 'active' %}
+            <span class="status-badge active">
+                <i class="fas fa-circle"></i> Active
+            </span>
+        {% elif job.status == 'closed' %}
+            <span class="status-badge closed">
+                <i class="fas fa-circle"></i> Closed
+            </span>
+        {% elif job.status == 'expired' %}
+            <span class="status-badge expired">
+                <i class="fas fa-circle"></i> Expired
+            </span>
+        {% else %}
+            <span class="status-badge draft">
+                <i class="fas fa-circle"></i> Draft
+            </span>
+        {% endif %}
+    </td>
+    <td>
+        <span class="applications-count">
+            <i class="fas fa-users"></i> {{ job.applications_count|default:0 }} Application{{ job.applications_count|pluralize }}
+        </span>
+    </td>
+    <td>
+        <div class="action-buttons">
+            <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn-view-applications">
+                View Applications<span><i class="fas fa-arrow-right"></i></span>
+            </a>
+            <button class="btn-action-menu" data-job-id="{{ job.id }}">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="action-dropdown">
+                <button class="action-view-detail" data-job-id="{{ job.id }}">
+                    <i class="fas fa-eye"></i> View Detail
+                </button>
+                <button class="action-edit" data-job-id="{{ job.id }}">
+                    <i class="fas fa-edit"></i> Edit Job
+                </button>
+                {% if job.status == 'active' %}
+                    <button class="action-mark-expired" data-job-id="{{ job.id }}">
+                        <i class="fas fa-times-circle"></i> Mark as Expired
+                    </button>
+                {% endif %}
+                <button class="action-delete" data-job-id="{{ job.id }}">
+                    <i class="fas fa-trash"></i> Delete Job
+                </button>
+            </div>
+        </div>
+    </td>
+</tr>
