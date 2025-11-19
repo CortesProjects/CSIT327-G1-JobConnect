@@ -3,471 +3,66 @@
 
 {% block extra_css %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_dashboard.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_my_jobs.css' %}">
 {% endblock %}
 
 {% block dashboard_content %}
 <div class="my-jobs-container">
     <div class="page-header">
-        <h1 class="page-title">My Jobs <span class="job-count">(589)</span></h1>
+        <h1 class="page-title">My Jobs <span class="job-count">({{ total_jobs }})</span></h1>
+        {% if has_jobs %}
         <div class="header-actions">
             <div class="filter-group">
                 <label for="job-status">Job status</label>
-                <select id="job-status" class="filter-select">
-                    <option value="all">All Jobs</option>
-                    <option value="active">Active</option>
-                    <option value="expire">Expired</option>
+                <select id="job-status" class="filter-select" onchange="window.location.href='?status=' + this.value">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Jobs</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+                    <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
                 </select>
             </div>
         </div>
+        {% endif %}
     </div>
 
-    <div class="jobs-table">
-        <div class="table-header">
-            <div class="header-cell col-job">JOBS</div>
-            <div class="header-cell col-status">STATUS</div>
-            <div class="header-cell col-applications">APPLICATIONS</div>
-            <div class="header-cell col-actions">ACTIONS</div>
+    <div class="recently-posted-jobs {% if not has_jobs %}empty{% endif %}">
+        <div class="jobs-table-wrapper">
+            <table class="jobs-table">
+                <thead>
+                    <tr>
+                        <th>JOBS</th>
+                        <th>STATUS</th>
+                        <th>APPLICATIONS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if has_jobs %}
+                        {% for job in all_jobs %}
+                            {% include 'dashboard/employer/components/job_row.html' with job=job %}
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-jobs-placeholder">
+                                    <div class="empty-jobs-content">
+                                        <h4>You haven't posted a job yet</h4>
+                                        <p class="muted">Create your first job posting to start receiving applications.</p>
+                                        <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
+                                            <i class="fas fa-plus"></i> Post a Job
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
-
-        <div class="table-body">
-            <!-- Job Item 1 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">UI/UX Designer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">22 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>798 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 2 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Senior UX Designer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Internship</span>
-                        <span class="job-time">5 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>185 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 3 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Junior Graphic Designer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">24 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>583 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 4 - Expired -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Front End Developer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">Dec 7, 2019</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge expire">
-                        <i class="fas fa-times-circle"></i>
-                        Expire
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>740 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 5 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Technical Support Specialist</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Part Time</span>
-                        <span class="job-time">6 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>556 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 6 - Expired -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Interaction Designer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Contract Basis</span>
-                        <span class="job-time">Feb 2, 2019</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge expire">
-                        <i class="fas fa-times-circle"></i>
-                        Expire
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>428 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 7 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Software Engineer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Temporary</span>
-                        <span class="job-time">0 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>872 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 8 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Product Designer</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">7 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>894 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 9 - Expired -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Project Manager</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">Dec 4, 2019</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge expire">
-                        <i class="fas fa-times-circle"></i>
-                        Expire
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>196 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Item 10 -->
-            <div class="job-item">
-                <div class="job-info col-job">
-                    <h3 class="job-title">Marketing Manager</h3>
-                    <div class="job-meta">
-                        <span class="job-type">Full Time</span>
-                        <span class="job-time">4 days remainig</span>
-                    </div>
-                </div>
-                <div class="job-status col-status">
-                    <span class="status-badge active">
-                        <i class="fas fa-check-circle"></i>
-                        Active
-                    </span>
-                </div>
-                <div class="job-applications col-applications">
-                    <i class="fas fa-users"></i>
-                    <span>807 Applications</span>
-                </div>
-                <div class="job-actions col-actions">
-                    <button class="btn-view-applications">
-                        View Applications
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn-more">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-eye"></i>
-                                View Detail
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-star"></i>
-                                Make it Expire
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-        <button class="pagination-arrow" id="prev-page">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="pagination-number active">01</button>
-        <button class="pagination-number">02</button>
-        <button class="pagination-number">03</button>
-        <button class="pagination-number">04</button>
-        <button class="pagination-number">05</button>
-        <button class="pagination-arrow" id="next-page">
-            <i class="fas fa-chevron-right"></i>
-        </button>
     </div>
 </div>
 
-<script src="{% static 'js/dashboard/employer/employer_my_jobs.js' %}"></script>
+<script src="{% static 'js/dashboard/employer/job_table.js' %}"></script>
 {% endblock %}
+                
