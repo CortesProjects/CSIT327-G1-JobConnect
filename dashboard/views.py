@@ -240,7 +240,26 @@ def employer_post_job(request):
 
 @login_required
 def employer_my_jobs(request):
-    return render(request, 'dashboard/employer/employer_my_jobs.html')
+    """Display all jobs posted by the employer with filtering"""
+    # Validate user is employer
+    if request.user.user_type != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+    
+    # TODO: Fetch actual jobs from database when Job model has employer field
+    # For now, show empty state
+    all_jobs = []  # Will be: Job.objects.filter(employer=request.user)
+    
+    status_filter = request.GET.get('status', 'all')
+    
+    context = {
+        'all_jobs': all_jobs,
+        'has_jobs': len(all_jobs) > 0,
+        'total_jobs': len(all_jobs),
+        'status_filter': status_filter,
+    }
+    
+    return render(request, 'dashboard/employer/employer_my_jobs.html', context)
 
 @login_required
 def employer_settings(request):
