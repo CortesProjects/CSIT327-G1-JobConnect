@@ -46,45 +46,35 @@
                 
                 <!-- Logo & Banner Upload -->
                 <div class="form-section">
-                    <h3 class="section-title">Logo & Banner</h3>
-                    <div class="form-row">
+                    <h3 class="section-title">Logo & Banner Image</h3>
+                    <div class="form-row logo-banner-row">
                         <div class="upload-item">
-                            <label class="section-subtitle">Logo</label>
+                            <label class="section-subtitle">Upload Logo</label>
                             {% if profile.logo %}
-                            <div class="image-preview has-image" id="logo-preview">
+                            <div class="image-preview has-image" id="logo-preview" onclick="document.getElementById('id_logo').click()">
                                 <img src="{{ profile.logo.url }}" alt="Company Logo">
                             </div>
                             <div class="upload-actions">
-                                <button type="button" class="btn-text replace-btn" onclick="document.getElementById('id_logo').click()">Replace</button>
+                                {{ profile.logo.size|filesizeformat }}
                             </div>
                             {% else %}
-                            <div class="empty-state-box">
-                                <i class="fas fa-image"></i>
-                                <p>No logo uploaded yet</p>
-                                <button type="button" class="btn-upload-empty" onclick="document.getElementById('id_logo').click()">
-                                    <i class="fas fa-upload"></i> Upload Logo
-                                </button>
+                            <div class="image-preview" id="logo-preview" onclick="document.getElementById('id_logo').click()">
                             </div>
                             {% endif %}
                             {{ company_info_form.logo }}
                         </div>
 
                         <div class="upload-item">
-                            <label class="section-subtitle">Banner / Cover Image</label>
+                            <label class="section-subtitle">Banner Image</label>
                             {% if profile.banner %}
-                            <div class="image-preview has-image" id="banner-preview">
+                            <div class="image-preview has-image" id="banner-preview" onclick="document.getElementById('id_banner').click()">
                                 <img src="{{ profile.banner.url }}" alt="Banner Image">
                             </div>
                             <div class="upload-actions">
-                                <button type="button" class="btn-text replace-btn" onclick="document.getElementById('id_banner').click()">Replace</button>
+                                {{ profile.banner.size|filesizeformat }}
                             </div>
                             {% else %}
-                            <div class="empty-state-box">
-                                <i class="fas fa-image"></i>
-                                <p>No banner uploaded yet</p>
-                                <button type="button" class="btn-upload-empty" onclick="document.getElementById('id_banner').click()">
-                                    <i class="fas fa-upload"></i> Upload Banner
-                                </button>
+                            <div class="image-preview" id="banner-preview" onclick="document.getElementById('id_banner').click()">
                             </div>
                             {% endif %}
                             {{ company_info_form.banner }}
@@ -114,47 +104,74 @@
                     </div>
                 </div>
 
-                <!-- Business Permit -->
-                <div class="form-section">
-                    <h3 class="section-title">Business Permit</h3>
-                    {% if profile.business_permit %}
-                    <div class="file-item">
-                        <i class="fas fa-file-pdf"></i>
-                        <div class="file-info">
-                            <p>{{ profile.business_permit.name|default:"business_permit.pdf" }}</p>
-                            <small>Uploaded</small>
-                        </div>
-                        <a href="{{ profile.business_permit.url }}" target="_blank" class="btn-view-file">
-                            <i class="fas fa-eye"></i> View
-                        </a>
-                    </div>
-                    {% else %}
-                    <div class="empty-state-box">
-                        <i class="fas fa-file-contract"></i>
-                        <p>No business permit uploaded</p>
-                        <small>Upload your business permit (PDF, JPG, PNG - Max 10MB)</small>
-                    </div>
-                    {% endif %}
-                </div>
-
                 <!-- Save Button -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-save">Save Changes</button>
+                    <button type="submit" class="btn-save">Save Change</button>
                 </div>
             </form>
 
-            <!-- Separate Business Permit Upload Form -->
-            <form method="post" enctype="multipart/form-data" class="settings-form" style="margin-top: 20px;">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="business_permit">
-                <div class="form-group">
-                    <label for="id_business_permit">{% if profile.business_permit %}Replace{% else %}Upload{% endif %} Business Permit</label>
-                    {{ business_permit_form.business_permit }}
+            <!-- Business Permit Section -->
+            <div class="form-section" style="margin-top: 30px;">
+                <div class="section-header">
+                    <h3 class="section-title">Business Permit</h3>
+                    <button type="button" class="btn-replace-permit" onclick="openPermitModal()">
+                        <i class="fas fa-sync-alt"></i> Replace
+                    </button>
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">Upload Permit</button>
+                
+                {% if profile.business_permit %}
+                <div class="file-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <div class="file-info">
+                        <p>{{ profile.business_permit.name|default:"business_permit.pdf" }}</p>
+                        <small>Uploaded</small>
+                    </div>
+                    <a href="{{ profile.business_permit.url }}" target="_blank" class="btn-view-file">
+                        <i class="fas fa-eye"></i> View
+                    </a>
                 </div>
-            </form>
+                {% else %}
+                <div class="empty-permit-state">
+                    <i class="fas fa-file-contract"></i>
+                    <p>No business permit uploaded</p>
+                    <small>Upload your business permit (PDF, JPG, PNG - Max 10MB)</small>
+                    <button type="button" class="btn-upload-permit" onclick="openPermitModal()">
+                        <i class="fas fa-upload"></i> Upload Permit
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Business Permit Upload Modal -->
+            <div id="permitModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>{% if profile.business_permit %}Replace{% else %}Upload{% endif %} Business Permit</h3>
+                        <button type="button" class="modal-close" onclick="closePermitModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" id="permitForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="business_permit">
+                        
+                        <div class="modal-body">
+                            <div class="upload-zone" id="permitUploadZone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to browse or drag and drop your file here</p>
+                                <small>Supported formats: PDF, JPG, PNG (Max 10MB)</small>
+                                {{ business_permit_form.business_permit }}
+                            </div>
+                            <div id="permitFileName" class="file-name-display"></div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn-cancel" onclick="closePermitModal()">Cancel</button>
+                            <button type="submit" class="btn-save">Upload Permit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Founding Info Tab -->
@@ -385,7 +402,7 @@ function togglePassword(inputId, button) {
     }
 }
 
-// File input preview
+// File input preview for logo
 const logoInput = document.getElementById('id_logo');
 if (logoInput) {
     logoInput.addEventListener('change', function(e) {
@@ -394,16 +411,32 @@ if (logoInput) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const preview = document.getElementById('logo-preview');
+                
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview">`;
                     preview.classList.add('has-image');
+                    preview.onclick = function() { document.getElementById('id_logo').click(); };
+                    
+                    // Update or create file size display
+                    let actions = preview.nextElementSibling;
+                    if (!actions || !actions.classList.contains('upload-actions')) {
+                        actions = document.createElement('div');
+                        actions.className = 'upload-actions';
+                        preview.parentElement.insertBefore(actions, logoInput);
+                    }
+                    
+                    const fileSize = file.size < 1024 * 1024 
+                        ? `${(file.size / 1024).toFixed(1)} KB` 
+                        : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
+                    actions.textContent = fileSize;
                 }
             };
             reader.readAsDataURL(file);
         }
     });
 }
-// Banner preview (cover image)
+
+// File input preview for banner
 const bannerInput = document.getElementById('id_banner');
 if (bannerInput) {
     bannerInput.addEventListener('change', function(e) {
@@ -412,9 +445,24 @@ if (bannerInput) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const preview = document.getElementById('banner-preview');
+                
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Banner Preview">`;
                     preview.classList.add('has-image');
+                    preview.onclick = function() { document.getElementById('id_banner').click(); };
+                    
+                    // Update or create file size display
+                    let actions = preview.nextElementSibling;
+                    if (!actions || !actions.classList.contains('upload-actions')) {
+                        actions = document.createElement('div');
+                        actions.className = 'upload-actions';
+                        preview.parentElement.insertBefore(actions, bannerInput);
+                    }
+                    
+                    const fileSize = file.size < 1024 * 1024 
+                        ? `${(file.size / 1024).toFixed(1)} KB` 
+                        : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
+                    actions.textContent = fileSize;
                 }
             };
             reader.readAsDataURL(file);
@@ -440,5 +488,58 @@ setTimeout(function() {
         setTimeout(() => messages.remove(), 300);
     }
 }, 5000);
+
+// Business Permit Modal Functions
+function openPermitModal() {
+    const modal = document.getElementById('permitModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePermitModal() {
+    const modal = document.getElementById('permitModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    const form = document.getElementById('permitForm');
+    form.reset();
+    
+    const fileNameDisplay = document.getElementById('permitFileName');
+    fileNameDisplay.classList.remove('active');
+    fileNameDisplay.textContent = '';
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('permitModal');
+    if (e.target === modal) {
+        closePermitModal();
+    }
+});
+
+// Handle file selection in modal
+const permitFileInput = document.querySelector('#permitModal input[type="file"]');
+if (permitFileInput) {
+    permitFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileNameDisplay = document.getElementById('permitFileName');
+        
+        if (file) {
+            const fileSize = file.size < 1024 * 1024 
+                ? `${(file.size / 1024).toFixed(1)} KB` 
+                : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
+            
+            fileNameDisplay.innerHTML = `
+                <i class="fas fa-file-pdf"></i>
+                <strong>${file.name}</strong> (${fileSize})
+            `;
+            fileNameDisplay.classList.add('active');
+        } else {
+            fileNameDisplay.classList.remove('active');
+            fileNameDisplay.textContent = '';
+        }
+    });
+}
 </script>
 {% endblock %}
