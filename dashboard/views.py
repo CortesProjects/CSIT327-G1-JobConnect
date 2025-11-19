@@ -22,29 +22,34 @@ from .forms import (
 def dashboard_view(request):
     user = request.user
     if user.user_type == 'applicant':
-        # The main dashboard view now renders the overview template.
         return render(request, 'dashboard/applicant/applicant_overview.html')
     elif user.user_type == 'employer':
-        return render(request, 'dashboard/employer/employer_overview.html')
+        # TODO: Will be replaced with actual job fetching later
+        context = {
+            'has_jobs': False,  # For now, always show empty state
+            'open_jobs_count': 0,
+            'saved_candidates_count': 0,
+        }
+        
+        return render(request, 'dashboard/employer/employer_overview.html', context)
     elif user.user_type == 'admin':
         return render(request, 'dashboard/admin/admin_dashboards.html')
     else:
-        # Fallback for any other user type or if user_type is not set
         return render(request, 'home.html')
 
 @login_required
 def applicant_applied_jobs(request):
-    context = {} # Add any context needed for the template
+    context = {}
     return render(request, 'dashboard/applicant/applicant_applied_jobs.html', context)
 
 @login_required
 def applicant_favorite_jobs(request):
-    context = {} # Add any context needed for the template
+    context = {} 
     return render(request, 'dashboard/applicant/applicant_favorite_jobs.html', context)
 
 @login_required
 def applicant_job_alerts(request):
-    context = {} # Add any context needed for the template
+    context = {} 
     return render(request, 'dashboard/applicant/applicant_job_alerts.html', context)
 
 @login_required
