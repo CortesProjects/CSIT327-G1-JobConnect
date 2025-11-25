@@ -76,6 +76,8 @@ class ApplicantProfile(models.Model):
         null=True, 
         blank=True
     )
+    location = models.JSONField(blank=True, null=True, default=dict,
+                                help_text='Structured location data, e.g. {"city":"Manila","country":"PH"}')
     setup_step_progress = models.IntegerField(default=1)
     
     # Step 1: Personal Info
@@ -268,6 +270,8 @@ class EmployerProfile(models.Model):
     company_name = models.CharField(max_length=255, blank=True, null=True)
     about_us = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='employer_documents/logos/', blank=True, null=True)
+    location = models.JSONField(blank=True, null=True, default=dict,
+                                help_text='Structured location data, e.g. {"city":"Manila","country":"PH"}')
     banner = models.ImageField(upload_to='employer_documents/banners/', blank=True, null=True)
     business_permit = models.FileField(upload_to='employer_documents/permits/', blank=True, null=True)
 
