@@ -1,0 +1,41 @@
+<!-- Application Card Component -->
+<div class="application-card">
+    <div class="card-header">
+        <div class="applicant-info">
+            <div class="applicant-avatar">
+                {% if applicant.profile_picture %}
+                    <img src="{{ applicant.profile_picture.url }}" alt="{{ applicant.full_name }}">
+                {% else %}
+                    <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ applicant.full_name }}">
+                {% endif %}
+                <div class="avatar-badge"></div>
+            </div>
+            <div class="applicant-details">
+                <h3 class="applicant-name">{{ applicant.full_name }}</h3>
+                <p class="applicant-role">{{ applicant.job_role|default:"Applicant" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="info-row">
+            <div class="info-item">
+                <i class="fas fa-briefcase"></i>
+                <span>{{ applicant.years_experience|default:"0" }} Years Exp.</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-graduation-cap"></i>
+                <span>{{ applicant.education|default:"N/A" }}</span>
+            </div>
+        </div>
+        <div class="info-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Applied {{ applicant.applied_date|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button class="btn-download" data-applicant-id="{{ applicant.id }}">
+            <i class="fas fa-download"></i>
+            <span>Download CV</span>
+        </button>
+    </div>
+</div>
