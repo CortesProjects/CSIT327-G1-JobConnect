@@ -1,12 +1,12 @@
 .dashboard-layout {
   display: flex;
-  background: #fff;
+
   min-height: calc(100vh - 60px);
 }
 
 .sidebar {
   width: 240px;
-  background: #fff;
+  
   border-right: 1px solid #eee;
   padding-top: 20px;
 }

@@ -1,10 +1,12 @@
 # dashboards/views.py
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from accounts.models import User, UserSocialLink
+from django.utils import timezone
+from accounts.models import User, UserSocialLink, UserVerification
 from applicant_profile.models import ApplicantProfile
 from .forms import (
     ApplicantPersonalInfoForm, 
@@ -272,7 +274,7 @@ def employer_post_job(request):
                 job.save()
 
                 # messages.success(request, 'Job posted successfully!')
-                return redirect('dashboard:employer_post_job')
+                return redirect(f"{reverse('dashboard:employer_post_job')}?success=true")
             except Exception as e:
                 messages.error(request, f'Error posting job: {str(e)}')
         else:
@@ -453,8 +455,19 @@ def employer_candidate_detail(request):
 #------------------------------------------
 @login_required
 def admin_dashboards(request):
-    total_verified_employers = User.objects.filter(user_type='employer', is_verified=True).count()
-    total_unverified_employers = User.objects.filter(user_type='employer', is_verified=False).count()
+    # Count verified employers (those with verification status = 'verified')
+    total_verified_employers = UserVerification.objects.filter(
+        user__user_type='employer',
+        status='verified'
+    ).count()
+    
+    # Count pending/unverified employers (pending or no verification record)
+    total_unverified_employers = User.objects.filter(
+        user_type='employer'
+    ).exclude(
+        verification__status='verified'
+    ).count()
+    
     total_applicants = User.objects.filter(user_type='applicant').count()
     
     # Optional: count active job postings if needed
@@ -470,7 +483,10 @@ def admin_dashboards(request):
 
 @login_required
 def admin_total_employers_verified(request):
-    verified_employers = User.objects.filter(user_type='employer', is_verified=True).select_related('employer_profile_rel')
+    verified_employers = User.objects.filter(
+        user_type='employer',
+        verification__status='verified'
+    ).select_related('employer_profile_rel', 'verification')
 
     context = {
         'verified_employers': verified_employers,
@@ -479,7 +495,12 @@ def admin_total_employers_verified(request):
 
 @login_required
 def admin_accept_reject_employer(request):
-    unverified_employers = User.objects.filter(user_type='employer', is_verified=False)
+    # Show employers that are pending or have no verification record yet
+    unverified_employers = User.objects.filter(
+        user_type='employer'
+    ).exclude(
+        verification__status='verified'
+    ).select_related('employer_profile_rel').prefetch_related('verification')
 
     context = {
         'unverified_employers': unverified_employers
@@ -491,8 +512,56 @@ def admin_accept_reject_employer(request):
 def approve_employer(request, employer_id):
     if request.method == 'POST':
         employer = get_object_or_404(User, id=employer_id, user_type='employer')
-        employer.is_verified = True
-        employer.save()
+        
+        # Create or update verification record
+        verification, created = UserVerification.objects.get_or_create(
+            user=employer,
+            defaults={
+                'admin_verifier': request.user,
+                'status': 'verified',
+                'verification_date': timezone.now(),
+                'notes': 'Approved by admin'
+            }
+        )
+        
+        if not created:
+            verification.admin_verifier = request.user
+            verification.status = 'verified'
+            verification.verification_date = timezone.now()
+            verification.notes = 'Approved by admin'
+            verification.save()
+        
+        messages.success(request, f'Employer {employer.email} has been verified successfully.')
+    
+    return redirect('dashboard:admin_accept_reject_employer')
+
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')  # Only admins can reject
+def reject_employer(request, employer_id):
+    if request.method == 'POST':
+        employer = get_object_or_404(User, id=employer_id, user_type='employer')
+        rejection_note = request.POST.get('rejection_note', 'Rejected by admin')
+        
+        # Create or update verification record
+        verification, created = UserVerification.objects.get_or_create(
+            user=employer,
+            defaults={
+                'admin_verifier': request.user,
+                'status': 'rejected',
+                'verification_date': timezone.now(),
+                'notes': rejection_note
+            }
+        )
+        
+        if not created:
+            verification.admin_verifier = request.user
+            verification.status = 'rejected'
+            verification.verification_date = timezone.now()
+            verification.notes = rejection_note
+            verification.save()
+        
+        messages.warning(request, f'Employer {employer.email} has been rejected.')
+    
     return redirect('dashboard:admin_accept_reject_employer')
 
 @login_required

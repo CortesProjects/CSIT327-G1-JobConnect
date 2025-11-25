@@ -1,45 +1,15 @@
-{% extends "base.html" %} 
+{% extends 'dashboard/admin/admin_dashboard_base.html' %}
 {% load static %}
 
 {% block extra_css %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_applicants.css' %}">
 {% endblock %}
 
 {% block title %}Applicants | JobConnect{% endblock %}
 
-{% block content %}
-<div class="dashboard-layout">
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <ul class="sidebar-menu">
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_dashboards' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_total_employers_verified' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_accept_reject_employer' %}"><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
-      </li>
-      <li class="menu-item active">
-        <a href=""><i class="fas fa-users"></i> Applicants</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_job_postings' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
-      </li>
-    </ul>
-
-    <div class="logout-section">
-      <a href="{% url 'accounts:logout' %}">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Log-out</span>
-      </a>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <section class="main-content">
+{% block dashboard_content %}
+<div class="admin-content">
     <div class="page-header">
       <h2>Applicants</h2>
     </div>
@@ -77,7 +47,5 @@
         <p>No applicants have viewed yet.</p>
       {% endif %}
     </div>
-
-  </section>
 </div>
 {% endblock %}

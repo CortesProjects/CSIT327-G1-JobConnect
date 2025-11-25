@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <h2 class="sidebar-title">ADMIN DASHBOARD</h2>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{% url 'dashboard:admin_dashboards' %}" class="{% if request.resolver_match.url_name == 'admin_dashboards' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard:admin_total_employers_verified' %}" class="{% if request.resolver_match.url_name == 'admin_total_employers_verified' %}active{% endif %}">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Verified Employers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard:admin_accept_reject_employer' %}" class="{% if request.resolver_match.url_name == 'admin_accept_reject_employer' %}active{% endif %}">
+                        <i class="fas fa-user-check"></i>
+                        <span>Pending Employers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard:admin_applicants' %}" class="{% if request.resolver_match.url_name == 'admin_applicants' %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Applicants</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard:admin_job_postings' %}" class="{% if request.resolver_match.url_name == 'admin_job_postings' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Job Postings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log-out</span>
+            </a>
+        </div>
+    </aside>
+    <div class="dashboard-main-content">
+        {% block dashboard_content %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

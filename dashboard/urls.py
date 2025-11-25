@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/total-employers-verified', views.admin_total_employers_verified, name='admin_total_employers_verified'),
     path('admin/accept-reject-employer', views.admin_accept_reject_employer, name='admin_accept_reject_employer'),
     path('admin/approve-employer/<int:employer_id>/', views.approve_employer, name='approve_employer'),
+    path('admin/reject-employer/<int:employer_id>/', views.reject_employer, name='reject_employer'),
     path('admin/applicants', views.admin_applicants, name='admin_applicants'),
     path('admin/job-postings', views.admin_job_postings, name='admin_job_postings'),
     

@@ -1,96 +1,44 @@
-
-{% extends "base.html" %}
+{% extends 'dashboard/admin/admin_dashboard_base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_dashboards.css' %}">
-{% endblock %}
 
 {% block title %}Admin Dashboard | JobConnect{% endblock %}
 
-{% block content %}
-<div class="dashboard-layout">
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <ul class="sidebar-menu">
-      <li class="menu-item active">
-        <a href=""><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_total_employers_verified' %}"><i class="fas fa-briefcase"></i> Total Employers Verified</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_accept_reject_employer' %}"><i class="fas fa-user-check"></i> Accept/Reject Employer</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_applicants' %}"><i class="fas fa-users"></i> Applicants</a>
-      </li>
-      <li class="menu-item">
-        <a href="{% url 'dashboard:admin_job_postings' %}"><i class="fas fa-file-alt"></i> Active Job Posting</a>
-      </li>
-    </ul>
-
-    <div class="logout-section">
-      <a href="{% url 'accounts:logout' %}">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Log-out</span>
-      </a>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <section class="main-content">
-    <h3 class="greeting">Hello, Admin</h3>
-
-    <div class="dashboard-cards">
-      <!-- Row 1 -->
-      <div class="card-row">
-        <div class="dashboard-card red">
-          <div class="card-text">
-            <p class="card-number">{{ total_verified_employers }}</p>
-            <p class="card-label">Total Employers Verified</p>
-          </div>
-          <div class="card-icon">
-            <i class="fas fa-briefcase"></i>
-          </div>
-        </div>
-
-        <div class="dashboard-card gray">
-          <div class="card-text">
-            <p class="card-number">{{ total_applicants }}</p>
-            <p class="card-label">View Applicants</p>
-          </div>
-          <div class="card-icon yellow">
-            <i class="far fa-bookmark"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 2 -->
-      <div class="card-row">
-        <div class="dashboard-card red">
-          <div class="card-text">
-            <p class="card-number">{{ total_unverified_employers }}</p>
-            <p class="card-label">Accept/Reject Employer</p>
-          </div>
-          <div class="card-icon">
-            <i class="fas fa-briefcase"></i>
-          </div>
-        </div>
-
-        <div class="dashboard-card gray">
-          <div class="card-text">
-            <p class="card-number">238</p>
-            <p class="card-label">Active Job Postings</p>
-          </div>
-          <div class="card-icon yellow">
-            <i class="far fa-bookmark"></i>
-          </div>
-        </div>
-      </div>
+{% block dashboard_content %}
+<div class="admin-overview">
+    <div class="admin-header">
+        <h2>Hello, Admin</h2>
+        <p>Manage employers, applicants, and job postings</p>
     </div>
 
-  </section>
+    <div class="stats-cards-container">
+        <div class="stat-card red">
+            <div class="stat-info">
+                <span class="stat-number">{{ total_verified_employers|default:0 }}</span>
+                <span class="stat-label">Verified Employers</span>
+            </div>
+            <div class="stat-icon-bg red">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <div class="stat-card yellow">
+            <div class="stat-info">
+                <span class="stat-number">{{ total_unverified_employers|default:0 }}</span>
+                <span class="stat-label">Pending Employers</span>
+            </div>
+            <div class="stat-icon-bg yellow">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-info">
+                <span class="stat-number">{{ total_applicants|default:0 }}</span>
+                <span class="stat-label">Total Applicants</span>
+            </div>
+            <div class="stat-icon-bg blue">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
