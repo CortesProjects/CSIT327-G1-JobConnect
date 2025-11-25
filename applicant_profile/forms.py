@@ -1,5 +1,5 @@
 from django import forms
-from accounts.models import ApplicantProfile 
+from applicant_profile.models import ApplicantProfile 
 
 # Form for Step 1: Personal Information
 class PersonalInfoForm(forms.ModelForm):

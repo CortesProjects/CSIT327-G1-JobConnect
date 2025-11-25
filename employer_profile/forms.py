@@ -1,5 +1,5 @@
 from django import forms
-from accounts.models import EmployerProfile 
+from employer_profile.models import EmployerProfile 
 
 # --- Step 1: Company Info Form (For Image/File Uploads) ---
 class EmployerProfileCompanyInfoForm(forms.ModelForm):

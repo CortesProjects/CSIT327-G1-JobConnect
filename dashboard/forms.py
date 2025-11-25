@@ -1,5 +1,7 @@
 from django import forms
-from accounts.models import ApplicantProfile, ApplicantSocialLink, EmployerProfile, User
+from accounts.models import User
+from applicant_profile.models import ApplicantProfile, ApplicantSocialLink
+from employer_profile.models import EmployerProfile
 from django.contrib.auth.forms import PasswordChangeForm
 
 

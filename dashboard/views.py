@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from accounts.models import User, ApplicantProfile, ApplicantSocialLink
+from accounts.models import User
+from applicant_profile.models import ApplicantProfile, ApplicantSocialLink
 from .forms import (
     ApplicantPersonalInfoForm, 
     ApplicantProfileDetailsForm,

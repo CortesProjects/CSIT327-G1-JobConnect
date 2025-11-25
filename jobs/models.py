@@ -195,3 +195,85 @@ class Job(models.Model):
             delta = self.expiration_date - date.today()
             return delta.days
         return None
+
+
+class JobTag(models.Model):
+    """Stores tags for jobs (many-to-many relationship)."""
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='job_tags'
+    )
+    tag_name = models.CharField(max_length=50)
+    
+    class Meta:
+        unique_together = ['job', 'tag_name']
+        ordering = ['tag_name']
+    
+    def __str__(self):
+        return f"{self.job.title} - {self.tag_name}"
+
+
+class JobApplication(models.Model):
+    """Links applicants to jobs and tracks application status."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('reviewed', 'Reviewed'),
+        ('interview', 'Interview'),
+        ('rejected', 'Rejected'),
+        ('hired', 'Hired'),
+    ]
+    
+    applicant = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='job_applications',
+        limit_choices_to={'user_type': 'applicant'}
+    )
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
+    
+    # Core fields
+    application_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+    
+    # Optional fields
+    applicant_notes = models.TextField(
+        blank=True,
+        help_text="Cover letter or additional notes from the applicant"
+    )
+    employer_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Rating given by employer (1-5)"
+    )
+    hired_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Date when status changed to 'hired'"
+    )
+    
+    class Meta:
+        unique_together = ['applicant', 'job']
+        ordering = ['-application_date']
+        indexes = [
+            models.Index(fields=['applicant', 'status']),
+            models.Index(fields=['job', 'status']),
+            models.Index(fields=['-application_date']),
+        ]
+    
+    def save(self, *args, **kwargs):
+        # Auto-set hired_date when status changes to 'hired'
+        if self.status == 'hired' and not self.hired_date:
+            self.hired_date = date.today()
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.applicant.email} - {self.job.title} ({self.status})"

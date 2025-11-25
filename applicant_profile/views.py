@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from accounts.models import ApplicantProfile
+from applicant_profile.models import ApplicantProfile
 from .forms import PersonalInfoForm, ProfileDetailsForm, ContactInfoForm
 
 @login_required
