@@ -162,21 +162,112 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function clearError(element) {
+        element.classList.remove('error');
+        const errorId = element.id + '_error';
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+    }
+
+    // Add real-time validation on blur for required fields
+    const requiredFieldsForBlur = [
+        { id: 'job_title', message: 'This field is required' },
+        { id: 'job_role', message: 'This field is required' },
+        { id: 'location', message: 'This field is required' },
+        { id: 'min_salary', message: 'This field is required' },
+        { id: 'max_salary', message: 'This field is required' },
+        { id: 'salary_type', message: 'This field is required' },
+        { id: 'education', message: 'This field is required' },
+        { id: 'experience', message: 'This field is required' },
+        { id: 'job_type', message: 'This field is required' },
+        { id: 'vacancies', message: 'This field is required' },
+        { id: 'expiration_date', message: 'This field is required' },
+        { id: 'job_level', message: 'This field is required' }
+    ];
+
+    requiredFieldsForBlur.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (element) {
+            // On blur, check if field is empty
+            element.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError(this, field.message);
+                } else {
+                    clearError(this);
+                }
+            });
+
+            // On input/change, clear error if field has value
+            element.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    clearError(this);
+                }
+            });
+        }
+    });
+
+    // Special validation for description editor on blur
+    const descriptionEditor = document.getElementById('description');
+    if (descriptionEditor) {
+        descriptionEditor.addEventListener('blur', function() {
+            const textContent = this.textContent.trim();
+            if (!textContent) {
+                showError(this, 'This field is required');
+            } else if (textContent.length < 50) {
+                showError(this, 'Description must be at least 50 characters');
+            } else {
+                clearError(this);
+            }
+        });
+
+        // Clear errors on input and keyup for contenteditable (some browsers/tools fire key events differently)
+        const descriptionValidateOnChange = function() {
+            const textContent = descriptionEditor.textContent.trim();
+            if (textContent.length >= 50) {
+                clearError(descriptionEditor);
+            }
+        };
+
+        descriptionEditor.addEventListener('input', descriptionValidateOnChange);
+        descriptionEditor.addEventListener('keyup', descriptionValidateOnChange);
+    }
+
+    // Ensure responsibilities editor clears error on input/keyup and updates hidden input
+    const responsibilitiesEditor = document.getElementById('responsibilities');
+    const responsibilitiesHidden = document.getElementById('responsibilities_hidden');
+    if (responsibilitiesEditor) {
+        const respOnChange = function() {
+            if (responsibilitiesHidden) responsibilitiesHidden.value = responsibilitiesEditor.innerHTML;
+            const text = responsibilitiesEditor.textContent.trim();
+            if (text.length > 0) {
+                clearError(responsibilitiesEditor);
+            }
+        };
+        responsibilitiesEditor.addEventListener('input', respOnChange);
+        responsibilitiesEditor.addEventListener('keyup', respOnChange);
+    }
+
     // Date input formatting (simple implementation)
     const dateInput = document.getElementById('expiration_date');
     if (dateInput) {
-        dateInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-            
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2);
-            }
-            if (value.length >= 5) {
-                value = value.substring(0, 5) + '/' + value.substring(5, 9);
-            }
-            
-            e.target.value = value;
-        });
+        // Only apply custom formatting if the input is plain text. If it's type="date",
+        // the browser will provide a proper YYYY-MM-DD value which Django expects.
+        if (dateInput.type === 'text') {
+            dateInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                if (value.length >= 5) {
+                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                }
+                
+                e.target.value = value;
+            });
+        }
 
         // Optionally, you can use a date picker library or HTML5 date input
         // For better UX, consider using a library like flatpickr or converting to type="date"

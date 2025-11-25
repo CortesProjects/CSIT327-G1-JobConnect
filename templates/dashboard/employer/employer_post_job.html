@@ -28,7 +28,8 @@
         <div class="form-section">
             <div class="form-group full-width">
                 <label for="job_title">Job Title</label>
-                <input type="text" id="job_title" name="job_title" placeholder="Add job title, role, vacancies etc..." required>
+                <!-- name should match model field 'title' so Django form receives the value -->
+                <input type="text" id="job_title" name="title" placeholder="Add job title, role, vacancies etc..." required>
             </div>
         </div>
 
@@ -147,7 +148,8 @@
                 </div>
                 <div class="form-group">
                     <label for="expiration_date">Expiration Date</label>
-                    <input type="text" id="expiration_date" name="expiration_date" placeholder="DD/MM/YYYY" required>
+                        <!-- Use HTML date input so the browser posts a YYYY-MM-DD value that Django can parse -->
+                        <input type="date" id="expiration_date" name="expiration_date" required>
                 </div>
                 <div class="form-group">
                     <label for="job_level">Job Level</label>
@@ -195,6 +197,7 @@
                 </div>
                 <div contenteditable="true" class="editor-content" id="description" data-placeholder="Add your job description..."></div>
                 <input type="hidden" name="description" id="description_hidden">
+                <span class="error-message" id="description_error"></span>
             </div>
 
             <div class="form-group full-width">
@@ -224,6 +227,7 @@
                 </div>
                 <div contenteditable="true" class="editor-content" id="responsibilities" data-placeholder="Add your job responsibilities..."></div>
                 <input type="hidden" name="responsibilities" id="responsibilities_hidden">
+                <span class="error-message" id="responsibilities_error"></span>
             </div>
         </div>
 
