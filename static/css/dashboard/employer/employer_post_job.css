@@ -173,7 +173,7 @@ select.error {
 .input-with-currency .currency {
     position: absolute;
     right: 16px;
-    top: 50%;
+    top: 35%;
     transform: translateY(-50%);
     font-size: 14px;
     color: #666;

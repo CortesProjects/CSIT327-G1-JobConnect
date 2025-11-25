@@ -30,6 +30,7 @@
                 <label for="job_title">Job Title</label>
                 <!-- name should match model field 'title' so Django form receives the value -->
                 <input type="text" id="job_title" name="title" placeholder="Add job title, role, vacancies etc..." required>
+                <span class="error-message" id="job_title_error">{% if form.title.errors %}{{ form.title.errors|join:", " }}{% endif %}</span>
             </div>
         </div>
 
@@ -54,7 +55,7 @@
                     <option value="hr">HR Manager</option>
                     <option value="other">Other</option>
                 </select>
-                <span class="error-message" id="job_role_error"></span>
+                <span class="error-message" id="job_role_error">{% if form.job_role.errors %}{{ form.job_role.errors|join:", " }}{% endif %}</span>
             </div>
         </div>
         
@@ -63,7 +64,7 @@
             <div class="form-group full-width">
                 <label for="location">Location <span class="required">*</span></label>
                 <input type="text" id="location" name="location" placeholder="Enter job location (e.g., New York, USA)" required>
-                <span class="error-message" id="location_error"></span>
+                <span class="error-message" id="location_error">{% if form.location.errors %}{{ form.location.errors|join:", " }}{% endif %}</span>
             </div>
         </div>
 
@@ -75,6 +76,7 @@
                     <label for="min_salary">Min Salary</label>
                     <div class="input-with-currency">
                         <input type="number" id="min_salary" name="min_salary" placeholder="Minimum salary..." required>
+                        <span class="error-message" id="min_salary_error">{% if form.min_salary.errors %}{{ form.min_salary.errors|join:", " }}{% endif %}</span>
                         <span class="currency">USD</span>
                     </div>
                 </div>
@@ -82,6 +84,7 @@
                     <label for="max_salary">Max Salary</label>
                     <div class="input-with-currency">
                         <input type="number" id="max_salary" name="max_salary" placeholder="Maximum salary..." required>
+                        <span class="error-message" id="max_salary_error">{% if form.max_salary.errors %}{{ form.max_salary.errors|join:", " }}{% endif %}</span>
                         <span class="currency">USD</span>
                     </div>
                 </div>
@@ -93,6 +96,7 @@
                         <option value="monthly">Monthly</option>
                         <option value="yearly">Yearly</option>
                     </select>
+                    <span class="error-message" id="salary_type_error">{% if form.salary_type.errors %}{{ form.salary_type.errors|join:", " }}{% endif %}</span>
                 </div>
             </div>
         </div>
@@ -111,6 +115,7 @@
                         <option value="master">Master's Degree</option>
                         <option value="phd">PhD</option>
                     </select>
+                    <span class="error-message" id="education_error">{% if form.education.errors %}{{ form.education.errors|join:", " }}{% endif %}</span>
                 </div>
                 <div class="form-group">
                     <label for="experience">Experience</label>
@@ -122,6 +127,7 @@
                         <option value="5-10">5-10 years</option>
                         <option value="10+">10+ years</option>
                     </select>
+                    <span class="error-message" id="experience_error">{% if form.experience.errors %}{{ form.experience.errors|join:", " }}{% endif %}</span>
                 </div>
                 <div class="form-group">
                     <label for="job_type">Job Type</label>
@@ -133,6 +139,7 @@
                         <option value="internship">Internship</option>
                         <option value="freelance">Freelance</option>
                     </select>
+                    <span class="error-message" id="job_type_error">{% if form.job_type.errors %}{{ form.job_type.errors|join:", " }}{% endif %}</span>
                 </div>
             </div>
             <div class="advance-info-row second-row">
@@ -145,11 +152,13 @@
                         <option value="6-10">6-10</option>
                         <option value="10+">10+</option>
                     </select>
+                    <span class="error-message" id="vacancies_error">{% if form.vacancies.errors %}{{ form.vacancies.errors|join:", " }}{% endif %}</span>
                 </div>
                 <div class="form-group">
                     <label for="expiration_date">Expiration Date</label>
-                        <!-- Use HTML date input so the browser posts a YYYY-MM-DD value that Django can parse -->
-                        <input type="date" id="expiration_date" name="expiration_date" required>
+                    <!-- Use HTML date input so the browser posts a YYYY-MM-DD value that Django can parse -->
+                    <input type="date" id="expiration_date" name="expiration_date" required>
+                    <span class="error-message" id="expiration_date_error">{% if form.expiration_date.errors %}{{ form.expiration_date.errors|join:", " }}{% endif %}</span>
                 </div>
                 <div class="form-group">
                     <label for="job_level">Job Level</label>
@@ -162,6 +171,7 @@
                         <option value="manager">Manager</option>
                         <option value="executive">Executive</option>
                     </select>
+                    <span class="error-message" id="job_level_error">{% if form.job_level.errors %}{{ form.job_level.errors|join:", " }}{% endif %}</span>
                 </div>
             </div>
         </div>
@@ -197,7 +207,7 @@
                 </div>
                 <div contenteditable="true" class="editor-content" id="description" data-placeholder="Add your job description..."></div>
                 <input type="hidden" name="description" id="description_hidden">
-                <span class="error-message" id="description_error"></span>
+                <span class="error-message" id="description_error">{% if form.description.errors %}{{ form.description.errors|join:", " }}{% endif %}</span>
             </div>
 
             <div class="form-group full-width">
@@ -227,7 +237,7 @@
                 </div>
                 <div contenteditable="true" class="editor-content" id="responsibilities" data-placeholder="Add your job responsibilities..."></div>
                 <input type="hidden" name="responsibilities" id="responsibilities_hidden">
-                <span class="error-message" id="responsibilities_error"></span>
+                <span class="error-message" id="responsibilities_error">{% if form.responsibilities.errors %}{{ form.responsibilities.errors|join:", " }}{% endif %}</span>
             </div>
         </div>
 

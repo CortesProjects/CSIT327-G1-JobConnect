@@ -262,7 +262,7 @@ def employer_post_job(request):
     if request.method == 'POST':
         from jobs.forms import JobPostForm
         form = JobPostForm(request.POST)
-        
+
         if form.is_valid():
             try:
                 job = form.save(commit=False)
@@ -270,19 +270,24 @@ def employer_post_job(request):
                 job.company_name = employer_profile.company_name
                 job.status = 'active'
                 job.save()
-                
-                messages.success(request, 'Job posted successfully!')
+
+                # messages.success(request, 'Job posted successfully!')
                 return redirect('dashboard:employer_post_job')
             except Exception as e:
                 messages.error(request, f'Error posting job: {str(e)}')
         else:
-            # Return form with errors
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-    
+            # Do not push per-field errors to messages container; render form with inline errors
+            pass
+        # end POST
+
+    else:
+        # GET - instantiate empty form
+        from jobs.forms import JobPostForm
+        form = JobPostForm()
+
     return render(request, 'dashboard/employer/employer_post_job.html', {
-        'company_name': employer_profile.company_name if employer_profile else ''
+        'company_name': employer_profile.company_name if employer_profile else '',
+        'form': form,
     })
 
 @login_required
