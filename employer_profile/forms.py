@@ -103,7 +103,7 @@ class EmployerProfileFoundingInfoForm(forms.ModelForm):
 
 # --- Step 3: Contact Form ---
 class EmployerProfileContactForm(forms.ModelForm):
-    phone_number = forms.CharField(
+    contact_phone_number = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'Phone number...', 'class': 'form-control', 'required': 'required'}),
         label='Phone Number *'
@@ -121,7 +121,7 @@ class EmployerProfileContactForm(forms.ModelForm):
         # Check if profile already has a contact_email saved
         if self.instance and self.instance.contact_email:
             # If profile already has a contact_email, use it (instance will handle it)
-            return
+            pass
 
         # If no contact_email on profile, and the profile is linked to a user, use user's email
         if self.instance and hasattr(self.instance, 'user') and self.instance.user:
@@ -132,4 +132,4 @@ class EmployerProfileContactForm(forms.ModelForm):
 
     class Meta:
         model = EmployerProfile
-        fields = ['phone_number', 'contact_email']
+        fields = ['contact_phone_number', 'contact_email']

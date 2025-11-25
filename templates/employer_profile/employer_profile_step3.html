@@ -197,10 +197,10 @@
                 
                 {# Phone Number Field (Django field) #}
                 <div class="field-container phone-number-input">
-                    <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
-                    {{ form.phone_number }}
+                    <label for="{{ form.contact_phone_number.id_for_label }}">Phone Number</label>
+                    {{ form.contact_phone_number }}
                     <div class="error-text" id="phone-number-error">
-                        {% if form.phone_number.errors %}{{ form.phone_number.errors.0 }}{% endif %}
+                        {% if form.contact_phone_number.errors %}{{ form.contact_phone_number.errors.0 }}{% endif %}
                     </div>
                 </div>
             </div>

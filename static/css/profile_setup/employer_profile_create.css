@@ -202,7 +202,147 @@
     align-items: center;
 }
 
-/* Square Logo Area (Uses Padding-Bottom Trick for Shape) */
+/* NEW: Image Preview Setup for Logo and Permit */
+.image-preview-setup.square-logo-area {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed #dc3545;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff5f5;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-preview-setup.square-logo-area:hover {
+    border-color: #c82333;
+    background-color: #ffe5e5;
+}
+
+.image-preview-setup.square-logo-area.has-image {
+    border-style: solid;
+    border-color: #dc3545;
+}
+
+.image-preview-setup.square-logo-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-preview-setup.business-permit-area {
+    width: 100%;
+    min-height: 200px;
+    border: 2px dashed #dc3545;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff5f5;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-preview-setup.business-permit-area:hover {
+    border-color: #c82333;
+    background-color: #ffe5e5;
+}
+
+.image-preview-setup.business-permit-area.has-image {
+    border-style: solid;
+    border-color: #dc3545;
+}
+
+.image-preview-setup.business-permit-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.image-preview-setup .upload-content-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.image-preview-setup .upload-content-placeholder i {
+    font-size: 48px;
+    color: #dc3545;
+    margin-bottom: 10px;
+}
+
+.image-preview-setup .upload-content-placeholder h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 10px 0 5px 0;
+}
+
+.image-preview-setup .upload-content-placeholder .upload-hint {
+    font-size: 12px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.image-preview-setup.has-image .upload-content-placeholder {
+    display: none;
+}
+
+.hover-overlay-setup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+    text-align: center;
+}
+
+.image-preview-setup:hover .hover-overlay-setup {
+    opacity: 1;
+}
+
+.hover-overlay-setup i {
+    font-size: 36px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.hover-overlay-setup p {
+    color: white;
+    margin: 8px 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.hover-overlay-setup p span {
+    font-weight: 600;
+}
+
+.hover-overlay-setup small {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+}
+
+/* OLD: Square Logo Area (Uses Padding-Bottom Trick for Shape) - Kept for compatibility */
 .upload-area.square-logo-area {
     width: 100%; 
     height: 0;
@@ -234,6 +374,21 @@
     border: 1px dashed var(--border-color, #ccc); 
     background-color: #f7f7f7; 
     min-height: 200px; 
+}
+
+/* Hide native file input elements inside upload wrappers so the browser
+   "Choose File / No file chosen" control does not appear. Templates
+   render hidden inputs; this ensures any leftover visible inputs are hidden. */
+.logo-upload-wrapper input[type="file"],
+.permit-upload-wrapper input[type="file"],
+.profile-picture-wrapper input[type="file"],
+.upload-area input[type="file"],
+input[type="file"].actual-file-input {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
 }
 
 /* --- UPLOAD UX/FEEDBACK --- */
