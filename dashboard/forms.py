@@ -1,15 +1,15 @@
 from django import forms
-from accounts.models import User
-from applicant_profile.models import ApplicantProfile, ApplicantSocialLink
+from accounts.models import User, UserSocialLink
+from applicant_profile.models import ApplicantProfile
 from employer_profile.models import EmployerProfile
 from django.contrib.auth.forms import PasswordChangeForm
 
 
 class ApplicantSocialLinkForm(forms.ModelForm):
-    """Form for adding/editing social links"""
+    """Form for adding/editing social links (now using UserSocialLink)"""
     
     class Meta:
-        model = ApplicantSocialLink
+        model = UserSocialLink
         fields = ['platform', 'url']
         widgets = {
             'platform': forms.Select(attrs={'class': 'social-platform-select'}),

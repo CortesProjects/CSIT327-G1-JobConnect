@@ -5,9 +5,9 @@ from applicant_profile.models import ApplicantProfile
 class PersonalInfoForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
-        fields = ['image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education', 'resume']
+        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'years_of_experience', 'education_level', 'resume']
         widgets = {
-            'image': forms.FileInput(attrs={
+            'profile_image': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
@@ -29,29 +29,16 @@ class PersonalInfoForm(forms.ModelForm):
                 'placeholder': 'e.g., Dela Cruz',
                 'required': 'required'
             }),
-            'experience': forms.Select(attrs={
+            'years_of_experience': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 3',
+                'min': '0',
+                'required': 'required'
+            }),
+            'education_level': forms.Select(attrs={
                 'class': 'form-control',
                 'required': 'required'
-            }, choices=[
-                ('', 'Select experience level'),
-                ('0-1', '0-1 years (Entry Level)'),
-                ('1-3', '1-3 years'),
-                ('3-5', '3-5 years'),
-                ('5-10', '5-10 years'),
-                ('10+', '10+ years (Senior)'),
-            ]),
-            'education': forms.Select(attrs={
-                'class': 'form-control',
-                'required': 'required'
-            }, choices=[
-                ('', 'Select highest education level'),
-                ('high_school', 'High School'),
-                ('associate', 'Associate Degree'),
-                ('bachelor', "Bachelor's Degree"),
-                ('master', "Master's Degree"),
-                ('doctorate', 'Doctorate/PhD'),
-                ('vocational', 'Vocational/Technical'),
-            ]),
+            }),
             'resume': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': '.pdf,.doc,.docx',
@@ -59,13 +46,13 @@ class PersonalInfoForm(forms.ModelForm):
             }),
         }
         labels = {
-            'image': 'Profile Picture (Optional)',
+            'profile_image': 'Profile Picture (Optional)',
             'title': 'Professional Title/Headline',
             'first_name': 'First Name *',
             'middle_name': 'Middle Name (Optional)',
             'last_name': 'Last Name *',
-            'experience': 'Experience *',
-            'education': 'Education *',
+            'years_of_experience': 'Years of Experience *',
+            'education_level': 'Education Level *',
             'resume': 'Resume/CV *'
         }
     
@@ -75,10 +62,10 @@ class PersonalInfoForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['middle_name'].required = False
-        self.fields['image'].required = False
+        self.fields['profile_image'].required = False
         self.fields['title'].required = False
-        self.fields['experience'].required = True
-        self.fields['education'].required = True
+        self.fields['years_of_experience'].required = True
+        self.fields['education_level'].required = True
         self.fields['resume'].required = True
     
     def clean_first_name(self):

@@ -4,9 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from accounts.models import User
-from applicant_profile.models import ApplicantProfile, ApplicantSocialLink
-from employer_profile.models import EmployerProfile
+from accounts.models import User, UserSocialLink
+from applicant_profile.models import ApplicantProfile
 from .forms import (
     ApplicantPersonalInfoForm, 
     ApplicantProfileDetailsForm,
@@ -251,10 +250,14 @@ def employer_post_job(request):
         messages.error(request, 'Access denied. Employer account required.')
         return redirect('accounts:login')
     
-    # Ensure employer profile exists and has a company name
-    employer_profile, created = EmployerProfile.objects.get_or_create(user=request.user)
-    if not employer_profile.company_name:
-        messages.warning(request, 'Please complete your company profile before posting a job.')
+    # Get employer profile for company name
+    try:
+        employer_profile = request.user.employer_profile_rel
+        if not employer_profile.company_name:
+            messages.warning(request, 'Please complete your company profile before posting a job.')
+            return redirect('dashboard:employer_settings')
+    except:
+        messages.error(request, 'Please complete your profile setup first.')
         return redirect('dashboard:employer_settings')
     
     if request.method == 'POST':
@@ -319,10 +322,11 @@ def employer_my_jobs(request):
 @login_required
 def employer_settings(request):
     """Handle employer settings with multiple form types"""
-    # Ensure an EmployerProfile exists for this user (create if missing)
-    profile, created = EmployerProfile.objects.get_or_create(user=request.user)
-    if created:
-        messages.info(request, 'Employer profile created. Please complete your company information.')
+    try:
+        profile = request.user.employer_profile_rel
+    except:
+        messages.error(request, "Employer profile not found.")
+        return redirect('dashboard:employer_dashboard')
     
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
@@ -467,7 +471,7 @@ def admin_dashboards(request):
 
 @login_required
 def admin_total_employers_verified(request):
-    verified_employers = User.objects.filter(user_type='employer', is_verified=True).prefetch_related('employer_profile_rel')
+    verified_employers = User.objects.filter(user_type='employer', is_verified=True).select_related('employer_profile_rel')
 
     context = {
         'verified_employers': verified_employers,
