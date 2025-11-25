@@ -8,317 +8,222 @@
 
 {% block dashboard_content %}
 <div class="job-applications-container">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'dashboard:dashboard' %}">Home</a>
-        <span>/</span>
-        <a href="#">Job</a>
-        <span>/</span>
-        <a href="#">Senior UI/UX Designer</a>
-        <span>/</span>
-        <span class="current">Applications</span>
-    </nav>
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="page-title">Job Applications</h1>
-        <div class="header-actions">
-            <button class="btn-filter" id="filterBtn">
-                Filter
-                <i class="fas fa-sliders-h"></i>
-            </button>
-            <button class="btn-sort active" id="sortBtn">
-                Sort
-                <i class="fas fa-sort"></i>
-            </button>
+    <!-- Page Header with Breadcrumb -->
+    <div>
+        <div class="header-top">
+            <nav class="breadcrumb">
+                <a href="{% url 'dashboard:employer_my_jobs' %}"><i class="fas fa-briefcase"></i> My Jobs</a>
+                <span class="separator">/</span>
+                <a href="#">{{ job.title }}</a>
+                <span class="separator">/</span>
+                <span class="current">Applications</span>
+            </nav>
         </div>
-    </div>
+        <div class="header-main">
+            <div class="header-left">
+                <h1 class="page-title">Job Applications</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" id="filterBtn">
+                    <i class="fas fa-filter"></i>
+                    <span>Filter</span>
+                </button>
+                <button class="btn-primary" id="sortBtn">
+                    <i class="fas fa-sort"></i>
+                    <span>Sort</span>
+                </button>
+                <!-- Filter Dropdown -->
+                <div class="filter-dropdown" id="filterDropdown">
+                    <div class="dropdown-section">
+                        <h3 class="dropdown-title">FILTER BY</h3>
+                        
+                        <div class="filter-group">
+                            <h4 class="filter-group-title">Experience</h4>
+                            <label class="filter-option">
+                                <input type="checkbox" name="experience" value="0-2">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">0-2 years</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="experience" value="3-5">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">3-5 years</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="experience" value="6+">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">6+ years</span>
+                            </label>
+                        </div>
 
-    <!-- Sort Dropdown -->
-    <div class="sort-dropdown" id="sortDropdown">
-        <div class="sort-options">
-            <h3 class="dropdown-title">SORT APPLICATION</h3>
-            <label class="sort-option">
-                <input type="radio" name="sort" value="newest" checked>
-                <span>Newest</span>
-            </label>
-            <label class="sort-option">
-                <input type="radio" name="sort" value="oldest">
-                <span>Oldest</span>
-            </label>
+                        <div class="filter-group">
+                            <h4 class="filter-group-title">Education</h4>
+                            <label class="filter-option">
+                                <input type="checkbox" name="education" value="high-school">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">High School</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="education" value="bachelor">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">Bachelor's Degree</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="education" value="master">
+                                <span class="checkbox-custom"></span>
+                                <span class="option-label">Master's Degree</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button class="btn-filter-clear" id="clearFiltersBtn">Clear All</button>
+                            <button class="btn-filter-apply" id="applyFiltersBtn">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="sort-dropdown" id="sortDropdown">
+                    <div class="sort-options">
+                        <h3 class="dropdown-title">SORT BY</h3>
+                        <label class="sort-option">
+                            <input type="radio" name="sort" value="newest" checked>
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Newest First</span>
+                        </label>
+                        <label class="sort-option">
+                            <input type="radio" name="sort" value="oldest">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Oldest First</span>
+                        </label>
+                        <label class="sort-option">
+                            <input type="radio" name="sort" value="name">
+                            <span class="radio-custom"></span>
+                            <span class="option-label">Name (A-Z)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Applications Grid -->
     <div class="applications-layout">
-        <!-- All Applications Column -->
+        <!-- All Applications Column (Fixed) -->
         <div class="applications-column">
             <div class="column-header">
-                <h2 class="column-title">All Application <span class="count">(213)</span></h2>
-                <button class="btn-menu">
-                    <i class="fas fa-ellipsis-h"></i>
-                </button>
-            </div>
-
-            <div class="applications-list">
-                <!-- Application Card 1 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Ronald Richards">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Ronald Richards</h3>
-                                <p class="applicant-title">UI/UX Designer</p>
-                            </div>
-                        </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: Master Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Application Card 2 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Theresa Webb">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Theresa Webb</h3>
-                                <p class="applicant-title">Product Designer</p>
-                            </div>
-                        </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: High School Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Application Card 3 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Devon Lane">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Devon Lane</h3>
-                                <p class="applicant-title">User Experience Designer</p>
-                            </div>
-                        </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: Master Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Application Card 4 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Kathryn Murphy">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Kathryn Murphy</h3>
-                                <p class="applicant-title">Senior UX Designer</p>
-                            </div>
-                        </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: Master Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Shortlisted Column -->
-        <div class="applications-column">
-            <div class="column-header">
-                <h2 class="column-title">Shortlisted <span class="count">(2)</span></h2>
-                <button class="btn-menu">
-                    <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="column-menu-dropdown">
-                    <button class="menu-item">
-                        <i class="fas fa-edit"></i>
-                        Edit Column
-                    </button>
-                    <button class="menu-item delete">
-                        <i class="fas fa-trash"></i>
-                        Delete
-                    </button>
+                <div class="column-title-group">
+                    <h2 class="column-title">All Applications</h2>
+                    <span class="count-badge">{{ all_applications.count|default:0 }}</span>
                 </div>
             </div>
 
             <div class="applications-list">
-                <!-- Application Card 1 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Darrell Steward">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Darrell Steward</h3>
-                                <p class="applicant-title">UI/UX Designer</p>
-                            </div>
-                        </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
+                {% if all_applications %}
+                    {% for applicant in all_applications %}
+                        {% include 'dashboard/employer/components/application_card.html' with applicant=applicant %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No applications yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Dynamic Custom Columns (e.g., Shortlisted, Interview, Hired, etc.) -->
+        {% if custom_columns %}
+            {% for column in custom_columns %}
+            <div class="applications-column">
+                <div class="column-header">
+                    <div class="column-title-group">
+                        <h2 class="column-title">{{ column.name }}</h2>
+                        <span class="count-badge">{{ column.applications.count|default:0 }}</span>
+                    </div>
+                    <button class="btn-column-menu">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <div class="column-menu-dropdown">
+                        <button class="menu-item" data-action="edit" data-column-id="{{ column.id }}">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Column</span>
                         </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: Intermediate Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
+                        <button class="menu-item delete" data-action="delete" data-column-id="{{ column.id }}">
+                            <i class="fas fa-trash"></i>
+                            <span>Delete</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Application Card 2 -->
-                <div class="application-card">
-                    <div class="card-header">
-                        <div class="applicant-info">
-                            <div class="applicant-avatar">
-                                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Jenny Wilson">
-                            </div>
-                            <div class="applicant-details">
-                                <h3 class="applicant-name">Jenny Wilson</h3>
-                                <p class="applicant-title">UI Designer</p>
-                            </div>
+                <div class="applications-list">
+                    {% if column.applications %}
+                        {% for applicant in column.applications %}
+                            {% include 'dashboard/employer/components/application_card.html' with applicant=applicant %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No applications in this stage</p>
                         </div>
-                        <button class="btn-card-menu">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item">
-                            <i class="fas fa-briefcase"></i>
-                            <span>7 Years Experience</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Education: Bachelor Degree</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: Jan 23, 2022</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                            Download Cv
-                        </button>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
-        </div>
+            {% endfor %}
+        {% endif %}
 
         <!-- Create New Column Button -->
         <div class="create-column">
-            <button class="btn-create-column">
-                <i class="fas fa-plus"></i>
-                Create New
+            <button class="btn-create-column" id="createColumnBtn">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create New Column</span>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Stage Modal -->
+<div class="modal-overlay" id="stageModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Add New Column</h3>
+            <button class="btn-close-modal" id="closeModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="stageName">Column Name</label>
+                <input type="text" id="stageName" class="form-input" placeholder="e.g., Shortlisted, Interview, Hired" autocomplete="off">
+                <small class="form-hint">Enter a name for this application column</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" id="cancelModalBtn">Cancel</button>
+            <button class="btn-modal-primary" id="confirmStageAction">Add Column</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-container modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Column</h3>
+            <button class="btn-close-modal" id="closeDeleteModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Are you sure you want to delete "<strong id="deleteColumnName"></strong>"?</p>
+                <small class="warning-text">This action cannot be undone. All applications in this column will be moved back to "All Applications".</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" id="cancelDeleteBtn">Cancel</button>
+            <button class="btn-modal-danger" id="confirmDeleteBtn">Delete Column</button>
         </div>
     </div>
 </div>
