@@ -319,38 +319,6 @@ def employer_my_jobs(request):
 
 
 @login_required
-def employer_job_applications(request, job_id):
-    
-    from django.core.exceptions import PermissionDenied
-    from jobs.models import Job
-
-    if getattr(request.user, 'user_type', None) != 'employer':
-        messages.error(request, 'Access denied. Employer account required.')
-        return redirect('dashboard:dashboard')
-
-    job = get_object_or_404(Job, id=job_id)
-    if job.employer_id != request.user.id:
-        raise PermissionDenied("You do not have permission to view these applications.")
-
-    applications_qs = []
-    if hasattr(job, 'applications'):
-        try:
-            applications_qs = job.applications.all()
-        except Exception:
-            applications_qs = []
-    elif hasattr(job, 'application_set'):
-        try:
-            applications_qs = job.application_set.all()
-        except Exception:
-            applications_qs = []
-
-    context = {
-        'job': job,
-        'applications': applications_qs,
-    }
-    return render(request, 'dashboard/employer/employer_job_applications.html', context)
-
-@login_required
 def employer_settings(request):
     """Handle employer settings with multiple form types"""
     try:
@@ -436,14 +404,43 @@ def employer_settings(request):
 def employer_job_applications(request, job_id):
     """Show applications for a specific job posting (employer-only)."""
     from django.shortcuts import get_object_or_404
+    from django.core.exceptions import PermissionDenied
     from jobs.models import Job
 
-    # Ensure the job exists and (optionally) belongs to the current employer
-    job = get_object_or_404(Job, id=job_id)
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
 
-    # TODO: filter applications related to the job when application model exists
+    # Ensure the job exists and belongs to the current employer
+    job = get_object_or_404(Job, id=job_id)
+    if job.employer_id != request.user.id:
+        raise PermissionDenied("You do not have permission to view these applications.")
+
+    # Get all applications for this job
+    applications_qs = []
+    if hasattr(job, 'applications'):
+        try:
+            applications_qs = job.applications.all()
+        except Exception:
+            applications_qs = []
+    elif hasattr(job, 'application_set'):
+        try:
+            applications_qs = job.application_set.all()
+        except Exception:
+            applications_qs = []
+
+    # TODO: When ApplicationStage model exists, fetch custom stages for this job
+    # For now, using empty list - columns will be created by employer
+    custom_columns = []
+    # Example structure when implemented:
+    # custom_columns = ApplicationStage.objects.filter(job=job).prefetch_related('applications')
+    # Each column should have: id, name, applications (queryset)
+
     context = {
         'job': job,
+        'all_applications': applications_qs,  # All applications in first column
+        'custom_columns': custom_columns,      # Dynamic stages (Shortlisted, Interview, etc.)
     }
     return render(request, 'dashboard/employer/employer_job_applications.html', context)
 
