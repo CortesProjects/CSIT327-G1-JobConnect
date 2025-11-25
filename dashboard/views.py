@@ -24,11 +24,18 @@ def dashboard_view(request):
     if user.user_type == 'applicant':
         return render(request, 'dashboard/applicant/applicant_overview.html')
     elif user.user_type == 'employer':
-        # TODO: Will be replaced with actual job fetching later
+        from jobs.models import Job
+        
+        # Fetch employer's jobs
+        all_jobs = Job.objects.filter(employer=request.user)
+        recent_jobs = all_jobs.order_by('-posted_at')[:5]
+        
         context = {
-            'has_jobs': False,  # For now, always show empty state
-            'open_jobs_count': 0,
-            'saved_candidates_count': 0,
+            'has_jobs': all_jobs.exists(),
+            'open_jobs_count': all_jobs.filter(status='active').count(),
+            'total_jobs_count': all_jobs.count(),
+            'recent_jobs': recent_jobs,
+            'saved_candidates_count': 0,  # TODO: Implement when application system is ready
         }
         
         return render(request, 'dashboard/employer/employer_overview.html', context)
@@ -236,7 +243,52 @@ def employer_profile(request):
 
 @login_required
 def employer_post_job(request):
-    return render(request, 'dashboard/employer/employer_post_job.html')
+    """Handle job posting creation"""
+    # Ensure user is an employer
+    if request.user.user_type != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('accounts:login')
+    
+    # Get employer profile for company name
+    try:
+        employer_profile = request.user.employer_profile_rel
+        if not employer_profile.company_name:
+            messages.warning(request, 'Please complete your company profile before posting a job.')
+            return redirect('dashboard:employer_settings')
+    except:
+        messages.error(request, 'Please complete your profile setup first.')
+        return redirect('dashboard:employer_settings')
+    
+    if request.method == 'POST':
+        from jobs.forms import JobPostForm
+        form = JobPostForm(request.POST)
+
+        if form.is_valid():
+            try:
+                job = form.save(commit=False)
+                job.employer = request.user
+                job.company_name = employer_profile.company_name
+                job.status = 'active'
+                job.save()
+
+                # messages.success(request, 'Job posted successfully!')
+                return redirect('dashboard:employer_post_job')
+            except Exception as e:
+                messages.error(request, f'Error posting job: {str(e)}')
+        else:
+            # Do not push per-field errors to messages container; render form with inline errors
+            pass
+        # end POST
+
+    else:
+        # GET - instantiate empty form
+        from jobs.forms import JobPostForm
+        form = JobPostForm()
+
+    return render(request, 'dashboard/employer/employer_post_job.html', {
+        'company_name': employer_profile.company_name if employer_profile else '',
+        'form': form,
+    })
 
 @login_required
 def employer_my_jobs(request):
@@ -246,16 +298,20 @@ def employer_my_jobs(request):
         messages.error(request, 'Access denied. Employer account required.')
         return redirect('dashboard:dashboard')
     
-    # TODO: Fetch actual jobs from database when Job model has employer field
-    # For now, show empty state
-    all_jobs = []  # Will be: Job.objects.filter(employer=request.user)
+    from jobs.models import Job
     
+    # Fetch jobs posted by this employer
+    all_jobs = Job.objects.filter(employer=request.user).order_by('-posted_at')
+    
+    # Apply status filter
     status_filter = request.GET.get('status', 'all')
+    if status_filter != 'all':
+        all_jobs = all_jobs.filter(status=status_filter)
     
     context = {
         'all_jobs': all_jobs,
-        'has_jobs': len(all_jobs) > 0,
-        'total_jobs': len(all_jobs),
+        'has_jobs': all_jobs.exists(),
+        'total_jobs': all_jobs.count(),
         'status_filter': status_filter,
     }
     
