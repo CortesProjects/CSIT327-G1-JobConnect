@@ -317,6 +317,39 @@ def employer_my_jobs(request):
     
     return render(request, 'dashboard/employer/employer_my_jobs.html', context)
 
+
+@login_required
+def employer_job_applications(request, job_id):
+    
+    from django.core.exceptions import PermissionDenied
+    from jobs.models import Job
+
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+
+    job = get_object_or_404(Job, id=job_id)
+    if job.employer_id != request.user.id:
+        raise PermissionDenied("You do not have permission to view these applications.")
+
+    applications_qs = []
+    if hasattr(job, 'applications'):
+        try:
+            applications_qs = job.applications.all()
+        except Exception:
+            applications_qs = []
+    elif hasattr(job, 'application_set'):
+        try:
+            applications_qs = job.application_set.all()
+        except Exception:
+            applications_qs = []
+
+    context = {
+        'job': job,
+        'applications': applications_qs,
+    }
+    return render(request, 'dashboard/employer/employer_job_applications.html', context)
+
 @login_required
 def employer_settings(request):
     """Handle employer settings with multiple form types"""
@@ -400,8 +433,19 @@ def employer_settings(request):
     return render(request, 'dashboard/employer/employer_settings.html', context)
 
 @login_required
-def employer_job_applications(request):
-    return render(request, 'dashboard/employer/employer_job_applications.html')
+def employer_job_applications(request, job_id):
+    """Show applications for a specific job posting (employer-only)."""
+    from django.shortcuts import get_object_or_404
+    from jobs.models import Job
+
+    # Ensure the job exists and (optionally) belongs to the current employer
+    job = get_object_or_404(Job, id=job_id)
+
+    # TODO: filter applications related to the job when application model exists
+    context = {
+        'job': job,
+    }
+    return render(request, 'dashboard/employer/employer_job_applications.html', context)
 
 @login_required
 def employer_candidate_detail(request):
