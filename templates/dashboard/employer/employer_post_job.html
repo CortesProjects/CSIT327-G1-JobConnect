@@ -10,7 +10,18 @@
 <div class="post-job-container">
     <h1 class="page-title">Post a job</h1>
     
-    <form method="post" class="post-job-form">
+    {% if messages %}
+    <div class="messages-container" id="messagesContainer">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" class="post-job-form" id="jobPostForm" novalidate>
         {% csrf_token %}
         
         <!-- Job Title -->
@@ -21,14 +32,14 @@
             </div>
         </div>
 
-        <!-- Tags and Job Role -->
+        <!-- Tags, Job Role, and Location -->
         <div class="form-section two-columns">
             <div class="form-group">
                 <label for="tags">Tags</label>
                 <input type="text" id="tags" name="tags" placeholder="Job keyword, tags etc...">
             </div>
             <div class="form-group">
-                <label for="job_role">Job Role</label>
+                <label for="job_role">Job Role <span class="required">*</span></label>
                 <select id="job_role" name="job_role" required>
                     <option value="">Select...</option>
                     <option value="frontend">Frontend Developer</option>
@@ -42,6 +53,16 @@
                     <option value="hr">HR Manager</option>
                     <option value="other">Other</option>
                 </select>
+                <span class="error-message" id="job_role_error"></span>
+            </div>
+        </div>
+        
+        <!-- Location -->
+        <div class="form-section">
+            <div class="form-group full-width">
+                <label for="location">Location <span class="required">*</span></label>
+                <input type="text" id="location" name="location" placeholder="Enter job location (e.g., New York, USA)" required>
+                <span class="error-message" id="location_error"></span>
             </div>
         </div>
 
