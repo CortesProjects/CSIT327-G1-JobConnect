@@ -5,7 +5,6 @@ from .models import User, UserVerification, UserSocialLink
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    """Custom User admin with user_type field"""
     list_display = ['email', 'username', 'user_type', 'is_active', 'is_staff', 'date_joined']
     list_filter = ['user_type', 'is_active', 'is_staff', 'is_superuser']
     search_fields = ['email', 'username', 'first_name', 'last_name']
@@ -18,7 +17,6 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(UserVerification)
 class UserVerificationAdmin(admin.ModelAdmin):
-    """Admin interface for UserVerification"""
     list_display = ['user', 'status', 'verification_date', 'admin_verifier']
     list_filter = ['status', 'verification_date']
     search_fields = ['user__email', 'user__username', 'notes']
