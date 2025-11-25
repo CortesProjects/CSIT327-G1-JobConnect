@@ -35,9 +35,9 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
     
     class Meta:
         model = ApplicantProfile
-        fields = ['image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education', 'website', 'resume']
+        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level', 'resume']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'profile_image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'title': forms.TextInput(attrs={
                 'class': 'form-control', 
                 'placeholder': 'e.g., Software Developer, Marketing Specialist'
@@ -57,12 +57,8 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             'experience': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'education': forms.Select(attrs={
+            'education_level': forms.Select(attrs={
                 'class': 'form-control'
-            }),
-            'website': forms.URLInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'https://yourwebsite.com'
             }),
             'resume': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -70,26 +66,24 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             }),
         }
         labels = {
-            'image': 'Profile Picture',
+            'profile_image': 'Profile Picture',
             'title': 'Title/Headline',
             'first_name': 'First Name',
             'middle_name': 'Middle Name (Optional)',
             'last_name': 'Last Name',
             'experience': 'Experience',
-            'education': 'Educations',
-            'website': 'Personal Website URL',
+            'education_level': 'Education Level',
             'resume': 'Resume/CV',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['middle_name'].required = False
-        self.fields['image'].required = False
+        self.fields['profile_image'].required = False
         self.fields['title'].required = False
-        self.fields['website'].required = False
         self.fields['resume'].required = False
         self.fields['experience'].required = False
-        self.fields['education'].required = False
+        self.fields['education_level'].required = False
         
         # Set choices for experience field
         self.fields['experience'].widget.choices = [
@@ -102,7 +96,7 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
         ]
         
         # Set choices for education field
-        self.fields['education'].widget.choices = [
+        self.fields['education_level'].widget.choices = [
             ('', 'Select highest education level'),
             ('high_school', 'High School'),
             ('associate', 'Associate Degree'),
@@ -128,20 +122,20 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             raise forms.ValidationError("Last name can only contain letters, spaces, and hyphens.")
         return last_name
     
-    def clean_image(self):
-        image = self.cleaned_data.get('image')
-        # If image is False, it means no new file was uploaded (unchanged)
-        if image is False:
-            return image
-        # If image exists and is not False, validate it
-        if image:
+    def clean_profile_image(self):
+        profile_image = self.cleaned_data.get('profile_image')
+        # If profile_image is False, it means no new file was uploaded (unchanged)
+        if profile_image is False:
+            return profile_image
+        # If profile_image exists and is not False, validate it
+        if profile_image:
             # Check file size (max 5MB)
-            if hasattr(image, 'size') and image.size > 5 * 1024 * 1024:
+            if hasattr(profile_image, 'size') and profile_image.size > 5 * 1024 * 1024:
                 raise forms.ValidationError("Image file size must be less than 5MB.")
             # Check file type
-            if hasattr(image, 'content_type') and image.content_type not in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']:
+            if hasattr(profile_image, 'content_type') and profile_image.content_type not in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']:
                 raise forms.ValidationError("Only JPG, PNG, and GIF images are allowed.")
-        return image
+        return profile_image
     
     def clean_resume(self):
         resume = self.cleaned_data.get('resume')
@@ -169,7 +163,7 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
     
     class Meta:
         model = ApplicantProfile
-        fields = ['nationality', 'date_of_birth', 'gender', 'marital_status', 'biography']
+        fields = ['nationality', 'date_of_birth', 'gender', 'marital_status', 'location_street','location_city','location_country', 'biography']
         widgets = {
             'nationality': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -185,6 +179,18 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
             'marital_status': forms.Select(attrs={
                 'class': 'form-control'
             }),
+            'location_street': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Street address'
+            }),
+            'location_city': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'City'
+            }),
+            'location_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
             'biography': forms.Textarea(attrs={
                 'class': 'form-control', 
                 'placeholder': 'Write down your biography here. Let the employers know who you are...',
@@ -196,6 +202,9 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
             'date_of_birth': 'Date of Birth',
             'gender': 'Gender',
             'marital_status': 'Marital Status',
+            'location_street': 'Street Address',
+            'location_city': 'City',
+            'location_country': 'Country',
             'biography': 'Biography',
         }
     
@@ -318,10 +327,10 @@ class EmployerCompanyInfoForm(forms.ModelForm):
     
     class Meta:
         model = EmployerProfile
-        fields = ['logo', 'banner', 'company_name', 'about_us']
+        fields = ['company_profile_image', 'company_banner_image', 'company_name', 'about_us']
         widgets = {
-            'logo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
-            'banner': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'company_profile_image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'company_banner_image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company name'}),
             'about_us': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -330,8 +339,8 @@ class EmployerCompanyInfoForm(forms.ModelForm):
             }),
         }
         labels = {
-            'logo': 'Upload Logo',
-            'banner': 'Upload Banner / Cover Image',
+            'company_profile_image': 'Upload Logo',
+            'company_banner_image': 'Upload Banner / Cover Image',
             'company_name': 'Company Name',
             'about_us': 'About Us',
         }
@@ -387,9 +396,9 @@ class EmployerContactInfoForm(forms.ModelForm):
     
     class Meta:
         model = EmployerProfile
-        fields = ['phone_number', 'contact_email']
+        fields = ['contact_phone_number', 'contact_email']
         widgets = {
-            'phone_number': forms.TextInput(attrs={
+            'contact_phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Phone number..'
             }),
@@ -399,7 +408,7 @@ class EmployerContactInfoForm(forms.ModelForm):
             }),
         }
         labels = {
-            'phone_number': 'Phone',
+            'contact_phone_number': 'Phone',
             'contact_email': 'Contact Email',
         }
     
@@ -425,16 +434,16 @@ class EmployerBusinessPermitForm(forms.ModelForm):
     
     class Meta:
         model = EmployerProfile
-        fields = ['business_permit']
+        fields = ['company_business_permit']
         widgets = {
-            'business_permit': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
+            'company_business_permit': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
         }
         labels = {
-            'business_permit': 'Upload Business Permit',
+            'company_business_permit': 'Upload Business Permit',
         }
     
-    def clean_business_permit(self):
-        permit = self.cleaned_data.get('business_permit')
+    def clean_company_business_permit(self):
+        permit = self.cleaned_data.get('company_business_permit')
         if permit:
             # 10MB size limit
             if permit.size > 10 * 1024 * 1024:

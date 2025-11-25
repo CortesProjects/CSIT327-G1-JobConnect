@@ -104,8 +104,8 @@ def applicant_settings(request):
                 urls = request.POST.getlist('url[]')
                 link_ids = request.POST.getlist('link_id[]')
                 
-                # Get existing social link IDs for this profile
-                existing_ids = set(profile.social_links.values_list('id', flat=True))
+                # Get existing social link IDs for this user
+                existing_ids = set(request.user.social_links.values_list('id', flat=True))
                 submitted_ids = set()
                 
                 # Process each submitted link
@@ -119,15 +119,15 @@ def applicant_settings(request):
                         # Update existing link
                         link_id = int(link_id)
                         submitted_ids.add(link_id)
-                        social_link = ApplicantSocialLink.objects.filter(id=link_id, profile=profile).first()
+                        social_link = UserSocialLink.objects.filter(id=link_id, user=request.user).first()
                         if social_link:
                             social_link.platform = platform
                             social_link.url = url
                             social_link.save()
                     else:
                         # Create new link
-                        social_link = ApplicantSocialLink.objects.create(
-                            profile=profile,
+                        social_link = UserSocialLink.objects.create(
+                            user=request.user,
                             platform=platform,
                             url=url
                         )
@@ -136,7 +136,7 @@ def applicant_settings(request):
                 # Delete links that were removed (in existing but not in submitted)
                 ids_to_delete = existing_ids - submitted_ids
                 if ids_to_delete:
-                    ApplicantSocialLink.objects.filter(id__in=ids_to_delete, profile=profile).delete()
+                    UserSocialLink.objects.filter(id__in=ids_to_delete, user=request.user).delete()
                 
                 messages.success(request, 'Social links updated successfully!')
                 return redirect('dashboard:applicant_settings')
@@ -147,7 +147,7 @@ def applicant_settings(request):
             social_link_id = request.POST.get('social_link_id')
             if social_link_id:
                 # Edit existing social link
-                social_link = get_object_or_404(ApplicantSocialLink, id=social_link_id, profile=profile)
+                social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
                 form = ApplicantSocialLinkForm(request.POST, instance=social_link)
             else:
                 # Add new social link
@@ -155,7 +155,7 @@ def applicant_settings(request):
             
             if form.is_valid():
                 social_link = form.save(commit=False)
-                social_link.profile = profile
+                social_link.user = request.user
                 social_link.save()
                 messages.success(request, 'Social link saved successfully!')
                 return redirect('dashboard:applicant_settings')
@@ -164,7 +164,7 @@ def applicant_settings(request):
         
         elif form_type == 'delete_social_link':
             social_link_id = request.POST.get('social_link_id')
-            social_link = get_object_or_404(ApplicantSocialLink, id=social_link_id, profile=profile)
+            social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
             social_link.delete()
             messages.success(request, 'Social link deleted successfully!')
             return redirect('dashboard:applicant_settings')
@@ -196,7 +196,6 @@ def applicant_settings(request):
             form = ApplicantResumeForm(request.POST, request.FILES, instance=profile)
             if form.is_valid():
                 form.save()
-                profile.calculate_completeness()
                 messages.success(request, 'Resume uploaded successfully!')
                 return redirect('dashboard:applicant_settings')
             else:
@@ -221,8 +220,8 @@ def applicant_settings(request):
     password_form = PasswordChangeForm(request.user)
     social_link_form = ApplicantSocialLinkForm()
     
-    # Get existing social links
-    social_links = profile.social_links.all()
+    # Get existing social links for this user
+    social_links = request.user.social_links.all()
     
     context = {
         'profile': profile,
