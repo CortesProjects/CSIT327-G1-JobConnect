@@ -17,14 +17,14 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
 
     class Meta:
         model = EmployerProfile
-        fields = ['company_name', 'about_us', 'logo', 'business_permit']
+        fields = ['company_name', 'about_us', 'company_profile_image', 'company_business_permit']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make all fields required
         self.fields['company_name'].required = True
-        self.fields['logo'].required = False  # Validated in clean()
-        self.fields['business_permit'].required = False  # Validated in clean()
+        self.fields['company_profile_image'].required = False  # Validated in clean()
+        self.fields['company_business_permit'].required = False  # Validated in clean()
         self.fields['about_us'].required = False
     
     def clean_company_name(self):
@@ -33,26 +33,25 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
             raise forms.ValidationError('Company name is required.')
         return company_name.strip()
     
-    def clean_logo(self):
-        logo = self.cleaned_data.get('logo')
-        # If editing and logo already exists, it's optional
-        if self.instance and self.instance.pk and self.instance.logo and not logo:
-            return self.instance.logo
-        # If new profile or no existing logo, require it
-        if not logo and (not self.instance.pk or not self.instance.logo):
+    def clean_company_profile_image(self):
+        company_profile_image = self.cleaned_data.get('company_profile_image')
+        # If editing and company_profile_image already exists, it's optional
+        if self.instance and self.instance.pk and self.instance.company_profile_image and not company_profile_image:
+            return self.instance.company_profile_image
+        # If new profile or no existing company_profile_image, require it
+        if not company_profile_image and (not self.instance.pk or not self.instance.company_profile_image):
             raise forms.ValidationError('Company logo is required.')
-        return logo
+        return company_profile_image
     
-    def clean_business_permit(self):
-        permit = self.cleaned_data.get('business_permit')
+    def clean_company_business_permit(self):
+        company_business_permit = self.cleaned_data.get('company_business_permit')
         # If editing and permit already exists, it's optional
-        if self.instance and self.instance.pk and self.instance.business_permit and not permit:
-            return self.instance.business_permit
+        if self.instance and self.instance.pk and self.instance.company_business_permit and not company_business_permit:
+            return self.instance.company_business_permit
         # If new profile or no existing permit, require it
-        if not permit and (not self.instance.pk or not self.instance.business_permit):
+        if not company_business_permit and (not self.instance.pk or not self.instance.company_business_permit):
             raise forms.ValidationError('Business permit is required.')
-        return permit
-
+        return company_business_permit
 # --- Step 2: Founding Info Form ---
 class EmployerProfileFoundingInfoForm(forms.ModelForm):
     organization_type = forms.ChoiceField(
