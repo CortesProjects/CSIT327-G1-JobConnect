@@ -22,10 +22,10 @@
         <h2>Setting</h2>
         <div class="settings-nav">
             <a href="#personal" data-tab="personal" class="active">
-                <i class="fas fa-user"></i>Personal
+                <i class="fas fa-user"></i>Profile
             </a>
             <a href="#profile" data-tab="profile">
-                <i class="fas fa-id-card"></i>Profile
+                <i class="fas fa-id-card"></i>Personal
             </a>
             <a href="#social" data-tab="social">
                 <i class="fas fa-share-alt"></i>Social Links
@@ -69,7 +69,7 @@
                     <div class="form-group-wrapper">
                         <div class="form-group">
                             <label for="{{ personal_info_form.title.id_for_label }}">Title/headline</label>
-                            {{ personal_info_form.title }}
+                                {{ personal_info_form.title }}
                             {% if personal_info_form.title.errors %}
                                 <div class="error-text">{{ personal_info_form.title.errors.0 }}</div>
                             {% endif %}
@@ -103,19 +103,12 @@
                                 {% endif %}
                             </div>
                             <div class="form-group">
-                                <label for="{{ personal_info_form.education.id_for_label }}">Educations</label>
-                                {{ personal_info_form.education }}
-                                {% if personal_info_form.education.errors %}
-                                    <div class="error-text">{{ personal_info_form.education.errors.0 }}</div>
-                                {% endif %}
+                                <label for="{{ personal_info_form.education_level.id_for_label }}">Education Level</label>
+                                        {{ personal_info_form.education_level }}
+                                        {% if personal_info_form.education_level.errors %}
+                                            <div class="error-text">{{ personal_info_form.education_level.errors.0 }}</div>
+                                        {% endif %}
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="{{ personal_info_form.website.id_for_label }}">Personal Website URL</label>
-                            {{ personal_info_form.website }}
-                            {% if personal_info_form.website.errors %}
-                                <div class="error-text">{{ personal_info_form.website.errors.0 }}</div>
-                            {% endif %}
                         </div>
                         <button type="submit" class="btn-save">Save Changes</button>
                     </div>
@@ -219,7 +212,7 @@
             <input type="hidden" name="form_type" value="profile_details">
             
             <div class="profile-form-section">
-                <h3>Profile Details</h3>
+                <h3>Personal Details</h3>
                 
                 <div class="form-row-two-columns">
                     <div class="form-group">
@@ -251,6 +244,29 @@
                         {{ profile_details_form.marital_status }}
                         {% if profile_details_form.marital_status.errors %}
                             <div class="error-text">{{ profile_details_form.marital_status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-row-three-columns">
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.location_street.id_for_label }}">Street Address</label>
+                        {{ profile_details_form.location_street }}
+                        {% if profile_details_form.location_street.errors %}
+                            <div class="error-text">{{ profile_details_form.location_street.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.location_city.id_for_label }}">City</label>
+                        {{ profile_details_form.location_city }}
+                        {% if profile_details_form.location_city.errors %}
+                            <div class="error-text">{{ profile_details_form.location_city.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ profile_details_form.location_country.id_for_label }}">Country</label>
+                        {{ profile_details_form.location_country }}
+                        {% if profile_details_form.location_country.errors %}
+                            <div class="error-text">{{ profile_details_form.location_country.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>

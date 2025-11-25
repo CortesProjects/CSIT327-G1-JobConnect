@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import User, ApplicantProfile, EmployerProfile
+from .models import User
+from applicant_profile.models import ApplicantProfile
+from employer_profile.models import EmployerProfile
 from django.contrib.auth import get_user_model
 
 User = get_user_model() 

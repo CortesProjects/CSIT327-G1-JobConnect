@@ -50,34 +50,34 @@
                     <div class="form-row logo-banner-row">
                         <div class="upload-item">
                             <label class="section-subtitle">Upload Logo</label>
-                            {% if profile.logo %}
-                            <div class="image-preview has-image" id="logo-preview" onclick="document.getElementById('id_logo').click()">
-                                <img src="{{ profile.logo.url }}" alt="Company Logo">
+                            {% if profile.company_profile_image %}
+                            <div class="image-preview has-image" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
+                                <img src="{{ profile.company_profile_image.url }}" alt="Company Logo">
                             </div>
                             <div class="upload-actions">
-                                {{ profile.logo.size|filesizeformat }}
+                                {{ profile.company_profile_image.size|filesizeformat }}
                             </div>
                             {% else %}
-                            <div class="image-preview" id="logo-preview" onclick="document.getElementById('id_logo').click()">
+                            <div class="image-preview" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
                             </div>
                             {% endif %}
-                            {{ company_info_form.logo }}
+                            {{ company_info_form.company_profile_image }}
                         </div>
 
                         <div class="upload-item">
                             <label class="section-subtitle">Banner Image</label>
-                            {% if profile.banner %}
-                            <div class="image-preview has-image" id="banner-preview" onclick="document.getElementById('id_banner').click()">
-                                <img src="{{ profile.banner.url }}" alt="Banner Image">
+                            {% if profile.company_banner_image %}
+                            <div class="image-preview has-image" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
+                                <img src="{{ profile.company_banner_image.url }}" alt="Banner Image">
                             </div>
                             <div class="upload-actions">
-                                {{ profile.banner.size|filesizeformat }}
+                                {{ profile.company_banner_image.size|filesizeformat }}
                             </div>
                             {% else %}
-                            <div class="image-preview" id="banner-preview" onclick="document.getElementById('id_banner').click()">
+                            <div class="image-preview" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
                             </div>
                             {% endif %}
-                            {{ company_info_form.banner }}
+                            {{ company_info_form.company_banner_image }}
                         </div>
                     </div>
                 </div>
@@ -119,14 +119,14 @@
                     </button>
                 </div>
                 
-                {% if profile.business_permit %}
+                {% if profile.company_business_permit %}
                 <div class="file-item">
                     <i class="fas fa-file-pdf"></i>
                     <div class="file-info">
-                        <p>{{ profile.business_permit.name|default:"business_permit.pdf" }}</p>
+                        <p>{{ profile.company_business_permit.name|default:"business_permit.pdf" }}</p>
                         <small>Uploaded</small>
                     </div>
-                    <a href="{{ profile.business_permit.url }}" target="_blank" class="btn-view-file">
+                    <a href="{{ profile.company_business_permit.url }}" target="_blank" class="btn-view-file">
                         <i class="fas fa-eye"></i> View
                     </a>
                 </div>
@@ -160,7 +160,7 @@
                                 <i class="fas fa-cloud-upload-alt"></i>
                                 <p>Click to browse or drag and drop your file here</p>
                                 <small>Supported formats: PDF, JPG, PNG (Max 10MB)</small>
-                                {{ business_permit_form.business_permit }}
+                                {{ business_permit_form.company_business_permit }}
                             </div>
                             <div id="permitFileName" class="file-name-display"></div>
                         </div>
@@ -258,9 +258,9 @@
                     <h3 class="section-title">Contact Information</h3>
                     
                     <div class="form-group">
-                        <label for="id_phone_number">Phone</label>
-                        {{ contact_info_form.phone_number }}
-                        {% if not profile.phone_number %}
+                        <label for="id_contact_phone_number">Phone</label>
+                        {{ contact_info_form.contact_phone_number }}
+                        {% if not profile.contact_phone_number %}
                         <small class="empty-hint">Add your contact phone number</small>
                         {% endif %}
                     </div>
@@ -371,6 +371,14 @@
 </div>
 
 <script>
+// Helper: click file input by id or by name
+function clickInputByFieldName(fieldName) {
+    const byId = document.getElementById('id_' + fieldName);
+    if (byId) { byId.click(); return; }
+    const byName = document.querySelector('input[name="' + fieldName + '"]');
+    if (byName) { byName.click(); return; }
+}
+
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -403,7 +411,7 @@ function togglePassword(inputId, button) {
 }
 
 // File input preview for logo
-const logoInput = document.getElementById('id_logo');
+const logoInput = document.getElementById('id_company_profile_image') || document.querySelector('input[name="company_profile_image"]');
 if (logoInput) {
     logoInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -415,7 +423,7 @@ if (logoInput) {
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview">`;
                     preview.classList.add('has-image');
-                    preview.onclick = function() { document.getElementById('id_logo').click(); };
+                    preview.onclick = function() { clickInputByFieldName('company_profile_image'); };
                     
                     // Update or create file size display
                     let actions = preview.nextElementSibling;
@@ -437,7 +445,7 @@ if (logoInput) {
 }
 
 // File input preview for banner
-const bannerInput = document.getElementById('id_banner');
+const bannerInput = document.getElementById('id_company_banner_image');
 if (bannerInput) {
     bannerInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -449,7 +457,7 @@ if (bannerInput) {
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Banner Preview">`;
                     preview.classList.add('has-image');
-                    preview.onclick = function() { document.getElementById('id_banner').click(); };
+                    preview.onclick = function() { document.getElementById('id_company_banner_image').click(); };
                     
                     // Update or create file size display
                     let actions = preview.nextElementSibling;
@@ -508,6 +516,24 @@ function closePermitModal() {
     const fileNameDisplay = document.getElementById('permitFileName');
     fileNameDisplay.classList.remove('active');
     fileNameDisplay.textContent = '';
+}
+
+// Make the permit upload zone clickable and show selected filename
+const permitZone = document.getElementById('permitUploadZone');
+const permitInput = document.getElementById('id_company_business_permit');
+const permitFileName = document.getElementById('permitFileName');
+if (permitZone && permitInput) {
+    permitZone.addEventListener('click', function() { permitInput.click(); });
+    permitInput.addEventListener('change', function(e) {
+        const f = e.target.files[0];
+        if (f) {
+            permitFileName.textContent = f.name;
+            permitFileName.classList.add('active');
+        } else {
+            permitFileName.textContent = '';
+            permitFileName.classList.remove('active');
+        }
+    });
 }
 
 // Close modal when clicking outside
