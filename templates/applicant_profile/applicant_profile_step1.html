@@ -15,25 +15,13 @@
                 <i class="fas fa-user icon-left"></i> Personal
             </a>
 
-            {% if progress >= 2 %}
-                <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
-                    <i class="fas fa-id-card icon-left"></i> Profile
-                </a>
-            {% else %}
-                <span class="step-link disabled">
-                    <i class="fas fa-id-card icon-left"></i> Profile
-                </span>
-            {% endif %}
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
+                <i class="fas fa-id-card icon-left"></i> Profile
+            </a>
 
-            {% if progress >= 3 %}
-                <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
-                    <i class="fas fa-phone icon-left"></i> Contact
-                </a>
-            {% else %}
-                <span class="step-link disabled">
-                    <i class="fas fa-phone icon-left"></i> Contact
-                </span>
-            {% endif %}
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
+                <i class="fas fa-phone icon-left"></i> Contact
+            </a>
         </section>
     </div>
     <form method="post" enctype="multipart/form-data">
@@ -52,12 +40,12 @@
             </div>
 
             {# Profile Picture Upload #}
-            <div class="field-container profile-picture-container">
-                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                <div class="field-container profile-picture-container">
+                <label for="{{ form.profile_image.id_for_label }}">{{ form.profile_image.label }}</label>
                 <div class="profile-picture-wrapper">
-                    {% if form.instance.image and form.instance.image.url != '/media/defaults/default-avatar.png' %}
-                    <div class="image-preview-setup has-image" id="profile-preview-setup" onclick="document.getElementById('{{ form.image.id_for_label }}').click()">
-                        <img src="{{ form.instance.image.url }}" alt="Profile Picture">
+                    {% if form.instance.profile_image and form.instance.profile_image.url != '/media/defaults/default-avatar.png' %}
+                    <div class="image-preview-setup has-image" id="profile-preview-setup" onclick="document.getElementById('{{ form.profile_image.id_for_label }}').click()">
+                        <img src="{{ form.instance.profile_image.url }}" alt="Profile Picture">
                         <div class="hover-overlay-setup">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p><span>Change photo</span> or drop here</p>
@@ -65,7 +53,7 @@
                         </div>
                     </div>
                     {% else %}
-                    <div class="image-preview-setup" id="profile-preview-setup" onclick="document.getElementById('{{ form.image.id_for_label }}').click()">
+                    <div class="image-preview-setup" id="profile-preview-setup" onclick="document.getElementById('{{ form.profile_image.id_for_label }}').click()">
                         <div class="upload-content-placeholder">
                             <i class="fas fa-user-circle"></i>
                             <h4>Upload Photo</h4>
@@ -78,9 +66,9 @@
                         </div>
                     </div>
                     {% endif %}
-                    {{ form.image }}
+                    {{ form.profile_image }}
                 </div>
-                <div id="image-error" class="error-text">{% if form.image.errors %}{{ form.image.errors.0 }}{% endif %}</div>
+                <div id="profile-image-error" class="error-text"></div>
             </div>
 
             {# Professional Title #}
@@ -88,7 +76,7 @@
                 <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
                 {{ form.title }}
                 <small class="form-text text-muted">e.g., Software Developer, Marketing Specialist</small>
-                <div id="title-error" class="error-text">{% if form.title.errors %}{{ form.title.errors.0 }}{% endif %}</div>
+                <div id="title-error" class="error-text"></div>
             </div>
             
             <div class="input-group-row">
@@ -96,17 +84,17 @@
                 <div class="field-container">
                     <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
                     {{ form.first_name }}
-                    <div id="first-name-error" class="error-text">{% if form.first_name.errors %}{{ form.first_name.errors.0 }}{% endif %}</div>
+                    <div id="first-name-error" class="error-text"></div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
                     {{ form.middle_name }}
-                    <div id="middle-name-error" class="error-text">{% if form.middle_name.errors %}{{ form.middle_name.errors.0 }}{% endif %}</div>
+                    <div id="middle-name-error" class="error-text"></div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
                     {{ form.last_name }}
-                    <div id="last-name-error" class="error-text">{% if form.last_name.errors %}{{ form.last_name.errors.0 }}{% endif %}</div>
+                    <div id="last-name-error" class="error-text"></div>
                 </div>
             </div>
             
@@ -115,12 +103,12 @@
                     <label for="{{ form.experience.id_for_label }}">{{ form.experience.label }}</label>
                     {{ form.experience }}
                     <small class="form-text text-muted">Total years of professional experience</small>
-                    <div id="experience-error" class="error-text">{% if form.experience.errors %}{{ form.experience.errors.0 }}{% endif %}</div>
+                    <div id="experience-error" class="error-text"></div>
                 </div>
                 <div class="field-container">
-                    <label for="{{ form.education.id_for_label }}">{{ form.education.label }}</label>
-                    {{ form.education }}
-                    <div id="education-error" class="error-text">{% if form.education.errors %}{{ form.education.errors.0 }}{% endif %}</div>
+                    <label for="{{ form.education_level.id_for_label }}">{{ form.education_level.label }}</label>
+                    {{ form.education_level }}
+                    <div id="education-level-error" class="error-text"></div>
                 </div>
             </div>
 
@@ -141,7 +129,7 @@
                         </div>
                     </label>
                 </div>
-                <div id="resume-error" class="error-text">{% if form.resume.errors %}{{ form.resume.errors.0 }}{% endif %}</div>
+                <div id="resume-error" class="error-text"></div>
             </div>
         </div>
 

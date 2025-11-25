@@ -10,11 +10,7 @@ def applicant_profile_setup_step1(request):
     if request.method == 'POST':
         form = PersonalInfoForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
-            saved_profile = form.save()
-            # Update progress to allow access to step 2
-            if saved_profile.setup_step_progress < 2:
-                saved_profile.setup_step_progress = 2
-                saved_profile.save()
+            form.save()
             return redirect('applicant_profile:applicant_profile_setup_step2')
     else:
         form = PersonalInfoForm(instance=profile)
@@ -23,7 +19,6 @@ def applicant_profile_setup_step1(request):
         'form': form,
         'is_setup_page': True, # Tells base.html to show the bar
         'progress_percent': 0,
-        'progress': profile.setup_step_progress # Get value from the model property
     }
     return render(request, 'applicant_profile/applicant_profile_step1.html', context)
 
@@ -31,18 +26,12 @@ def applicant_profile_setup_step1(request):
 def applicant_profile_setup_step2(request):
     profile = request.user.applicant_profile_rel
     
-    # SECURITY CHECK: Redirect if user hasn't completed step 1
-    if profile.setup_step_progress < 2:
-        return redirect('applicant_profile:applicant_profile_setup_step1')
+    # Previously enforced server-side progress gating; frontend now handles step access
 
     if request.method == 'POST':
         form = ProfileDetailsForm(request.POST, instance=profile)
         if form.is_valid():
-            saved_profile = form.save()
-            # Update progress to allow access to step 3
-            if saved_profile.setup_step_progress < 3:
-                saved_profile.setup_step_progress = 3
-                saved_profile.save()
+            form.save()
             return redirect('applicant_profile:applicant_profile_setup_step3')
     else:
         form = ProfileDetailsForm(instance=profile)
@@ -51,7 +40,6 @@ def applicant_profile_setup_step2(request):
         'form': form,
         'is_setup_page': True, # Tells base.html to show the bar
         'progress_percent':33,
-        'progress': profile.setup_step_progress
     }
     return render(request, 'applicant_profile/applicant_profile_step2.html', context)
 
@@ -59,15 +47,12 @@ def applicant_profile_setup_step2(request):
 def applicant_profile_setup_step3(request):
     profile = request.user.applicant_profile_rel
 
-    # SECURITY CHECK: Redirect if user hasn't completed step 2
-    if profile.setup_step_progress < 3:
-        return redirect('applicant_profile:applicant_profile_setup_step2')
+    # Previously enforced server-side progress gating; frontend now handles step access
 
     if request.method == 'POST':
         form = ContactInfoForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            profile.calculate_completeness()
             return redirect('applicant_profile:applicant_profile_setup_complete')
     else:
         form = ContactInfoForm(instance=profile)
@@ -76,7 +61,6 @@ def applicant_profile_setup_step3(request):
         'form': form,
         'is_setup_page': True, 
         'progress_percent': 66,
-        'progress': profile.setup_step_progress
     }
     return render(request, 'applicant_profile/applicant_profile_step3.html', context)
 

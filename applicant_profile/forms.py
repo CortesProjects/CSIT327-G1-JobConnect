@@ -5,7 +5,7 @@ from applicant_profile.models import ApplicantProfile
 class PersonalInfoForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
-        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'years_of_experience', 'education_level', 'resume']
+        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level', 'resume']
         widgets = {
             'profile_image': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -29,11 +29,8 @@ class PersonalInfoForm(forms.ModelForm):
                 'placeholder': 'e.g., Dela Cruz',
                 'required': 'required'
             }),
-            'years_of_experience': forms.NumberInput(attrs={
+            'experience': forms.Select(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., 3',
-                'min': '0',
-                'required': 'required'
             }),
             'education_level': forms.Select(attrs={
                 'class': 'form-control',
@@ -51,7 +48,7 @@ class PersonalInfoForm(forms.ModelForm):
             'first_name': 'First Name *',
             'middle_name': 'Middle Name (Optional)',
             'last_name': 'Last Name *',
-            'years_of_experience': 'Years of Experience *',
+            'experience': 'Years of Experience *',
             'education_level': 'Education Level *',
             'resume': 'Resume/CV *'
         }
@@ -64,7 +61,7 @@ class PersonalInfoForm(forms.ModelForm):
         self.fields['middle_name'].required = False
         self.fields['profile_image'].required = False
         self.fields['title'].required = False
-        self.fields['years_of_experience'].required = True
+        self.fields['experience'].required = True
         self.fields['education_level'].required = True
         self.fields['resume'].required = True
     
@@ -93,7 +90,7 @@ class ProfileDetailsForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
         fields = [
-            'nationality', 'date_of_birth', 'gender', 'marital_status', 'biography'
+            'nationality', 'date_of_birth', 'gender', 'marital_status', 'location_street','location_city','location_country', 'biography'
         ]
         widgets = {
             'nationality': forms.TextInput(attrs={
@@ -111,6 +108,18 @@ class ProfileDetailsForm(forms.ModelForm):
             'marital_status': forms.Select(attrs={
                 'class': 'form-control'
             }),
+            'location_street': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Street address'
+            }),
+            'location_city': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'City'
+            }),
+            'location_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
             'biography': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
@@ -122,6 +131,9 @@ class ProfileDetailsForm(forms.ModelForm):
             'date_of_birth': 'Date of Birth *',
             'gender': 'Gender',
             'marital_status': 'Marital Status',
+            'location_street': 'Street Address',
+            'location_city': 'City',
+            'location_country': 'Country',
             'biography': 'Biography'
         }
     

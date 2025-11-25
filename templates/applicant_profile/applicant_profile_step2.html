@@ -15,25 +15,13 @@
                 <i class="fas fa-user icon-left"></i> Personal
             </a>
 
-            {% if progress >= 2 %}
-                <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
-                    <i class="fas fa-id-card icon-left"></i> Profile
-                </a>
-            {% else %}
-                <span class="step-link disabled">
-                    <i class="fas fa-id-card icon-left"></i> Profile
-                </span>
-            {% endif %}
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step2' %}active{% endif %}">
+                <i class="fas fa-id-card icon-left"></i> Profile
+            </a>
 
-            {% if progress >= 3 %}
-                <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
-                    <i class="fas fa-phone icon-left"></i> Contact
-                </a>
-            {% else %}
-                <span class="step-link disabled">
-                    <i class="fas fa-phone icon-left"></i> Contact
-                </span>
-            {% endif %}
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
+                <i class="fas fa-phone icon-left"></i> Contact
+            </a>
         </section>
 </div>
     <form method="post">
@@ -47,12 +35,12 @@
                 <div class="field-container">
                     <label for="{{ form.nationality.id_for_label }}">{{ form.nationality.label }}</label>
                     {{ form.nationality }}
-                    <div id="nationality-error" class="error-text">{% if form.nationality.errors %}{{ form.nationality.errors.0 }}{% endif %}</div>
+                    <div id="nationality-error" class="error-text"></div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
                     {{ form.date_of_birth }}
-                    <div id="date-of-birth-error" class="error-text">{% if form.date_of_birth.errors %}{{ form.date_of_birth.errors.0 }}{% endif %}</div>
+                    <div id="date-of-birth-error" class="error-text"></div>
                 </div>
             </div>
 
@@ -60,20 +48,29 @@
                 <div class="field-container">
                     <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
                     {{ form.gender }}
-                    <div id="gender-error" class="error-text">{% if form.gender.errors %}{{ form.gender.errors.0 }}{% endif %}</div>
+                    <div id="gender-error" class="error-text"></div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.marital_status.id_for_label }}">{{ form.marital_status.label }}</label>
                     {{ form.marital_status }}
-                    <div id="marital-status-error" class="error-text">{% if form.marital_status.errors %}{{ form.marital_status.errors.0 }}{% endif %}</div>
+                    <div id="marital-status-error" class="error-text"></div>
                 </div>
+            </div>
+
+            <div class="input-group-row">
+                <div class="field-container">
+                    <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+                    {{ form.location }}
+                    <div id="location-error" class="error-text"></div>
+                </div>
+                <div class="field-container">&nbsp;</div>
             </div>
 
             <div class="field-container">
                 <label for="{{ form.biography.id_for_label }}">{{ form.biography.label }}</label>
                 {{ form.biography }}
                 <small class="form-text text-muted">Tell us about yourself and your career goals</small>
-                <div id="biography-error" class="error-text">{% if form.biography.errors %}{{ form.biography.errors.0 }}{% endif %}</div>
+                <div id="biography-error" class="error-text"></div>
             </div>
         </div>
 
