@@ -8,7 +8,7 @@ class JobPostForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = [
-            'title', 'tags', 'job_role', 'min_salary', 'max_salary', 
+            'title', 'tags', 'category', 'min_salary', 'max_salary', 
             'salary_type', 'education', 'experience', 'job_type', 
             'vacancies', 'expiration_date', 'job_level', 'description', 
             'responsibilities', 'location'
@@ -24,9 +24,9 @@ class JobPostForm(forms.ModelForm):
                 'placeholder': 'Job keyword, tags etc...',
                 'id': 'tags'
             }),
-            'job_role': forms.Select(attrs={
+            'category': forms.Select(attrs={
                 'class': 'form-control',
-                'id': 'job_role'
+                'id': 'category'
             }),
             'min_salary': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -146,35 +146,48 @@ class JobSearchForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    job_type = forms.MultipleChoiceField(
-        choices=Job.JOB_TYPES,
+    job_type = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.CheckboxSelectMultiple
     )
 
-    job_role = forms.MultipleChoiceField(
-        choices=Job.JOB_ROLES,
+    category = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    education = forms.MultipleChoiceField(
-        choices=Job.EDUCATION_LEVELS,
+    education = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    experience = forms.MultipleChoiceField(
-        choices=Job.EXPERIENCE_LEVELS,
+    experience = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    job_level = forms.MultipleChoiceField(
-        choices=Job.JOB_LEVELS,
+    job_level = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     salary_min = forms.IntegerField(required=False)
     salary_max = forms.IntegerField(required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Dynamically set querysets from lookup tables
+        from .models import (
+            JobCategory, EmploymentType, EducationLevel, 
+            ExperienceLevel, JobLevel
+        )
+        self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
+        self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
+        self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
+        self.fields['experience'].queryset = ExperienceLevel.objects.filter(is_active=True)
+        self.fields['job_level'].queryset = JobLevel.objects.filter(is_active=True)
