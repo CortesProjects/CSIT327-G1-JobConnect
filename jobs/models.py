@@ -3,27 +3,19 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import date
+from .lookup_models import (
+    JobCategory, EmploymentType, EducationLevel, 
+    ExperienceLevel, JobLevel, SalaryType, Tag
+)
 
 class Job(models.Model):
+
     JOB_TYPES = [
         ('full_time', 'Full Time'),
         ('part_time', 'Part Time'),
         ('contract', 'Contract'),
         ('internship', 'Internship'),
         ('freelance', 'Freelance'),
-    ]
-    
-    JOB_ROLES = [
-        ('frontend', 'Frontend Developer'),
-        ('backend', 'Backend Developer'),
-        ('fullstack', 'Full Stack Developer'),
-        ('designer', 'UI/UX Designer'),
-        ('data_scientist', 'Data Scientist'),
-        ('project_manager', 'Project Manager'),
-        ('marketing', 'Marketing Specialist'),
-        ('sales', 'Sales Executive'),
-        ('hr', 'HR Manager'),
-        ('other', 'Other'),
     ]
     
     EDUCATION_LEVELS = [
@@ -85,25 +77,90 @@ class Job(models.Model):
     # Required fields
     title = models.CharField(max_length=100)
     description = models.TextField(help_text="Minimum 50 characters")
-    job_role = models.CharField(max_length=50, choices=JOB_ROLES)
+    
+    # Foreign Key to JobCategory (job category)
+    # Nullable during migration, will be required after data migration
+    category = models.ForeignKey(
+        JobCategory,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Job category"
+    )
     location = models.CharField(max_length=100)
     
-    # Salary information
-    min_salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    max_salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    salary_type = models.CharField(max_length=20, choices=SALARY_TYPES)
+    # Salary information - Updated to NUMERIC(10, 2)
+    min_salary = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        help_text="Minimum salary amount"
+    )
+    max_salary = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        help_text="Maximum salary amount"
+    )
+    # Nullable during migration
+    salary_type = models.ForeignKey(
+        SalaryType,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Salary payment frequency"
+    )
     
-    # Advanced information
-    education = models.CharField(max_length=20, choices=EDUCATION_LEVELS)
-    experience = models.CharField(max_length=20, choices=EXPERIENCE_LEVELS)
-    job_type = models.CharField(max_length=20, choices=JOB_TYPES)
-    vacancies = models.CharField(max_length=10, choices=VACANCY_RANGES)
-    expiration_date = models.DateField()
-    job_level = models.CharField(max_length=20, choices=JOB_LEVELS)
+    # Advanced information - All Foreign Keys (nullable during migration)
+    education = models.ForeignKey(
+        EducationLevel,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Required education level"
+    )
+    experience = models.ForeignKey(
+        ExperienceLevel,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Required experience level"
+    )
+    job_type = models.ForeignKey(
+        EmploymentType,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Type of employment"
+    )
+    vacancies = models.SmallIntegerField(
+        default=1,
+        help_text="Number of open positions"
+    )
+    expiration_date = models.DateField(help_text="Application deadline")
+    job_level = models.ForeignKey(
+        JobLevel,
+        on_delete=models.PROTECT,
+        related_name='jobs',
+        null=True,
+        blank=True,
+        help_text="Seniority level of the position"
+    )
     
     # Optional fields
-    tags = models.CharField(max_length=255, blank=True)
     responsibilities = models.TextField(blank=True)
+    
+    # Legacy CharField field - keeping for backward compatibility during migration
+    # Will be removed after data migration to category ForeignKey
+    # Note: JOB_CATEGORIES constant removed, values stored in JobCategory table
+    tags = models.CharField(max_length=255, blank=True, help_text="Legacy tags field, replaced by Many-to-Many Tag relationship")
     
     # Status and metadata
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
@@ -195,23 +252,47 @@ class Job(models.Model):
             delta = self.expiration_date - date.today()
             return delta.days
         return None
+    
+    @property
+    def tag_list(self):
+        """Returns a list of tag names associated with this job."""
+        return [job_tag.tag.name for job_tag in self.job_tags.select_related('tag')]
+    
+    def get_tag_names(self):
+        """Returns comma-separated string of tag names."""
+        return ', '.join(self.tag_list)
 
 
 class JobTag(models.Model):
-    """Stores tags for jobs (many-to-many relationship)."""
+    """
+    Junction table for Many-to-Many relationship between Jobs and Tags.
+    Allows a job to have multiple tags and a tag to be associated with multiple jobs.
+    """
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
-        related_name='job_tags'
+        related_name='job_tags',
+        help_text="The job this tag is associated with"
     )
-    tag_name = models.CharField(max_length=50)
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='job_tags',
+        help_text="The tag associated with this job"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ['job', 'tag_name']
-        ordering = ['tag_name']
+        unique_together = ['job', 'tag']
+        ordering = ['tag__name']
+        verbose_name = "Job Tag"
+        verbose_name_plural = "Job Tags"
+        indexes = [
+            models.Index(fields=['job', 'tag']),
+        ]
     
     def __str__(self):
-        return f"{self.job.title} - {self.tag_name}"
+        return f"{self.job.title} - {self.tag.name}"
 
 
 class JobApplication(models.Model):
