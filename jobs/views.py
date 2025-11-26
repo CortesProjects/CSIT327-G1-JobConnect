@@ -33,23 +33,23 @@ def job_search(request):
 
     # 🧩 Job type (checkbox)
     if job_types:
-        jobs = jobs.filter(job_type__in=job_types)
+        jobs = jobs.filter(job_type_id__in=job_types)
 
     # 🧩 Job category (replaces job_role)
     if categories:
-        jobs = jobs.filter(category__id__in=categories)
+        jobs = jobs.filter(category_id__in=categories)
 
     # 🧩 Education level
     if educations:
-        jobs = jobs.filter(education__in=educations)
+        jobs = jobs.filter(education_id__in=educations)
 
     # 🧩 Experience
     if experiences:
-        jobs = jobs.filter(experience__in=experiences)
+        jobs = jobs.filter(experience_id__in=experiences)
 
     # 🧩 Job level
     if job_levels:
-        jobs = jobs.filter(job_level__in=job_levels)
+        jobs = jobs.filter(job_level_id__in=job_levels)
 
     # 💰 Salary filter
     if salary_min:
@@ -59,13 +59,13 @@ def job_search(request):
         jobs = jobs.filter(salary_max__lte=salary_max)
 
     # DYNAMIC FILTER VALUES (from lookup tables)
-    from .lookup_models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
+    from .models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
     
-    all_job_types = Job.JOB_TYPES  # Keep for backward compatibility during migration
-    all_categories = JobCategory.objects.filter(is_active=True).values_list('id', 'name')
-    all_educations = Job.EDUCATION_LEVELS  # Keep for backward compatibility during migration
-    all_experiences = Job.EXPERIENCE_LEVELS  # Keep for backward compatibility during migration
-    all_job_levels = Job.JOB_LEVELS  # Keep for backward compatibility during migration
+    all_job_types = EmploymentType.objects.filter(is_active=True)
+    all_categories = JobCategory.objects.filter(is_active=True)
+    all_educations = EducationLevel.objects.filter(is_active=True)
+    all_experiences = ExperienceLevel.objects.filter(is_active=True)
+    all_job_levels = JobLevel.objects.filter(is_active=True)
     all_locations = Job.objects.values_list("location", flat=True).distinct()
 
     context = {
