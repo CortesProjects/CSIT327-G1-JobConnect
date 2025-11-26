@@ -129,8 +129,10 @@ function initSortFunctionality() {
     
     sortSelect.addEventListener('change', function() {
         const sortValue = this.value;
-        const jobsList = document.querySelector('.job-cards-list');
-        const jobs = Array.from(jobsList.querySelectorAll('.job-card'));
+        const jobsTableBody = document.querySelector('.jobs-table tbody');
+        if (!jobsTableBody) return;
+        
+        const jobs = Array.from(jobsTableBody.querySelectorAll('tr'));
         
         // Sort jobs based on selected option
         jobs.sort((a, b) => {
@@ -148,12 +150,12 @@ function initSortFunctionality() {
         });
         
         // Re-append sorted jobs
-        jobs.forEach(job => jobsList.appendChild(job));
+        jobs.forEach(job => jobsTableBody.appendChild(job));
     });
 }
 
-function getSalary(jobCard) {
-    const salaryText = jobCard.querySelector('.detail-item:has(.fa-money-bill-wave) span').textContent;
+function getSalary(jobRow) {
+    const salaryText = jobRow.querySelector('td:nth-child(3) .salary-range').textContent;
     const salaryMatch = salaryText.match(/₱([\d,]+)/);
     return salaryMatch ? parseInt(salaryMatch[1].replace(/,/g, '')) : 0;
 }
@@ -163,7 +165,7 @@ function getSalary(jobCard) {
  */
 function initJobCardInteractions() {
     // View Details buttons
-    const viewDetailsButtons = document.querySelectorAll('.btn-view-details');
+    const viewDetailsButtons = document.querySelectorAll('.btn-view, .btn-action.btn-view');
     viewDetailsButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -173,7 +175,7 @@ function initJobCardInteractions() {
     });
     
     // Apply Now buttons
-    const applyButtons = document.querySelectorAll('.btn-apply-now');
+    const applyButtons = document.querySelectorAll('.btn-apply, .btn-action.btn-apply');
     applyButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
