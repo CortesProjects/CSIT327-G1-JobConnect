@@ -145,15 +145,9 @@ class JobSearchForm(forms.Form):
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Dynamically set queryset for category field from JobCategory lookup table
-        from .lookup_models import JobCategory
-        self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
 
-    job_type = forms.MultipleChoiceField(
-        choices=Job.JOB_TYPES,
+    job_type = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.CheckboxSelectMultiple
     )
@@ -164,23 +158,36 @@ class JobSearchForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    education = forms.MultipleChoiceField(
-        choices=Job.EDUCATION_LEVELS,
+    education = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    experience = forms.MultipleChoiceField(
-        choices=Job.EXPERIENCE_LEVELS,
+    experience = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
-    job_level = forms.MultipleChoiceField(
-        choices=Job.JOB_LEVELS,
+    job_level = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     salary_min = forms.IntegerField(required=False)
     salary_max = forms.IntegerField(required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Dynamically set querysets from lookup tables
+        from .models import (
+            JobCategory, EmploymentType, EducationLevel, 
+            ExperienceLevel, JobLevel
+        )
+        self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
+        self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
+        self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
+        self.fields['experience'].queryset = ExperienceLevel.objects.filter(is_active=True)
+        self.fields['job_level'].queryset = JobLevel.objects.filter(is_active=True)
