@@ -13,17 +13,18 @@
         <p>Discover opportunities that match your skills and career goals</p>
     </div>
 
-    <!-- Search Bar Section -->
-    <div class="search-bar-section">
-        <form class="main-search-form" method="get" action="{% url 'dashboard:applicant_search_jobs' %}">
-            <div class="search-inputs">
+    <!-- Combined Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <form method="get" action="{% url 'dashboard:applicant_search_jobs' %}" id="searchFilterForm">
+            <!-- Top Row: Search Inputs and Filter Button -->
+            <div class="search-row">
                 <div class="search-input-group">
                     <i class="fas fa-search"></i>
                     <input
                         type="text"
                         name="query"
                         value="{{ query }}"
-                        placeholder="Job title, keywords, or company"
+                        placeholder="Search by title or company"
                         class="search-input"
                     >
                 </div>
@@ -33,119 +34,57 @@
                         type="text"
                         name="location"
                         value="{{ location }}"
-                        placeholder="City or location"
+                        placeholder="Search by city or country"
                         class="search-input"
                     >
                 </div>
-                <button type="submit" class="search-submit-btn">
-                    <i class="fas fa-search"></i> Search Jobs
+                <button type="submit" class="filter-jobs-btn">
+                    Search jobs
                 </button>
             </div>
-        </form>
-    </div>
 
-    <!-- Filters Section - Top Horizontal Layout -->
-    <div class="filters-section">
-        <div class="filters-header">
-            <h3><i class="fas fa-filter"></i> Filters</h3>
-            <a href="{% url 'dashboard:applicant_search_jobs' %}" class="clear-all-btn">Clear All</a>
-        </div>
-
-        <form method="get" id="filtersForm">
-            <!-- Hidden inputs to preserve search query -->
-            <input type="hidden" name="query" value="{{ query }}">
-            <input type="hidden" name="location" value="{{ location }}">
-
-            <div class="filters-grid">
-                <!-- Job Type Filter -->
-                <div class="filter-group">
-                    <label><i class="fas fa-briefcase"></i> Job Type</label>
-                    <div class="filter-checkboxes">
-                        {% for value, label in job_types %}
-                        <div class="filter-checkbox-item">
-                            <input
-                                type="checkbox"
-                                name="job_type"
-                                value="{{ value }}"
-                                id="job_type_{{ value }}"
-                                {% if value in selected_job_types %}checked{% endif %}
-                            >
-                            <span>{{ label }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
+            <!-- Bottom Row: Filter Dropdowns -->
+            <div class="filters-row">
                 <!-- Job Role Filter -->
-                <div class="filter-group">
-                    <label for="job_role"><i class="fas fa-user-tie"></i> Role</label>
-                    <select name="job_role" id="job_role" class="filter-select">
-                        <option value="">All Roles</option>
-                        {% for value, label in job_roles %}
-                        <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <select name="job_role" id="job_role" class="filter-dropdown">
+                    <option value="">Category</option>
+                    {% for value, label in job_roles %}
+                    <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
 
-                <!-- Education Filter -->
-                <div class="filter-group">
-                    <label for="education"><i class="fas fa-graduation-cap"></i> Education</label>
-                    <select name="education" id="education" class="filter-select">
-                        <option value="">All Levels</option>
-                        {% for value, label in educations %}
-                        <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <!-- Job Type Filter -->
+                <select name="job_type" id="job_type" class="filter-dropdown">
+                    <option value="">Job type</option>
+                    {% for value, label in job_types %}
+                    <option value="{{ value }}" {% if value in selected_job_types %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
 
                 <!-- Experience Filter -->
-                <div class="filter-group">
-                    <label for="experience"><i class="fas fa-chart-line"></i> Experience</label>
-                    <select name="experience" id="experience" class="filter-select">
-                        <option value="">All Levels</option>
-                        {% for value, label in experiences %}
-                        <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <select name="experience" id="experience" class="filter-dropdown">
+                    <option value="">Related tags</option>
+                    {% for value, label in experiences %}
+                    <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Location/Education Filter -->
+                <select name="education" id="education" class="filter-dropdown">
+                    <option value="">Location</option>
+                    {% for value, label in educations %}
+                    <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
 
                 <!-- Job Level Filter -->
-                <div class="filter-group">
-                    <label for="job_level"><i class="fas fa-layer-group"></i> Level</label>
-                    <select name="job_level" id="job_level" class="filter-select">
-                        <option value="">All Levels</option>
-                        {% for value, label in job_levels %}
-                        <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Salary Range -->
-                <div class="filter-group">
-                    <label><i class="fas fa-money-bill-wave"></i> Salary Range (₱)</label>
-                    <div class="salary-range-inputs">
-                        <input
-                            type="number"
-                            name="salary_min"
-                            value="{{ salary_min }}"
-                            placeholder="Min"
-                            class="salary-input"
-                        >
-                        <span class="salary-separator">-</span>
-                        <input
-                            type="number"
-                            name="salary_max"
-                            value="{{ salary_max }}"
-                            placeholder="Max"
-                            class="salary-input"
-                        >
-                    </div>
-                </div>
+                <select name="job_level" id="job_level" class="filter-dropdown">
+                    <option value="">Remote</option>
+                    {% for value, label in job_levels %}
+                    <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
             </div>
-
-            <button type="submit" class="apply-filters-btn">
-                <i class="fas fa-check"></i> Apply Filters
-            </button>
         </form>
     </div>
 

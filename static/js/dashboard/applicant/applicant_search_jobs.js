@@ -20,14 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
  * Auto-submit filters when checkboxes or selects change
  */
 function initFilterAutoSubmit() {
-    const filtersForm = document.getElementById('filtersForm');
+    const filtersForm = document.getElementById('searchFilterForm');
     if (!filtersForm) return;
     
-    // Auto-submit on checkbox change
-    const checkboxes = filtersForm.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            // Add a small delay to allow multiple quick selections
+    // Auto-submit on select change
+    const selects = filtersForm.querySelectorAll('.filter-dropdown');
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
             clearTimeout(window.filterSubmitTimeout);
             window.filterSubmitTimeout = setTimeout(() => {
                 filtersForm.submit();
@@ -35,14 +34,14 @@ function initFilterAutoSubmit() {
         });
     });
     
-    // Auto-submit on select change
-    const selects = filtersForm.querySelectorAll('select');
-    selects.forEach(select => {
-        select.addEventListener('change', function() {
+    // Auto-submit on search input with debounce
+    const searchInputs = filtersForm.querySelectorAll('.search-input');
+    searchInputs.forEach(input => {
+        input.addEventListener('input', function() {
             clearTimeout(window.filterSubmitTimeout);
             window.filterSubmitTimeout = setTimeout(() => {
                 filtersForm.submit();
-            }, 500);
+            }, 800);
         });
     });
 }
