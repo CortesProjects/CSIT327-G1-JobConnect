@@ -53,17 +53,20 @@ def dashboard_view(request):
 @login_required
 def applicant_search_jobs(request):
     """Search jobs for applicants with filters"""
-    from jobs.models import Job
+    from jobs.models import (
+        Job, JobCategory, EmploymentType, EducationLevel, 
+        ExperienceLevel, JobLevel
+    )
     from django.db.models import Q, Count
     
     # GET parameters
     query = request.GET.get("query", "")
     location = request.GET.get("location", "")
-    job_types = request.GET.getlist("job_type")
-    job_roles = request.GET.getlist("job_role")
-    educations = request.GET.getlist("education")
-    experiences = request.GET.getlist("experience")
-    job_levels = request.GET.getlist("job_level")
+    job_type_ids = request.GET.getlist("job_type")
+    category_ids = request.GET.getlist("category")  # Changed from job_role to category
+    education_ids = request.GET.getlist("education")
+    experience_ids = request.GET.getlist("experience")
+    job_level_ids = request.GET.getlist("job_level")
     salary_min = request.GET.get("salary_min")
     salary_max = request.GET.get("salary_max")
 
@@ -85,25 +88,25 @@ def applicant_search_jobs(request):
     if location:
         jobs = jobs.filter(location__icontains=location)
 
-    # Job type filter
-    if job_types:
-        jobs = jobs.filter(job_type__in=job_types)
+    # Job type filter (FK to EmploymentType)
+    if job_type_ids:
+        jobs = jobs.filter(job_type_id__in=job_type_ids)
 
-    # Job role filter
-    if job_roles:
-        jobs = jobs.filter(job_role__in=job_roles)
+    # Category filter (FK to JobCategory, was job_role)
+    if category_ids:
+        jobs = jobs.filter(category_id__in=category_ids)
 
-    # Education filter
-    if educations:
-        jobs = jobs.filter(education__in=educations)
+    # Education filter (FK to EducationLevel)
+    if education_ids:
+        jobs = jobs.filter(education_id__in=education_ids)
 
-    # Experience filter
-    if experiences:
-        jobs = jobs.filter(experience__in=experiences)
+    # Experience filter (FK to ExperienceLevel)
+    if experience_ids:
+        jobs = jobs.filter(experience_id__in=experience_ids)
 
-    # Job level filter
-    if job_levels:
-        jobs = jobs.filter(job_level__in=job_levels)
+    # Job level filter (FK to JobLevel)
+    if job_level_ids:
+        jobs = jobs.filter(job_level_id__in=job_level_ids)
 
     # Salary filter
     if salary_min:
@@ -115,12 +118,12 @@ def applicant_search_jobs(request):
     # Order by most recent
     jobs = jobs.order_by('-posted_at')
 
-    # Get filter options from Job model
-    all_job_types = Job.JOB_TYPES
-    all_job_roles = Job.JOB_ROLES
-    all_educations = Job.EDUCATION_LEVELS
-    all_experiences = Job.EXPERIENCE_LEVELS
-    all_job_levels = Job.JOB_LEVELS
+    # Get filter options from lookup tables (only active items)
+    all_job_types = EmploymentType.objects.filter(is_active=True)
+    all_categories = JobCategory.objects.filter(is_active=True)
+    all_educations = EducationLevel.objects.filter(is_active=True)
+    all_experiences = ExperienceLevel.objects.filter(is_active=True)
+    all_job_levels = JobLevel.objects.filter(is_active=True)
 
     context = {
         "jobs": jobs,
@@ -129,19 +132,19 @@ def applicant_search_jobs(request):
         "salary_min": salary_min,
         "salary_max": salary_max,
 
-        # Dynamic filters
+        # Dynamic filters (querysets of lookup model objects)
         "job_types": all_job_types,
-        "job_roles": all_job_roles,
+        "categories": all_categories,  # Changed from job_roles to categories
         "educations": all_educations,
         "experiences": all_experiences,
         "job_levels": all_job_levels,
 
-        # Persist selected values
-        "selected_job_types": job_types,
-        "selected_job_roles": job_roles,
-        "selected_educations": educations,
-        "selected_experiences": experiences,
-        "selected_job_levels": job_levels,
+        # Persist selected values (IDs)
+        "selected_job_types": job_type_ids,
+        "selected_categories": category_ids,  # Changed from job_roles
+        "selected_educations": education_ids,
+        "selected_experiences": experience_ids,
+        "selected_job_levels": job_level_ids,
     }
 
     return render(request, 'dashboard/applicant/applicant_search_jobs.html', context)
