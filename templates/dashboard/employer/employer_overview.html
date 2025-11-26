@@ -51,12 +51,9 @@
                 </thead>
                 <tbody>
                     {% if has_jobs %}
-                        {# Job rows will be displayed here when implemented #}
-                        {% comment %}
                         {% for job in recent_jobs %}
                             {% include 'dashboard/employer/components/job_row.html' with job=job %}
                         {% endfor %}
-                        {% endcomment %}
                     {% else %}
                         <tr>
                             <td colspan="4">

@@ -28,10 +28,13 @@ def dashboard_view(request):
         return render(request, 'dashboard/applicant/applicant_overview.html')
     elif user.user_type == 'employer':
         from jobs.models import Job
+        from django.db.models import Count
         
-        # Fetch employer's jobs
+        # Fetch employer's jobs with application counts
         all_jobs = Job.objects.filter(employer=request.user)
-        recent_jobs = all_jobs.order_by('-posted_at')[:5]
+        recent_jobs = all_jobs.annotate(
+            applications_count=Count('applications')
+        ).order_by('-posted_at')[:5]
         
         context = {
             'has_jobs': all_jobs.exists(),

@@ -7,8 +7,8 @@
         <div class="job-title-cell">{{ job.title }}</div>
         <div class="job-meta-info">
             {{ job.get_job_type_display }} • 
-            {% if job.deadline %}
-                {{ job.deadline|timeuntil }} remaining
+            {% if job.expiration_date %}
+                {{ job.expiration_date|timeuntil }} remaining
             {% else %}
                 No deadline
             {% endif %}
