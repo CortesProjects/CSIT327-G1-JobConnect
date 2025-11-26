@@ -83,6 +83,34 @@ class JobPostForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure FK fields use active lookup table entries
+        from .models import (
+            JobCategory, EmploymentType, EducationLevel,
+            ExperienceLevel, JobLevel, SalaryType
+        )
+
+        # If the model fields are present on the form, set their querysets
+        if 'category' in self.fields:
+            self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
+        if 'job_type' in self.fields:
+            # ModelChoiceField will be created for ForeignKey fields
+            self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
+        if 'education' in self.fields:
+            self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
+        if 'experience' in self.fields:
+            self.fields['experience'].queryset = ExperienceLevel.objects.filter(is_active=True)
+        if 'job_level' in self.fields:
+            self.fields['job_level'].queryset = JobLevel.objects.filter(is_active=True)
+        if 'salary_type' in self.fields:
+            self.fields['salary_type'].queryset = SalaryType.objects.filter(is_active=True)
+
+        # Vacancies should be a numeric input rather than a select
+        self.fields['vacancies'].widget = forms.NumberInput(attrs={
+            'class': 'form-control', 'id': 'vacancies', 'min': '1'
+        })
+
     def clean_title(self):
         title = self.cleaned_data.get('title')
         if not title or not title.strip():
@@ -128,6 +156,23 @@ class JobPostForm(forms.ModelForm):
                 self.add_error('max_salary', 'Maximum salary cannot be negative.')
             if min_salary > max_salary:
                 self.add_error('min_salary', 'Minimum salary cannot be greater than maximum salary.')
+
+        # Mirror model-level validation by populating instance and running its clean()
+        try:
+            # Assign cleaned values onto the instance for validation
+            for field in self.Meta.fields:
+                if field in cleaned_data:
+                    setattr(self.instance, field, cleaned_data.get(field))
+
+            # Call model.clean() to enforce model constraints
+            self.instance.clean()
+        except ValidationError as e:
+            if hasattr(e, 'message_dict'):
+                for f, msgs in e.message_dict.items():
+                    for msg in msgs:
+                        self.add_error(f, msg)
+            else:
+                raise
 
         return cleaned_data
 
