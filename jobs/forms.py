@@ -152,8 +152,26 @@ class JobSearchForm(forms.Form):
         widget=forms.CheckboxSelectMultiple
     )
 
-    industry = forms.MultipleChoiceField(
-        choices=[],  # populated dynamically
+    job_role = forms.MultipleChoiceField(
+        choices=Job.JOB_ROLES,
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-select'})
+    )
+
+    education = forms.MultipleChoiceField(
+        choices=Job.EDUCATION_LEVELS,
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-select'})
+    )
+
+    experience = forms.MultipleChoiceField(
+        choices=Job.EXPERIENCE_LEVELS,
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-select'})
+    )
+
+    job_level = forms.MultipleChoiceField(
+        choices=Job.JOB_LEVELS,
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )

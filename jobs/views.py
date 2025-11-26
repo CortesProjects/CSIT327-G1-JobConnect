@@ -9,7 +9,10 @@ def job_search(request):
     query = request.GET.get("query", "")
     location = request.GET.get("location", "")
     job_types = request.GET.getlist("job_type")     # Multiple checkboxes
-    industries = request.GET.getlist("industry")    # Multi-select
+    job_roles = request.GET.getlist("job_role")    # Multi-select (from Job.JOB_ROLES)
+    educations = request.GET.getlist("education")  # Multi-select (from Job.EDUCATION_LEVELS)
+    experiences = request.GET.getlist("experience")
+    job_levels = request.GET.getlist("job_level")
     salary_min = request.GET.get("salary_min")
     salary_max = request.GET.get("salary_max")
 
@@ -31,9 +34,21 @@ def job_search(request):
     if job_types:
         jobs = jobs.filter(job_type__in=job_types)
 
-    # 🧩 Industry (multi-select)
-    if industries:
-        jobs = jobs.filter(industry__in=industries)
+    # 🧩 Job role
+    if job_roles:
+        jobs = jobs.filter(job_role__in=job_roles)
+
+    # 🧩 Education level
+    if educations:
+        jobs = jobs.filter(education__in=educations)
+
+    # 🧩 Experience
+    if experiences:
+        jobs = jobs.filter(experience__in=experiences)
+
+    # 🧩 Job level
+    if job_levels:
+        jobs = jobs.filter(job_level__in=job_levels)
 
     # 💰 Salary filter
     if salary_min:
@@ -44,7 +59,10 @@ def job_search(request):
 
     # DYNAMIC FILTER VALUES (so dropdowns auto-update)
     all_job_types = Job.JOB_TYPES
-    all_industries = Job.objects.values_list("industry", flat=True).distinct()
+    all_job_roles = Job.JOB_ROLES
+    all_educations = Job.EDUCATION_LEVELS
+    all_experiences = Job.EXPERIENCE_LEVELS
+    all_job_levels = Job.JOB_LEVELS
     all_locations = Job.objects.values_list("location", flat=True).distinct()
 
     context = {
@@ -56,12 +74,18 @@ def job_search(request):
 
         # Dynamic filters
         "job_types": all_job_types,
-        "industries": all_industries,
+        "job_roles": all_job_roles,
+        "educations": all_educations,
+        "experiences": all_experiences,
+        "job_levels": all_job_levels,
         "locations": all_locations,
 
         # Persist selected values
         "selected_job_types": job_types,
-        "selected_industries": industries,
+        "selected_job_roles": job_roles,
+        "selected_educations": educations,
+        "selected_experiences": experiences,
+        "selected_job_levels": job_levels,
     }
 
     return render(request, "jobs/job_search.html", context)
