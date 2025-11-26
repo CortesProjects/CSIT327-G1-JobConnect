@@ -48,40 +48,40 @@
                 <!-- Job Role Filter -->
                 <select name="job_role" id="job_role" class="filter-dropdown">
                     <option value="">Category</option>
-                    {% for value, label in job_roles %}
-                    <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
 
                 <!-- Job Type Filter -->
                 <select name="job_type" id="job_type" class="filter-dropdown">
                     <option value="">Job type</option>
-                    {% for value, label in job_types %}
-                    <option value="{{ value }}" {% if value in selected_job_types %}selected{% endif %}>{{ label }}</option>
+                    {% for job_type in job_types %}
+                    <option value="{{ job_type.id }}" {% if job_type.id|stringformat:"s" in selected_job_types %}selected{% endif %}>{{ job_type.name }}</option>
                     {% endfor %}
                 </select>
 
                 <!-- Experience Filter -->
                 <select name="experience" id="experience" class="filter-dropdown">
                     <option value="">Related tags</option>
-                    {% for value, label in experiences %}
-                    <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
+                    {% for experience in experiences %}
+                    <option value="{{ experience.id }}" {% if experience.id|stringformat:"s" in selected_experiences %}selected{% endif %}>{{ experience.name }}</option>
                     {% endfor %}
                 </select>
 
                 <!-- Location/Education Filter -->
                 <select name="education" id="education" class="filter-dropdown">
                     <option value="">Location</option>
-                    {% for value, label in educations %}
-                    <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
+                    {% for education in educations %}
+                    <option value="{{ education.id }}" {% if education.id|stringformat:"s" in selected_educations %}selected{% endif %}>{{ education.name }}</option>
                     {% endfor %}
                 </select>
 
                 <!-- Job Level Filter -->
                 <select name="job_level" id="job_level" class="filter-dropdown">
                     <option value="">Remote</option>
-                    {% for value, label in job_levels %}
-                    <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
+                    {% for job_level in job_levels %}
+                    <option value="{{ job_level.id }}" {% if job_level.id|stringformat:"s" in selected_job_levels %}selected{% endif %}>{{ job_level.name }}</option>
                     {% endfor %}
                 </select>
             </div>
