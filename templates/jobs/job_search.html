@@ -61,17 +61,42 @@
                     {% endfor %}
                 </div>
 
-                <!-- Industry Filter -->
+                <!-- Job Role Filter -->
                 <div class="filter-group">
-                    <h4>Industry</h4>
-                    <select name="industry" multiple>
-                        {% for industry in industries %}
-                        <option
-                            value="{{ industry }}"
-                            {% if industry in selected_industries %}selected{% endif %}
-                        >
-                            {{ industry }}
-                        </option>
+                    <h4>Role</h4>
+                    <select name="job_role" multiple>
+                        {% for value, label in job_roles %}
+                        <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Education Filter -->
+                <div class="filter-group">
+                    <h4>Education</h4>
+                    <select name="education" multiple>
+                        {% for value, label in educations %}
+                        <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Experience Filter -->
+                <div class="filter-group">
+                    <h4>Experience</h4>
+                    <select name="experience" multiple>
+                        {% for value, label in experiences %}
+                        <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Job Level Filter -->
+                <div class="filter-group">
+                    <h4>Level</h4>
+                    <select name="job_level" multiple>
+                        {% for value, label in job_levels %}
+                        <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -135,8 +160,8 @@
                                     </span>
 
                                     <span>
-                                        <i class="fas fa-building"></i>
-                                        {{ job.industry }}
+                                        <i class="fas fa-briefcase"></i>
+                                        {{ job.get_job_role_display }}
                                     </span>
                                 </div>
                             </div>
