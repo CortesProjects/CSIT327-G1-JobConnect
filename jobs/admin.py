@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Job, JobTag, JobApplication
-from .lookup_models import (
+from .models import (
+    Job, JobTag, JobApplication,
     JobCategory, EmploymentType, EducationLevel,
     ExperienceLevel, JobLevel, SalaryType, Tag
 )
@@ -99,8 +99,7 @@ class JobAdmin(admin.ModelAdmin):
 
 @admin.register(JobTag)
 class JobTagAdmin(admin.ModelAdmin):
-    list_display = ['job', 'tag', 'created_at']
-    list_filter = ['created_at']
+    list_display = ['job', 'tag']
     search_fields = ['job__title', 'tag__name']
     autocomplete_fields = ['job', 'tag']
 
