@@ -1,0 +1,279 @@
+{% extends 'dashboard/applicant/applicant_dashboard_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_search_jobs.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="applicant-search-jobs">
+    <div class="search-header">
+        <h2>Find Your Dream Job</h2>
+        <p>Discover opportunities that match your skills and career goals</p>
+    </div>
+
+    <!-- Search Bar Section -->
+    <div class="search-bar-section">
+        <form class="main-search-form" method="get" action="{% url 'dashboard:applicant_search_jobs' %}">
+            <div class="search-inputs">
+                <div class="search-input-group">
+                    <i class="fas fa-search"></i>
+                    <input
+                        type="text"
+                        name="query"
+                        value="{{ query }}"
+                        placeholder="Job title, keywords, or company"
+                        class="search-input"
+                    >
+                </div>
+                <div class="search-input-group">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input
+                        type="text"
+                        name="location"
+                        value="{{ location }}"
+                        placeholder="City or location"
+                        class="search-input"
+                    >
+                </div>
+                <button type="submit" class="search-submit-btn">
+                    <i class="fas fa-search"></i> Search Jobs
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="search-content-wrapper">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+            <div class="filters-header">
+                <h3><i class="fas fa-filter"></i> Filters</h3>
+                <a href="{% url 'dashboard:applicant_search_jobs' %}" class="clear-all-btn">Clear All</a>
+            </div>
+
+            <form method="get" id="filtersForm">
+                <!-- Hidden inputs to preserve search query -->
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="location" value="{{ location }}">
+
+                <!-- Job Type Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-briefcase"></i> Job Type
+                    </h4>
+                    <div class="filter-options">
+                        {% for value, label in job_types %}
+                        <label class="filter-checkbox">
+                            <input
+                                type="checkbox"
+                                name="job_type"
+                                value="{{ value }}"
+                                {% if value in selected_job_types %}checked{% endif %}
+                            >
+                            <span>{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Job Role Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-user-tie"></i> Role
+                    </h4>
+                    <div class="filter-options">
+                        <select name="job_role" multiple class="filter-select">
+                            {% for value, label in job_roles %}
+                            <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Education Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-graduation-cap"></i> Education
+                    </h4>
+                    <div class="filter-options">
+                        <select name="education" multiple class="filter-select">
+                            {% for value, label in educations %}
+                            <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Experience Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-chart-line"></i> Experience
+                    </h4>
+                    <div class="filter-options">
+                        <select name="experience" multiple class="filter-select">
+                            {% for value, label in experiences %}
+                            <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Job Level Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-layer-group"></i> Level
+                    </h4>
+                    <div class="filter-options">
+                        <select name="job_level" multiple class="filter-select">
+                            {% for value, label in job_levels %}
+                            <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Salary Range -->
+                <div class="filter-section">
+                    <h4 class="filter-title">
+                        <i class="fas fa-money-bill-wave"></i> Salary Range (₱)
+                    </h4>
+                    <div class="filter-options salary-inputs">
+                        <input
+                            type="number"
+                            name="salary_min"
+                            value="{{ salary_min }}"
+                            placeholder="Min"
+                            class="salary-input"
+                        >
+                        <span class="salary-separator">-</span>
+                        <input
+                            type="number"
+                            name="salary_max"
+                            value="{{ salary_max }}"
+                            placeholder="Max"
+                            class="salary-input"
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="apply-filters-btn">
+                    <i class="fas fa-check"></i> Apply Filters
+                </button>
+            </form>
+        </aside>
+
+        <!-- Job Results Section -->
+        <section class="jobs-results">
+            <div class="results-header">
+                {% if jobs %}
+                    <h3 class="results-count">
+                        <span class="count-number">{{ jobs.count }}</span> job{{ jobs.count|pluralize }} found
+                    </h3>
+                    <div class="sort-options">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy" class="sort-select">
+                            <option value="recent">Most Recent</option>
+                            <option value="salary-high">Salary (High to Low)</option>
+                            <option value="salary-low">Salary (Low to High)</option>
+                        </select>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if jobs %}
+                <div class="job-cards-list">
+                    {% for job in jobs %}
+                    <div class="job-card" data-job-id="{{ job.id }}">
+                        <div class="job-card-header">
+                            <div class="company-logo">
+                                {% if job.employer.employer_profile_rel.company_profile_image %}
+                                    <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}">
+                                {% else %}
+                                    <div class="logo-placeholder">
+                                        {{ job.company_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="job-card-main">
+                                <div class="job-title-row">
+                                    <h4 class="job-title">{{ job.title }}</h4>
+                                    <button class="bookmark-btn" data-job-id="{{ job.id }}">
+                                        <i class="far fa-bookmark"></i>
+                                    </button>
+                                </div>
+                                <p class="company-name">{{ job.company_name }}</p>
+                                <div class="job-badges">
+                                    <span class="badge badge-type">{{ job.get_job_type_display }}</span>
+                                    <span class="badge badge-level">{{ job.get_job_level_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="job-card-details">
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ job.location }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>₱{{ job.min_salary|floatformat:0 }} - ₱{{ job.max_salary|floatformat:0 }} / {{ job.get_salary_type_display }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <span>{{ job.get_job_role_display }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Posted {{ job.posted_at|timesince }} ago</span>
+                            </div>
+                        </div>
+
+                        <div class="job-card-footer">
+                            <a href="#" class="btn-view-details" data-job-id="{{ job.id }}">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            <a href="#" class="btn-apply-now" data-job-id="{{ job.id }}">
+                                <i class="fas fa-paper-plane"></i> Apply Now
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if jobs.count > 10 %}
+                <div class="pagination">
+                    <button class="page-btn prev"><i class="fas fa-chevron-left"></i></button>
+                    <span class="page-numbers">
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                    </span>
+                    <button class="page-btn next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No jobs found</h3>
+                    <p>We couldn't find any jobs matching your search criteria.</p>
+                    <p class="empty-suggestions">Try adjusting your filters or search terms</p>
+                    <a href="{% url 'dashboard:applicant_search_jobs' %}" class="btn-reset-search">
+                        <i class="fas fa-redo"></i> Clear All Filters
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/applicant/applicant_search_jobs.js' %}"></script>
+{% endblock %}
+{% endblock %}

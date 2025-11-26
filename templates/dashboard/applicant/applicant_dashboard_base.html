@@ -25,6 +25,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'dashboard:applicant_search_jobs' %}" class="{% if request.resolver_match.url_name == 'applicant_search_jobs' %}active{% endif %}">
+                        <i class="fas fa-search"></i>
+                        <span>Search Jobs</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{% url 'dashboard:applicant_applied_jobs' %}" class="{% if request.resolver_match.url_name == 'applicant_applied_jobs' %}active{% endif %}">
                         <i class="fas fa-briefcase"></i>
                         <span>Applied Jobs</span>

@@ -51,6 +51,102 @@ def dashboard_view(request):
         return render(request, 'home.html')
 
 @login_required
+def applicant_search_jobs(request):
+    """Search jobs for applicants with filters"""
+    from jobs.models import Job
+    from django.db.models import Q, Count
+    
+    # GET parameters
+    query = request.GET.get("query", "")
+    location = request.GET.get("location", "")
+    job_types = request.GET.getlist("job_type")
+    job_roles = request.GET.getlist("job_role")
+    educations = request.GET.getlist("education")
+    experiences = request.GET.getlist("experience")
+    job_levels = request.GET.getlist("job_level")
+    salary_min = request.GET.get("salary_min")
+    salary_max = request.GET.get("salary_max")
+
+    # Start with active jobs only
+    jobs = Job.objects.filter(status='active')
+    
+    # Annotate with application counts
+    jobs = jobs.annotate(applications_count=Count('applications'))
+
+    # Keyword search
+    if query:
+        jobs = jobs.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(company_name__icontains=query)
+        )
+
+    # Location filter
+    if location:
+        jobs = jobs.filter(location__icontains=location)
+
+    # Job type filter
+    if job_types:
+        jobs = jobs.filter(job_type__in=job_types)
+
+    # Job role filter
+    if job_roles:
+        jobs = jobs.filter(job_role__in=job_roles)
+
+    # Education filter
+    if educations:
+        jobs = jobs.filter(education__in=educations)
+
+    # Experience filter
+    if experiences:
+        jobs = jobs.filter(experience__in=experiences)
+
+    # Job level filter
+    if job_levels:
+        jobs = jobs.filter(job_level__in=job_levels)
+
+    # Salary filter
+    if salary_min:
+        jobs = jobs.filter(min_salary__gte=salary_min)
+
+    if salary_max:
+        jobs = jobs.filter(max_salary__lte=salary_max)
+
+    # Order by most recent
+    jobs = jobs.order_by('-posted_at')
+
+    # Get filter options from Job model
+    all_job_types = Job.JOB_TYPES
+    all_job_roles = Job.JOB_ROLES
+    all_educations = Job.EDUCATION_LEVELS
+    all_experiences = Job.EXPERIENCE_LEVELS
+    all_job_levels = Job.JOB_LEVELS
+
+    context = {
+        "jobs": jobs,
+        "query": query,
+        "location": location,
+        "salary_min": salary_min,
+        "salary_max": salary_max,
+
+        # Dynamic filters
+        "job_types": all_job_types,
+        "job_roles": all_job_roles,
+        "educations": all_educations,
+        "experiences": all_experiences,
+        "job_levels": all_job_levels,
+
+        # Persist selected values
+        "selected_job_types": job_types,
+        "selected_job_roles": job_roles,
+        "selected_educations": educations,
+        "selected_experiences": experiences,
+        "selected_job_levels": job_levels,
+    }
+
+    return render(request, 'dashboard/applicant/applicant_search_jobs.html', context)
+
+@login_required
 def applicant_applied_jobs(request):
     context = {}
     return render(request, 'dashboard/applicant/applicant_applied_jobs.html', context)
