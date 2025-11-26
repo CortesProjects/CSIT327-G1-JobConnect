@@ -48,15 +48,15 @@
                 <!-- Job Type Filter -->
                 <div class="filter-group">
                     <h4>Job Type</h4>
-                    {% for value, label in job_types %}
+                    {% for job_type in job_types %}
                     <label>
                         <input
                             type="checkbox"
                             name="job_type"
-                            value="{{ value }}"
-                            {% if value in selected_job_types %}checked{% endif %}
+                            value="{{ job_type.id }}"
+                            {% if job_type.id|stringformat:"s" in selected_job_types %}checked{% endif %}
                         >
-                        {{ label }}
+                        {{ job_type.name }}
                     </label><br>
                     {% endfor %}
                 </div>
@@ -65,8 +65,8 @@
                 <div class="filter-group">
                     <h4>Category</h4>
                     <select name="category" multiple>
-                        {% for id, name in categories %}
-                        <option value="{{ id }}" {% if id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ name }}</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ category.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -75,8 +75,8 @@
                 <div class="filter-group">
                     <h4>Education</h4>
                     <select name="education" multiple>
-                        {% for value, label in educations %}
-                        <option value="{{ value }}" {% if value in selected_educations %}selected{% endif %}>{{ label }}</option>
+                        {% for education in educations %}
+                        <option value="{{ education.id }}" {% if education.id|stringformat:"s" in selected_educations %}selected{% endif %}>{{ education.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -85,8 +85,8 @@
                 <div class="filter-group">
                     <h4>Experience</h4>
                     <select name="experience" multiple>
-                        {% for value, label in experiences %}
-                        <option value="{{ value }}" {% if value in selected_experiences %}selected{% endif %}>{{ label }}</option>
+                        {% for experience in experiences %}
+                        <option value="{{ experience.id }}" {% if experience.id|stringformat:"s" in selected_experiences %}selected{% endif %}>{{ experience.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -95,8 +95,8 @@
                 <div class="filter-group">
                     <h4>Level</h4>
                     <select name="job_level" multiple>
-                        {% for value, label in job_levels %}
-                        <option value="{{ value }}" {% if value in selected_job_levels %}selected{% endif %}>{{ label }}</option>
+                        {% for job_level in job_levels %}
+                        <option value="{{ job_level.id }}" {% if job_level.id|stringformat:"s" in selected_job_levels %}selected{% endif %}>{{ job_level.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
