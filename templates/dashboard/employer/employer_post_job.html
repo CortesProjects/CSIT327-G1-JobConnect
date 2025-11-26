@@ -41,9 +41,21 @@
                 <input type="text" id="tags" name="tags" placeholder="Job keyword, tags etc...">
             </div>
             <div class="form-group">
-                <label for="category">Job Category <span class="required">*</span></label>
-                {{ form.category }}
-                <span class="error-message" id="category_error">{% if form.category.errors %}{{ form.category.errors|join:", " }}{% endif %}</span>
+                <label for="job_role">Job Role <span class="required">*</span></label>
+                <select id="job_role" name="job_role" required>
+                    <option value="">Select...</option>
+                    <option value="frontend">Frontend Developer</option>
+                    <option value="backend">Backend Developer</option>
+                    <option value="fullstack">Full Stack Developer</option>
+                    <option value="designer">UI/UX Designer</option>
+                    <option value="data_scientist">Data Scientist</option>
+                    <option value="project_manager">Project Manager</option>
+                    <option value="marketing">Marketing Specialist</option>
+                    <option value="sales">Sales Executive</option>
+                    <option value="hr">HR Manager</option>
+                    <option value="other">Other</option>
+                </select>
+                <span class="error-message" id="job_role_error">{% if form.job_role.errors %}{{ form.job_role.errors|join:", " }}{% endif %}</span>
             </div>
         </div>
         

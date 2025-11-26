@@ -61,12 +61,12 @@
                     {% endfor %}
                 </div>
 
-                <!-- Job Category Filter -->
+                <!-- Job Role Filter -->
                 <div class="filter-group">
-                    <h4>Category</h4>
-                    <select name="category" multiple>
-                        {% for id, name in categories %}
-                        <option value="{{ id }}" {% if id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ name }}</option>
+                    <h4>Role</h4>
+                    <select name="job_role" multiple>
+                        {% for value, label in job_roles %}
+                        <option value="{{ value }}" {% if value in selected_job_roles %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -161,7 +161,7 @@
 
                                     <span>
                                         <i class="fas fa-briefcase"></i>
-                                        {{ job.category.name }}
+                                        {{ job.get_job_role_display }}
                                     </span>
                                 </div>
                             </div>

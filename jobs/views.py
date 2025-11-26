@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import JsonResponse
 from .models import Job
 from .forms import JobSearchForm
 from django.db.models import Q
@@ -10,8 +9,8 @@ def job_search(request):
     query = request.GET.get("query", "")
     location = request.GET.get("location", "")
     job_types = request.GET.getlist("job_type")     # Multiple checkboxes
-    categories = request.GET.getlist("category")    # Multi-select (job categories)
-    educations = request.GET.getlist("education")  # Multi-select
+    job_roles = request.GET.getlist("job_role")    # Multi-select (from Job.JOB_ROLES)
+    educations = request.GET.getlist("education")  # Multi-select (from Job.EDUCATION_LEVELS)
     experiences = request.GET.getlist("experience")
     job_levels = request.GET.getlist("job_level")
     salary_min = request.GET.get("salary_min")
@@ -35,9 +34,9 @@ def job_search(request):
     if job_types:
         jobs = jobs.filter(job_type__in=job_types)
 
-    # 🧩 Job category (replaces job_role)
-    if categories:
-        jobs = jobs.filter(category__id__in=categories)
+    # 🧩 Job role
+    if job_roles:
+        jobs = jobs.filter(job_role__in=job_roles)
 
     # 🧩 Education level
     if educations:
@@ -58,14 +57,12 @@ def job_search(request):
     if salary_max:
         jobs = jobs.filter(salary_max__lte=salary_max)
 
-    # DYNAMIC FILTER VALUES (from lookup tables)
-    from .lookup_models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
-    
-    all_job_types = Job.JOB_TYPES  # Keep for backward compatibility during migration
-    all_categories = JobCategory.objects.filter(is_active=True).values_list('id', 'name')
-    all_educations = Job.EDUCATION_LEVELS  # Keep for backward compatibility during migration
-    all_experiences = Job.EXPERIENCE_LEVELS  # Keep for backward compatibility during migration
-    all_job_levels = Job.JOB_LEVELS  # Keep for backward compatibility during migration
+    # DYNAMIC FILTER VALUES (so dropdowns auto-update)
+    all_job_types = Job.JOB_TYPES
+    all_job_roles = Job.JOB_ROLES
+    all_educations = Job.EDUCATION_LEVELS
+    all_experiences = Job.EXPERIENCE_LEVELS
+    all_job_levels = Job.JOB_LEVELS
     all_locations = Job.objects.values_list("location", flat=True).distinct()
 
     context = {
@@ -77,7 +74,7 @@ def job_search(request):
 
         # Dynamic filters
         "job_types": all_job_types,
-        "categories": all_categories,  # Renamed from job_roles
+        "job_roles": all_job_roles,
         "educations": all_educations,
         "experiences": all_experiences,
         "job_levels": all_job_levels,
@@ -85,7 +82,7 @@ def job_search(request):
 
         # Persist selected values
         "selected_job_types": job_types,
-        "selected_categories": categories,  # Renamed from selected_job_roles
+        "selected_job_roles": job_roles,
         "selected_educations": educations,
         "selected_experiences": experiences,
         "selected_job_levels": job_levels,

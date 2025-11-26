@@ -8,7 +8,7 @@ class JobPostForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = [
-            'title', 'tags', 'category', 'min_salary', 'max_salary', 
+            'title', 'tags', 'job_role', 'min_salary', 'max_salary', 
             'salary_type', 'education', 'experience', 'job_type', 
             'vacancies', 'expiration_date', 'job_level', 'description', 
             'responsibilities', 'location'
@@ -24,9 +24,9 @@ class JobPostForm(forms.ModelForm):
                 'placeholder': 'Job keyword, tags etc...',
                 'id': 'tags'
             }),
-            'category': forms.Select(attrs={
+            'job_role': forms.Select(attrs={
                 'class': 'form-control',
-                'id': 'category'
+                'id': 'job_role'
             }),
             'min_salary': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -145,12 +145,6 @@ class JobSearchForm(forms.Form):
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Dynamically set queryset for category field from JobCategory lookup table
-        from .lookup_models import JobCategory
-        self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
 
     job_type = forms.MultipleChoiceField(
         choices=Job.JOB_TYPES,
@@ -158,8 +152,8 @@ class JobSearchForm(forms.Form):
         widget=forms.CheckboxSelectMultiple
     )
 
-    category = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+    job_role = forms.MultipleChoiceField(
+        choices=Job.JOB_ROLES,
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
