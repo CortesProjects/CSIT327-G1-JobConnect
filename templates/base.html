@@ -39,14 +39,14 @@
                             </a>
                             <div class="user-profile">
                                 {% if user.user_type == 'employer' %}
-                                    {% if user.employer_profile_rel.logo %}
-                                        <img src="{{ user.employer_profile_rel.logo.url }}" alt="{{ user.employer_profile_rel.company_name }}">
+                                    {% if user.employer_profile_rel.company_profile_image %}
+                                        <img src="{{ user.employer_profile_rel.company_profile_image.url }}" alt="{{ user.employer_profile_rel.company_name }}">
                                     {% else %}
                                         <img src="{% static 'img/default-avatar.png' %}" alt="Default Logo">
                                     {% endif %}
                                 {% elif user.user_type == 'applicant' %}
-                                    {% if user.applicant_profile_rel.image %}
-                                        <img src="{{ user.applicant_profile_rel.image.url }}" alt="Profile Picture">
+                                    {% if user.applicant_profile_rel.profile_image %}
+                                        <img src="{{ user.applicant_profile_rel.profile_image.url }}" alt="Profile Picture">
                                     {% else %}
                                         <img src="{% static 'img/default-avatar.png' %}" alt="Default Avatar">
                                     {% endif %}
