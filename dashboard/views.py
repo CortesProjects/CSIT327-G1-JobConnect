@@ -125,6 +125,14 @@ def applicant_search_jobs(request):
     all_experiences = ExperienceLevel.objects.filter(is_active=True)
     all_job_levels = JobLevel.objects.filter(is_active=True)
 
+    # Get favorited job IDs for the current applicant
+    from jobs.models import FavoriteJob
+    favorited_job_ids = []
+    if request.user.is_authenticated and request.user.user_type == 'applicant':
+        favorited_job_ids = list(
+            FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
+        )
+
     context = {
         "jobs": jobs,
         "query": query,
@@ -145,6 +153,9 @@ def applicant_search_jobs(request):
         "selected_educations": education_ids,
         "selected_experiences": experience_ids,
         "selected_job_levels": job_level_ids,
+        
+        # Favorite status
+        "favorited_job_ids": favorited_job_ids,
     }
 
     return render(request, 'dashboard/applicant/applicant_search_jobs.html', context)
@@ -156,7 +167,29 @@ def applicant_applied_jobs(request):
 
 @login_required
 def applicant_favorite_jobs(request):
-    context = {} 
+    from jobs.models import FavoriteJob
+    
+    if request.user.user_type != 'applicant':
+        messages.error(request, 'Only applicants can view favorite jobs.')
+        return redirect('dashboard')
+    
+    # Get all favorite jobs with related data
+    favorites = FavoriteJob.objects.filter(
+        applicant=request.user
+    ).select_related(
+        'job',
+        'job__employer',
+        'job__category',
+        'job__job_type',
+        'job__education',
+        'job__experience',
+        'job__job_level'
+    ).order_by('-created_at')
+    
+    context = {
+        'favorites': favorites,
+        'favorite_count': favorites.count()
+    } 
     return render(request, 'dashboard/applicant/applicant_favorite_jobs.html', context)
 
 @login_required

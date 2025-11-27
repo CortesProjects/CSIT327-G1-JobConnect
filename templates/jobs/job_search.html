@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/jobs/job_search.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
 {% endblock %}
 
 {% block title %}Job Search Results{% endblock %}
@@ -168,9 +169,9 @@
                         </div>
 
                         <div class="job-actions">
-                            <span class="bookmark-btn">
-                                <i class="far fa-bookmark"></i>
-                            </span>
+                            <button class="favorite-btn {% if job.id in favorited_job_ids %}active{% endif %}" data-job-id="{{ job.id }}" title="{% if job.id in favorited_job_ids %}Remove from favorites{% else %}Add to favorites{% endif %}">
+                                <i class="{% if job.id in favorited_job_ids %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
+                            </button>
                             <a href="#" class="apply-btn">
                                 Apply Now <i class="fas fa-arrow-right"></i>
                             </a>
@@ -196,4 +197,9 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
 {% endblock %}

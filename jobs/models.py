@@ -6,10 +6,6 @@ from django.utils.text import slugify
 from datetime import date
 
 
-# ============================================================================
-# LOOKUP TABLES (Reference Data)
-# ============================================================================
-
 class JobCategory(models.Model):
     """Job categories for classification."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
@@ -469,3 +465,32 @@ class JobApplication(models.Model):
     
     def __str__(self):
         return f"{self.applicant.email} - {self.job.title} ({self.status})"
+
+
+class FavoriteJob(models.Model):
+    """Tracks jobs that applicants have marked as favorites."""
+    applicant = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorite_jobs',
+        limit_choices_to={'user_type': 'applicant'}
+    )
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='favorited_by'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['applicant', 'job']
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['applicant', '-created_at']),
+            models.Index(fields=['job']),
+        ]
+        verbose_name = "Favorite Job"
+        verbose_name_plural = "Favorite Jobs"
+    
+    def __str__(self):
+        return f"{self.applicant.email} - {self.job.title}"

@@ -6,6 +6,7 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_favorite_jobs.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
 {% endblock %}
 
 {% block dashboard_content %}
@@ -13,10 +14,10 @@
     <h2>Favorite Jobs</h2>
 </div>
 
-{% if favorite_jobs %}
+{% if favorites %}
 <div class="favorite-jobs-list">
-    {% for job in favorite_jobs %}
-        {% include 'dashboard/applicant/components/job_card.html' with job=job %}
+    {% for favorite in favorites %}
+        {% include 'dashboard/applicant/components/job_card.html' with job=favorite.job is_favorited=True %}
     {% endfor %}
 </div>
 
@@ -41,4 +42,9 @@
     </a>
 </div>
 {% endif %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
+{% endblock %}
 {% endblock %}
