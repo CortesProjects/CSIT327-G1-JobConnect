@@ -2,6 +2,7 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
 {% endblock %}
 
 {% block title %}JobConnect - Home{% endblock %}
@@ -197,7 +198,7 @@
                         </div>
                     </div>
                     <div class="job-actions">
-                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
                         <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
@@ -217,7 +218,7 @@
                         </div>
                     </div>
                     <div class="job-actions">
-                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
                         <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
@@ -237,7 +238,7 @@
                         </div>
                     </div>
                     <div class="job-actions">
-                        <span class="bookmark-btn"><i class="far fa-bookmark"></i></span> 
+                        <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
                         <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
@@ -261,6 +262,7 @@
     </div>
 
 <script src="{% static 'js/search_suggestions.js' %}"></script>
+<script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
 
 {% endblock content %}
 

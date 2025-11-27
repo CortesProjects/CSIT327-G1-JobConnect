@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Job
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .models import Job, FavoriteJob
 from .forms import JobSearchForm
 from django.db.models import Q
 
@@ -68,6 +70,13 @@ def job_search(request):
     all_job_levels = JobLevel.objects.filter(is_active=True)
     all_locations = Job.objects.values_list("location", flat=True).distinct()
 
+    # Get favorited job IDs for logged-in applicants
+    favorited_job_ids = []
+    if request.user.is_authenticated and request.user.user_type == 'applicant':
+        favorited_job_ids = list(
+            FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
+        )
+
     context = {
         "jobs": jobs,
         "query": query,
@@ -89,6 +98,9 @@ def job_search(request):
         "selected_educations": educations,
         "selected_experiences": experiences,
         "selected_job_levels": job_levels,
+        
+        # Favorite status
+        "favorited_job_ids": favorited_job_ids,
     }
 
     return render(request, "jobs/job_search.html", context)
@@ -101,3 +113,58 @@ def job_suggestions(request):
     qs = Job.objects.filter(title__icontains=term)
     suggestions = list(qs.values_list("title", flat=True)[:8])
     return JsonResponse(suggestions, safe=False)
+
+
+@login_required
+@require_POST
+def toggle_favorite_job(request, job_id):
+    """Toggle favorite status for a job. Returns JSON with new state."""
+    if request.user.user_type != 'applicant':
+        return JsonResponse({
+            'success': False,
+            'error': 'Only applicants can favorite jobs'
+        }, status=403)
+    
+    job = get_object_or_404(Job, id=job_id)
+    
+    # Check if already favorited
+    favorite = FavoriteJob.objects.filter(applicant=request.user, job=job).first()
+    
+    if favorite:
+        # Remove from favorites
+        favorite.delete()
+        is_favorited = False
+        message = 'Job removed from favorites'
+    else:
+        # Add to favorites
+        FavoriteJob.objects.create(applicant=request.user, job=job)
+        is_favorited = True
+        message = 'Job added to favorites'
+    
+    return JsonResponse({
+        'success': True,
+        'is_favorited': is_favorited,
+        'message': message
+    })
+
+
+@login_required
+def applicant_favorite_jobs(request):
+    """Display applicant's favorite jobs."""
+    if request.user.user_type != 'applicant':
+        return JsonResponse({
+            'success': False,
+            'error': 'Only applicants can view favorite jobs'
+        }, status=403)
+    
+    # Get all favorite jobs for the current applicant
+    favorites = FavoriteJob.objects.filter(
+        applicant=request.user
+    ).select_related('job', 'job__employer', 'job__category')
+    
+    context = {
+        'favorites': favorites,
+        'favorite_count': favorites.count()
+    }
+    
+    return render(request, 'jobs/favorite_jobs.html', context)

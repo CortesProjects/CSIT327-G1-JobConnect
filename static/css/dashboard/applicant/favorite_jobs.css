@@ -1,0 +1,88 @@
+/* Notification styles for favorite jobs */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    min-width: 300px;
+    padding: 15px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    border-left: 4px solid #2196F3;
+}
+
+.notification-success {
+    border-left-color: #4CAF50;
+}
+
+.notification-error {
+    border-left-color: #f44336;
+}
+
+.notification-info {
+    border-left-color: #2196F3;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #333;
+    flex: 1;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    line-height: 1;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+/* Favorite button styles */
+.favorite-btn {
+    background: none;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #999;
+}
+
+.favorite-btn:hover {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.favorite-btn.active {
+    border-color: #f44336;
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.favorite-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.favorite-btn i {
+    font-size: 18px;
+}

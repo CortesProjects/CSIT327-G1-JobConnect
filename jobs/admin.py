@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Job, JobTag, JobApplication,
+    Job, JobTag, JobApplication, FavoriteJob,
     JobCategory, EmploymentType, EducationLevel,
     ExperienceLevel, JobLevel, SalaryType, Tag
 )
@@ -110,3 +110,13 @@ class JobApplicationAdmin(admin.ModelAdmin):
     list_filter = ['status', 'application_date']
     search_fields = ['applicant__email', 'job__title']
     readonly_fields = ['application_date']
+
+
+@admin.register(FavoriteJob)
+class FavoriteJobAdmin(admin.ModelAdmin):
+    list_display = ['applicant', 'job', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['applicant__email', 'applicant__first_name', 'applicant__last_name', 'job__title']
+    readonly_fields = ['created_at']
+    autocomplete_fields = ['applicant', 'job']
+    date_hierarchy = 'created_at'
