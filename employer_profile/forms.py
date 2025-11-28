@@ -41,18 +41,47 @@ class EmployerProfileCompanyInfoForm(forms.ModelForm):
         # If new profile or no existing company_profile_image, require it
         if not company_profile_image and (not self.instance.pk or not self.instance.company_profile_image):
             raise forms.ValidationError('Company logo is required.')
+        # If the value is a stored FieldFile (existing file), skip content_type checks
+        # Uploaded files (UploadedFile) will have 'content_type' and 'size' attributes
+        if not hasattr(company_profile_image, 'content_type'):
+            return company_profile_image
+
+        # Validate file type
+        valid_types = ['image/jpeg', 'image/jpg', 'image/png']
+        if company_profile_image.content_type not in valid_types:
+            raise forms.ValidationError('Please upload a valid image file (JPG, or PNG).')
+
+        # Validate file size (5MB max)
+        max_size = 5 * 1024 * 1024
+        if company_profile_image.size > max_size:
+            raise forms.ValidationError('Image size must be less than 5MB.')
+
         return company_profile_image
     
     def clean_company_business_permit(self):
         company_business_permit = self.cleaned_data.get('company_business_permit')
-        # If editing and permit already exists, it's optional
         if self.instance and self.instance.pk and self.instance.company_business_permit and not company_business_permit:
             return self.instance.company_business_permit
-        # If new profile or no existing permit, require it
         if not company_business_permit and (not self.instance.pk or not self.instance.company_business_permit):
             raise forms.ValidationError('Business permit is required.')
+        if not hasattr(company_business_permit, 'content_type'):
+            return company_business_permit
+
+        valid_types = [
+            'image/jpeg', 'image/jpg', 'image/png',
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword'
+        ]
+        if company_business_permit.content_type not in valid_types:
+            raise forms.ValidationError('Please upload a valid file (PNG, JPG, PDF, or DOCX).')
+
+        max_size = 5 * 1024 * 1024
+        if company_business_permit.size > max_size:
+            raise forms.ValidationError('File size must be less than 5MB.')
+
         return company_business_permit
-# --- Step 2: Founding Info Form ---
+    
 class EmployerProfileFoundingInfoForm(forms.ModelForm):
     organization_type = forms.ChoiceField(
         required=True,

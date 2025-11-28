@@ -1,12 +1,10 @@
 // accounts/static/js/employer_profile_create.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Select main elements
     const richTextToolbar = document.querySelector('.rich-text-toolbar');
     const uploadColumns = document.querySelectorAll('.upload-column');
     const form = document.querySelector('form');
 
-    // Small helper to show a field-level error when applicable
     function showFieldError(fieldName, message) {
         try {
             const field = document.querySelector(`[name="${fieldName}"]`);
@@ -17,41 +15,28 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (e) { console.warn('showFieldError:', e); }
     }
     
-    // =========================================================
-    // ERROR HANDLING: Auto-scroll to first error on page load
-    // =========================================================
     const firstError = document.querySelector('.error-text:not(:empty)');
     if (firstError) {
-        // Scroll to the first error message
         setTimeout(() => {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
     }
     
-    // --- NEW: Date Picker Logic Setup ---
     document.querySelectorAll('.date-input-wrapper').forEach(wrapper => {
         const dateInput = wrapper.querySelector('.date-picker-input');
         const dateIcon = wrapper.querySelector('.date-icon');
 
         if (dateInput && dateIcon) {
-            // Add a click listener to the custom icon
             dateIcon.addEventListener('click', () => {
-                // Programmatically trigger a click event on the hidden input field
                 dateInput.click();
             });
         }
     });
-    // --- END NEW DATE PICKER LOGIC ---
-
-
-    // --- Select ALL potential editor/toolbar pairs ---
-    // This allows the script to work on both step1 (About Us) and step2 (Company Vision)
+    
     const editorPairs = [];
     const aboutUsEditor = document.querySelector('#about-us-editor');
     const companyVisionEditor = document.querySelector('#company-vision-editor');
-    // Note: richTextToolbar is selected earlier in the file
 
-    // Add pairs if they exist on the current page
     if (aboutUsEditor && richTextToolbar) {
         editorPairs.push({ editor: aboutUsEditor, toolbar: richTextToolbar });
     }
@@ -101,20 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         logoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate image type and size
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                const maxSize = 5 * 1024 * 1024; // 5MB
-                if (!validTypes.includes(file.type)) {
-                    showFieldError('logo', 'Please upload a valid image (JPG, PNG or GIF).');
-                    logoInput.value = '';
-                    return;
-                }
-                if (file.size > maxSize) {
-                    showFieldError('logo', 'Image size must be less than 5MB.');
-                    logoInput.value = '';
-                    return;
-                }
-
+                // UI-only: display preview (no validation - Django handles that)
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     // Clear existing content
@@ -184,56 +156,63 @@ document.addEventListener("DOMContentLoaded", function () {
         permitInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate file type and size
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
-                const maxSize = 5 * 1024 * 1024; // 5MB
-                if (!validTypes.includes(file.type)) {
-                    showFieldError('business_permit', 'Please upload a valid image or PDF.');
-                    permitInput.value = '';
-                    return;
-                }
-                if (file.size > maxSize) {
-                    showFieldError('business_permit', 'File size must be less than 5MB.');
-                    permitInput.value = '';
-                    return;
-                }
+                // UI-only: show a compact card view for the uploaded file (filename + icon)
+                // Clear existing content
+                permitPreview.innerHTML = '';
 
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    // Clear existing content
-                    permitPreview.innerHTML = '';
-                    
-                    if (file.type === 'application/pdf') {
-                        // Show PDF icon for PDF files
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'upload-content-placeholder';
-                        placeholder.innerHTML = `
-                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545;"></i>
-                            <h4>${file.name}</h4>
-                            <p class="upload-hint">PDF Document</p>
+                // Determine an icon for the file based on MIME or extension
+                const nameLower = (file.name || '').toLowerCase();
+                let iconClass = 'fa-file';
+                if (file.type === 'application/pdf' || nameLower.slice(-4) === '.pdf') iconClass = 'fa-file-pdf';
+                else if (nameLower.slice(-5) === '.docx' || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') iconClass = 'fa-file-word';
+                else if (nameLower.slice(-4) === '.png' || nameLower.slice(-4) === '.jpg' || nameLower.slice(-5) === '.jpeg' || file.type.startsWith('image/')) iconClass = 'fa-file-image';
+
+                const card = document.createElement('div');
+                card.className = 'permit-card';
+                card.innerHTML = `
+                    <div class="permit-card-icon"><i class="fas ${iconClass}"></i></div>
+                    <div class="permit-card-body">
+                        <div class="permit-filename">${file.name}</div>
+                        <div class="permit-meta">${(file.size / 1024).toFixed(2)} KB</div>
+                    </div>
+                    <div class="permit-card-actions">
+                        <button type="button" class="btn btn-sm permit-remove-btn" aria-label="Remove business permit">&times;</button>
+                    </div>
+                `;
+                permitPreview.appendChild(card);
+
+                // Create overlay (same UI affordance as before)
+                const overlay = document.createElement('div');
+                overlay.className = 'hover-overlay-setup';
+                overlay.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><span>Change file</span> or drop here</p>
+                    <small>Max file size 5 MB</small>
+                `;
+                permitPreview.appendChild(overlay);
+
+                permitPreview.classList.add('has-image');
+                // attach remove handler to the newly created button
+                const removeBtn = permitPreview.querySelector('.permit-remove-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', (ev) => {
+                        ev.preventDefault(); ev.stopPropagation();
+                        // Clear the file input and UI
+                        permitInput.value = '';
+                        // If a Django clear checkbox exists, check it so server clears file
+                        const clearCheckbox = document.querySelector('input[name$="-clear"]');
+                        if (clearCheckbox) clearCheckbox.checked = true;
+                        // Reset the preview to placeholder
+                        permitPreview.innerHTML = `
+                            <div class="upload-content-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h4>Browse file or drop here</h4>
+                                <p class="upload-hint">Supported formats: PNG, JPG, PDF, DOCX. Max file size 5 MB.</p>
+                            </div>
                         `;
-                        permitPreview.appendChild(placeholder);
-                    } else {
-                        // Show image preview for image files
-                        const img = document.createElement('img');
-                        img.src = event.target.result;
-                        img.alt = 'Business Permit';
-                        permitPreview.appendChild(img);
-                    }
-                    
-                    // Create overlay
-                    const overlay = document.createElement('div');
-                    overlay.className = 'hover-overlay-setup';
-                    overlay.innerHTML = `
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><span>Change file</span> or drop here</p>
-                        <small>Max file size 5 MB</small>
-                    `;
-                    permitPreview.appendChild(overlay);
-                    
-                    permitPreview.classList.add('has-image');
-                };
-                reader.readAsDataURL(file);
+                        permitPreview.classList.remove('has-image');
+                    });
+                }
             }
         });
 
@@ -260,6 +239,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 permitInput.dispatchEvent(new Event('change'));
             }
         });
+
+        // If page loaded with existing card and it contains a remove button, wire it up
+        const existingRemove = permitPreview.querySelector('.permit-remove-btn');
+        if (existingRemove) {
+            existingRemove.addEventListener('click', (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                // Try to find Django clear checkbox for this field
+                const clearCheckbox = document.querySelector('input[name$="-clear"]');
+                if (clearCheckbox) clearCheckbox.checked = true;
+                // Clear any existing file input value
+                if (permitInput) permitInput.value = '';
+                // Reset preview to placeholder
+                permitPreview.innerHTML = `
+                    <div class="upload-content-placeholder">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Browse file or drop here</h4>
+                        <p class="upload-hint">Supported formats: PNG, JPG, PDF, DOCX. Max file size 5 MB.</p>
+                    </div>
+                `;
+                permitPreview.classList.remove('has-image');
+            });
+        }
     }
 
     // OLD LOGIC - Keep for backward compatibility if other pages use .upload-column
@@ -289,20 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // If image file, render inline preview (like applicant setup)
                 if (file.type && file.type.startsWith('image/')) {
-                    // Validate image type and size (match applicant rules)
-                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                    const maxSize = 5 * 1024 * 1024; // 5MB
-                    if (!validTypes.includes(file.type)) {
-                        showFieldError(fileInput.name || 'image', 'Please upload a valid image (JPG, PNG or GIF).');
-                        fileInput.value = '';
-                        return;
-                    }
-                    if (file.size > maxSize) {
-                        showFieldError(fileInput.name || 'image', 'Image size must be less than 5MB.');
-                        fileInput.value = '';
-                        return;
-                    }
-
+                    // UI-only: display preview (no validation - Django handles that)
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         // Build preview image + overlay to match applicant setup design
