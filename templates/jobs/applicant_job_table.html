@@ -15,11 +15,11 @@
         <div class="jt-row">
             <div class="col col-job">
                 <div class="job-left">
-                    <div class="logo">
+                    <div class="company-logo">
                         {% if application.job.employer.employer_profile_rel.company_profile_image %}
                             <img src="{{ application.job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ application.job.company_name }}">
                         {% else %}
-                            <div class="logo-placeholder">{{ application.job.company_name|first|upper }}</div>
+                            <div class="company-logo-placeholder">{{ application.job.company_name|first|upper }}</div>
                         {% endif %}
                     </div>
                     <div class="job-meta">
