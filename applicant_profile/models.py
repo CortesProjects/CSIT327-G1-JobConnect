@@ -171,3 +171,38 @@ class ApplicantProfile(models.Model):
     
     def __str__(self):
         return f"{self.full_name or 'Unnamed'} ({self.user.email})"
+
+
+class NotificationPreferences(models.Model):
+    """Notification preferences for applicants"""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='notification_preferences'
+    )
+    
+    notify_shortlisted = models.BooleanField(
+        default=True,
+        help_text="Notify when shortlisted by employers"
+    )
+    
+    notify_applications = models.BooleanField(
+        default=True,
+        help_text="Notify when application status changes"
+    )
+    
+    notify_job_alerts = models.BooleanField(
+        default=True,
+        help_text="Notify about new jobs matching job alert preferences"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Notification Preference'
+        verbose_name_plural = 'Notification Preferences'
+    
+    def __str__(self):
+        return f"Notification preferences for {self.user.email}"

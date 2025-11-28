@@ -197,6 +197,28 @@
         });
     }
 
+    // Dynamic input styling (visual feedback only, no validation)
+    function initInputStyling() {
+        // Clear error state on input focus
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.classList.remove('error');
+            });
+        });
+
+        // Auto-dismiss messages after 5 seconds
+        const messages = document.querySelectorAll('.alert');
+        if (messages.length > 0) {
+            setTimeout(() => {
+                messages.forEach(msg => {
+                    msg.style.transition = 'opacity 0.5s ease';
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 500);
+                });
+            }, 5000);
+        }
+    }
+
     // Resume action menu toggle
     function initResumeMenuToggle() {
         document.querySelectorAll('.action-menu-btn').forEach(btn => {
@@ -212,6 +234,67 @@
         });
     }
 
+    // Privacy toggle auto-submit functionality
+    function initPrivacyToggle() {
+        const privacyCheckbox = document.querySelector('#privacy-form input[name="is_public"]');
+        const privacyStatus = document.querySelector('.privacy-status');
+        const privacyDescription = document.querySelector('.privacy-description');
+        
+        if (privacyCheckbox && privacyStatus) {
+            privacyCheckbox.addEventListener('change', function() {
+                // Update UI immediately for better UX
+                const isPublic = this.checked;
+                privacyStatus.textContent = isPublic ? 'Public' : 'Private';
+                if (privacyDescription) {
+                    privacyDescription.innerHTML = `Your profile is currently <strong>${isPublic ? 'public' : 'private'}</strong>. ${isPublic ? 'Employers can view your profile.' : 'Only you can view your profile.'}`;
+                }
+            });
+        }
+    }
+
+    // Delete account modal functionality
+    function initDeleteAccount() {
+        const deleteBtn = document.getElementById('delete-account-btn');
+        const modal = document.getElementById('deleteAccountModal');
+        const confirmInput = document.getElementById('delete-confirm-text');
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        
+        window.openDeleteAccountModal = function() {
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+        
+        window.closeDeleteAccountModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                const form = document.getElementById('deleteAccountForm');
+                if (form) form.reset();
+                if (confirmBtn) confirmBtn.disabled = true;
+            }
+        };
+        
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', window.openDeleteAccountModal);
+        }
+        
+        // Enable delete button only when "DELETE" is typed
+        if (confirmInput && confirmBtn) {
+            confirmInput.addEventListener('input', function() {
+                confirmBtn.disabled = this.value.trim() !== 'DELETE';
+            });
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                window.closeDeleteAccountModal();
+            }
+        });
+    }
+
     // Init all
     document.addEventListener('DOMContentLoaded', function () {
         initProfilePreview();
@@ -220,6 +303,9 @@
         initSocialLinks();
         initPasswordToggles();
         initResumeMenuToggle();
+        initInputStyling();
+        initPrivacyToggle();
+        initDeleteAccount();
     });
 
 })();

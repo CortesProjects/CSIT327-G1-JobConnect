@@ -376,46 +376,57 @@
                 </div>
             </form>
             <hr>
-            <div class="account-section-block">
-                <h3>Notification</h3>
-                <div class="notification-checkboxes">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="notify-shortlisted" disabled>
-                        <label for="notify-shortlisted">Notify me when employers shortlist me (Coming soon)</label>
+            <form method="post" id="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="notification_preferences">
+                
+                <div class="account-section-block">
+                    <h3>Notification Preferences</h3>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Choose how you want to be notified about important updates.</p>
+                    <div class="notification-checkboxes">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="notify-shortlisted" name="notify_shortlisted" {% if notification_prefs.notify_shortlisted %}checked{% endif %}>
+                            <label for="notify-shortlisted">Notify me when employers shortlist me</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="notify-applications" name="notify_applications" {% if notification_prefs.notify_applications %}checked{% endif %}>
+                            <label for="notify-applications">Notify me when my application status changes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="notify-job-alerts" name="notify_job_alerts" {% if notification_prefs.notify_job_alerts %}checked{% endif %}>
+                            <label for="notify-job-alerts">Notify me about new job alerts matching my preferences</label>
+                        </div>
                     </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="notify-applications" disabled>
-                        <label for="notify-applications">Notify me when my applications are open (Coming soon)</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="notify-job-alerts" disabled>
-                        <label for="notify-job-alerts">Notify me when I have an job alerts (Coming soon)</label>
-                    </div>
+                    <button type="submit" class="btn-save" style="margin-top: 15px;">Save Notification Preferences</button>
                 </div>
-            </div>
+            </form>
             <hr>
             <div class="account-section-block">
                 <h3>Job Alerts</h3>
-                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Coming soon - Set up automatic job alerts based on your preferences.</p>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Manage your job alert preferences and receive notifications when new jobs match your criteria.</p>
+                <a href="{% url 'dashboard:applicant_job_alerts' %}" class="btn-save" style="display: inline-block; text-decoration: none; text-align: center;">
+                    <i class="fas fa-bell"></i> Manage Job Alerts
+                </a>
             </div>
-            <hr
+            <hr>
             <form method="post" id="privacy-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="profile_privacy">
                 
                 <div class="account-section-block">
                     <h3>Profile Privacy</h3>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Control who can view your profile information.</p>
                     <div class="privacy-toggle-row">
                         <div class="privacy-info">
                             <label class="toggle-label">
                                 {{ profile_privacy_form.is_public }}
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="privacy-status">{{ profile.is_public|yesno:"Yes,No" }}</span>
+                            <span class="privacy-status">{{ profile.is_public|yesno:"Public,Private" }}</span>
                         </div>
-                        <span class="privacy-description">Your profile is {{ profile.is_public|yesno:"public,private" }} now</span>
+                        <span class="privacy-description">Your profile is currently <strong>{{ profile.is_public|yesno:"public,private" }}</strong>. {% if profile.is_public %}Employers can view your profile.{% else %}Only you can view your profile.{% endif %}</span>
                     </div>
-                    <button type="submit" class="btn-save" style="margin-top: 15px;">Save Privacy Settings</button>
+                    <button type="submit" class="btn-save" id="privacy-save-btn" style="margin-top: 15px;">Save Privacy Settings</button>
                 </div>
             </form>
             <hr>
@@ -463,658 +474,65 @@
             <hr>  
             <div class="account-section-block delete-account-section">
                 <h3>Delete Your Account</h3>
-                <p class="delete-warning">If you delete your JobConnect account, you will no longer be able to get information about the matched jobs, following employers, and job alerts. You will be abandoned from all the services of JobConnect.</p>
-                <button class="btn-delete-account" disabled>Close Account (Contact Admin)</button>
+                <p class="delete-warning">If you delete your JobConnect account, you will no longer be able to get information about matched jobs, following employers, and job alerts. This action is <strong>permanent and cannot be undone</strong>.</p>
+                <button type="button" class="btn-delete-account" id="delete-account-btn">
+                    <i class="fas fa-exclamation-triangle"></i> Delete Account
+                </button>
+            </div>
+            
+            <!-- Delete Account Confirmation Modal -->
+            <div class="modal" id="deleteAccountModal">
+                <div class="modal-overlay" onclick="closeDeleteAccountModal()"></div>
+                <div class="modal-content delete-confirm-modal">
+                    <button type="button" class="modal-close" onclick="closeDeleteAccountModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="delete-modal-header">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h2>Delete Account?</h2>
+                    </div>
+                    
+                    <div class="delete-modal-body">
+                        <p>Are you absolutely sure you want to delete your account? This will:</p>
+                        <ul>
+                            <li>Permanently delete your profile and all personal information</li>
+                            <li>Remove all your job applications</li>
+                            <li>Delete your saved jobs and job alerts</li>
+                            <li>Cancel any ongoing application processes</li>
+                        </ul>
+                        <p><strong>This action cannot be undone!</strong></p>
+                        
+                        <form method="post" id="deleteAccountForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_account">
+                            
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label for="delete-confirm-text">Type <strong>DELETE</strong> to confirm:</label>
+                                <input type="text" id="delete-confirm-text" class="form-control" placeholder="Type DELETE" autocomplete="off" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delete-password">Enter your password to confirm:</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="delete-password" name="password" class="form-control" placeholder="Your password" required>
+                                    <i class="fas fa-eye toggle-password"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-actions">
+                                <button type="button" class="btn-cancel" onclick="closeDeleteAccountModal()">Cancel</button>
+                                <button type="submit" class="btn-delete-confirm" id="confirm-delete-btn" disabled>
+                                    <i class="fas fa-trash"></i> Delete My Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-// Profile picture preview
-const imageInput = document.getElementById('{{ personal_info_form.profile_image.id_for_label }}');
-if (imageInput) {
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const preview = document.getElementById('profile-preview');
-                if (preview) {
-                    const img = preview.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    } else {
-                        preview.innerHTML = `
-                            <img src="${event.target.result}" alt="Profile Preview">
-                            <div class="hover-overlay">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p><span>Browse photo</span> or drop here</p>
-                                <small>Max photo size 5 MB</small>
-                            </div>
-                        `;
-                    }
-                    preview.classList.add('has-image');
-                } else {
-                    // Create preview if it doesn't exist (empty state)
-                    const emptyBox = document.querySelector('.profile-picture .empty-state-box');
-                    if (emptyBox) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'image-preview has-image';
-                        previewDiv.id = 'profile-preview';
-                        previewDiv.onclick = function() { document.getElementById('{{ personal_info_form.profile_image.id_for_label }}').click(); };
-                        previewDiv.innerHTML = `
-                            <img src="${event.target.result}" alt="Profile Preview">
-                            <div class="hover-overlay">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p><span>Browse photo</span> or drop here</p>
-                                <small>Max photo size 5 MB</small>
-                            </div>
-                        `;
-                        emptyBox.parentNode.insertBefore(previewDiv, emptyBox);
-                        emptyBox.style.display = 'none';
-                    }
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-}
-
-const tabLinks = Array.from(document.querySelectorAll('.settings-nav a'));
-const tabPanels = Array.from(document.querySelectorAll('.tab-content'));
-const addSocialLinkForm = document.getElementById('add-social-link-form');
-const addSocialLinkButton = document.querySelector('[data-action="show-add-social-link"]');
-const cancelSocialLinkButton = document.querySelector('[data-action="cancel-add-social-link"]');
-
-tabPanels.forEach(panel => panel.setAttribute('role', 'tabpanel'));
-
-function hideAddSocialLinkForm() {
-    if (addSocialLinkForm) addSocialLinkForm.classList.add('is-hidden');
-    if (addSocialLinkButton) addSocialLinkButton.classList.remove('is-hidden');
-}
-
-function showAddSocialLinkForm() {
-    if (addSocialLinkForm) addSocialLinkForm.classList.remove('is-hidden');
-    if (addSocialLinkButton) addSocialLinkButton.classList.add('is-hidden');
-}
-
-if (addSocialLinkButton) {
-    addSocialLinkButton.addEventListener('click', showAddSocialLinkForm);
-}
-
-if (cancelSocialLinkButton) {
-    cancelSocialLinkButton.addEventListener('click', hideAddSocialLinkForm);
-}
-
-function activateTab(targetTab, { updateHash = true, resetTransient = true } = {}) {
-    tabLinks.forEach(link => {
-        const isActive = link.dataset.tab === targetTab;
-        link.classList.toggle('active', isActive);
-        link.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-
-    tabPanels.forEach(panel => {
-        const isActive = panel.id === `${targetTab}-tab`;
-        panel.classList.toggle('active', isActive);
-        panel.toggleAttribute('hidden', !isActive);
-        if (isActive) {
-            panel.removeAttribute('aria-hidden');
-        } else {
-            panel.setAttribute('aria-hidden', 'true');
-        }
-    });
-
-    if (resetTransient) {
-        document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('active'));
-        hideAddSocialLinkForm();
-
-        const resumeModal = document.getElementById('resumeModal');
-        if (resumeModal && resumeModal.classList.contains('active')) {
-            resumeModal.classList.remove('active');
-            document.body.style.overflow = '';
-            if (typeof resetUploadArea === 'function') resetUploadArea();
-        }
-    }
-
-    if (updateHash) {
-        if (window.history && typeof history.replaceState === 'function') {
-            history.replaceState(null, '', `#${targetTab}`);
-        } else {
-            window.location.hash = targetTab;
-        }
-    }
-}
-
-tabLinks.forEach(link => {
-    link.setAttribute('role', 'tab');
-    link.setAttribute('aria-controls', `${link.dataset.tab}-tab`);
-    link.addEventListener('click', event => {
-        event.preventDefault();
-        activateTab(link.dataset.tab);
-    });
-});
-
-window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && tabLinks.some(link => link.dataset.tab === hash)) {
-        activateTab(hash, { updateHash: false });
-    }
-});
-
-const initialTab = (() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && tabLinks.some(link => link.dataset.tab === hash)) {
-        return hash;
-    }
-
-    const activeLink = tabLinks.find(link => link.classList.contains('active'));
-    return activeLink ? activeLink.dataset.tab : tabLinks[0]?.dataset.tab;
-})();
-
-if (initialTab) {
-    activateTab(initialTab, { updateHash: false, resetTransient: false });
-}
-
-// Password toggle functionality
-document.querySelectorAll('.toggle-password').forEach(toggle => {
-    toggle.addEventListener('click', function() {
-        const input = this.previousElementSibling;
-        if (input.type === 'password') {
-            input.type = 'text';
-            this.classList.remove('fa-eye');
-            this.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            this.classList.remove('fa-eye-slash');
-            this.classList.add('fa-eye');
-        }
-    });
-});
-
-// Social Links Management
-const socialLinksList = document.getElementById('social-links-list');
-const saveButton = document.getElementById('save-social-changes');
-const emptySocialMessage = document.querySelector('.empty-social-message');
-let socialLinksModified = false;
-
-function showSaveButton() {
-    if (saveButton) {
-        saveButton.classList.remove('is-hidden');
-        socialLinksModified = true;
-    }
-}
-
-function hideSaveButtonIfNoChanges() {
-    if (!socialLinksModified && saveButton) {
-        saveButton.classList.add('is-hidden');
-    }
-}
-
-function updateEmptyMessage() {
-    const hasLinks = socialLinksList && socialLinksList.querySelectorAll('.social-link-item').length > 0;
-    if (emptySocialMessage) {
-        emptySocialMessage.classList.toggle('is-hidden', hasLinks);
-    }
-}
-
-// Confirm add new social link
-const confirmAddButton = document.querySelector('[data-action="confirm-add"]');
-if (confirmAddButton) {
-    confirmAddButton.addEventListener('click', function() {
-        const platformSelect = document.getElementById('new-platform');
-        const urlInput = document.getElementById('new-url');
-        
-        if (!platformSelect || !urlInput) return;
-        
-        const platform = platformSelect.value;
-        const platformLabel = platformSelect.options[platformSelect.selectedIndex].text;
-        const url = urlInput.value.trim();
-        
-        if (!url) {
-            alert('Please enter a URL');
-            return;
-        }
-        
-        // Validate URL format
-        try {
-            new URL(url);
-        } catch (e) {
-            alert('Please enter a valid URL (e.g., https://example.com)');
-            return;
-        }
-        
-        // Create new link item
-        const newLinkItem = document.createElement('div');
-        newLinkItem.className = 'social-link-item';
-        newLinkItem.innerHTML = `
-            <div class="social-link-input-group">
-                <select name="platform[]" class="social-platform-select">
-                    ${Array.from(platformSelect.options).map(opt => 
-                        `<option value="${opt.value}" ${opt.value === platform ? 'selected' : ''}>${opt.text}</option>`
-                    ).join('')}
-                </select>
-                <input type="url" name="url[]" value="${url}" placeholder="Profile link/url..." class="social-link-input">
-                <input type="hidden" name="link_id[]" value="">
-                <button type="button" class="btn-icon-action btn-delete-link" data-action="delete-link" title="Delete">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-        
-        // Add to list
-        if (socialLinksList) {
-            socialLinksList.appendChild(newLinkItem);
-        }
-        
-        // Clear form and hide it
-        platformSelect.selectedIndex = 0;
-        urlInput.value = '';
-        hideAddSocialLinkForm();
-        
-        // Show save button and update empty message
-        showSaveButton();
-        updateEmptyMessage();
-        
-        // Bind delete handler to new item
-        const deleteBtn = newLinkItem.querySelector('[data-action="delete-link"]');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', handleDeleteLink);
-        }
-    });
-}
-
-// Delete link handler
-function handleDeleteLink(e) {
-    if (!confirm('Remove this social link? (Changes will apply after clicking Save Changes)')) {
-        return;
-    }
-    
-    const linkItem = e.currentTarget.closest('.social-link-item');
-    if (linkItem) {
-        linkItem.remove();
-        showSaveButton();
-        updateEmptyMessage();
-    }
-}
-
-// Bind delete handlers to existing links
-document.querySelectorAll('[data-action="delete-link"]').forEach(btn => {
-    btn.addEventListener('click', handleDeleteLink);
-});
-
-// Detect changes in existing links
-if (socialLinksList) {
-    socialLinksList.addEventListener('input', function(e) {
-        if (e.target.matches('.social-platform-select, .social-link-input')) {
-            showSaveButton();
-        }
-    });
-}
-
-// Resume menu toggle
-function toggleResumeMenu(button) {
-    const menu = button.nextElementSibling;
-    const allMenus = document.querySelectorAll('.action-menu');
-    
-    // Close all other menus
-    allMenus.forEach(m => {
-        if (m !== menu) {
-            m.classList.remove('active');
-        }
-    });
-    
-    // Toggle current menu
-    menu.classList.toggle('active');
-}
-
-// Close menus when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.resume-card')) {
-        document.querySelectorAll('.action-menu').forEach(menu => {
-            menu.classList.remove('active');
-        });
-    }
-});
-
-// Delete resume confirmation
-function confirmDeleteResume() {
-    if (confirm('Are you sure you want to delete this resume? This action cannot be undone.')) {
-        // Add delete logic here - you may need to submit a form or make an AJAX request
-        alert('Delete functionality will be implemented');
-    }
-}
-
-// Modal functions
-function openResumeModal() {
-    document.getElementById('resumeModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeResumeModal() {
-    document.getElementById('resumeModal').classList.remove('active');
-    document.body.style.overflow = '';
-    document.getElementById('resumeForm').reset();
-    resetUploadArea();
-}
-
-function resetUploadArea() {
-    const uploadArea = document.getElementById('uploadArea');
-    const fileAttached = document.getElementById('fileAttached');
-    const uploadPrompt = uploadArea.querySelector('.upload-prompt');
-    
-    uploadArea.classList.remove('has-file');
-    if (fileAttached) fileAttached.style.display = 'none';
-    if (uploadPrompt) uploadPrompt.style.display = 'flex';
-}
-
-function removeFile(e) {
-    e.stopPropagation();
-    const resumeInput = document.getElementById('id_resume');
-    if (resumeInput) {
-        resumeInput.value = '';
-    }
-    resetUploadArea();
-}
-
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-}
-
-// File input change handler
-const resumeInput = document.getElementById('id_resume');
-if (resumeInput) {
-    resumeInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const uploadArea = document.getElementById('uploadArea');
-        const fileAttached = document.getElementById('fileAttached');
-        const uploadPrompt = uploadArea.querySelector('.upload-prompt');
-        const fileNameEl = document.getElementById('attachedFileName');
-        const fileSizeEl = document.getElementById('attachedFileSize');
-        
-        if (file) {
-            // Update file details
-            fileNameEl.textContent = file.name;
-            fileSizeEl.textContent = formatFileSize(file.size);
-            
-            // Show file attached, hide upload prompt
-            uploadArea.classList.add('has-file');
-            if (uploadPrompt) uploadPrompt.style.display = 'none';
-            if (fileAttached) fileAttached.style.display = 'flex';
-        } else {
-            resetUploadArea();
-        }
-    });
-}
-
-// Close modal on escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeResumeModal();
-    }
-});
-
-// Dynamic Form Validation
-document.addEventListener('DOMContentLoaded', function() {
-    // Real-time validation for text inputs
-    const textInputs = document.querySelectorAll('input[type="text"], input[type="url"], input[type="email"]');
-    textInputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
-        });
-        
-        input.addEventListener('input', function() {
-            // Remove error styling while typing
-            if (this.classList.contains('error')) {
-                this.classList.remove('error');
-                const errorDiv = this.parentElement.querySelector('.error-text');
-                if (errorDiv && !errorDiv.textContent.trim()) {
-                    errorDiv.style.display = 'none';
-                }
-            }
-        });
-    });
-    
-    // Validate date of birth
-    const dobInput = document.querySelector('input[type="date"]');
-    if (dobInput) {
-        dobInput.addEventListener('change', function() {
-            validateDateOfBirth(this);
-        });
-    }
-    
-    // Validate file uploads
-    const imageInput = document.getElementById('{{ personal_info_form.profile_image.id_for_label }}');
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            validateImageFile(this);
-        });
-    }
-    
-    const resumeInputs = document.querySelectorAll('input[name="resume"]');
-    resumeInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            validateResumeFile(this);
-        });
-    });
-    
-    // Form submission validation
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const invalidFields = [];
-            const formInputs = this.querySelectorAll('input[required], select[required], textarea[required]');
-            
-            formInputs.forEach(field => {
-                if (!validateField(field)) {
-                    invalidFields.push(field);
-                }
-            });
-            
-            if (invalidFields.length > 0) {
-                e.preventDefault();
-                invalidFields[0].focus();
-                showNotification('Please correct the errors in the form', 'error');
-            }
-        });
-    });
-});
-
-function validateField(field) {
-    const value = field.value.trim();
-    const fieldName = field.name;
-    let isValid = true;
-    let errorMessage = '';
-    
-    // Required field check
-    if (field.hasAttribute('required') && !value) {
-        isValid = false;
-        errorMessage = 'This field is required';
-    }
-    
-    // Name validation
-    if (isValid && (fieldName.includes('name') && !fieldName.includes('resume'))) {
-        if (value.length > 0 && value.length < 2) {
-            isValid = false;
-            errorMessage = 'Must be at least 2 characters';
-        }
-    }
-    
-    // Email validation
-    if (isValid && field.type === 'email' && value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            isValid = false;
-            errorMessage = 'Please enter a valid email address';
-        }
-    }
-    
-    // URL validation
-    if (isValid && field.type === 'url' && value) {
-        try {
-            new URL(value);
-        } catch {
-            isValid = false;
-            errorMessage = 'Please enter a valid URL';
-        }
-    }
-    
-    // Contact number validation
-    if (isValid && fieldName === 'contact_number' && value) {
-        const digits = value.replace(/\D/g, '');
-        if (digits.length < 10) {
-            isValid = false;
-            errorMessage = 'Contact number must be at least 10 digits';
-        } else if (digits.length > 15) {
-            isValid = false;
-            errorMessage = 'Contact number cannot exceed 15 digits';
-        }
-    }
-    
-    // Update field styling
-    if (!isValid) {
-        field.classList.add('error');
-        showFieldError(field, errorMessage);
-    } else {
-        field.classList.remove('error');
-        hideFieldError(field);
-    }
-    
-    return isValid;
-}
-
-function validateDateOfBirth(field) {
-    const value = field.value;
-    if (!value) return true;
-    
-    const dob = new Date(value);
-    const today = new Date();
-    const age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    const dayDiff = today.getDate() - dob.getDate();
-    
-    let isValid = true;
-    let errorMessage = '';
-    
-    if (age < 16 || (age === 16 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))) {
-        isValid = false;
-        errorMessage = 'You must be at least 16 years old';
-    } else if (age > 100) {
-        isValid = false;
-        errorMessage = 'Please enter a valid date of birth';
-    }
-    
-    if (!isValid) {
-        field.classList.add('error');
-        showFieldError(field, errorMessage);
-    } else {
-        field.classList.remove('error');
-        hideFieldError(field);
-    }
-    
-    return isValid;
-}
-
-function validateImageFile(input) {
-    const file = input.files[0];
-    if (!file) return true;
-    
-    let isValid = true;
-    let errorMessage = '';
-    
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        isValid = false;
-        errorMessage = 'Image must be less than 5MB';
-    }
-    
-    // Check file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (isValid && !validTypes.includes(file.type)) {
-        isValid = false;
-        errorMessage = 'Only JPG, PNG, and GIF images are allowed';
-    }
-    
-    if (!isValid) {
-        input.value = '';
-        showNotification(errorMessage, 'error');
-    }
-    
-    return isValid;
-}
-
-function validateResumeFile(input) {
-    const file = input.files[0];
-    if (!file) return true;
-    
-    let isValid = true;
-    let errorMessage = '';
-    
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        isValid = false;
-        errorMessage = 'Resume must be less than 5MB';
-    }
-    
-    // Check file type
-    const validTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
-    if (isValid && !validTypes.includes(file.type)) {
-        isValid = false;
-        errorMessage = 'Only PDF, DOC, and DOCX files are allowed';
-    }
-    
-    if (!isValid) {
-        input.value = '';
-        showNotification(errorMessage, 'error');
-    }
-    
-    return isValid;
-}
-
-function showFieldError(field, message) {
-    let errorDiv = field.parentElement.querySelector('.error-text');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.className = 'error-text';
-        field.parentElement.appendChild(errorDiv);
-    }
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-}
-
-function hideFieldError(field) {
-    const errorDiv = field.parentElement.querySelector('.error-text');
-    if (errorDiv && !errorDiv.textContent.includes('{{')) {
-        errorDiv.style.display = 'none';
-    }
-}
-
-function showNotification(message, type = 'info') {
-    // Create notification element if it doesn't exist
-    let notification = document.querySelector('.notification-toast');
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.className = 'notification-toast';
-        document.body.appendChild(notification);
-    }
-    
-    notification.textContent = message;
-    notification.className = 'notification-toast ' + type;
-    notification.style.display = 'block';
-    
-    setTimeout(() => {
-        notification.style.display = 'none';
-    }, 3000);
-}
-</script>
 
 <!-- Load applicant settings UI-only script (validation is server-side) -->
 <script src="{% static 'js/dashboard/applicant/applicant_settings.js' %}"></script>
