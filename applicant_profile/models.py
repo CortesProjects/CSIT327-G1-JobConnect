@@ -168,6 +168,24 @@ class ApplicantProfile(models.Model):
             except Exception:
                 return self.education_level
         return ''
+
+    @property
+    def is_complete(self):
+        """Basic heuristic to determine if the applicant profile is complete."""
+        required = [self.first_name, self.last_name]
+        # treat presence of either profile image or resume or contact number as further completeness
+        additional = any([bool(self.profile_image), bool(self.resume), bool(self.contact_number)])
+        return all(required) and additional
+
+    @property
+    def profile_image_url(self):
+        """Return profile image URL or a default placeholder path."""
+        try:
+            if self.profile_image and hasattr(self.profile_image, 'url'):
+                return self.profile_image.url
+        except Exception:
+            pass
+        return '/media/defaults/default-avatar.png'
     
     def __str__(self):
         return f"{self.full_name or 'Unnamed'} ({self.user.email})"
