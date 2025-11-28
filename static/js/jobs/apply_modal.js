@@ -38,82 +38,16 @@
         }
 
         function handleSubmit(e) {
-            e.preventDefault();
+            // Allow the form to submit normally so Django handles the POST.
+            // We do minimal UI changes: disable the submit button to prevent double submits.
             if (!form) return;
-            const jobId = form.dataset.jobId;
-            const resumeId = resumeSelect ? resumeSelect.value : '';
-            const cover = coverLetter ? coverLetter.value.trim() : '';
 
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Applying...';
             }
 
-            const url = `/jobs/${jobId}/apply/`;
-            const csrftoken = getCookie('csrftoken');
-
-            // Use FormData to send POST data (Django expects form-encoded data)
-            const formData = new FormData();
-            formData.append('resume_id', resumeId);
-            formData.append('cover_letter', cover);
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken || '',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(async response => {
-                const contentType = (response.headers.get('content-type') || '').toLowerCase();
-                
-                if (!response.ok) {
-                    let errMsg = 'Failed to apply for job.';
-                    
-                    if (contentType.includes('application/json')) {
-                        const data = await response.json();
-                        errMsg = data.error || data.message || errMsg;
-                    }
-                    
-                    throw new Error(errMsg);
-                }
-                
-                if (contentType.includes('application/json')) {
-                    return response.json();
-                }
-                
-                throw new Error('Unexpected response from server.');
-            })
-            .then(data => {
-                if (data && data.success) {
-                    if (openBtn) {
-                        openBtn.classList.add('applied');
-                        openBtn.innerHTML = '<i class="fas fa-check"></i> Applied';
-                        openBtn.setAttribute('disabled', 'disabled');
-                    }
-                    closeModal();
-                    alert(data.message || 'Application submitted successfully!');
-                    
-                    // Reload page to update "has_applied" state
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    const err = (data && data.error) ? data.error : 'Failed to apply for job.';
-                    alert(err);
-                }
-            })
-            .catch(err => {
-                console.error('Apply error', err);
-                alert(err.message || 'An error occurred while sending your application.');
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Apply Now <i class="fas fa-arrow-right"></i>';
-                }
-            });
+            // Do not call e.preventDefault(); let the browser submit the form.
         }
 
         if (openBtn) {
