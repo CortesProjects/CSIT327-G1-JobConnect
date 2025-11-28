@@ -211,6 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalTitle.textContent = 'Edit Column';
                 confirmStageAction.textContent = 'Save Changes';
                 stageNameInput.value = currentName;
+                // populate hidden stage id input for form submission
+                const stageIdInput = document.getElementById('stageIdInput');
+                if (stageIdInput) stageIdInput.value = column.getAttribute('data-stage-id') || '';
                 stageModal.classList.add('show');
                 stageNameInput.focus();
                 stageNameInput.select();
@@ -291,6 +294,10 @@ document.addEventListener('DOMContentLoaded', function() {
             modalTitle.textContent = 'Add New Column';
             confirmStageAction.textContent = 'Add Column';
             stageNameInput.value = '';
+            const stageIdInput = document.getElementById('stageIdInput');
+            const formTypeInput = document.getElementById('formTypeInput');
+            if (stageIdInput) stageIdInput.value = '';
+            if (formTypeInput) formTypeInput.value = 'add_stage';
             stageModal.classList.add('show');
             stageNameInput.focus();
         });
@@ -355,9 +362,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', function() {
             if (deletingColumn) {
-                deletingColumn.remove();
-                // TODO: Add AJAX call to delete column from backend
-                closeDeleteModal();
+                // Submit the stageForm to delete the column on the server (no AJAX)
+                const stageForm = document.getElementById('stageForm');
+                const formTypeInput = document.getElementById('formTypeInput');
+                const stageIdInput = document.getElementById('stageIdInput');
+
+                formTypeInput.value = 'delete_stage';
+                // stage id stored in data-stage-id attribute on the column
+                const sid = deletingColumn.getAttribute('data-stage-id') || deletingColumn.dataset.columnId || '';
+                stageIdInput.value = sid;
+                stageForm.submit();
             }
         });
     }
@@ -390,96 +404,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const columnName = stageNameInput.value.trim();
             if (!columnName) return;
 
+            const stageForm = document.getElementById('stageForm');
+            const formTypeInput = document.getElementById('formTypeInput');
+            const stageIdInput = document.getElementById('stageIdInput');
+
             if (modalMode === 'edit' && editingColumn) {
-                // Edit existing column
-                const columnTitle = editingColumn.querySelector('.column-title');
-                columnTitle.textContent = columnName;
-                closeModal();
+                // Prepare form for edit
+                formTypeInput.value = 'edit_stage';
+                // editingColumn should have a data-stage-id attribute when rendered from server
+                const existingId = editingColumn.getAttribute('data-stage-id') || stageIdInput.value;
+                stageIdInput.value = existingId || '';
+                stageForm.submit();
             } else {
-                // Create new column using exact template structure
-                const newColumn = document.createElement('div');
-                newColumn.className = 'applications-column';
-                newColumn.innerHTML = `
-                    <div class="column-header">
-                        <div class="column-title-group">
-                            <h2 class="column-title">${columnName}</h2>
-                            <span class="count-badge">0</span>
-                        </div>
-                        <button class="btn-column-menu">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
-                        <div class="column-menu-dropdown">
-                            <button class="menu-item" data-action="edit">
-                                <i class="fas fa-edit"></i>
-                                <span>Edit Column</span>
-                            </button>
-                            <button class="menu-item delete" data-action="delete">
-                                <i class="fas fa-trash"></i>
-                                <span>Delete</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="applications-list">
-                        <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>No applications in this stage</p>
-                        </div>
-                    </div>
-                `;
-                
-                // Insert before create column button
-                const createColumnContainer = document.querySelector('.create-column');
-                createColumnContainer.parentElement.insertBefore(newColumn, createColumnContainer);
-                
-                // Close modal
-                closeModal();
-                
-                // Attach event listeners to the new column's menu button
-                const menuBtn = newColumn.querySelector('.btn-column-menu');
-                const dropdown = newColumn.querySelector('.column-menu-dropdown');
-                
-                if (menuBtn && dropdown) {
-                    menuBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        
-                        // Close other dropdowns
-                        document.querySelectorAll('.column-menu-dropdown').forEach(menu => {
-                            if (menu !== dropdown) {
-                                menu.classList.remove('show');
-                            }
-                        });
-                        
-                        dropdown.classList.toggle('show');
-                    });
-                    
-                    // Attach menu item actions
-                    const menuItems = newColumn.querySelectorAll('.menu-item');
-                    menuItems.forEach(item => {
-                        item.addEventListener('click', function() {
-                            const action = this.getAttribute('data-action');
-                            
-                            if (action === 'edit') {
-                                // Open modal for editing
-                                const columnTitle = newColumn.querySelector('.column-title');
-                                const currentName = columnTitle.textContent;
-                                
-                                modalMode = 'edit';
-                                editingColumn = newColumn;
-                                modalTitle.textContent = 'Edit Column';
-                                confirmStageAction.textContent = 'Save Changes';
-                                stageNameInput.value = currentName;
-                                stageModal.classList.add('show');
-                                stageNameInput.focus();
-                                stageNameInput.select();
-                            } else if (action === 'delete') {
-                                // Open delete confirmation modal
-                                openDeleteModal(newColumn);
-                            }
-                            
-                            dropdown.classList.remove('show');
-                        });
-                    });
-                }
+                // Prepare form for add
+                formTypeInput.value = 'add_stage';
+                stageIdInput.value = '';
+                stageForm.submit();
             }
         });
     }
@@ -512,18 +452,125 @@ function initializeDragAndDrop() {
             e.preventDefault();
             const draggingCard = document.querySelector('.dragging');
             if (draggingCard) {
+                const sourceColumn = draggingCard.closest('.applications-list');
+
+                // Append to target column
                 this.appendChild(draggingCard);
-                
-                // Update count
+
+                // Remove empty-state in target if present
+                removeEmptyState(this);
+
+                // Update counts for target and source
                 updateColumnCount(this.closest('.applications-column'));
+                if (sourceColumn && sourceColumn !== this) {
+                    // If source column is now empty, add empty-state
+                    ensureEmptyState(sourceColumn);
+                    updateColumnCount(sourceColumn.closest('.applications-column'));
+                }
+            }
+        });
+        
+        // On drop, persist the move to server
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const draggingCard = document.querySelector('.dragging');
+            if (draggingCard) {
+                persistApplicationMove(draggingCard, this);
             }
         });
     });
+
+    // Ensure empty-state elements exist or are removed appropriately on initial load
+    document.querySelectorAll('.applications-list').forEach(list => ensureEmptyState(list));
+}
+
+// Persist application move to server (non-AJAX POST via hidden form)
+function persistApplicationMove(card, targetColumn) {
+    const applicationId = card.dataset.applicationId || card.getAttribute('data-application-id');
+    const stageId = targetColumn.dataset.stageId || targetColumn.getAttribute('data-stage-id');
+    
+    if (!applicationId) {
+        console.warn('No application ID found on card');
+        return;
+    }
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    // Create and submit a hidden form (non-AJAX, Django POST)
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/dashboard/employer/move-application/${applicationId}/`;
+    form.style.display = 'none';
+    
+    // CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrftoken;
+    form.appendChild(csrfInput);
+    
+    // Stage ID (use "all" or empty for All Applications column)
+    const stageInput = document.createElement('input');
+    stageInput.type = 'hidden';
+    stageInput.name = 'stage_id';
+    stageInput.value = (stageId === 'all' || !stageId) ? '' : stageId;
+    form.appendChild(stageInput);
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 
 // Update column count
 function updateColumnCount(column) {
-    const countElement = column.querySelector('.count');
+    if (!column) return;
+    // The template uses `.count-badge` for column counts.
+    const countElement = column.querySelector('.count-badge');
     const cardsCount = column.querySelectorAll('.application-card').length;
-    countElement.textContent = `(${cardsCount})`;
+    if (countElement) {
+        try {
+            // Update to show the numeric count (matching template style)
+            countElement.textContent = cardsCount;
+        } catch (err) {
+            console.warn('Failed to update column count element', err);
+        }
+    }
+}
+
+// Remove an empty-state element from a column list if present
+function removeEmptyState(listEl) {
+    if (!listEl) return;
+    const empty = listEl.querySelector('.empty-state');
+    if (empty) empty.remove();
+}
+
+// Ensure empty-state exists when a column list has no cards
+function ensureEmptyState(listEl) {
+    if (!listEl) return;
+    const hasCards = listEl.querySelector('.application-card');
+    const existingEmpty = listEl.querySelector('.empty-state');
+    if (!hasCards && !existingEmpty) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = `<i class="fas fa-inbox"></i><p>No applications in this stage</p>`;
+        listEl.appendChild(empty);
+    }
+    if (hasCards && existingEmpty) {
+        existingEmpty.remove();
+    }
 }
