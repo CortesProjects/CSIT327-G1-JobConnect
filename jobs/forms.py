@@ -236,3 +236,96 @@ class JobSearchForm(forms.Form):
         self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
         self.fields['experience'].queryset = ExperienceLevel.objects.filter(is_active=True)
         self.fields['job_level'].queryset = JobLevel.objects.filter(is_active=True)
+
+
+class JobApplicationForm(forms.Form):
+    """Form for applying to a job with resume and cover letter."""
+    
+    job_id = forms.IntegerField(
+        widget=forms.HiddenInput(),
+        required=True
+    )
+    
+    resume_id = forms.IntegerField(
+        required=False,
+        error_messages={
+            'invalid': 'Please select a valid resume.'
+        }
+    )
+    
+    cover_letter = forms.CharField(
+        required=False,
+        max_length=5000,
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Write your cover letter here...',
+            'rows': 10
+        }),
+        error_messages={
+            'max_length': 'Cover letter cannot exceed 5000 characters.'
+        }
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+    
+    def clean_job_id(self):
+        """Validate job exists and is active."""
+        job_id = self.cleaned_data.get('job_id')
+        
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            raise ValidationError('Job not found.')
+        
+        if job.status != 'active':
+            raise ValidationError('This job is no longer accepting applications.')
+        
+        # Check if job has expired
+        if job.expiration_date and job.expiration_date < date.today():
+            raise ValidationError('This job posting has expired.')
+        
+        self.cleaned_data['job'] = job
+        return job_id
+    
+    def clean_resume_id(self):
+        """Validate resume exists and belongs to the applicant."""
+        resume_id = self.cleaned_data.get('resume_id')
+        
+        if not resume_id:
+            # Check if applicant has a resume in their profile
+            if self.user and hasattr(self.user, 'applicant_profile_rel'):
+                profile = self.user.applicant_profile_rel
+                if not profile.resume:
+                    raise ValidationError('Please upload a resume to your profile before applying.')
+                # Use profile resume
+                self.cleaned_data['resume_file'] = profile.resume
+                return None
+            else:
+                raise ValidationError('Resume is required to apply for this job.')
+        
+        # If resume_id provided, validate it exists and belongs to user
+        # For now, we'll use the profile resume field
+        # In future, if you have a separate Resume model, validate here
+        
+        return resume_id
+    
+    def clean(self):
+        """Additional validation."""
+        cleaned_data = super().clean()
+        
+        # Ensure user is authenticated and is an applicant
+        if not self.user or not self.user.is_authenticated:
+            raise ValidationError('You must be logged in to apply.')
+        
+        if not hasattr(self.user, 'user_type') or self.user.user_type != 'applicant':
+            raise ValidationError('Only applicants can apply for jobs.')
+        
+        # Check for duplicate application
+        from .models import JobApplication
+        job = cleaned_data.get('job')
+        if job:
+            if JobApplication.objects.filter(applicant=self.user, job=job).exists():
+                raise ValidationError('You have already applied for this job.')
+        
+        return cleaned_data

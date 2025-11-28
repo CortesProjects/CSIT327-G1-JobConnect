@@ -117,17 +117,50 @@
 }
 
 /* Status Styles */
-.status-active {
+.status {
     display: inline-flex;
     align-items: center;
-    color: #28a745;
+    padding: 6px 12px;
+    border-radius: 20px;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
-.status-active i {
-    margin-right: 6px;
-    font-size: 16px;
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.reviewed {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.status.interview {
+    background-color: #e7f1ff;
+    color: #0c63e4;
+}
+
+.status.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status.hired {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.count-badge {
+    display: inline-block;
+    background: var(--primary-color, #dc3545);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: 10px;
 }
 
 /* Action Button */

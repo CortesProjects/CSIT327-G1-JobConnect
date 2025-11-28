@@ -212,9 +212,10 @@
         <button class="apply-modal-close" data-close aria-label="Close">&times;</button>
         <div class="apply-modal-body">
             <h3 id="applyModalTitle">Apply Job: {{ job.title }}</h3>
-            <form id="applyForm" class="apply-form">
+            <form id="applyForm" class="apply-form" method="post" action="{% url 'jobs:apply_job' job.id %}">
+                {% csrf_token %}
                 <label class="field-label">Choose Resume</label>
-                <select id="resumeSelect" class="field-select">
+                <select id="resumeSelect" name="resume_id" class="field-select">
                     <option value="">Select...</option>
                     {% if resumes %}
                         {% for r in resumes %}
@@ -224,7 +225,7 @@
                 </select>
 
                 <label class="field-label">Cover Letter</label>
-                <textarea id="coverLetter" class="field-textarea" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
+                <textarea id="coverLetter" name="cover_letter" class="field-textarea" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
 
                 <div class="apply-modal-actions">
                     <button type="button" class="btn btn-cancel" data-close>Cancel</button>

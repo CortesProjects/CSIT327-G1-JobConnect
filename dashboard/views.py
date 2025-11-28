@@ -153,7 +153,30 @@ def applicant_search_jobs(request):
 
 @login_required
 def applicant_applied_jobs(request):
-    context = {}
+    from jobs.models import JobApplication
+    
+    if request.user.user_type != 'applicant':
+        messages.error(request, 'Only applicants can view applied jobs.')
+        return redirect('dashboard')
+    
+    # Get all job applications for the current applicant
+    applied_jobs = JobApplication.objects.filter(
+        applicant=request.user
+    ).select_related(
+        'job',
+        'job__employer',
+        'job__employer__employer_profile_rel',
+        'job__category',
+        'job__job_type',
+        'job__education',
+        'job__experience',
+        'job__job_level'
+    ).order_by('-application_date')
+    
+    context = {
+        'applied_jobs': applied_jobs,
+        'application_count': applied_jobs.count()
+    }
     return render(request, 'dashboard/applicant/applicant_applied_jobs.html', context)
 
 @login_required

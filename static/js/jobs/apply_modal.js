@@ -38,59 +38,16 @@
         }
 
         function handleSubmit(e) {
-            e.preventDefault();
+            // Allow the form to submit normally so Django handles the POST.
+            // We do minimal UI changes: disable the submit button to prevent double submits.
             if (!form) return;
-            const jobId = form.dataset.jobId;
-            const resumeId = resumeSelect ? resumeSelect.value : '';
-            const cover = coverLetter ? coverLetter.value.trim() : '';
-
-            if (!resumeId) {
-                alert('Please select a resume before applying.');
-                if (resumeSelect) resumeSelect.focus();
-                return;
-            }
 
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Applying...';
             }
 
-            const url = `/jobs/${jobId}/apply/`;
-            const csrftoken = getCookie('csrftoken');
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken || ''
-                },
-                body: JSON.stringify({ resume_id: resumeId, cover_letter: cover })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.success) {
-                    if (openBtn) {
-                        openBtn.classList.add('applied');
-                        openBtn.innerHTML = '<i class="fas fa-check"></i> Applied';
-                        openBtn.setAttribute('disabled', 'disabled');
-                    }
-                    closeModal();
-                    alert('Application submitted successfully.');
-                } else {
-                    const err = (data && data.error) ? data.error : 'Failed to apply for job.';
-                    alert(err);
-                }
-            })
-            .catch(err => {
-                console.error('Apply error', err);
-                alert('An error occurred while sending your application.');
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Apply Now \u2192';
-                }
-            });
+            // Do not call e.preventDefault(); let the browser submit the form.
         }
 
         if (openBtn) {

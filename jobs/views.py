@@ -244,7 +244,7 @@ def job_detail(request, job_id):
     
     # Map source to breadcrumb label and URL
     breadcrumb_map = {
-        'applied': ('My Applications', 'dashboard:applicant_applications'),
+        'applied': ('My Applications', 'dashboard:applicant_applied_jobs'),
         'favorites': ('Favorite Jobs', 'dashboard:applicant_favorite_jobs'),
         'search': ('Search Jobs', 'dashboard:applicant_search_jobs'),
         'alert': ('Job Alerts', 'dashboard:applicant_dashboard'),
@@ -258,6 +258,8 @@ def job_detail(request, job_id):
     # Check if user has favorited this job
     is_favorited = False
     has_applied = False
+    resumes = []
+    
     if request.user.is_authenticated and request.user.user_type == 'applicant':
         is_favorited = FavoriteJob.objects.filter(
             applicant=request.user,
@@ -270,6 +272,17 @@ def job_detail(request, job_id):
             applicant=request.user,
             job=job
         ).exists()
+        
+        # Get applicant's resumes for the apply modal
+        # Currently using the single resume field from ApplicantProfile
+        if hasattr(request.user, 'applicant_profile_rel'):
+            profile = request.user.applicant_profile_rel
+            if profile.resume:
+                # Create a simple object to pass to template
+                resumes = [{
+                    'id': 1,  # Dummy ID since we only have one resume field
+                    'name': profile.resume.name.split('/')[-1] if profile.resume.name else 'My Resume'
+                }]
     
     # Determine which base template to use
     if request.user.is_authenticated and request.user.user_type == 'employer':
@@ -281,9 +294,74 @@ def job_detail(request, job_id):
         'job': job,
         'is_favorited': is_favorited,
         'has_applied': has_applied,
+        'resumes': resumes,
         'breadcrumb_label': breadcrumb_label,
         'breadcrumb_url': breadcrumb_url,
         'base_template': base_template,
     }
     
     return render(request, 'jobs/job_detail.html', context)
+
+
+@login_required
+@require_POST
+def apply_job(request, job_id):
+    """Handle job application submission with Django validation."""
+    from .forms import JobApplicationForm
+    from .models import JobApplication
+    from django.contrib import messages
+    
+    # Create form with POST data and current user
+    form_data = request.POST.copy()
+    form_data['job_id'] = job_id
+    form = JobApplicationForm(data=form_data, user=request.user)
+    
+    if not form.is_valid():
+        # Get first error message
+        error_message = 'Invalid application.'
+        errors = form.errors
+        
+        if '__all__' in errors:
+            error_message = errors['__all__'][0]
+        elif 'job_id' in errors:
+            error_message = errors['job_id'][0]
+        elif 'resume_id' in errors:
+            error_message = errors['resume_id'][0]
+        elif 'cover_letter' in errors:
+            error_message = errors['cover_letter'][0]
+        else:
+            # Get first field error
+            for field, field_errors in errors.items():
+                if field_errors:
+                    error_message = field_errors[0]
+                    break
+        
+        return JsonResponse({
+            'success': False,
+            'error': error_message
+        }, status=400)
+    
+    # Get validated data
+    job = form.cleaned_data['job']
+    cover_letter = form.cleaned_data.get('cover_letter', '')
+    
+    try:
+        # Create job application
+        application = JobApplication.objects.create(
+            applicant=request.user,
+            job=job,
+            applicant_notes=cover_letter,
+            status='pending'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully applied for {job.title}!',
+            'application_id': application.id
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Failed to submit application: {str(e)}'
+        }, status=500)

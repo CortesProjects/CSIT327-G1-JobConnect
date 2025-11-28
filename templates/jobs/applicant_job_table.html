@@ -42,14 +42,20 @@
             </div>
 
             <div class="col col-date-applied">
-                {{ application.applied_at|date:"M d, Y H:i" }}
+                {{ application.application_date|date:"M d, Y" }}
             </div>
 
             <div class="col col-status">
-                {% if application.status == 'active' %}
-                    <span class="status active">✓ Active</span>
+                {% if application.status == 'pending' %}
+                    <span class="status pending">● Pending</span>
+                {% elif application.status == 'reviewed' %}
+                    <span class="status reviewed">👁 Reviewed</span>
+                {% elif application.status == 'interview' %}
+                    <span class="status interview">📞 Interview</span>
                 {% elif application.status == 'rejected' %}
                     <span class="status rejected">✕ Rejected</span>
+                {% elif application.status == 'hired' %}
+                    <span class="status hired">✓ Hired</span>
                 {% else %}
                     <span class="status pending">● {{ application.status|capfirst }}</span>
                 {% endif %}

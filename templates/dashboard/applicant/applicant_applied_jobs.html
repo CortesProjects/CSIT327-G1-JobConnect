@@ -10,8 +10,8 @@
 
 {% block dashboard_content %}
 <div class="main-content-header">
-    <h2>Applied Jobs</h2>
+    <h2>Applied Jobs {% if application_count %}<span class="count-badge">({{ application_count }})</span>{% endif %}</h2>
 </div>
-{% include 'jobs/applicant_job_table.html' with application=application job=application.job %}
+{% include 'jobs/applicant_job_table.html' %}
 {% endblock %}
 
