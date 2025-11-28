@@ -11,39 +11,246 @@
 {% block dashboard_content %}
 <div class="main-content-header">
     <div class="header-left">
-        <h2>Job Alerts {% if alert_jobs %}<span class="new-jobs-count">({{ alert_jobs.count }} new jobs)</span>{% endif %}</h2>
+        <h2>Job Alerts {% if alert_jobs %}<span class="new-jobs-count">({{ page_obj.paginator.count }} new jobs)</span>{% endif %}</h2>
     </div>
-    {% if has_configured_alerts %}
-    <a href="#" class="edit-alerts-btn"><i class="fas fa-pencil-alt"></i> Edit Job Alerts</a>
-    {% endif %}
+    <div class="header-actions">
+        {% if has_configured_alerts %}
+        <button class="manage-alerts-btn" id="manageAlertsBtn">
+            <i class="fas fa-list"></i> Manage Alerts
+        </button>
+        {% endif %}
+        <button class="create-alert-btn" id="createAlertBtn">
+            <i class="fas fa-plus"></i> Create Alert
+        </button>
+    </div>
 </div>
 
+<!-- Configured Alerts Section -->
+{% if has_configured_alerts %}
+<div class="alerts-config-section" id="alertsConfigSection" style="display: none;">
+    <div class="alerts-config-header">
+        <h3><i class="fas fa-bell"></i> Your Job Alerts</h3>
+        <button class="close-alerts-btn" id="closeAlertsBtn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="alerts-list">
+        {% for alert in user_alerts %}
+        <div class="alert-card" data-alert-id="{{ alert.id }}">
+            <div class="alert-card-main">
+                <div class="alert-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="alert-details">
+                    <h4 class="alert-name">{{ alert.alert_name }}</h4>
+                    <div class="alert-criteria">
+                        {% if alert.job_title %}
+                        <span class="criteria-tag"><i class="fas fa-briefcase"></i> {{ alert.job_title }}</span>
+                        {% endif %}
+                        {% if alert.location %}
+                        <span class="criteria-tag"><i class="fas fa-map-marker-alt"></i> {{ alert.location }}</span>
+                        {% endif %}
+                        {% if alert.job_type %}
+                        <span class="criteria-tag"><i class="fas fa-clock"></i> {{ alert.job_type.name }}</span>
+                        {% endif %}
+                        {% if alert.job_category %}
+                        <span class="criteria-tag"><i class="fas fa-tag"></i> {{ alert.job_category.name }}</span>
+                        {% endif %}
+                        {% if alert.min_salary or alert.max_salary %}
+                        <span class="criteria-tag"><i class="fas fa-dollar-sign"></i> 
+                            {% if alert.min_salary %}${{ alert.min_salary|floatformat:0 }}{% endif %}
+                            {% if alert.min_salary and alert.max_salary %}-{% endif %}
+                            {% if alert.max_salary %}${{ alert.max_salary|floatformat:0 }}{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="alert-meta">
+                        <span class="alert-status {% if alert.is_active %}active{% else %}inactive{% endif %}">
+                            {% if alert.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                        <span class="alert-date">Created {{ alert.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="alert-card-actions">
+                <form method="post" action="{% url 'dashboard:toggle_job_alert_status' alert.id %}" class="toggle-alert-form d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="alert-action-btn toggle-btn" title="{% if alert.is_active %}Deactivate{% else %}Activate{% endif %}">
+                        <i class="fas fa-{% if alert.is_active %}pause{% else %}play{% endif %}"></i>
+                    </button>
+                </form>
+                <button class="alert-action-btn edit-btn" data-alert-id="{{ alert.id }}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <form method="post" action="{% url 'dashboard:delete_job_alert' alert.id %}" class="delete-alert-form d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="alert-action-btn delete-btn" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Matching Jobs Section -->
 {% if alert_jobs %}
 <div class="job-alerts-list">
-    {% for job in alert_jobs %}
+    {% for job in page_obj %}
         {% include 'jobs/job_card.html' with job=job %}
     {% endfor %}
 </div>
 
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
 <div class="pagination-container">
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
-    <a href="#" class="pagination-number active">01</a>
-    <a href="#" class="pagination-number">02</a>
-    <a href="#" class="pagination-number">03</a>
-    <a href="#" class="pagination-number">04</a>
-    <a href="#" class="pagination-number">05</a>
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="pagination-arrow">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled">
+        <i class="fas fa-arrow-left"></i>
+    </span>
+    {% endif %}
+    
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <a href="?page={{ num }}" class="pagination-number active">{{ num|stringformat:"02d" }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}" class="pagination-number">{{ num|stringformat:"02d" }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="pagination-arrow">
+        <i class="fas fa-arrow-right"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled">
+        <i class="fas fa-arrow-right"></i>
+    </span>
+    {% endif %}
 </div>
+{% endif %}
 {% else %}
 <div class="empty-state">
     <div class="empty-state-icon">
         <i class="fas fa-bell"></i>
     </div>
-    <h3>No Job Alerts</h3>
+    <h3>No Matching Jobs</h3>
+    {% if has_configured_alerts %}
+    <p>No jobs currently match your alert criteria. Try adjusting your preferences or create a new alert!</p>
+    {% else %}
     <p>You don't have any job alerts set up yet. Configure your preferences to start receiving personalized job recommendations!</p>
-    <a href="#" class="empty-state-btn">
-        <i class="fas fa-cog"></i> Set Up Alerts
-    </a>
+    {% endif %}
 </div>
 {% endif %}
+
+<!-- Job Alert Modal -->
+<div class="alert-modal" id="alertModal">
+    <div class="alert-modal-content">
+        <div class="alert-modal-header">
+            <h3 id="modalTitle">Create Job Alert</h3>
+            <button class="modal-close-btn" id="modalCloseBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="alertForm" method="post">
+            {% csrf_token %}
+            <div class="alert-modal-body">
+                <div class="form-group">
+                    <label for="alert_name">Alert Name <span class="required">*</span></label>
+                    <input type="text" id="alert_name" name="alert_name" class="form-control" 
+                           placeholder="e.g., Frontend Developer Jobs" required>
+                    <span class="error-message" id="alert_name_error"></span>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="job_title">Job Title</label>
+                        <input type="text" id="job_title" name="job_title" class="form-control" 
+                               placeholder="e.g., Software Engineer">
+                        <span class="error-message" id="job_title_error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" class="form-control" 
+                               placeholder="e.g., New York, Remote">
+                        <span class="error-message" id="location_error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="job_type">Employment Type</label>
+                        <select id="job_type" name="job_type" class="form-control">
+                            <option value="">Any Employment Type</option>
+                            {% for job_type in job_types %}
+                            <option value="{{ job_type.id }}">{{ job_type.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="error-message" id="job_type_error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="job_category">Job Category</label>
+                        <select id="job_category" name="job_category" class="form-control">
+                            <option value="">Any Category</option>
+                            {% for category in job_categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="error-message" id="job_category_error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="min_salary">Minimum Salary</label>
+                        <input type="number" id="min_salary" name="min_salary" class="form-control" 
+                               placeholder="e.g., 50000" min="0">
+                        <span class="error-message" id="min_salary_error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max_salary">Maximum Salary</label>
+                        <input type="number" id="max_salary" name="max_salary" class="form-control" 
+                               placeholder="e.g., 100000" min="0">
+                        <span class="error-message" id="max_salary_error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="keywords">Keywords</label>
+                    <input type="text" id="keywords" name="keywords" class="form-control" 
+                           placeholder="e.g., Python, React, AWS (comma-separated)">
+                    <span class="error-message" id="keywords_error"></span>
+                </div>
+                
+                <div class="form-group form-check">
+                    <input type="checkbox" id="is_active" name="is_active" class="form-check-input" checked>
+                    <label for="is_active" class="form-check-label">Active (receive notifications)</label>
+                </div>
+                
+                <div class="form-error-message" id="formErrorMessage"></div>
+            </div>
+            
+            <div class="alert-modal-footer">
+                <button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="modalSubmitBtn">
+                    <span class="btn-text">Create Alert</span>
+                    <span class="btn-spinner" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard/applicant/applicant_job_alerts.js' %}"></script>
 {% endblock %}

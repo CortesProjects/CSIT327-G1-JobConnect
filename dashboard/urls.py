@@ -12,6 +12,10 @@ urlpatterns = [
     path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
     path('applicant/favorite-jobs/', views.applicant_favorite_jobs, name='applicant_favorite_jobs'),
     path('applicant/job-alerts/', views.applicant_job_alerts, name='applicant_job_alerts'),
+    path('applicant/job-alerts/create/', views.create_job_alert, name='create_job_alert'),
+    path('applicant/job-alerts/<int:alert_id>/edit/', views.edit_job_alert, name='edit_job_alert'),
+    path('applicant/job-alerts/<int:alert_id>/delete/', views.delete_job_alert, name='delete_job_alert'),
+    path('applicant/job-alerts/<int:alert_id>/toggle/', views.toggle_job_alert_status, name='toggle_job_alert_status'),
     path('applicant/settings/', views.applicant_settings, name='applicant_settings'),
     # Employer URLs
     path('employer/profile/', views.employer_profile, name='employer_profile'),

@@ -543,3 +543,124 @@ class FavoriteJob(models.Model):
     
     def __str__(self):
         return f"{self.applicant.email} - {self.job.title}"
+
+
+class JobAlert(models.Model):
+    """Stores user-defined job alert preferences for personalized job recommendations."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='job_alerts',
+        limit_choices_to={'user_type': 'applicant'}
+    )
+    alert_name = models.CharField(
+        max_length=100,
+        help_text="Name for this alert (e.g., 'Frontend Developer Jobs')"
+    )
+    job_title = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Job title keywords to match"
+    )
+    location = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Preferred job location"
+    )
+    job_type = models.ForeignKey(
+        EmploymentType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='job_alerts',
+        help_text="Preferred employment type"
+    )
+    job_category = models.ForeignKey(
+        JobCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='job_alerts',
+        help_text="Preferred job category"
+    )
+    min_salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Minimum desired salary"
+    )
+    max_salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Maximum desired salary"
+    )
+    keywords = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Additional keywords (comma-separated)"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this alert is currently active"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'is_active']),
+            models.Index(fields=['-created_at']),
+        ]
+        verbose_name = "Job Alert"
+        verbose_name_plural = "Job Alerts"
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.alert_name}"
+    
+    def get_matching_jobs(self):
+        """Returns queryset of active jobs matching this alert's criteria."""
+        from django.db.models import Q
+        
+        # Start with all active jobs
+        jobs = Job.objects.filter(status='active', is_deleted=False)
+        
+        # Filter by job title if specified
+        if self.job_title:
+            jobs = jobs.filter(title__icontains=self.job_title)
+        
+        # Filter by location if specified
+        if self.location:
+            jobs = jobs.filter(location__icontains=self.location)
+        
+        # Filter by job type if specified
+        if self.job_type:
+            jobs = jobs.filter(job_type=self.job_type)
+        
+        # Filter by job category if specified
+        if self.job_category:
+            jobs = jobs.filter(category=self.job_category)
+        
+        # Filter by salary range if specified
+        if self.min_salary:
+            jobs = jobs.filter(
+                Q(min_salary__gte=self.min_salary) | Q(min_salary__isnull=True)
+            )
+        
+        if self.max_salary:
+            jobs = jobs.filter(
+                Q(max_salary__lte=self.max_salary) | Q(max_salary__isnull=True)
+            )
+        
+        # Filter by keywords if specified
+        if self.keywords:
+            keyword_list = [k.strip() for k in self.keywords.split(',') if k.strip()]
+            keyword_query = Q()
+            for keyword in keyword_list:
+                keyword_query |= Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            jobs = jobs.filter(keyword_query)
+        
+        return jobs.distinct().order_by('-posted_date')
