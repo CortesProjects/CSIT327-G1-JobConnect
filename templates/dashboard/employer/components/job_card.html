@@ -48,7 +48,7 @@
     </div>
     
     <div class="job-actions col-actions">
-        <a href="{% url 'dashboard:employer_job_applications' %}" class="btn-view-applications">
+        <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-applications">
             View Applications
             <i class="fas fa-arrow-right"></i>
         </a>

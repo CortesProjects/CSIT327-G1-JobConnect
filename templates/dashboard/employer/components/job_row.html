@@ -40,7 +40,7 @@
     </td>
     <td>
         <div class="action-buttons">
-            <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn-view-applications">
+            <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-applications">
                 View Applications<span><i class="fas fa-arrow-right"></i></span>
             </a>
             <button class="btn-action-menu" data-job-id="{{ job.id }}">

@@ -172,14 +172,14 @@
                         <!-- Actions Column -->
                         <td>
                             <div class="job-actions">
-                                <a href="#" class="btn-action btn-view" data-job-id="{{ job.id }}">
+                                <a href="{% url 'jobs:job_detail' job.id %}" class="btn-action btn-view" data-job-id="{{ job.id }}">
                                     <i class="fas fa-eye"></i> View
                                 </a>
-                                <a href="#" class="btn-action btn-apply" data-job-id="{{ job.id }}">
+                                <a href="{% url 'jobs:job_detail' job.id %}" class="btn-action btn-apply" data-job-id="{{ job.id }}">
                                     <i class="fas fa-paper-plane"></i> Apply
                                 </a>
-                                <button class="btn-bookmark" data-job-id="{{ job.id }}">
-                                    <i class="far fa-heart"></i>
+                                <button class="btn-bookmark favorite-btn {% if job.id in favorited_job_ids %}active{% endif %}" data-job-id="{{ job.id }}">
+                                    <i class="{% if job.id in favorited_job_ids %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
                                 </button>
                             </div>
                         </td>

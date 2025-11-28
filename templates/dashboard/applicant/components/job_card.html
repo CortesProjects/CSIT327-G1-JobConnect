@@ -24,7 +24,7 @@
         {% if job.is_expired %}
             <a href="#" class="action-btn disabled">Deadline Expired</a>
         {% else %}
-            <a href="{% url 'job_detail' job.id %}" class="action-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'jobs:job_detail' job.id %}" class="action-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
         {% endif %}
         {% if user.is_authenticated and user.user_type == 'applicant' %}
             {% if is_favorited or job.id in favorited_job_ids %}
