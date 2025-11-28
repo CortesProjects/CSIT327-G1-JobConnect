@@ -269,42 +269,113 @@
     object-fit: cover;
 }
 
-/* Empty State Placeholder */
-.image-preview:not(.has-image)::before {
-    content: 'No image uploaded';
-    position: absolute;
-    color: #6c757d;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1;
-}
-
-/* Hover Overlay */
-.image-preview::after {
-    content: 'Choose File';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(204, 10, 13, 0.9);
+/* Applicant-style upload placeholders and hover overlays (copied/adapted) */
+.image-preview-setup {
+    border: 2px dashed #dc3545;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 2;
+    background-color: #fff5f5;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.image-preview:hover::after {
+.image-preview-setup.has-image {
+    border-style: solid;
+    border-color: #dc3545;
+    background-color: #ffffff;
+}
+
+.image-preview-setup img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.upload-content-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+}
+
+.upload-content-placeholder i {
+    font-size: 36px;
+    color: #dc3545;
+    margin-bottom: 10px;
+}
+
+.upload-content-placeholder h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 8px 0 4px 0;
+}
+
+.upload-content-placeholder .upload-hint {
+    font-size: 12px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.hover-overlay-setup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    padding: 16px;
+    text-align: center;
+}
+
+.image-preview-setup:hover .hover-overlay-setup {
     opacity: 1;
 }
 
-.image-preview.has-image::after {
-    content: 'Replace Image';
+.hover-overlay-setup i {
+    font-size: 32px;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.hover-overlay-setup p { color: white; margin: 8px 0; font-size: 14px; font-weight: 500; }
+.hover-overlay-setup small { color: rgba(255,255,255,0.85); font-size: 12px; }
+
+/* Size helpers */
+.square-logo-area { width: 220px; height: 220px; }
+.banner-preview-area { width: 100%; height: 160px; }
+
+/* Empty State Placeholder and image hover overlays are handled by
+   the applicant-style classes .image-preview-setup, .upload-content-placeholder,
+   and .hover-overlay-setup (defined above). */
+
+/* Hover Overlay - upload zone (modal) */
+.upload-zone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.12) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.upload-zone:hover::after {
+    opacity: 1;
 }
 
 .upload-actions {
