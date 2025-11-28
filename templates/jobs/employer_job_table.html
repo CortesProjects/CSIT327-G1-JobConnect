@@ -1,0 +1,84 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/jobs/job_table.css' %}">
+
+<div class="job-table">
+    <div class="jt-header">
+        <div class="col col-job">JOBS</div>
+        <div class="col col-status">STATUS</div>
+        <div class="col col-applications">APPLICATIONS</div>
+        <div class="col col-action">ACTIONS</div>
+    </div>
+
+    <div class="jt-body">
+        {% for job in jobs %}
+        <div class="jt-row">
+            <div class="col col-job">
+                <div class="job-left">
+                    <div class="job-meta">
+                        <div class="title-row">
+                            <h4 class="job-title">{{ job.title }}</h4>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-item">{{ job.job_type.name|default:"Full Time" }}</span>
+                            <span class="meta-item">•</span>
+                            <span class="meta-item">{% if job.expiration_date %}{{ job.expiration_date|timeuntil }} remaining{% else %}No deadline{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-status">
+                {% if job.status == 'active' %}
+                    <span class="status active">✓ Active</span>
+                {% elif job.status == 'expired' %}
+                    <span class="status expired">✕ Expired</span>
+                {% else %}
+                    <span class="status pending">● {{ job.status|capfirst }}</span>
+                {% endif %}
+            </div>
+
+            <div class="col col-applications">
+                <i class="fas fa-users"></i>
+                <span class="applications-number">{{ job.applications_count|default:0 }}</span>
+                <span class="applications-text">Applications</span>
+            </div>
+
+            <div class="col col-action">
+                <div class="action-buttons">
+                    <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn btn-primary">View Applications</a>
+                    <button class="btn-action-menu" data-job-id="{{ job.id }}">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="action-dropdown">
+                        <button class="action-view-detail" data-job-id="{{ job.id }}">
+                            <i class="fas fa-eye"></i> View Detail
+                        </button>
+                        <button class="action-edit" data-job-id="{{ job.id }}">
+                            <i class="fas fa-edit"></i> Edit Job
+                        </button>
+                        {% if job.status == 'active' %}
+                            <button class="action-mark-expired" data-job-id="{{ job.id }}">
+                                <i class="fas fa-times-circle"></i> Mark as Expired
+                            </button>
+                        {% endif %}
+                        <button class="action-delete" data-job-id="{{ job.id }}">
+                            <i class="fas fa-trash"></i> Delete Job
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="jobs-table-wrapper">
+                <div class="empty-jobs-placeholder">
+                    <div class="empty-jobs-content">
+                        <h4>You haven't posted a job yet</h4>
+                        <p class="muted">Create your first job posting to start receiving applications.</p>
+                        <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
+                            <i class="fas fa-plus"></i> Post a Job
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -12,46 +12,6 @@
 <div class="main-content-header">
     <h2>Applied Jobs</h2>
 </div>
-
-{% if applied_jobs %}
-<div class="jobs-table-wrapper">
-    <table class="jobs-table">
-        <thead>
-            <tr>
-                <th>JOBS</th>
-                <th>DATE APPLIED</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for application in applied_jobs %}
-                {% include 'dashboard/applicant/components/applied_job_row.html' with application=application job=application.job %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<div class="pagination-container">
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
-    <a href="#" class="pagination-number active">01</a>
-    <a href="#" class="pagination-number">02</a>
-    <a href="#" class="pagination-number">03</a>
-    <a href="#" class="pagination-number">04</a>
-    <a href="#" class="pagination-number">05</a>
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
-</div>
-{% else %}
-<div class="empty-state">
-    <div class="empty-state-icon">
-        <i class="fas fa-briefcase"></i>
-    </div>
-    <h3>No Applications Yet</h3>
-    <p>You haven't applied to any jobs yet. Start exploring opportunities and apply now!</p>
-    <a href="{% url 'dashboard:applicant_search_jobs' %}" class="empty-state-btn">
-        <i class="fas fa-search"></i> Browse Jobs
-    </a>
-</div>
-{% endif %}
+{% include 'jobs/applicant_job_table.html' with application=application job=application.job %}
 {% endblock %}
 

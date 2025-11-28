@@ -39,39 +39,7 @@
             {% endif %}
         </div>
 
-        <div class="jobs-table-wrapper">
-            <table class="jobs-table">
-                <thead>
-                    <tr>
-                        <th>JOBS</th>
-                        <th>STATUS</th>
-                        <th>APPLICATIONS</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if has_jobs %}
-                        {% for job in recent_jobs %}
-                            {% include 'dashboard/employer/components/job_row.html' with job=job %}
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="4">
-                                <div class="empty-jobs-placeholder">
-                                    <div class="empty-jobs-content">
-                                        <h4>You haven't posted a job yet</h4>
-                                        <p class="muted">Create your first job posting to start receiving applications.</p>
-                                        <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
-                                            <i class="fas fa-plus"></i> Post a Job
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
+        {% include 'jobs/employer_job_table.html' with jobs=recent_jobs %}
     </div>
 </div>
 

@@ -17,7 +17,7 @@
 {% if favorites %}
 <div class="favorite-jobs-list">
     {% for favorite in favorites %}
-        {% include 'dashboard/applicant/components/job_card.html' with job=favorite.job is_favorited=True %}
+        {% include 'jobs/job_card.html' with job=favorite.job %}
     {% endfor %}
 </div>
 

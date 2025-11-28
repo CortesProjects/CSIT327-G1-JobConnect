@@ -21,7 +21,7 @@
 {% if alert_jobs %}
 <div class="job-alerts-list">
     {% for job in alert_jobs %}
-        {% include 'dashboard/applicant/components/job_card.html' with job=job %}
+        {% include 'jobs/job_card.html' with job=job %}
     {% endfor %}
 </div>
 
