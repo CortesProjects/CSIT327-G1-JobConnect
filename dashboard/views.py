@@ -449,7 +449,20 @@ def toggle_job_alert_status(request, alert_id):
 
 @login_required
 def applicant_settings(request):
+    from applicant_profile.models import NotificationPreferences
+    from django.contrib.auth import authenticate
+    
     profile = get_object_or_404(ApplicantProfile, user=request.user)
+    
+    # Get or create notification preferences
+    notification_prefs, created = NotificationPreferences.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'notify_shortlisted': True,
+            'notify_applications': True,
+            'notify_job_alerts': True
+        }
+    )
     
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
@@ -567,36 +580,84 @@ def applicant_settings(request):
                     messages.error(request, f'Error saving contact information: {str(e)}')
             else:
                 for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
                     for error in errors:
-                        messages.error(request, f'{field}: {error}')
-                messages.error(request, 'Please correct the errors below.')
+                        messages.error(request, f'{field_label}: {error}')
         
         elif form_type == 'profile_privacy':
             form = ApplicantProfilePrivacyForm(request.POST, instance=profile)
             if form.is_valid():
-                form.save()
-                status = 'public' if form.cleaned_data['is_public'] else 'private'
-                messages.success(request, f'Profile privacy set to {status}!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    form.save()
+                    status = 'public' if form.cleaned_data['is_public'] else 'private'
+                    messages.success(request, f'Profile privacy set to {status}!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving privacy settings: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
         
         elif form_type == 'resume':
             form = ApplicantResumeForm(request.POST, request.FILES, instance=profile)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Resume uploaded successfully!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    form.save()
+                    messages.success(request, 'Resume uploaded successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error uploading resume: {str(e)}')
             else:
-                messages.error(request, 'Please correct the errors below.')
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
         
         elif form_type == 'change_password':
             password_form = PasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
-                user = password_form.save()
-                update_session_auth_hash(request, user)  # Keep user logged in
-                messages.success(request, 'Password changed successfully!')
-                return redirect('dashboard:applicant_settings')
+                try:
+                    user = password_form.save()
+                    update_session_auth_hash(request, user)  # Keep user logged in
+                    messages.success(request, 'Password changed successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error changing password: {str(e)}')
             else:
-                messages.error(request, 'Please correct the errors in the password form.')
+                # Display password form errors with field labels
+                for field, errors in password_form.errors.items():
+                    field_label = password_form.fields.get(field).label if field in password_form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'notification_preferences':
+            # Update notification preferences
+            notification_prefs.notify_shortlisted = request.POST.get('notify_shortlisted') == 'on'
+            notification_prefs.notify_applications = request.POST.get('notify_applications') == 'on'
+            notification_prefs.notify_job_alerts = request.POST.get('notify_job_alerts') == 'on'
+            notification_prefs.save()
+            messages.success(request, 'Notification preferences updated successfully!')
+            return redirect('dashboard:applicant_settings')
+        
+        elif form_type == 'delete_account':
+            # Verify password
+            password = request.POST.get('password')
+            user = authenticate(username=request.user.username, password=password)
+            
+            if user is not None:
+                try:
+                    # Delete user account (cascades to profile and related data)
+                    username = request.user.username
+                    request.user.delete()
+                    messages.success(request, f'Account {username} has been permanently deleted.')
+                    return redirect('home')
+                except Exception as e:
+                    messages.error(request, f'Error deleting account: {str(e)}')
+            else:
+                messages.error(request, 'Incorrect password. Account deletion cancelled.')
+                return redirect('dashboard:applicant_settings')
     
     # Initialize all forms with current data
     personal_info_form = ApplicantPersonalInfoForm(instance=profile)
@@ -620,6 +681,7 @@ def applicant_settings(request):
         'password_form': password_form,
         'social_link_form': social_link_form,
         'social_links': social_links,
+        'notification_prefs': notification_prefs,
     }
     
     return render(request, 'dashboard/applicant/applicant_settings.html', context)
