@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from datetime import date
-from .models import Job
+from .models import Job, JobAlert
 
 
 class JobPostForm(forms.ModelForm):
@@ -174,6 +174,141 @@ class JobPostForm(forms.ModelForm):
             else:
                 raise
 
+        return cleaned_data
+
+
+class JobAlertForm(forms.ModelForm):
+    """Form for creating and editing job alerts."""
+    
+    class Meta:
+        model = JobAlert
+        fields = [
+            'alert_name', 'job_title', 'location', 'job_type', 
+            'job_category', 'min_salary', 'max_salary', 'keywords', 'is_active'
+        ]
+        widgets = {
+            'alert_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Frontend Developer Jobs',
+                'id': 'alert_name',
+                'required': True
+            }),
+            'job_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Software Engineer, Developer',
+                'id': 'job_title'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., New York, Remote',
+                'id': 'location'
+            }),
+            'job_type': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'job_type'
+            }),
+            'job_category': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'job_category'
+            }),
+            'min_salary': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Minimum salary',
+                'id': 'min_salary',
+                'min': '0'
+            }),
+            'max_salary': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Maximum salary',
+                'id': 'max_salary',
+                'min': '0'
+            }),
+            'keywords': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Python, React, AWS (comma-separated)',
+                'id': 'keywords'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'is_active'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set querysets for FK fields to only show active options
+        from .models import JobCategory, EmploymentType
+        
+        self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
+        self.fields['job_type'].empty_label = "Any Employment Type"
+        
+        self.fields['job_category'].queryset = JobCategory.objects.filter(is_active=True)
+        self.fields['job_category'].empty_label = "Any Category"
+    
+    def clean_alert_name(self):
+        """Validate alert name."""
+        alert_name = self.cleaned_data.get('alert_name')
+        if not alert_name or not alert_name.strip():
+            raise ValidationError('Alert name is required.')
+        if len(alert_name) > 100:
+            raise ValidationError('Alert name cannot exceed 100 characters.')
+        return alert_name.strip()
+    
+    def clean_job_title(self):
+        """Validate and clean job title."""
+        job_title = self.cleaned_data.get('job_title')
+        if job_title:
+            job_title = job_title.strip()
+            if len(job_title) > 200:
+                raise ValidationError('Job title cannot exceed 200 characters.')
+        return job_title or ''
+    
+    def clean_location(self):
+        """Validate and clean location."""
+        location = self.cleaned_data.get('location')
+        if location:
+            location = location.strip()
+            if len(location) > 200:
+                raise ValidationError('Location cannot exceed 200 characters.')
+        return location or ''
+    
+    def clean_keywords(self):
+        """Validate and clean keywords."""
+        keywords = self.cleaned_data.get('keywords')
+        if keywords:
+            keywords = keywords.strip()
+            if len(keywords) > 500:
+                raise ValidationError('Keywords cannot exceed 500 characters.')
+        return keywords or ''
+    
+    def clean(self):
+        """Additional validation for salary range."""
+        cleaned_data = super().clean()
+        min_salary = cleaned_data.get('min_salary')
+        max_salary = cleaned_data.get('max_salary')
+        
+        # Validate salary range
+        if min_salary is not None and min_salary < 0:
+            self.add_error('min_salary', 'Minimum salary cannot be negative.')
+        
+        if max_salary is not None and max_salary < 0:
+            self.add_error('max_salary', 'Maximum salary cannot be negative.')
+        
+        if min_salary and max_salary and min_salary > max_salary:
+            self.add_error('min_salary', 'Minimum salary cannot be greater than maximum salary.')
+        
+        # Ensure at least one filter criterion is provided
+        if not any([
+            cleaned_data.get('job_title'),
+            cleaned_data.get('location'),
+            cleaned_data.get('job_type'),
+            cleaned_data.get('job_category'),
+            cleaned_data.get('min_salary'),
+            cleaned_data.get('max_salary'),
+            cleaned_data.get('keywords')
+        ]):
+            raise ValidationError('Please specify at least one filter criterion for this alert.')
+        
         return cleaned_data
 
 

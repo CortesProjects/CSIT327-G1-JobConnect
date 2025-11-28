@@ -6,6 +6,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .main-content-header h2 {
@@ -21,23 +23,39 @@
     margin-left: 5px;
 }
 
-.edit-alerts-btn {
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.manage-alerts-btn,
+.create-alert-btn {
     background-color: #f0f0f0;
     color: #333;
     padding: 10px 20px;
     border-radius: 6px;
-    text-decoration: none;
+    border: none;
     font-weight: 500;
     font-size: 14px;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.edit-alerts-btn:hover {
+.create-alert-btn {
     background-color: #dc3545;
     color: #fff;
 }
 
-.edit-alerts-btn i {
+.manage-alerts-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.create-alert-btn:hover {
+    background-color: #c82333;
+}
+
+.manage-alerts-btn i,
+.create-alert-btn i {
     margin-right: 8px;
 }
 
@@ -305,4 +323,423 @@
 
 .empty-state-btn i {
     margin-right: 8px;
+}
+
+/* Alerts Configuration Section */
+.alerts-config-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.alerts-config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.alerts-config-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.alerts-config-header h3 i {
+    margin-right: 8px;
+    color: #dc3545;
+}
+
+.close-alerts-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: color 0.2s ease;
+}
+
+.close-alerts-btn:hover {
+    color: #dc3545;
+}
+
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Alert Card */
+.alert-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.alert-card:hover {
+    border-color: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+}
+
+.alert-card-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.alert-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.alert-details {
+    flex: 1;
+}
+
+.alert-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 10px 0;
+}
+
+.alert-criteria {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.criteria-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #495057;
+}
+
+.criteria-tag i {
+    font-size: 11px;
+}
+
+.alert-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.alert-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.alert-status.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-status.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-date {
+    color: #6c757d;
+}
+
+.alert-card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.alert-action-btn {
+    background-color: transparent;
+    border: 1px solid #e9ecef;
+    color: #6c757d;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-action-btn:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+    border-color: #dee2e6;
+}
+
+.alert-action-btn.delete-btn:hover {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
+.alert-action-btn.edit-btn:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.alert-action-btn.toggle-btn:hover {
+    background-color: #28a745;
+    color: #fff;
+    border-color: #28a745;
+}
+
+/* Alert Modal */
+.alert-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+.alert-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.alert-modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.alert-modal-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+}
+
+.alert-modal-body {
+    padding: 25px;
+    max-height: calc(80vh - 160px);
+    overflow-y: auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    font-size: 14px;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.form-group label .required {
+    color: #dc3545;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    margin: 0;
+}
+
+.error-message {
+    display: block;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.form-error-message {
+    padding: 12px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    color: #721c24;
+    font-size: 14px;
+    margin-top: 15px;
+    display: none;
+}
+
+.form-error-message.show {
+    display: block;
+}
+
+.alert-modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: #495057;
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-primary {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #c82333;
+}
+
+.btn-primary:disabled {
+    background-color: #f8d7da;
+    cursor: not-allowed;
+}
+
+.btn-spinner {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .alert-modal-content {
+        margin: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .alert-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .alert-card-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }

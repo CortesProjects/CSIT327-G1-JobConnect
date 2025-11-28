@@ -212,7 +212,30 @@ def applicant_favorite_jobs(request):
 
 @login_required
 def applicant_job_alerts(request):
-    from jobs.models import FavoriteJob
+    from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory
+    from django.core.paginator import Paginator
+    
+    # Get user's job alerts
+    user_alerts = JobAlert.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Get all matching jobs from active alerts
+    matching_jobs = set()
+    for alert in user_alerts.filter(is_active=True):
+        matching_jobs.update(alert.get_matching_jobs())
+    
+    # Convert to list and sort by posted date
+    alert_jobs = sorted(list(matching_jobs), key=lambda x: x.posted_date, reverse=True)
+
+    # Server-side search/filter for alert results
+    query = request.GET.get('query', '').strip()
+    if query:
+        qlower = query.lower()
+        alert_jobs = [j for j in alert_jobs if (j.title and qlower in j.title.lower()) or (getattr(j, 'description', '') and qlower in j.description.lower())]
+    
+    # Pagination
+    paginator = Paginator(alert_jobs, 10)  # 10 jobs per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
     
     # Get favorited job IDs for bookmark state
     favorited_job_ids = []
@@ -221,10 +244,180 @@ def applicant_job_alerts(request):
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
     
+    # Get active job types and categories for the modal
+    job_types = EmploymentType.objects.filter(is_active=True)
+    job_categories = JobCategory.objects.filter(is_active=True)
+    
     context = {
+        'user_alerts': user_alerts,
+        'alert_jobs': page_obj,
+        'has_configured_alerts': user_alerts.exists(),
         'favorited_job_ids': favorited_job_ids,
+        'page_obj': page_obj,
+        'job_types': job_types,
+        'job_categories': job_categories,
+        'query': query,
     } 
     return render(request, 'dashboard/applicant/applicant_job_alerts.html', context)
+
+
+@login_required
+def create_job_alert(request):
+    """Create a new job alert."""
+    from jobs.forms import JobAlertForm
+    from django.http import JsonResponse
+    
+    if request.user.user_type != 'applicant':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Only applicants can create job alerts.'}, status=403)
+        messages.error(request, 'Only applicants can create job alerts.')
+        return redirect('dashboard:dashboard')
+    
+    if request.method == 'POST':
+        form = JobAlertForm(request.POST)
+        if form.is_valid():
+            alert = form.save(commit=False)
+            alert.user = request.user
+            alert.save()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Job alert created successfully!',
+                    'alert_id': alert.id
+                })
+            
+            messages.success(request, 'Job alert created successfully!')
+            return redirect('dashboard:applicant_job_alerts')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': form.errors
+                }, status=400)
+            
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = JobAlertForm()
+    
+    context = {'form': form}
+    return render(request, 'dashboard/applicant/create_job_alert.html', context)
+
+
+@login_required
+def edit_job_alert(request, alert_id):
+    """Edit an existing job alert."""
+    from jobs.models import JobAlert
+    from jobs.forms import JobAlertForm
+    from django.http import JsonResponse
+    
+    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = JobAlertForm(request.POST, instance=alert)
+        if form.is_valid():
+            form.save()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Job alert updated successfully!'
+                })
+            
+            messages.success(request, 'Job alert updated successfully!')
+            return redirect('dashboard:applicant_job_alerts')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': form.errors
+                }, status=400)
+            
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = JobAlertForm(instance=alert)
+    
+    context = {
+        'form': form,
+        'alert': alert,
+        'is_edit': True
+    }
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return alert data as JSON for AJAX requests
+        return JsonResponse({
+            'success': True,
+            'alert': {
+                'id': alert.id,
+                'alert_name': alert.alert_name,
+                'job_title': alert.job_title,
+                'location': alert.location,
+                'job_type': alert.job_type.id if alert.job_type else None,
+                'job_category': alert.job_category.id if alert.job_category else None,
+                'min_salary': str(alert.min_salary) if alert.min_salary else '',
+                'max_salary': str(alert.max_salary) if alert.max_salary else '',
+                'keywords': alert.keywords,
+                'is_active': alert.is_active
+            }
+        })
+    
+    return render(request, 'dashboard/applicant/create_job_alert.html', context)
+
+
+@login_required
+def delete_job_alert(request, alert_id):
+    """Delete a job alert."""
+    from jobs.models import JobAlert
+    from django.http import JsonResponse
+    
+    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
+    
+    if request.method == 'POST':
+        alert.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Job alert deleted successfully!'
+            })
+        
+        messages.success(request, 'Job alert deleted successfully!')
+        return redirect('dashboard:applicant_job_alerts')
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+    
+    return redirect('dashboard:applicant_job_alerts')
+
+
+@login_required
+def toggle_job_alert_status(request, alert_id):
+    """Toggle job alert active/inactive status."""
+    from jobs.models import JobAlert
+    from django.http import JsonResponse
+    
+    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
+    
+    if request.method == 'POST':
+        alert.is_active = not alert.is_active
+        alert.save()
+        
+        status_text = 'activated' if alert.is_active else 'deactivated'
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'is_active': alert.is_active,
+                'message': f'Job alert {status_text} successfully!'
+            })
+        
+        messages.success(request, f'Job alert {status_text} successfully!')
+        return redirect('dashboard:applicant_job_alerts')
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+    
+    return redirect('dashboard:applicant_job_alerts')
 
 @login_required
 def applicant_settings(request):
