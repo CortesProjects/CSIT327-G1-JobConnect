@@ -216,8 +216,8 @@
         </div>
 
         <div class="form-navigation-row">
-            {# The 'Previous' button uses prev_url passed from the view #}
-            <a href="{% url prev_url %}" class="btn btn-secondary">Previous</a>
+            {# The 'Previous' button goes to Step 2 (frontend controls access) #}
+                <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="btn btn-secondary">Previous</a>
             
             <button type="submit" class="cta-btn save-next-btn">
                 Finish Editing &rarr;

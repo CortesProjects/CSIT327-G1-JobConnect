@@ -13,36 +13,17 @@
 <main class="profile-setup-container">
     <div class="step-navigation-wrapper">
     <section class="step-navigation">
-        {# Step 1: Company Info (ALWAYS ACTIVE/CLICKABLE ON THIS PAGE) #}
-    <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link active">
-        <i class="fas fa-building icon-left"></i> Company Info
-    </a>
-    
-    {# Step 2: Founding Info #}
-    {% if current_step >= 2 %}
-        {# If user has completed step 1 (i.e., current_step >= 2), make it clickable #}
-        <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="step-link {% if current_step == 2 %}active{% endif %}">
+        <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step1' %}active{% endif %}">
+            <i class="fas fa-building icon-left"></i> Company Info
+        </a>
+
+        <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step2' %}active{% endif %}">
             <i class="fas fa-info-circle icon-left"></i> Founding Info
         </a>
-    {% else %}
-        {# If user has NOT completed step 1, render as non-clickable text #}
-        <span class="step-link">
-            <i class="fas fa-info-circle icon-left"></i> Founding Info
-        </span>
-    {% endif %}
-    
-    {# Step 3: Contact #}
-    {% if current_step >= 3 %}
-        {# If user has completed step 2 (i.e., current_step >= 3), make it clickable #}
-        <a href="{% url 'employer_profile:employer_profile_setup_step3' %}" class="step-link {% if current_step == 3 %}active{% endif %}">
+
+        <a href="{% url 'employer_profile:employer_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step3' %}active{% endif %}">
             <i class="fas fa-envelope icon-left"></i> Contact
         </a>
-    {% else %}
-        {# If user has NOT completed step 2, render as non-clickable text #}
-        <span class="step-link">
-            <i class="fas fa-envelope icon-left"></i> Contact
-        </span>
-    {% endif %}
     </section>
 </div>
     <form method="post" enctype="multipart/form-data">
@@ -62,7 +43,7 @@
                     <h3 class="upload-column-title">Company Logo</h3>
                     <div class="logo-upload-wrapper">
                         {% if form.instance.company_profile_image %}
-                        <div class="image-preview-setup has-image square-logo-area" id="logo-preview" onclick="document.getElementById('{{ form.company_profile_image.id_for_label }}').click()">
+                        <div class="image-preview-setup has-image square-logo-area" id="logo-preview">
                             <img src="{{ form.instance.company_profile_image.url }}" alt="Company Logo">
                             <div class="hover-overlay-setup">
                                 <i class="fas fa-cloud-upload-alt"></i>
@@ -71,7 +52,7 @@
                             </div>
                         </div>
                         {% else %}
-                        <div class="image-preview-setup square-logo-area" id="logo-preview" onclick="document.getElementById('{{ form.company_profile_image.id_for_label }}').click()">
+                        <div class="image-preview-setup square-logo-area" id="logo-preview">
                             <div class="upload-content-placeholder">
                                 <i class="fas fa-cloud-upload-alt"></i>
                                 <h4>Browse photo or drop here</h4>
@@ -79,7 +60,9 @@
                             </div>
                         </div>
                         {% endif %}
-                        {{ form.company_profile_image }}
+                        <div style="display: none;">
+                            {{ form.company_profile_image }}
+                        </div>
                     </div>
                     <div class="error-text" id="logo-error">
                         {% if form.company_profile_image.errors %}{{ form.company_profile_image.errors.0 }}{% endif %}
@@ -91,32 +74,44 @@
                     <h3 class="upload-column-title">Business Permit</h3>
                     <div class="permit-upload-wrapper">
                         {% if form.instance.company_business_permit %}
-                        <div class="image-preview-setup has-image business-permit-area" id="permit-preview" onclick="document.getElementById('{{ form.company_business_permit.id_for_label }}').click()">
-                            {% if form.instance.company_business_permit.url|slice:"-4:" == ".pdf" or form.instance.company_business_permit.url|slice:"-4:" == ".PDF" %}
-                            <div class="upload-content-placeholder">
-                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545;"></i>
-                                <h4>{{ form.instance.company_business_permit.name|slice:"-50:" }}</h4>
-                                <p class="upload-hint">PDF Document</p>
-                            </div>
-                            {% else %}
-                            <img src="{{ form.instance.company_business_permit.url }}" alt="Business Permit">
-                            {% endif %}
-                            <div class="hover-overlay-setup">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p><span>Change file</span> or drop here</p>
-                                <small>Max file size 5 MB</small>
-                            </div>
+                        <div class="image-preview-setup has-image business-permit-area" id="permit-preview" data-existing-url="{{ form.instance.company_business_permit.url }}" data-existing-name="{{ form.instance.company_business_permit.name }}">
+                            {% with name=form.instance.company_business_permit.name url=form.instance.company_business_permit.url %}
+                                <div class="permit-card">
+                                    <div class="permit-card-icon">
+                                        {% comment %}Choose icon based on extension{% endcomment %}
+                                        {% if name|lower|slice:"-4:" == ".pdf" %}
+                                            <i class="fas fa-file-pdf"></i>
+                                        {% elif name|lower|slice:"-5:" == ".docx" %}
+                                            <i class="fas fa-file-word"></i>
+                                        {% elif name|lower|slice:"-4:" == ".png" or name|lower|slice:"-4:" == ".jpg" or name|lower|slice:"-5:" == ".jpeg" %}
+                                            <i class="fas fa-file-image"></i>
+                                        {% else %}
+                                            <i class="fas fa-file"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="permit-card-body">
+                                        <div class="permit-filename">{{ name }}</div>
+                                        <div class="permit-meta">Uploaded file</div>
+                                    </div>
+                                    <div class="permit-card-actions">
+                                        <a href="{{ url }}" target="_blank" class="btn btn-sm">View</a>
+                                        <button type="button" class="btn btn-sm btn-danger permit-remove-btn" aria-label="Remove business permit">&times;</button>
+                                    </div>
+                                </div>
+                            {% endwith %}
                         </div>
                         {% else %}
-                        <div class="image-preview-setup business-permit-area" id="permit-preview" onclick="document.getElementById('{{ form.company_business_permit.id_for_label }}').click()">
+                        <div class="image-preview-setup business-permit-area" id="permit-preview">
                             <div class="upload-content-placeholder">
                                 <i class="fas fa-cloud-upload-alt"></i>
                                 <h4>Browse photo or drop here</h4>
-                                <p class="upload-hint">Banner images optical dimension 1920x400. Supported format JPEG, PNG, PDF. Max photo size 5 Mb.</p>
+                                <p class="upload-hint">Supported formats: PNG, JPG, PDF, DOCX. Max file size 5 MB.</p>
                             </div>
                         </div>
                         {% endif %}
-                        {{ form.company_business_permit }}
+                        <div style="display: none;">
+                            {{ form.company_business_permit }}
+                        </div>
                     </div>
                     <div class="error-text" id="business-permit-error">
                         {% if form.company_business_permit.errors %}{{ form.company_business_permit.errors.0 }}{% endif %}

@@ -11,32 +11,17 @@
 {% block content %}
 <div class="step-navigation-wrapper">
     <section class="step-navigation">
-        {# Step 1: Company Info (Clickable if current_step >= 1) #}
-        {% if current_step >= 1 %}
-            <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link">
-                <i class="fas fa-building icon-left"></i> Company Info
-            </a>
-        {% else %}
-            <span class="step-link">
-                <i class="fas fa-building icon-left"></i> Company Info
-            </span>
-        {% endif %}
-        
-        {# Step 2: Founding Info (Active on this page) #}
-        <div class="step-link active">
-            <i class="fas fa-info-circle icon-left"></i> Founding Info
-        </div>
+        <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step1' %}active{% endif %}">
+            <i class="fas fa-building icon-left"></i> Company Info
+        </a>
 
-        {# Step 3: Contact (Not clickable yet) #}
-        {% if current_step >= 3 %}
-            <a href="{% url 'employer_profile:employer_profile_setup_step3' %}" class="step-link">
-                <i class="fas fa-envelope icon-left"></i> Contact
-            </a>
-        {% else %}
-            <span class="step-link">
-                <i class="fas fa-envelope icon-left"></i> Contact
-            </span>
-        {% endif %}
+        <a href="{% url 'employer_profile:employer_profile_setup_step2' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step2' %}active{% endif %}">
+            <i class="fas fa-info-circle icon-left"></i> Founding Info
+        </a>
+
+        <a href="{% url 'employer_profile:employer_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'employer_profile_setup_step3' %}active{% endif %}">
+            <i class="fas fa-envelope icon-left"></i> Contact
+        </a>
     </section>
 </div>
 
@@ -122,7 +107,7 @@
         </div>
 
         <div class="form-navigation-row centered-nav">
-            <a href="{% url prev_url %}" class="btn btn-secondary">Previous</a>
+            <a href="{% url 'employer_profile:employer_profile_setup_step1' %}" class="btn btn-secondary">Previous</a>
             <button type="submit" class="cta-btn save-next-btn">Save & Next &rarr;</button>
         </div>
     </form>

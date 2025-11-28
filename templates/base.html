@@ -15,7 +15,7 @@
 
     <header class="header">
         <div class="logo">JobConnect</div>
-        {% if is_setup_page %}
+        {% if is_setup_page or request.resolver_match.namespace == 'employer_profile' %}
             <div id="header-progress-container" class="setup-progress-header">
                 <div class="progress-text-row">
                     <span class="setup-text">Setup Progress</span>
