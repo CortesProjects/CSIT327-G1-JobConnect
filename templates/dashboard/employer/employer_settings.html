@@ -55,33 +55,67 @@
                         <div class="upload-item">
                             <label class="section-subtitle">Upload Logo</label>
                             {% if profile.company_profile_image %}
-                            <div class="image-preview has-image" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
-                                <img src="{{ profile.company_profile_image.url }}" alt="Company Logo">
-                            </div>
-                            <div class="upload-actions">
-                                {{ profile.company_profile_image.size|filesizeformat }}
-                            </div>
+                                <div class="image-preview-setup has-image square-logo-area" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
+                                    <img src="{{ profile.company_profile_image.url }}" alt="Company Logo">
+                                    <div class="hover-overlay-setup">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p><span>Change photo</span> or drop here</p>
+                                        <small>Max photo size 5 MB</small>
+                                    </div>
+                                </div>
+                                <div class="upload-actions">
+                                    {{ profile.company_profile_image.size|filesizeformat }}
+                                </div>
                             {% else %}
-                            <div class="image-preview" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
-                            </div>
+                                <div class="image-preview-setup square-logo-area" id="logo-preview" onclick="clickInputByFieldName('company_profile_image')">
+                                    <div class="upload-content-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <h4>Upload company logo</h4>
+                                        <p class="upload-hint">PNG or JPG. Preferably 400x400px. Max 5 MB.</p>
+                                    </div>
+                                    <div class="hover-overlay-setup">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p><span>Browse photo</span> or drop here</p>
+                                        <small>Max photo size 5 MB</small>
+                                    </div>
+                                </div>
                             {% endif %}
-                            {{ company_info_form.company_profile_image }}
+                            <div style="display: none;">
+                                {{ company_info_form.company_profile_image }}
+                            </div>
                         </div>
 
                         <div class="upload-item">
                             <label class="section-subtitle">Banner Image</label>
                             {% if profile.company_banner_image %}
-                            <div class="image-preview has-image" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
+                            <div class="image-preview-setup has-image banner-preview-area" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
                                 <img src="{{ profile.company_banner_image.url }}" alt="Banner Image">
+                                <div class="hover-overlay-setup">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p><span>Change photo</span> or drop here</p>
+                                    <small>Max photo size 5 MB</small>
+                                </div>
                             </div>
                             <div class="upload-actions">
                                 {{ profile.company_banner_image.size|filesizeformat }}
                             </div>
                             {% else %}
-                            <div class="image-preview" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
+                            <div class="image-preview-setup banner-preview-area" id="banner-preview" onclick="clickInputByFieldName('company_banner_image')">
+                                <div class="upload-content-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <h4>Upload banner image</h4>
+                                    <p class="upload-hint">Recommended 1200x300px. PNG or JPG. Max 5 MB.</p>
+                                </div>
+                                <div class="hover-overlay-setup">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p><span>Browse photo</span> or drop here</p>
+                                    <small>Max photo size 5 MB</small>
+                                </div>
                             </div>
                             {% endif %}
-                            {{ company_info_form.company_banner_image }}
+                            <div style="display: none;">
+                                {{ company_info_form.company_banner_image }}
+                            </div>
                         </div>
                     </div>
                 </div>
