@@ -22,15 +22,19 @@
 
     <!-- Tabs Navigation -->
     <div class="settings-tabs">
-        <button class="tab-btn active" data-tab="company-info">
+        <button class="tab-btn active" data-tab="company-info" id="company-info-tab">
             <i class="fas fa-building"></i>
             Company Info
         </button>
-        <button class="tab-btn" data-tab="founding-info">
+        <button class="tab-btn" data-tab="founding-info" id="founding-info-tab">
             <i class="fas fa-globe"></i>
             Founding Info
         </button>
-        <button class="tab-btn" data-tab="account-setting">
+        <button class="tab-btn" data-tab="social-links" id="social-links-tab">
+            <i class="fas fa-share-alt"></i>
+            Social Links
+        </button>
+        <button class="tab-btn" data-tab="account-setting" id="account-setting-tab">
             <i class="fas fa-cog"></i>
             Account Setting
         </button>
@@ -367,6 +371,69 @@
                 </button>
             </div>
         </div>
+
+        <!-- Social Links Tab -->
+        <div class="tab-content" id="social-links">
+            <form method="post" id="social-links-form" class="settings-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="social_links_bulk">
+                
+                <div class="form-section">
+                    <h3 class="section-title">Social Media Links</h3>
+                    <p class="section-description">Add your company's social media profiles to help candidates connect with you</p>
+                    
+                    <div id="social-links-list">
+                        {% if social_links %}
+                            {% for link in social_links %}
+                            <div class="social-link-item" data-link-id="{{ link.id }}">
+                                <div class="social-link-input-group">
+                                    <select name="platform[]" class="social-platform-select">
+                                        {% for value, label in social_link_form.fields.platform.choices %}
+                                            <option value="{{ value }}" {% if link.platform == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="url" name="url[]" value="{{ link.url }}" placeholder="Profile link/url..." class="social-link-input">
+                                    <input type="hidden" name="link_id[]" value="{{ link.id }}">
+                                    <button type="button" class="btn-icon-action btn-delete-link" data-action="delete-link" title="Delete">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-social-message">No social links added yet. Click the button below to add your first social link.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="add-social-link-form" class="social-link-form is-hidden">
+                        <div class="social-link-item new-link-item">
+                            <div class="social-link-input-group">
+                                <select id="new-platform" class="social-platform-select">
+                                    {% for value, label in social_link_form.fields.platform.choices %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="url" id="new-url" placeholder="Profile link/url..." class="social-link-input">
+                                <button type="button" class="btn-icon-action btn-confirm-add" data-action="confirm-add" title="Add">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="btn-icon-action btn-cancel-add" data-action="cancel-add-social-link" title="Cancel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-add-social-link" data-action="show-add-social-link">
+                        <i class="fas fa-plus-circle"></i> Add New Social Link
+                    </button>
+                    
+                    <button type="submit" class="btn-save is-hidden" id="save-social-changes">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -567,5 +634,120 @@ if (permitFileInput) {
         }
     });
 }
+
+// ===== SOCIAL LINKS FUNCTIONALITY =====
+
+// Show/hide add new link form
+const addSocialLinkBtn = document.querySelector('[data-action="show-add-social-link"]');
+const addSocialForm = document.getElementById('add-social-link-form');
+const saveChangesBtn = document.getElementById('save-social-changes');
+
+if (addSocialLinkBtn && addSocialForm) {
+    addSocialLinkBtn.addEventListener('click', function() {
+        addSocialForm.classList.remove('is-hidden');
+        addSocialLinkBtn.classList.add('is-hidden');
+    });
+}
+
+// Cancel add new link
+const cancelAddBtn = document.querySelector('[data-action="cancel-add-social-link"]');
+if (cancelAddBtn) {
+    cancelAddBtn.addEventListener('click', function() {
+        addSocialForm.classList.add('is-hidden');
+        addSocialLinkBtn.classList.remove('is-hidden');
+        
+        // Clear inputs
+        document.getElementById('new-platform').value = '';
+        document.getElementById('new-url').value = '';
+    });
+}
+
+// Confirm add new link (adds to list, doesn't submit)
+const confirmAddBtn = document.querySelector('[data-action="confirm-add"]');
+if (confirmAddBtn) {
+    confirmAddBtn.addEventListener('click', function() {
+        const platform = document.getElementById('new-platform').value;
+        const url = document.getElementById('new-url').value;
+        
+        // Note: No client-side validation - Django handles all validation
+        // Just skip if URL is empty (UI convenience only)
+        if (!url.trim()) {
+            return;
+        }
+        
+        // Add link to the list
+        const linksList = document.getElementById('social-links-list');
+        
+        // Remove empty message if it exists
+        const emptyMsg = linksList.querySelector('.empty-social-message');
+        if (emptyMsg) {
+            emptyMsg.remove();
+        }
+        
+        // Create new link item
+        const newLinkItem = document.createElement('div');
+        newLinkItem.className = 'social-link-item';
+        newLinkItem.innerHTML = `
+            <div class="social-link-input-group">
+                <select name="platform[]" class="social-platform-select">
+                    ${Array.from(document.getElementById('new-platform').options).map(opt => 
+                        `<option value="${opt.value}" ${opt.value === platform ? 'selected' : ''}>${opt.text}</option>`
+                    ).join('')}
+                </select>
+                <input type="url" name="url[]" value="${url}" placeholder="Profile link/url..." class="social-link-input">
+                <input type="hidden" name="link_id[]" value="">
+                <button type="button" class="btn-icon-action btn-delete-link" data-action="delete-link" title="Delete">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        linksList.appendChild(newLinkItem);
+        
+        // Show save button
+        saveChangesBtn.classList.remove('is-hidden');
+        
+        // Hide add form and show add button
+        addSocialForm.classList.add('is-hidden');
+        addSocialLinkBtn.classList.remove('is-hidden');
+        
+        // Clear inputs
+        document.getElementById('new-platform').value = '';
+        document.getElementById('new-url').value = '';
+        
+        // Attach delete handler to the new button
+        const deleteBtn = newLinkItem.querySelector('[data-action="delete-link"]');
+        deleteBtn.addEventListener('click', handleDeleteLink);
+    });
+}
+
+// Delete link handler
+function handleDeleteLink(e) {
+    const linkItem = e.target.closest('.social-link-item');
+    if (linkItem) {
+        linkItem.remove();
+        
+        // Show save button
+        saveChangesBtn.classList.remove('is-hidden');
+        
+        // Check if list is now empty
+        const linksList = document.getElementById('social-links-list');
+        if (linksList.children.length === 0) {
+            linksList.innerHTML = '<p class="empty-social-message">No social links added yet. Click the button below to add your first social link.</p>';
+        }
+    }
+}
+
+// Attach delete handlers to existing links
+document.querySelectorAll('[data-action="delete-link"]').forEach(btn => {
+    btn.addEventListener('click', handleDeleteLink);
+});
+
+// Track changes to existing links
+document.querySelectorAll('.social-link-item input, .social-link-item select').forEach(input => {
+    input.addEventListener('input', function() {
+        saveChangesBtn.classList.remove('is-hidden');
+    });
+});
 </script>
 {% endblock %}
