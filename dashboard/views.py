@@ -404,8 +404,51 @@ def applicant_settings(request):
     return render(request, 'dashboard/applicant/applicant_settings.html', context)
 
 @login_required
+@login_required
 def employer_profile(request):
-    return render(request, 'dashboard/employer/employer_profile.html')
+    """Display employer profile with company information and statistics"""
+    if request.user.user_type != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('accounts:login')
+    
+    from jobs.models import Job
+    from django.db.models import Count
+    
+    # Get employer profile
+    try:
+        profile = request.user.employer_profile_rel
+    except:
+        profile = None
+    
+    # Get social links
+    social_links = UserSocialLink.objects.filter(user=request.user).order_by('platform')
+    
+    # Get recent jobs with application counts
+    recent_jobs = Job.objects.filter(
+        employer=request.user
+    ).annotate(
+        applications_count=Count('applications')
+    ).order_by('-posted_at')[:3]
+    
+    # Calculate statistics
+    total_jobs = Job.objects.filter(employer=request.user).count()
+    active_jobs = Job.objects.filter(employer=request.user, status='active').count()
+    total_applications = sum(job.applications_count for job in Job.objects.filter(employer=request.user).annotate(applications_count=Count('applications')))
+    hired_count = 0  # Count applications with 'hired' status
+    from jobs.models import JobApplication
+    hired_count = JobApplication.objects.filter(job__employer=request.user, status='hired').count()
+    
+    context = {
+        'profile': profile,
+        'social_links': social_links,
+        'recent_jobs': recent_jobs,
+        'total_jobs': total_jobs,
+        'active_jobs': active_jobs,
+        'total_applications': total_applications,
+        'hired_count': hired_count,
+    }
+    
+    return render(request, 'dashboard/employer/employer_profile.html', context)
 
 @login_required
 def employer_post_job(request):
