@@ -1,0 +1,202 @@
+{% extends base_template %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/jobs/job_detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
+{% endblock %}
+
+{% block title %}{{ job.title }} - {{ job.company_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="job-detail-container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+        <a href="{% url breadcrumb_url %}"><i class="fas fa-home"></i> {{ breadcrumb_label }}</a>
+        <span class="separator">/</span>
+        <span class="current">{{ job.title }}</span>
+    </nav>
+
+    <header class="jd-header">
+            <div class="jd-left">
+                <div class="logo-wrap">
+                    {% if job.employer.employer_profile_rel.company_profile_image %}
+                        <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}">
+                    {% else %}
+                        <div class="company-logo-circle">{{ job.company_name|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div class="title-wrap">
+                    <h1>{{ job.title }}</h1>
+                    <span class="pill type">{{ job.job_type.name|default:"Full Time" }}</span>
+                    <div class="title-meta">
+                        <div class="contact-inline">
+                            <span><i class="fas fa-phone"></i> {{ job.employer.contact_phone_number|default:"(000) 000-0120" }}</span>
+                            <span><i class="fas fa-envelope"></i> {{ job.employer.email|default:"employer@iemaail.com" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="jd-right">
+                {% if user.is_authenticated and user.user_type == 'employer' and job.employer == user %}
+                    <!-- Employer View: View Applications + Delete Menu -->
+                    <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn-view-applications">
+                        <i class="fas fa-users"></i> View Applications
+                    </a>
+                    <div class="btn-ellipsis" id="jobMenuBtn">
+                        <i class="fas fa-ellipsis-v"></i>
+                        <div class="dropdown-menu" id="jobMenuDropdown">
+                            <a href="#" class="delete" onclick="confirmDeleteJob({{ job.id }}); return false;">
+                                <i class="fas fa-trash"></i> Delete Job
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Applicant View: heart + Apply -->
+                    <button class="square-heart favorite-btn {% if is_favorited %}active{% endif %}" data-job-id="{{ job.id }}">
+                        <i class="{% if is_favorited %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
+                    </button>
+                    {% if user.is_authenticated and user.user_type == 'applicant' %}
+                        {% if has_applied %}
+                            <button class="apply-btn applied" disabled><i class="fas fa-check"></i> Applied</button>
+                        {% else %}
+                            <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="apply-btn">Login to Apply</a>
+                    {% endif %}
+                {% endif %}
+                <div class="expire-text">Job expire in: <span class="expire-date">{{ job.expiration_date|date:"j F, Y" }}</span></div>
+            </div>
+        </header>
+
+    <div class="job-detail-body">
+        <div class="job-detail-main">
+        <section class="jd-section">
+            <h3>Job Description</h3>
+            <div class="jd-content">{{ job.description|linebreaks }}</div>
+        </section>
+
+        {% if job.responsibilities %}
+        <section class="jd-section">
+            <h3>Responsibilities</h3>
+            <div class="jd-content">{{ job.responsibilities|linebreaks }}</div>
+        </section>
+        {% endif %}
+        </div>
+
+        <aside class="job-detail-right">
+        <div class="card overview-card">
+            <h4>Job Overview</h4>
+            <div class="overview-grid">
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Posted</div><div class="ov-value">{{ job.posted_at|date:"j F, Y" }}</div></div>
+                </div>
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-clock"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Expire In</div><div class="ov-value">{{ job.expiration_date|date:"j F, Y" }}</div></div>
+                </div>
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="ov-text"><div class="ov-label">Education</div><div class="ov-value">{{ job.education.name|default:"Graduation" }}</div></div>
+                </div>
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="ov-text"><div class="ov-label">Salary</div><div class="ov-value">{% if job.min_salary and job.max_salary %}${{ job.min_salary|floatformat:0 }}-${{ job.max_salary|floatformat:0 }}{% else %}Negotiable{% endif %}</div></div>
+                </div>
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="ov-text"><div class="ov-label">Location</div><div class="ov-value">{{ job.location }}</div></div>
+                </div>
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Type</div><div class="ov-value">{{ job.job_type.name|default:"Full Time" }}</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card company-card">
+            <div class="company-top">
+                {% if job.employer.employer_profile_rel.company_profile_image %}
+                    <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}" class="company-small">
+                {% else %}
+                    <div class="company-small placeholder">{{ job.company_name|first|upper }}</div>
+                {% endif %}
+                <div class="company-info">
+                    <h4>{{ job.company_name }}</h4>
+                    <p class="muted">{{ job.employer.company_type|default:"Social networking service" }}</p>
+                </div>
+            </div>
+            <div class="company-details-list">
+                <div><span class="label">Founded in:</span><span class="val">March 21, 2006</span></div>
+                <div><span class="label">Organization type:</span><span class="val">Private Company</span></div>
+                <div><span class="label">Company size:</span><span class="val">120-300 Employers</span></div>
+                <div><span class="label">Phone:</span><span class="val">{{ job.employer.contact_phone_number|default:"(406) 555-0120" }}</span></div>
+                <div><span class="label">Email:</span><span class="val">{{ job.employer.contact_email|default:"employer@email.com" }}</span></div>
+                <div><span class="label">Website:</span><span class="val">{{ job.employer.website|default:"https://website.com" }}</span></div>
+            </div>
+            <div class="company-social">
+                <a class="s" href="#"><i class="fab fa-facebook-f"></i></a>
+                <a class="s" href="#"><i class="fab fa-twitter"></i></a>
+                <a class="s" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="s" href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </aside>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
+<script>
+    // Toggle ellipsis dropdown menu
+    const menuBtn = document.getElementById('jobMenuBtn');
+    const menuDropdown = document.getElementById('jobMenuDropdown');
+    
+    if (menuBtn && menuDropdown) {
+        menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menuDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menuBtn.contains(e.target)) {
+                menuDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Delete job confirmation
+    function confirmDeleteJob(jobId) {
+        if (confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
+            // Send delete request
+            fetch(`/jobs/${jobId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Job deleted successfully');
+                    window.location.href = "{% url 'dashboard:employer_my_jobs' %}";
+                } else {
+                    alert('Error: ' + (data.error || 'Could not delete job'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the job');
+            });
+        }
+    }
+</script>
+{% endblock %}

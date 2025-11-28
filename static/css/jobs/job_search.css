@@ -93,6 +93,20 @@
     display: flex;
     justify-content: space-between;
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.job-info-left {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    flex: 1;
 }
 
 .company-logo {

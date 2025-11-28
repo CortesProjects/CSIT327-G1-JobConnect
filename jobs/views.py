@@ -168,3 +168,85 @@ def applicant_favorite_jobs(request):
     }
     
     return render(request, 'jobs/favorite_jobs.html', context)
+
+
+def job_detail(request, job_id):
+    """Display detailed information about a specific job."""
+    # Fetch job with all related data
+    job = get_object_or_404(
+        Job.objects.select_related(
+            'employer',
+            'category',
+            'job_type',
+            'education',
+            'experience',
+            'job_level',
+            'salary_type'
+        ),
+        id=job_id
+    )
+    
+    # Determine breadcrumb source from referer or query param
+    source = request.GET.get('from', '')
+    referer = request.META.get('HTTP_REFERER', '')
+    
+    breadcrumb_source = 'search'  # default
+    breadcrumb_label = 'Search Jobs'
+    breadcrumb_url = 'dashboard:applicant_search_jobs'
+    
+    if source:
+        breadcrumb_source = source
+    elif 'applied' in referer or 'applications' in referer:
+        breadcrumb_source = 'applied'
+    elif 'favorite' in referer:
+        breadcrumb_source = 'favorites'
+    elif 'my-jobs' in referer or 'myjobs' in referer:
+        breadcrumb_source = 'myjobs'
+    elif 'recent' in referer:
+        breadcrumb_source = 'recent'
+    
+    # Map source to breadcrumb label and URL
+    breadcrumb_map = {
+        'applied': ('My Applications', 'dashboard:applicant_applications'),
+        'favorites': ('Favorite Jobs', 'dashboard:applicant_favorite_jobs'),
+        'search': ('Search Jobs', 'dashboard:applicant_search_jobs'),
+        'alert': ('Job Alerts', 'dashboard:applicant_dashboard'),
+        'myjobs': ('My Jobs', 'dashboard:employer_my_jobs'),
+        'recent': ('Recently Posted', 'dashboard:employer_dashboard'),
+    }
+    
+    if breadcrumb_source in breadcrumb_map:
+        breadcrumb_label, breadcrumb_url = breadcrumb_map[breadcrumb_source]
+    
+    # Check if user has favorited this job
+    is_favorited = False
+    has_applied = False
+    if request.user.is_authenticated and request.user.user_type == 'applicant':
+        is_favorited = FavoriteJob.objects.filter(
+            applicant=request.user,
+            job=job
+        ).exists()
+        
+        # Check if user has already applied
+        from .models import JobApplication
+        has_applied = JobApplication.objects.filter(
+            applicant=request.user,
+            job=job
+        ).exists()
+    
+    # Determine which base template to use
+    if request.user.is_authenticated and request.user.user_type == 'employer':
+        base_template = 'dashboard/employer/employer_dashboard_base.html'
+    else:
+        base_template = 'dashboard/applicant/applicant_dashboard_base.html'
+    
+    context = {
+        'job': job,
+        'is_favorited': is_favorited,
+        'has_applied': has_applied,
+        'breadcrumb_label': breadcrumb_label,
+        'breadcrumb_url': breadcrumb_url,
+        'base_template': base_template,
+    }
+    
+    return render(request, 'jobs/job_detail.html', context)
