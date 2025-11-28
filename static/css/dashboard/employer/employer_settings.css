@@ -759,6 +759,178 @@
     font-size: 18px;
 }
 
+/* =====================================================
+   SOCIAL LINKS SECTION STYLES
+===================================================== */
+
+.section-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+#social-links-list {
+    margin-bottom: 20px;
+}
+
+.social-link-item {
+    margin-bottom: 15px;
+}
+
+.social-link-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.social-platform-select {
+    min-width: 180px;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.social-platform-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+.social-link-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.social-link-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+.btn-icon-action {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-delete-link {
+    background-color: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.btn-delete-link:hover {
+    background-color: #dc3545;
+    color: white;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+.btn-confirm-add {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-confirm-add:hover {
+    background-color: #218838;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+.btn-cancel-add {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.btn-cancel-add:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.empty-social-message {
+    padding: 40px 20px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.social-link-form {
+    margin-bottom: 20px;
+}
+
+.social-link-form.is-hidden {
+    display: none;
+}
+
+.new-link-item {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.btn-add-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px dashed var(--primary-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.btn-add-social-link:hover {
+    background-color: var(--primary-light);
+    border-style: solid;
+}
+
+.btn-add-social-link.is-hidden {
+    display: none;
+}
+
+.btn-add-social-link i {
+    font-size: 16px;
+}
+
+#save-social-changes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+}
+
+#save-social-changes.is-hidden {
+    display: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
@@ -796,5 +968,21 @@
     .image-preview {
         width: 100%;
         max-width: 200px;
+    }
+    
+    .social-link-input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .social-platform-select {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .btn-icon-action {
+        width: 100%;
+        height: auto;
+        padding: 10px;
     }
 }

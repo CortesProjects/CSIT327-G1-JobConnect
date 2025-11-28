@@ -883,6 +883,81 @@ def employer_settings(request):
             else:
                 messages.error(request, 'Please correct the errors below.')
         
+        # Social Links Bulk Save
+        elif form_type == 'social_links_bulk':
+            try:
+                # Get arrays from POST data
+                platforms = request.POST.getlist('platform[]')
+                urls = request.POST.getlist('url[]')
+                link_ids = request.POST.getlist('link_id[]')
+                
+                # Get existing social link IDs for this user
+                existing_ids = set(request.user.social_links.values_list('id', flat=True))
+                submitted_ids = set()
+                
+                # Process each submitted link
+                for i, (platform, url) in enumerate(zip(platforms, urls)):
+                    if not platform or not url:
+                        continue
+                    
+                    link_id = link_ids[i] if i < len(link_ids) and link_ids[i] else None
+                    
+                    if link_id:
+                        # Update existing link
+                        link_id = int(link_id)
+                        submitted_ids.add(link_id)
+                        social_link = UserSocialLink.objects.filter(id=link_id, user=request.user).first()
+                        if social_link:
+                            social_link.platform = platform
+                            social_link.url = url
+                            social_link.save()
+                    else:
+                        # Create new link
+                        social_link = UserSocialLink.objects.create(
+                            user=request.user,
+                            platform=platform,
+                            url=url
+                        )
+                        submitted_ids.add(social_link.id)
+                
+                # Delete links that were removed (in existing but not in submitted)
+                ids_to_delete = existing_ids - submitted_ids
+                if ids_to_delete:
+                    UserSocialLink.objects.filter(id__in=ids_to_delete, user=request.user).delete()
+                
+                messages.success(request, 'Social links updated successfully!')
+                return redirect('dashboard:employer_settings')
+            except Exception as e:
+                messages.error(request, f'Error updating social links: {str(e)}')
+        
+        # Social Link (Single Add/Edit)
+        elif form_type == 'social_link':
+            social_link_id = request.POST.get('social_link_id')
+            if social_link_id:
+                # Edit existing social link
+                social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+                form = ApplicantSocialLinkForm(request.POST, instance=social_link)
+            else:
+                # Add new social link
+                form = ApplicantSocialLinkForm(request.POST)
+            
+            if form.is_valid():
+                social_link = form.save(commit=False)
+                social_link.user = request.user
+                social_link.save()
+                messages.success(request, 'Social link saved successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        # Delete Social Link
+        elif form_type == 'delete_social_link':
+            social_link_id = request.POST.get('social_link_id')
+            social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+            social_link.delete()
+            messages.success(request, 'Social link deleted successfully!')
+            return redirect('dashboard:employer_settings')
+        
         # Change Password Form
         elif form_type == 'change_password':
             form = PasswordChangeForm(user=request.user, data=request.POST)
@@ -902,6 +977,10 @@ def employer_settings(request):
     business_permit_form = EmployerBusinessPermitForm(instance=profile)
     password_form = PasswordChangeForm(user=request.user)
     
+    # Get social links for the employer
+    social_links = request.user.social_links.all()
+    social_link_form = ApplicantSocialLinkForm()
+    
     context = {
         'profile': profile,
         'company_info_form': company_info_form,
@@ -909,6 +988,8 @@ def employer_settings(request):
         'contact_info_form': contact_info_form,
         'business_permit_form': business_permit_form,
         'password_form': password_form,
+        'social_links': social_links,
+        'social_link_form': social_link_form,
     }
     
     return render(request, 'dashboard/employer/employer_settings.html', context)
