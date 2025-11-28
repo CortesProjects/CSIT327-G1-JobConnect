@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize filter form auto-submit
     initFilterAutoSubmit();
     
+    // Initialize filter toggle panel
+    initFilterToggle();
+    
     // Initialize bookmark functionality
     initBookmarks();
     
@@ -43,6 +46,37 @@ function initFilterAutoSubmit() {
                 filtersForm.submit();
             }, 800);
         });
+    });
+}
+
+/**
+ * Toggle hidden filters panel when filter button is clicked
+ */
+function initFilterToggle(){
+    const toggleBtn = document.getElementById('toggleFiltersBtn');
+    const panel = document.getElementById('filtersPanel');
+    if (!toggleBtn || !panel) return;
+
+    // Simple event listener: toggle open/close and set ARIA attributes
+    toggleBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const isOpen = panel.classList.toggle('open');
+        panel.style.maxHeight = isOpen ? panel.scrollHeight + 'px' : '0px';
+        panel.setAttribute('aria-hidden', (!isOpen).toString());
+        toggleBtn.setAttribute('aria-expanded', isOpen.toString());
+        toggleBtn.classList.toggle('active', isOpen);
+    });
+
+    // Close panel when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!panel.classList.contains('open')) return;
+        if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
+            panel.classList.remove('open');
+            panel.style.maxHeight = '0px';
+            panel.setAttribute('aria-hidden', 'true');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.classList.remove('active');
+        }
     });
 }
 

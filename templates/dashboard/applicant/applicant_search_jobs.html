@@ -4,93 +4,82 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_search_jobs.css' %}">
-<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="applicant-search-jobs">
+<div>
     <div class="search-header">
         <h2>Find Your Dream Job</h2>
         <p>Discover opportunities that match your skills and career goals</p>
     </div>
-
-    <!-- Combined Search and Filter Bar -->
-    <div class="search-filter-bar">
+    <div>
         <form method="get" action="{% url 'dashboard:applicant_search_jobs' %}" id="searchFilterForm">
-            <!-- Top Row: Search Inputs and Filter Button -->
-            <div class="search-row">
+            <div class="search-row compact">
                 <div class="search-input-group">
                     <i class="fas fa-search"></i>
                     <input
                         type="text"
                         name="query"
                         value="{{ query }}"
-                        placeholder="Search by title or company"
+                        placeholder="Job tittle, Keyword..."
                         class="search-input"
                     >
                 </div>
-                <div class="search-input-group">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <input
-                        type="text"
-                        name="location"
-                        value="{{ location }}"
-                        placeholder="Search by city or country"
-                        class="search-input"
-                    >
+
+                <div class="search-actions">
+                    <button type="button" id="toggleFiltersBtn" class="filter-toggle" aria-expanded="false" aria-controls="filtersPanel">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    <button type="submit" class="find-btn">Find</button>
                 </div>
-                <button type="submit" class="filter-jobs-btn">
-                    Search jobs
-                </button>
             </div>
 
-            <!-- Bottom Row: Filter Dropdowns -->
-            <div class="filters-row">
-                <!-- Job Role Filter -->
-                <select name="job_role" id="job_role" class="filter-dropdown">
-                    <option value="">Category</option>
-                    {% for category in categories %}
-                    <option value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
+            <!-- Hidden filters: shown only when the filter icon is toggled -->
+            <div id="filtersPanel" class="filters-row collapsed" aria-hidden="true">
+                <div class="filters-grid">
+                    <select name="job_role" id="job_role" class="filter-dropdown">
+                        <option value="">Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
 
-                <!-- Job Type Filter -->
-                <select name="job_type" id="job_type" class="filter-dropdown">
-                    <option value="">Job type</option>
-                    {% for job_type in job_types %}
-                    <option value="{{ job_type.id }}" {% if job_type.id|stringformat:"s" in selected_job_types %}selected{% endif %}>{{ job_type.name }}</option>
-                    {% endfor %}
-                </select>
+                    <select name="education" id="education" class="filter-dropdown">
+                        <option value="">Education</option>
+                        {% for education in educations %}
+                        <option value="{{ education.id }}" {% if education.id|stringformat:"s" in selected_educations %}selected{% endif %}>{{ education.name }}</option>
+                        {% endfor %}
+                    </select>
 
-                <!-- Experience Filter -->
-                <select name="experience" id="experience" class="filter-dropdown">
-                    <option value="">Related tags</option>
-                    {% for experience in experiences %}
-                    <option value="{{ experience.id }}" {% if experience.id|stringformat:"s" in selected_experiences %}selected{% endif %}>{{ experience.name }}</option>
-                    {% endfor %}
-                </select>
+                    <select name="experience" id="experience" class="filter-dropdown">
+                        <option value="">Experience</option>
+                        {% for experience in experiences %}
+                        <option value="{{ experience.id }}" {% if experience.id|stringformat:"s" in selected_experiences %}selected{% endif %}>{{ experience.name }}</option>
+                        {% endfor %}
+                    </select>
 
-                <!-- Location/Education Filter -->
-                <select name="education" id="education" class="filter-dropdown">
-                    <option value="">Location</option>
-                    {% for education in educations %}
-                    <option value="{{ education.id }}" {% if education.id|stringformat:"s" in selected_educations %}selected{% endif %}>{{ education.name }}</option>
-                    {% endfor %}
-                </select>
+                    <select name="job_level" id="job_level" class="filter-dropdown">
+                        <option value="">Level</option>
+                        {% for job_level in job_levels %}
+                        <option value="{{ job_level.id }}" {% if job_level.id|stringformat:"s" in selected_job_levels %}selected{% endif %}>{{ job_level.name }}</option>
+                        {% endfor %}
+                    </select>
 
-                <!-- Job Level Filter -->
-                <select name="job_level" id="job_level" class="filter-dropdown">
-                    <option value="">Remote</option>
-                    {% for job_level in job_levels %}
-                    <option value="{{ job_level.id }}" {% if job_level.id|stringformat:"s" in selected_job_levels %}selected{% endif %}>{{ job_level.name }}</option>
-                    {% endfor %}
-                </select>
+                    <div class="salary-range-wrap">
+                        <label for="salary_min">Salary range</label>
+                        <div class="salary-inputs">
+                            <input type="number" name="salary_min" id="salary_min" placeholder="Min" value="{{ request.GET.salary_min }}" class="salary-input">
+                            <span class="salary-sep">—</span>
+                            <input type="number" name="salary_max" id="salary_max" placeholder="Max" value="{{ request.GET.salary_max }}" class="salary-input">
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </form>
     </div>
 
-    <!-- Job Results Section -->
-    <section class="jobs-results">
+    <section>
         <div class="results-header">
             {% if jobs %}
                 <h3 class="results-count">
@@ -108,7 +97,6 @@
         </div>
 
         {% if jobs %}
-            <!-- Jobs Table - Compact Design -->
             <table class="jobs-table">
                 <thead>
                     <tr>
@@ -137,10 +125,7 @@
                                 <div class="job-details">
                                     <div class="job-title">{{ job.title }}</div>
                                     <div class="company-name">{{ job.company_name }}</div>
-                                    <div class="job-meta-tags">
-                                        <span class="job-badge badge-type">{{ job.get_job_type_display }}</span>
-                                        <span class="job-badge badge-level">{{ job.get_job_level_display }}</span>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </td>
@@ -179,7 +164,7 @@
                                     <i class="fas fa-paper-plane"></i> Apply
                                 </a>
                                 <button class="btn-bookmark favorite-btn {% if job.id in favorited_job_ids %}active{% endif %}" data-job-id="{{ job.id }}">
-                                    <i class="{% if job.id in favorited_job_ids %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
+                                    <i class="{% if job.id in favorited_job_ids %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
                                 </button>
                             </div>
                         </td>
