@@ -52,112 +52,103 @@ def dashboard_view(request):
 
 @login_required
 def applicant_search_jobs(request):
-    """Search jobs for applicants with filters"""
+    """Search jobs for applicants with filters using Django form validation"""
     from jobs.models import (
-        Job, JobCategory, EmploymentType, EducationLevel, 
-        ExperienceLevel, JobLevel
+        Job, JobCategory, EducationLevel, 
+        ExperienceLevel, JobLevel, FavoriteJob
     )
     from django.db.models import Q, Count
+    from dashboard.forms import JobSearchForm
     
-    # GET parameters
-    query = request.GET.get("query", "")
-    location = request.GET.get("location", "")
-    job_type_ids = request.GET.getlist("job_type")
-    category_ids = request.GET.getlist("category")  # Changed from job_role to category
-    education_ids = request.GET.getlist("education")
-    experience_ids = request.GET.getlist("experience")
-    job_level_ids = request.GET.getlist("job_level")
-    salary_min = request.GET.get("salary_min")
-    salary_max = request.GET.get("salary_max")
-
-    # Start with active jobs only
-    jobs = Job.objects.filter(status='active')
-    
-    # Annotate with application counts
-    jobs = jobs.annotate(applications_count=Count('applications'))
-
-    # Keyword search
-    if query:
-        jobs = jobs.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(company_name__icontains=query)
-        )
-
-    # Location filter
-    if location:
-        jobs = jobs.filter(location__icontains=location)
-
-    # Job type filter (FK to EmploymentType)
-    if job_type_ids:
-        jobs = jobs.filter(job_type_id__in=job_type_ids)
-
-    # Category filter (FK to JobCategory, was job_role)
-    if category_ids:
-        jobs = jobs.filter(category_id__in=category_ids)
-
-    # Education filter (FK to EducationLevel)
-    if education_ids:
-        jobs = jobs.filter(education_id__in=education_ids)
-
-    # Experience filter (FK to ExperienceLevel)
-    if experience_ids:
-        jobs = jobs.filter(experience_id__in=experience_ids)
-
-    # Job level filter (FK to JobLevel)
-    if job_level_ids:
-        jobs = jobs.filter(job_level_id__in=job_level_ids)
-
-    # Salary filter
-    if salary_min:
-        jobs = jobs.filter(min_salary__gte=salary_min)
-
-    if salary_max:
-        jobs = jobs.filter(max_salary__lte=salary_max)
-
-    # Order by most recent
-    jobs = jobs.order_by('-posted_at')
-
     # Get filter options from lookup tables (only active items)
-    all_job_types = EmploymentType.objects.filter(is_active=True)
     all_categories = JobCategory.objects.filter(is_active=True)
     all_educations = EducationLevel.objects.filter(is_active=True)
     all_experiences = ExperienceLevel.objects.filter(is_active=True)
     all_job_levels = JobLevel.objects.filter(is_active=True)
-
+    
+    # Prepare choices for form fields
+    category_choices = [('', 'Category')] + [(str(c.id), c.name) for c in all_categories]
+    education_choices = [('', 'Education')] + [(str(e.id), e.name) for e in all_educations]
+    experience_choices = [('', 'Experience')] + [(str(e.id), e.name) for e in all_experiences]
+    job_level_choices = [('', 'Level')] + [(str(j.id), j.name) for j in all_job_levels]
+    
+    # Initialize form with GET data and dynamic choices
+    form = JobSearchForm(
+        request.GET or None,
+        category_choices=category_choices,
+        education_choices=education_choices,
+        experience_choices=experience_choices,
+        job_level_choices=job_level_choices
+    )
+    
+    # Start with active jobs only
+    jobs = Job.objects.filter(status='active').annotate(applications_count=Count('applications'))
+    
+    # Apply filters only if form is valid
+    if form.is_valid():
+        cleaned_data = form.cleaned_data
+        
+        # Keyword search
+        query = cleaned_data.get('query')
+        if query:
+            # Search title, description, company name, legacy tags field, and related Tag names
+            jobs = jobs.filter(
+                Q(title__icontains=query) |
+                Q(description__icontains=query) |
+                Q(company_name__icontains=query) |
+                Q(tags__icontains=query) |
+                Q(job_tags__tag__name__icontains=query)
+            ).distinct()
+        
+        # Category filter (single-select)
+        category_val = cleaned_data.get('category')
+        if category_val:
+            jobs = jobs.filter(category_id=category_val)
+        
+        # Education filter (single-select)
+        education_val = cleaned_data.get('education')
+        if education_val:
+            jobs = jobs.filter(education_id=education_val)
+        
+        # Experience filter (single-select)
+        experience_val = cleaned_data.get('experience')
+        if experience_val:
+            jobs = jobs.filter(experience_id=experience_val)
+        
+        # Job level filter (single-select)
+        job_level_val = cleaned_data.get('job_level')
+        if job_level_val:
+            jobs = jobs.filter(job_level_id=job_level_val)
+        
+        # Salary filter
+        salary_min = cleaned_data.get('salary_min')
+        if salary_min:
+            jobs = jobs.filter(min_salary__gte=salary_min)
+        
+        salary_max = cleaned_data.get('salary_max')
+        if salary_max:
+            jobs = jobs.filter(max_salary__lte=salary_max)
+    
+    # Order by most recent
+    jobs = jobs.order_by('-posted_at')
+    
     # Get favorited job IDs for the current applicant
-    from jobs.models import FavoriteJob
     favorited_job_ids = []
     if request.user.is_authenticated and request.user.user_type == 'applicant':
         favorited_job_ids = list(
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
-
+    
     context = {
+        "form": form,
         "jobs": jobs,
-        "query": query,
-        "location": location,
-        "salary_min": salary_min,
-        "salary_max": salary_max,
-
-        # Dynamic filters (querysets of lookup model objects)
-        "job_types": all_job_types,
-        "categories": all_categories,  # Changed from job_roles to categories
+        "categories": all_categories,
         "educations": all_educations,
         "experiences": all_experiences,
         "job_levels": all_job_levels,
-
-        # Persist selected values (IDs)
-        "selected_job_types": job_type_ids,
-        "selected_categories": category_ids,  # Changed from job_roles
-        "selected_educations": education_ids,
-        "selected_experiences": experience_ids,
-        "selected_job_levels": job_level_ids,
-        
-        # Favorite status
         "favorited_job_ids": favorited_job_ids,
     }
-
+    
     return render(request, 'dashboard/applicant/applicant_search_jobs.html', context)
 
 @login_required
@@ -186,15 +177,30 @@ def applicant_favorite_jobs(request):
         'job__job_level'
     ).order_by('-created_at')
     
+    # Get list of favorited job IDs (all jobs in favorites by definition)
+    favorited_job_ids = list(favorites.values_list('job_id', flat=True))
+    
     context = {
         'favorites': favorites,
-        'favorite_count': favorites.count()
+        'favorite_count': favorites.count(),
+        'favorited_job_ids': favorited_job_ids,
     } 
     return render(request, 'dashboard/applicant/applicant_favorite_jobs.html', context)
 
 @login_required
 def applicant_job_alerts(request):
-    context = {} 
+    from jobs.models import FavoriteJob
+    
+    # Get favorited job IDs for bookmark state
+    favorited_job_ids = []
+    if request.user.is_authenticated and request.user.user_type == 'applicant':
+        favorited_job_ids = list(
+            FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
+        )
+    
+    context = {
+        'favorited_job_ids': favorited_job_ids,
+    } 
     return render(request, 'dashboard/applicant/applicant_job_alerts.html', context)
 
 @login_required

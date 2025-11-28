@@ -455,3 +455,195 @@ class EmployerBusinessPermitForm(forms.ModelForm):
                 raise forms.ValidationError(f"Only {', '.join(allowed_extensions).upper()} files are allowed.")
         return permit
 
+
+# =====================================================
+# JOB SEARCH FORMS
+# =====================================================
+
+class JobSearchForm(forms.Form):
+    """Form for job search with filters and validation"""
+    
+    query = forms.CharField(
+        max_length=200,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'search-input',
+            'placeholder': 'Job title, Keyword...',
+            'id': 'id_query'
+        }),
+        label='Search'
+    )
+    
+    category = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'filter-dropdown',
+            'id': 'job_role'
+        }),
+        label='Category'
+    )
+    
+    education = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'filter-dropdown',
+            'id': 'education'
+        }),
+        label='Education'
+    )
+    
+    experience = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'filter-dropdown',
+            'id': 'experience'
+        }),
+        label='Experience'
+    )
+    
+    job_level = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'filter-dropdown',
+            'id': 'job_level'
+        }),
+        label='Level'
+    )
+    
+    salary_min = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'salary-input',
+            'placeholder': 'Min',
+            'id': 'salary_min'
+        }),
+        label='Minimum Salary'
+    )
+    
+    salary_max = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'salary-input',
+            'placeholder': 'Max',
+            'id': 'salary_max'
+        }),
+        label='Maximum Salary'
+    )
+    
+    def __init__(self, *args, **kwargs):
+        # Extract choices from kwargs
+        category_choices = kwargs.pop('category_choices', [])
+        education_choices = kwargs.pop('education_choices', [])
+        experience_choices = kwargs.pop('experience_choices', [])
+        job_level_choices = kwargs.pop('job_level_choices', [])
+        
+        super().__init__(*args, **kwargs)
+        
+        # Set dynamic choices for select fields
+        self.fields['category'].choices = category_choices
+        self.fields['education'].choices = education_choices
+        self.fields['experience'].choices = experience_choices
+        self.fields['job_level'].choices = job_level_choices
+    
+    def clean_query(self):
+        """Validate and sanitize search query"""
+        query = self.cleaned_data.get('query', '').strip()
+        if query:
+            # Limit query length
+            if len(query) > 200:
+                raise forms.ValidationError("Search query is too long. Maximum 200 characters.")
+            # Basic sanitization - remove dangerous characters
+            dangerous_chars = ['<', '>', '{', '}', '|', '\\', '^', '`']
+            for char in dangerous_chars:
+                if char in query:
+                    raise forms.ValidationError("Search query contains invalid characters.")
+        return query
+    
+    def clean(self):
+        """Cross-field validation"""
+        cleaned_data = super().clean()
+        salary_min = cleaned_data.get('salary_min')
+        salary_max = cleaned_data.get('salary_max')
+        
+        # Validate salary range
+        if salary_min and salary_max:
+            if salary_min > salary_max:
+                raise forms.ValidationError({
+                    'salary_max': 'Maximum salary must be greater than or equal to minimum salary.'
+                })
+            
+            # Check reasonable salary range
+            if salary_max - salary_min > 10000000:  # 10M difference limit
+                raise forms.ValidationError({
+                    'salary_max': 'Salary range is too wide. Please enter a more specific range.'
+                })
+        
+        # Validate salary values are reasonable
+        if salary_min and salary_min > 100000000:  # 100M limit
+            raise forms.ValidationError({
+                'salary_min': 'Minimum salary value is unrealistic. Please enter a valid amount.'
+            })
+        
+        if salary_max and salary_max > 100000000:  # 100M limit
+            raise forms.ValidationError({
+                'salary_max': 'Maximum salary value is unrealistic. Please enter a valid amount.'
+            })
+        
+        return cleaned_data
+
+
+class FavoriteJobForm(forms.Form):
+    """Form for favoriting/unfavoriting a job with validation"""
+    
+    job_id = forms.IntegerField(
+        required=True,
+        min_value=1,
+        error_messages={
+            'required': 'Job ID is required.',
+            'invalid': 'Invalid job ID.',
+            'min_value': 'Invalid job ID.'
+        }
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+    
+    def clean_job_id(self):
+        """Validate that the job exists and is active"""
+        from jobs.models import Job
+        job_id = self.cleaned_data.get('job_id')
+        
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            raise forms.ValidationError('Job not found.')
+        
+        # Check if job is active
+        if job.status != 'active':
+            raise forms.ValidationError('This job is no longer available.')
+        
+        # Store job instance for later use
+        self.cleaned_data['job'] = job
+        return job_id
+    
+    def clean(self):
+        """Additional validation"""
+        cleaned_data = super().clean()
+        
+        # Validate user is an applicant
+        if self.user:
+            if not hasattr(self.user, 'user_type') or self.user.user_type != 'applicant':
+                raise forms.ValidationError('Only applicants can favorite jobs.')
+            
+            if not self.user.is_authenticated:
+                raise forms.ValidationError('You must be logged in to favorite jobs.')
+        
+        return cleaned_data
+

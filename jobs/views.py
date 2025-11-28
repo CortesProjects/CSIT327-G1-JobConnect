@@ -118,18 +118,45 @@ def job_suggestions(request):
 @login_required
 @require_POST
 def toggle_favorite_job(request, job_id):
-    """Toggle favorite status for a job. Returns JSON with new state."""
-    if request.user.user_type != 'applicant':
+    from dashboard.forms import FavoriteJobForm
+
+    if request.method != 'POST':
         return JsonResponse({
             'success': False,
-            'error': 'Only applicants can favorite jobs'
-        }, status=403)
-    
-    job = get_object_or_404(Job, id=job_id)
-    
+            'error': 'Invalid request method. Use POST.'
+        }, status=405)
+
+    form = FavoriteJobForm(data={'job_id': job_id}, user=request.user)
+
+    if not form.is_valid():
+        errors = form.errors.get_json_data()
+        error_message = 'Invalid request.'
+
+        if '__all__' in errors:
+            error_message = errors['__all__'][0]['message']
+        elif 'job_id' in errors:
+            error_message = errors['job_id'][0]['message']
+
+        # If AJAX request, return JSON error
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'error': error_message
+            }, status=400)
+
+        # Non-AJAX: set a message and redirect back
+        from django.contrib import messages
+        messages.error(request, error_message)
+        from django.shortcuts import redirect
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    # Get validated job from form
+    job = form.cleaned_data['job']
+
     # Check if already favorited
     favorite = FavoriteJob.objects.filter(applicant=request.user, job=job).first()
-    
+
     if favorite:
         # Remove from favorites
         favorite.delete()
@@ -140,12 +167,22 @@ def toggle_favorite_job(request, job_id):
         FavoriteJob.objects.create(applicant=request.user, job=job)
         is_favorited = True
         message = 'Job added to favorites'
-    
-    return JsonResponse({
-        'success': True,
-        'is_favorited': is_favorited,
-        'message': message
-    })
+
+    # If AJAX, return JSON response
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+    if is_ajax:
+        return JsonResponse({
+            'success': True,
+            'is_favorited': is_favorited,
+            'message': message
+        })
+
+    # Non-AJAX: show a message and redirect back
+    from django.contrib import messages
+    from django.shortcuts import redirect
+
+    messages.success(request, message)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required

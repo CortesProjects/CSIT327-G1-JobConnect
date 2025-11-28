@@ -53,10 +53,15 @@
                         </div>
                     </div>
                 {% else %}
-                    <!-- Applicant View: heart + Apply -->
-                    <button class="square-heart favorite-btn {% if is_favorited %}active{% endif %}" data-job-id="{{ job.id }}">
-                        <i class="{% if is_favorited %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
-                    </button>
+                    <!-- Applicant View: bookmark + Apply -->
+                    {% if user.is_authenticated and user.user_type == 'applicant' %}
+                    <form method="post" action="{% url 'jobs:toggle_favorite_job' job.id %}" class="favorite-form d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="square-heart bookmark-btn {% if is_favorited %}active{% endif %}" data-job-id="{{ job.id }}" title="{% if is_favorited %}Remove bookmark{% else %}Add bookmark{% endif %}">
+                            <i class="{% if is_favorited %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
+                        </button>
+                    </form>
+                    {% endif %}
                     {% if user.is_authenticated and user.user_type == 'applicant' %}
                         {% if has_applied %}
                                 <button class="apply-btn applied" disabled><i class="fas fa-check"></i> Applied</button>

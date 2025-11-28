@@ -62,9 +62,26 @@
 .btn-view-details i { margin-left:6px; }
 
 .bookmark-btn {
-    width:44px; height:44px; display:grid; place-items:center; border-radius:8px; border:1px solid var(--border-color); background:transparent; cursor:pointer; color:var(--text-color-light);
+    width:44px; height:44px; 
+    display:grid; 
+    place-items:center; 
+    border-radius:8px; 
+    border:1px solid var(--border-color); 
+    background:transparent; 
+    cursor:pointer; 
+    color:var(--text-color-light);
 }
-.bookmark-btn:hover { color:var(--primary-color); border-color:var(--primary-color); background:var(--secondary-color); }
+
+.bookmark-btn:active {
+    color:var(--primary-color); 
+    border-color:var(--primary-color); 
+    background:var(--primary-bg); 
+}
+.bookmark-btn:hover { 
+    color:var(--primary-color); 
+    border-color:var(--primary-color); 
+    background:var(--secondary-color); 
+}
 .bookmark-btn i { font-size:18px; }
 
 /* Responsive adjustments */
