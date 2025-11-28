@@ -137,7 +137,6 @@
 .form-group input[type="url"],
 .form-group input[type="tel"],
 .form-group input[type="date"],
-.form-group input[type="password"],
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -197,21 +196,42 @@
     align-items: flex-start;
 }
 
+.form-row-three-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 /* Input with Icon */
 .input-with-icon {
     position: relative;
 }
 
-.input-with-icon i {
+.input-with-icon > i:not(.toggle-password) {
+    /* Non-toggle icons (e.g. envelope) should sit on the left */
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
     color: #6c757d;
     font-size: 14px;
+    z-index: 1;
 }
 
+/* Default input padding: small left padding so password fields don't have large empty space. Reserve right padding for the eye toggle. */
 .input-with-icon input {
+    padding-left: 12px;
+    padding-right: 44px;
+    /* Ensure padding doesn't increase element's rendered width and push the toggle out of the container */
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* If a left icon element immediately precedes the input, expand left padding to make room. Works when template renders icon before the input. */
+.input-with-icon > i:not(.toggle-password) + input,
+.input-with-icon > i:not(.toggle-password) + select,
+.input-with-icon > i:not(.toggle-password) + textarea {
     padding-left: 45px !important;
 }
 
@@ -715,51 +735,91 @@
     box-shadow: 0 2px 4px rgba(128, 0, 0, 0.2);
 }
 
-/* Password Input */
-.password-input {
-    position: relative;
-}
-
-.password-input input {
-    padding-right: 45px !important;
-}
-
-.toggle-password {
+/* Password Input & Toggle */
+.input-with-icon .toggle-password {
     position: absolute;
     right: 12px;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
-    border: none;
     color: #6c757d;
     cursor: pointer;
-    padding: 5px;
+    font-size: 16px;
     transition: color 0.3s ease;
+    z-index: 2;
 }
 
-.toggle-password:hover {
+.input-with-icon .toggle-password:hover {
     color: var(--primary-color);
 }
 
-.password-requirements {
-    list-style: none;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
-
-.password-requirements li {
-    padding: 5px 0;
-    font-size: 13px;
-    color: #6c757d;
+/* Password strength meter and match indicator (UI-only, visual feedback) */
+.password-strength {
+    margin-top: 10px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    font-size: 13px;
+    color: #495057;
 }
 
-.password-requirements li i {
-    color: var(--primary-color);
+.password-strength .bar {
+    flex: 1 1 auto;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.password-strength .bar span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff6b6b, #dc3545);
+    transition: width 240ms ease;
+}
+
+.password-strength.weak .bar span {
+    background: linear-gradient(90deg, #ff6b6b, #ff8a80);
+}
+
+.password-strength.good .bar span {
+    background: linear-gradient(90deg, #ffc107, #ffb300);
+}
+
+.password-strength.strong .bar span {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.password-strength .label {
+    min-width: 80px;
+    text-align: right;
+    color: #6c757d;
     font-size: 12px;
+}
+
+.password-match {
+    margin-top: 8px;
+}
+
+.password-match .match {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.password-match.good .match {
+    color: #28a745;
+}
+
+.password-match.bad .match {
+    color: #dc3545;
+}
+
+input.valid:focus,
+select.valid:focus,
+textarea.valid:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
 /* Save Button */
@@ -1002,6 +1062,133 @@
     display: none;
 }
 
+/* =====================================================
+   DELETE ACCOUNT SECTION STYLES
+===================================================== */
+
+.delete-account-section {
+    background-color: #fff5f5;
+    border: 2px solid #dc3545;
+    padding: 25px;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+.delete-account-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.delete-warning {
+    color: #721c24;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.btn-delete-account {
+    padding: 12px 24px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-delete-account:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete-account i {
+    font-size: 16px;
+}
+
+/* Delete Account Modal Styles */
+.delete-confirm-modal {
+    max-width: 550px;
+    padding: 20px;
+}
+
+.delete-modal-header {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #dc3545;
+}
+
+.delete-modal-header i {
+    font-size: 60px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.delete-modal-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.delete-modal-body p {
+    margin-bottom: 15px;
+    color: #495057;
+    line-height: 1.6;
+}
+
+.delete-modal-body ul {
+    margin: 15px 0;
+    padding-left: 25px;
+    color: #495057;
+}
+
+.delete-modal-body ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.btn-delete-confirm {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+    background-color: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete-confirm:disabled {
+    background-color: #e4606d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-delete-confirm i {
+    margin-right: 8px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
@@ -1034,6 +1221,11 @@
     
     .form-row {
         grid-template-columns: 1fr;
+    }
+    
+    .form-row-three-columns {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .image-preview {
