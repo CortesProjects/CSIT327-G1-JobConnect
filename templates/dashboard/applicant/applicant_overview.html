@@ -12,7 +12,7 @@
 <div class="stats-cards-container">
     <div class="stat-card blue">
         <div class="stat-info " >
-            <span class="stat-number">0</span>
+            <span class="stat-number">{{ applied_count|default:0 }}</span>
             <span class="stat-label">Applied jobs</span>
         </div>
         <div class="stat-icon-bg blue">
@@ -21,7 +21,7 @@
     </div>
     <div class="stat-card yellow">
         <div class="stat-info ">
-            <span class="stat-number">0</span>
+            <span class="stat-number">{{ favorite_count|default:0 }}</span>
             <span class="stat-label">Favorite jobs</span>
         </div>
         <div class="stat-icon-bg yellow">
@@ -30,7 +30,7 @@
     </div>
     <div class="stat-card green">
         <div class="stat-info">
-            <span class="stat-number">0</span>
+            <span class="stat-number">{{ alerts_count|default:0 }}</span>
             <span class="stat-label">Job Alerts</span>
         </div>
         <div class="stat-icon-bg green">
@@ -39,13 +39,14 @@
     </div>
 </div>
 
-{% if user.user_type == 'applicant' and not user.profile.is_complete %}
+{# Profile completion prompt: use profile.is_complete property and profile_image_url helper #}
+{% if user.user_type == 'applicant' and profile and not profile.is_complete %}
 <div class="profile-completion-prompt">
     <div class="prompt-content">
-        <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="prompt-profile-img">
+        <img src="{{ profile.profile_image_url }}" alt="Profile Picture" class="prompt-profile-img">
         <div class="prompt-text">
-            <h4>Your profile editing is not completed.</h4>
-            <p>Complete your profile editing & build your custom Resume</p>
+            <h4>Your profile is not complete.</h4>
+            <p>Complete your profile to increase your chances—add a photo, resume, and contact details.</p>
         </div>
     </div>
     <a href="{% url 'dashboard:applicant_settings' %}" class="edit-profile-btn">

@@ -25,7 +25,25 @@ from .forms import (
 def dashboard_view(request):
     user = request.user
     if user.user_type == 'applicant':
-        return render(request, 'dashboard/applicant/applicant_overview.html')
+        # Gather applicant-specific stats
+        from jobs.models import JobApplication, FavoriteJob, JobAlert
+        applied_count = JobApplication.objects.filter(applicant=user).count()
+        favorite_count = FavoriteJob.objects.filter(applicant=user).count()
+        alerts_count = JobAlert.objects.filter(user=user).count()
+
+        # Ensure profile exists
+        try:
+            profile = user.profile
+        except Exception:
+            profile = None
+
+        context = {
+            'applied_count': applied_count,
+            'favorite_count': favorite_count,
+            'alerts_count': alerts_count,
+            'profile': profile,
+        }
+        return render(request, 'dashboard/applicant/applicant_overview.html', context)
     elif user.user_type == 'employer':
         from jobs.models import Job
         from django.db.models import Count
