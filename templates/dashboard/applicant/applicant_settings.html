@@ -47,9 +47,9 @@
                 <div class="basic-info-container">
                     <div class="form-group profile-picture">
                         <label>Profile Picture</label>
-                        {% if profile.image and profile.image.url != '/media/defaults/default-avatar.png' %}
-                        <div class="image-preview has-image" id="profile-preview" onclick="document.getElementById('id_image').click()">
-                            <img src="{{ profile.image.url }}" alt="Profile Picture">
+                        {% if profile.profile_image and profile.profile_image.url != '/media/defaults/default-avatar.png' %}
+                        <div class="image-preview has-image" id="profile-preview" onclick="document.getElementById('{{ personal_info_form.profile_image.id_for_label }}').click()">
+                            <img src="{{ profile.profile_image.url }}" alt="Profile Picture">
                             <div class="hover-overlay">
                                 <i class="fas fa-cloud-upload-alt"></i>
                                 <p><span>Browse photo</span> or drop here</p>
@@ -57,7 +57,7 @@
                             </div>
                         </div>
                         {% else %}
-                        <div class="empty-state-box" onclick="document.getElementById('id_image').click()">
+                        <div class="empty-state-box" onclick="document.getElementById('{{ personal_info_form.profile_image.id_for_label }}').click()">
                             <i class="fas fa-user-circle"></i>
                             <p>No profile picture uploaded yet</p>
                             <button type="button" class="btn-upload-empty">
@@ -65,6 +65,10 @@
                             </button>
                         </div>
                         {% endif %}
+                        <!-- Render hidden file input for profile image so JS can trigger it -->
+                        <div style="display:none;">
+                            {{ personal_info_form.profile_image }}
+                        </div>
                     </div>
                     <div class="form-group-wrapper">
                         <div class="form-group">
@@ -468,7 +472,7 @@
 
 <script>
 // Profile picture preview
-const imageInput = document.getElementById('id_image');
+const imageInput = document.getElementById('{{ personal_info_form.profile_image.id_for_label }}');
 if (imageInput) {
     imageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -498,7 +502,7 @@ if (imageInput) {
                         const previewDiv = document.createElement('div');
                         previewDiv.className = 'image-preview has-image';
                         previewDiv.id = 'profile-preview';
-                        previewDiv.onclick = function() { document.getElementById('id_image').click(); };
+                        previewDiv.onclick = function() { document.getElementById('{{ personal_info_form.profile_image.id_for_label }}').click(); };
                         previewDiv.innerHTML = `
                             <img src="${event.target.result}" alt="Profile Preview">
                             <div class="hover-overlay">
@@ -884,7 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Validate file uploads
-    const imageInput = document.getElementById('id_image');
+    const imageInput = document.getElementById('{{ personal_info_form.profile_image.id_for_label }}');
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
             validateImageFile(this);
@@ -1112,5 +1116,7 @@ function showNotification(message, type = 'info') {
 }
 </script>
 
-<!-- Remove the Add CV/Resume Modal as it's no longer needed -->
+<!-- Load applicant settings UI-only script (validation is server-side) -->
+<script src="{% static 'js/dashboard/applicant/applicant_settings.js' %}"></script>
+
 {% endblock %}

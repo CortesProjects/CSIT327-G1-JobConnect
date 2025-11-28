@@ -1,0 +1,225 @@
+// applicant_settings.js
+// UI-only behaviors for applicant settings page. All validation is server-side.
+
+(function () {
+    'use strict';
+
+    // Helpers
+    function formatFileSize(bytes) {
+        if (!bytes) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Profile picture preview (no validation here; server validates on submit)
+    function initProfilePreview() {
+        const input = document.querySelector('input[name="profile_image"]') || document.getElementById('id_profile_image');
+        if (!input) return;
+
+        input.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                const preview = document.getElementById('profile-preview');
+                if (preview) {
+                    let img = preview.querySelector('img');
+                    if (img) {
+                        img.src = ev.target.result;
+                    } else {
+                        preview.innerHTML = `\n                            <img src="${ev.target.result}" alt="Profile Preview">\n                            <div class="hover-overlay">\n                                <i class="fas fa-cloud-upload-alt"></i>\n                                <p><span>Browse photo</span> or drop here</p>\n                                <small>Max photo size 5 MB</small>\n                            </div>`;
+                    }
+                    preview.classList.add('has-image');
+                } else {
+                    const emptyBox = document.querySelector('.profile-picture .empty-state-box');
+                    if (emptyBox) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-preview has-image';
+                        previewDiv.id = 'profile-preview';
+                        previewDiv.onclick = function () { (document.querySelector('input[name="profile_image"]') || document.getElementById('id_profile_image')).click(); };
+                        previewDiv.innerHTML = `\n                            <img src="${ev.target.result}" alt="Profile Preview">\n                            <div class="hover-overlay">\n                                <i class="fas fa-cloud-upload-alt"></i>\n                                <p><span>Browse photo</span> or drop here</p>\n                                <small>Max photo size 5 MB</small>\n                            </div>`;
+                        emptyBox.parentNode.insertBefore(previewDiv, emptyBox);
+                        emptyBox.style.display = 'none';
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Tabs
+    function initTabs() {
+        const tabLinks = Array.from(document.querySelectorAll('.settings-nav a'));
+        const tabPanels = Array.from(document.querySelectorAll('.tab-content'));
+        if (!tabLinks.length || !tabPanels.length) return;
+
+        function activateTab(targetTab, { updateHash = true, resetTransient = true } = {}) {
+            tabLinks.forEach(link => {
+                const isActive = link.dataset.tab === targetTab;
+                link.classList.toggle('active', isActive);
+                link.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            tabPanels.forEach(panel => {
+                const isActive = panel.id === `${targetTab}-tab`;
+                panel.classList.toggle('active', isActive);
+                panel.toggleAttribute('hidden', !isActive);
+                if (isActive) panel.removeAttribute('aria-hidden'); else panel.setAttribute('aria-hidden', 'true');
+            });
+
+            if (resetTransient) {
+                document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('active'));
+                const resumeModal = document.getElementById('resumeModal');
+                if (resumeModal && resumeModal.classList.contains('active')) {
+                    resumeModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            if (updateHash) {
+                if (window.history && typeof history.replaceState === 'function') {
+                    history.replaceState(null, '', `#${targetTab}`);
+                } else {
+                    window.location.hash = targetTab;
+                }
+            }
+        }
+
+        tabLinks.forEach(link => {
+            link.setAttribute('role', 'tab');
+            link.setAttribute('aria-controls', `${link.dataset.tab}-tab`);
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                activateTab(link.dataset.tab);
+            });
+        });
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && tabLinks.some(link => link.dataset.tab === hash)) {
+                activateTab(hash, { updateHash: false });
+            }
+        });
+
+        const initialTab = (() => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && tabLinks.some(link => link.dataset.tab === hash)) return hash;
+            const activeLink = tabLinks.find(link => link.classList.contains('active'));
+            return activeLink ? activeLink.dataset.tab : tabLinks[0]?.dataset.tab;
+        })();
+
+        if (initialTab) activateTab(initialTab, { updateHash: false, resetTransient: false });
+    }
+
+    // Resume modal & upload area (no validation)
+    function initResumeModal() {
+        const resumeModal = document.getElementById('resumeModal');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileAttached = document.getElementById('fileAttached');
+        const attachedFileName = document.getElementById('attachedFileName');
+        const attachedFileSize = document.getElementById('attachedFileSize');
+        const resumeInput = document.querySelector('input[name="resume"]') || document.getElementById('id_resume');
+
+        window.openResumeModal = function () {
+            if (resumeModal) {
+                resumeModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closeResumeModal = function () {
+            if (resumeModal) resumeModal.classList.remove('active');
+            document.body.style.overflow = '';
+            const form = document.getElementById('resumeForm');
+            if (form) form.reset();
+            resetUploadArea();
+        };
+
+        function resetUploadArea() {
+            if (!uploadArea) return;
+            uploadArea.classList.remove('has-file');
+            if (fileAttached) fileAttached.style.display = 'none';
+            const uploadPrompt = uploadArea.querySelector('.upload-prompt');
+            if (uploadPrompt) uploadPrompt.style.display = 'flex';
+            if (attachedFileName) attachedFileName.textContent = '';
+            if (attachedFileSize) attachedFileSize.textContent = '';
+        }
+
+        window.resetUploadArea = resetUploadArea;
+
+        if (resumeInput) {
+            resumeInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) { resetUploadArea(); return; }
+                if (attachedFileName) attachedFileName.textContent = file.name;
+                if (attachedFileSize) attachedFileSize.textContent = formatFileSize(file.size);
+                if (uploadArea) uploadArea.classList.add('has-file');
+                if (fileAttached) fileAttached.style.display = 'flex';
+                const uploadPrompt = uploadArea.querySelector('.upload-prompt');
+                if (uploadPrompt) uploadPrompt.style.display = 'none';
+            });
+        }
+    }
+
+    // Social links UI
+    function initSocialLinks() {
+        const addButton = document.querySelector('[data-action="show-add-social-link"]');
+        const addForm = document.getElementById('add-social-link-form');
+        const cancelBtn = document.querySelector('[data-action="cancel-add-social-link"]');
+        const socialLinksList = document.getElementById('social-links-list');
+
+        function hideAdd() { if (addForm) addForm.classList.add('is-hidden'); if (addButton) addButton.classList.remove('is-hidden'); }
+        function showAdd() { if (addForm) addForm.classList.remove('is-hidden'); if (addButton) addButton.classList.add('is-hidden'); }
+
+        if (addButton) addButton.addEventListener('click', showAdd);
+        if (cancelBtn) cancelBtn.addEventListener('click', hideAdd);
+
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.dataset && e.target.dataset.action === 'delete-link') {
+                const item = e.target.closest('.social-link-item');
+                if (item && confirm('Remove this social link? (Changes will apply after clicking Save Changes)')) item.remove();
+            }
+        });
+    }
+
+    // Password toggle visibility
+    function initPasswordToggles() {
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                const input = this.previousElementSibling;
+                if (!input) return;
+                if (input.type === 'password') { input.type = 'text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); }
+                else { input.type = 'password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }
+            });
+        });
+    }
+
+    // Resume action menu toggle
+    function initResumeMenuToggle() {
+        document.querySelectorAll('.action-menu-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const menu = this.nextElementSibling;
+                document.querySelectorAll('.action-menu').forEach(m => { if (m !== menu) m.classList.remove('active'); });
+                if (menu) menu.classList.toggle('active');
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.resume-card')) document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('active'));
+        });
+    }
+
+    // Init all
+    document.addEventListener('DOMContentLoaded', function () {
+        initProfilePreview();
+        initTabs();
+        initResumeModal();
+        initSocialLinks();
+        initPasswordToggles();
+        initResumeMenuToggle();
+    });
+
+})();
