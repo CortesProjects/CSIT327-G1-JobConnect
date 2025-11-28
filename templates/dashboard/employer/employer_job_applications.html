@@ -14,7 +14,7 @@
             <nav class="breadcrumb">
                 <a href="{% url 'dashboard:employer_my_jobs' %}"><i class="fas fa-briefcase"></i> My Jobs</a>
                 <span class="separator">/</span>
-                <a href="#">{{ job.title }}</a>
+                <a href="{% url 'jobs:job_detail' job.id %}?from=myjobs">{{ job.title }}</a>
                 <span class="separator">/</span>
                 <span class="current">Applications</span>
             </nav>
@@ -118,10 +118,10 @@
                 </div>
             </div>
 
-            <div class="applications-list">
+            <div class="applications-list" data-stage-id="all">
                 {% if all_applications %}
-                    {% for applicant in all_applications %}
-                        {% include 'dashboard/employer/components/application_card.html' with applicant=applicant %}
+                    {% for application in all_applications %}
+                        {% include 'dashboard/employer/components/application_card.html' with application=application %}
                     {% endfor %}
                 {% else %}
                     <div class="empty-state">
@@ -132,14 +132,14 @@
             </div>
         </div>
 
-        <!-- Dynamic Custom Columns (e.g., Shortlisted, Interview, Hired, etc.) -->
+        <!-- Dynamic Custom Columns (e.g., Shortlisted, Interview, etc.) -->
         {% if custom_columns %}
             {% for column in custom_columns %}
-            <div class="applications-column">
+            <div class="applications-column" data-stage-id="{{ column.id }}">
                 <div class="column-header">
                     <div class="column-title-group">
                         <h2 class="column-title">{{ column.name }}</h2>
-                        <span class="count-badge">{{ column.applications.count|default:0 }}</span>
+                        <span class="count-badge">{{ column.applications.count }}</span>
                     </div>
                     <button class="btn-column-menu">
                         <i class="fas fa-ellipsis-h"></i>
@@ -156,15 +156,46 @@
                     </div>
                 </div>
 
-                <div class="applications-list">
-                    {% if column.applications %}
-                        {% for applicant in column.applications %}
-                            {% include 'dashboard/employer/components/application_card.html' with applicant=applicant %}
+                <div class="applications-list" data-stage-id="{{ column.id }}">
+                    {% if column.applications.all %}
+                        {% for application in column.applications.all %}
+                            {% include 'dashboard/employer/components/application_card.html' with application=application %}
                         {% endfor %}
                     {% else %}
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <p>No applications in this stage</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- System Columns (e.g., Hired - non-editable) -->
+        {% if system_columns %}
+            {% for column in system_columns %}
+            <div class="applications-column system-column" data-stage-id="{{ column.id }}" style="background-color: #f0f9ff; border: 2px solid #28a745;">
+                <div class="column-header">
+                    <div class="column-title-group">
+                        <h2 class="column-title">
+                            <i class="fas fa-check-circle" style="color: #28a745; margin-right: 0.5rem;"></i>
+                            {{ column.name }}
+                        </h2>
+                        <span class="count-badge" style="background-color: #28a745;">{{ column.applications.count }}</span>
+                    </div>
+                    <!-- No edit/delete menu for system columns -->
+                </div>
+
+                <div class="applications-list" data-stage-id="{{ column.id }}">
+                    {% if column.applications.all %}
+                        {% for application in column.applications.all %}
+                            {% include 'dashboard/employer/components/application_card.html' with application=application %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-user-check"></i>
+                            <p>No hired candidates yet</p>
                         </div>
                     {% endif %}
                 </div>
@@ -191,19 +222,25 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="stageName">Column Name</label>
-                <input type="text" id="stageName" class="form-input" placeholder="e.g., Shortlisted, Interview, Hired" autocomplete="off">
-                <small class="form-hint">Enter a name for this application column</small>
+                    <div class="modal-body">
+                        <form id="stageForm" method="post" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" id="formTypeInput" value="add_stage">
+                            <input type="hidden" name="stage_id" id="stageIdInput" value="">
+                            <div class="form-group">
+                                <label for="stageName">Column Name</label>
+                                <input type="text" id="stageName" name="stage_name" class="form-input" placeholder="e.g., Shortlisted, Interview, Hired" autocomplete="off">
+                                <small class="form-hint">Enter a name for this application column</small>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-cancel" id="cancelModalBtn">Cancel</button>
+                        <button class="btn-modal-primary" id="confirmStageAction">Add Column</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn-modal-cancel" id="cancelModalBtn">Cancel</button>
-            <button class="btn-modal-primary" id="confirmStageAction">Add Column</button>
-        </div>
-    </div>
-</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal-overlay" id="deleteModal">
