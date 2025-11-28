@@ -335,74 +335,100 @@
                 <input type="hidden" name="form_type" value="change_password">
                 
                 <div class="form-section">
-                    {% if password_form.errors %}
-                    <div class="form-errors">
-                        <ul>
-                            {% for field, errors in password_form.errors.items %}
-                                {% for err in errors %}
-                                <li class="error-item">{{ err }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
                     <h3 class="section-title">Change Password</h3>
-                    
-                    <div class="form-group">
-                        <label for="id_old_password">Current Password</label>
-                        <div class="password-input">
-                            {{ password_form.old_password }}
-                            <button type="button" class="toggle-password" onclick="togglePassword('id_old_password', this)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
+                    <div class="form-row-three-columns">
                         <div class="form-group">
-                            <label for="id_new_password1">New Password</label>
-                            <div class="password-input">
+                            <label for="{{ password_form.old_password.id_for_label }}">Current Password</label>
+                            <div class="input-with-icon">
+                                {{ password_form.old_password }}
+                                <i class="fas fa-eye toggle-password"></i>
+                            </div>
+                            {% if password_form.old_password.errors %}
+                                <div class="error-text">{{ password_form.old_password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ password_form.new_password1.id_for_label }}">New Password</label>
+                            <div class="input-with-icon">
                                 {{ password_form.new_password1 }}
-                                <button type="button" class="toggle-password" onclick="togglePassword('id_new_password1', this)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                                <i class="fas fa-eye toggle-password"></i>
                             </div>
+                            {% if password_form.new_password1.errors %}
+                                <div class="error-text">{{ password_form.new_password1.errors.0 }}</div>
+                            {% endif %}
                         </div>
-
                         <div class="form-group">
-                            <label for="id_new_password2">Confirm Password</label>
-                            <div class="password-input">
+                            <label for="{{ password_form.new_password2.id_for_label }}">Confirm Password</label>
+                            <div class="input-with-icon">
                                 {{ password_form.new_password2 }}
-                                <button type="button" class="toggle-password" onclick="togglePassword('id_new_password2', this)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                                <i class="fas fa-eye toggle-password"></i>
                             </div>
+                            {% if password_form.new_password2.errors %}
+                                <div class="error-text">{{ password_form.new_password2.errors.0 }}</div>
+                            {% endif %}
                         </div>
                     </div>
-
-                    <ul class="password-requirements">
-                        <li><i class="fas fa-info-circle"></i> Password must be at least 8 characters</li>
-                        <li><i class="fas fa-info-circle"></i> Cannot be too similar to your other personal information</li>
-                        <li><i class="fas fa-info-circle"></i> Cannot be entirely numeric</li>
-                    </ul>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">Change Password</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
                 </div>
             </form>
 
-            <!-- Delete Company Section -->
-            <div class="form-section danger-zone" style="margin-top: 40px;">
-                <h3 class="section-title">Delete Your Company Account</h3>
-                <p class="danger-text">
-                    If you delete your JobConnect company account, you will no longer be able to post jobs, 
-                    view applications, or access any employer services. This action cannot be undone.
-                </p>
-                <button type="button" class="btn-close-account" id="close-account-btn">
-                    <i class="fas fa-times-circle"></i>
-                    Close Account
+            <hr>  
+            <div class="account-section-block delete-account-section">
+                <h3>Delete Your Company Account</h3>
+                <p class="delete-warning">If you delete your JobConnect company account, you will no longer be able to post jobs, view applications, or access any employer services. This action is <strong>permanent and cannot be undone</strong>.</p>
+                <button type="button" class="btn-delete-account" id="delete-account-btn">
+                    <i class="fas fa-exclamation-triangle"></i> Delete Account
                 </button>
+            </div>
+            
+            <!-- Delete Account Confirmation Modal -->
+            <div class="modal" id="deleteAccountModal">
+                <div class="modal-content delete-confirm-modal">
+                    <button type="button" class="modal-close" onclick="closeDeleteAccountModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="delete-modal-header">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h2>Delete Company Account?</h2>
+                    </div>
+                    
+                    <div class="delete-modal-body">
+                        <p>Are you absolutely sure you want to delete your company account? This will:</p>
+                        <ul>
+                            <li>Permanently delete your company profile and all information</li>
+                            <li>Remove all your job postings</li>
+                            <li>Delete all received applications</li>
+                            <li>Cancel any ongoing recruitment processes</li>
+                        </ul>
+                        <p><strong>This action cannot be undone!</strong></p>
+                        
+                        <form method="post" id="deleteAccountForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_account">
+                            
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label for="delete-confirm-text">Type <strong>DELETE</strong> to confirm:</label>
+                                <input type="text" id="delete-confirm-text" class="form-control" placeholder="Type DELETE" autocomplete="off" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delete-password">Enter your password to confirm:</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="delete-password" name="password" class="form-control" placeholder="Your password" required>
+                                    <i class="fas fa-eye toggle-password"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-actions">
+                                <button type="button" class="btn-cancel" onclick="closeDeleteAccountModal()">Cancel</button>
+                                <button type="submit" class="btn-delete-confirm" id="confirm-delete-btn" disabled>
+                                    <i class="fas fa-trash"></i> Delete My Company Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -495,22 +521,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// Password toggle function
-function togglePassword(inputId, button) {
-    const input = document.getElementById(inputId);
-    const icon = button.querySelector('i');
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
 // File input preview for logo
 const logoInput = document.getElementById('id_company_profile_image') || document.querySelector('input[name="company_profile_image"]');
 if (logoInput) {
@@ -579,15 +589,7 @@ if (bannerInput) {
     });
 }
 
-// Close account confirmation
-const closeBtn = document.getElementById('close-account-btn');
-if (closeBtn) {
-    closeBtn.addEventListener('click', function() {
-        if (confirm('Are you sure you want to permanently delete your company account? This action cannot be undone.')) {
-            alert('Account deletion feature will be implemented');
-        }
-    });
-}
+
 
 // Auto-dismiss messages after 5 seconds
 setTimeout(function() {
@@ -784,4 +786,6 @@ document.querySelectorAll('.social-link-item input, .social-link-item select').f
     });
 });
 </script>
+
+<script src="{% static 'js/dashboard/employer/employer_settings.js' %}"></script>
 {% endblock %}

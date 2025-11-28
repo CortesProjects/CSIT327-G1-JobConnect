@@ -1,303 +1,256 @@
-// Employer Settings Page Functionality
+// employer_settings.js
+// UI-only behaviors for employer settings page. All validation is server-side.
 
-document.addEventListener('DOMContentLoaded', function() {
+(function () {
+    'use strict';
+
     // Tab switching functionality
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    function initTabs() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
 
-            // Remove active class from all buttons and contents
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
 
-            // Add active class to clicked button and corresponding content
-            this.classList.add('active');
-            document.getElementById(targetTab).classList.add('active');
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
         });
-    });
-
-    // Image upload functionality
-    setupImageUpload('logo');
-    setupImageUpload('banner');
-
-    function setupImageUpload(type) {
-        const input = document.getElementById(`${type}-upload`);
-        const preview = document.getElementById(`${type}-preview`);
-        const replaceBtn = document.querySelector(`[data-target="${type}"].replace-btn`);
-        const removeBtn = document.querySelector(`[data-target="${type}"].remove-btn`);
-
-        // Click on preview to trigger file input
-        if (preview) {
-            preview.addEventListener('click', function() {
-                input.click();
-            });
-        }
-
-        // Replace button
-        if (replaceBtn) {
-            replaceBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                input.click();
-            });
-        }
-
-        // Remove button
-        if (removeBtn) {
-            removeBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                input.value = '';
-                preview.innerHTML = `
-                    <div class="preview-placeholder">
-                        <i class="fas fa-image"></i>
-                    </div>
-                `;
-            });
-        }
-
-        // Handle file selection
-        if (input) {
-            input.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.innerHTML = `<img src="${e.target.result}" alt="${type}">`;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
     }
 
-    // Rich text editor toolbar
-    const editorToolbars = document.querySelectorAll('.editor-toolbar');
-    editorToolbars.forEach(toolbar => {
-        const buttons = toolbar.querySelectorAll('.toolbar-btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const command = this.getAttribute('data-command');
-
-                if (command === 'link') {
-                    const url = prompt('Enter the URL:');
-                    if (url) {
-                        document.execCommand('createLink', false, url);
-                    }
+    // Password toggle visibility (UI-only)
+    function initPasswordToggles() {
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                const input = this.previousElementSibling;
+                if (!input) return;
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
                 } else {
-                    document.execCommand(command, false, null);
+                    input.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
                 }
             });
         });
-    });
+    }
 
-    // Save editor content to hidden inputs before form submission
-    const forms = document.querySelectorAll('.settings-form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            // About Us
-            const aboutUsEditor = document.getElementById('about-us');
-            const aboutUsHidden = document.getElementById('about-us-hidden');
-            if (aboutUsEditor && aboutUsHidden) {
-                aboutUsHidden.value = aboutUsEditor.innerHTML;
-            }
+    // Password change UX: strength meter and match indicator (visual only, no validation)
+    function initPasswordChangeUX() {
+        const newPass = document.querySelector('input[name="new_password1"]');
+        const confirmPass = document.querySelector('input[name="new_password2"]');
+        if (!newPass && !confirmPass) return;
 
-            // Company Vision
-            const visionEditor = document.getElementById('company-vision');
-            const visionHidden = document.getElementById('company-vision-hidden');
-            if (visionEditor && visionHidden) {
-                visionHidden.value = visionEditor.innerHTML;
-            }
-        });
-    });
-
-    // Social links management
-    const addSocialBtn = document.getElementById('add-social-link');
-    const socialLinksContainer = document.getElementById('social-links-container');
-    let socialLinkCount = 4;
-
-    if (addSocialBtn) {
-        addSocialBtn.addEventListener('click', function() {
-            socialLinkCount++;
-            const newRow = document.createElement('div');
-            newRow.className = 'social-link-row';
-            newRow.innerHTML = `
-                <div class="form-group">
-                    <label>Social Link ${socialLinkCount}</label>
-                    <select class="social-select" name="social_platform_${socialLinkCount}">
-                        <option value="facebook">Facebook</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="pinterest">Pinterest</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <input type="url" name="social_url_${socialLinkCount}" placeholder="Profile link/url...">
-                </div>
-                <button type="button" class="btn-remove-social">
-                    <i class="fas fa-times-circle"></i>
-                </button>
+        function createStrengthNode() {
+            const container = document.createElement('div');
+            container.className = 'password-strength';
+            container.innerHTML = `
+                <div class="bar" aria-hidden="true"><span></span></div>
+                <div class="label">&nbsp;</div>
             `;
-            socialLinksContainer.appendChild(newRow);
+            return container;
+        }
 
-            // Add remove functionality to new button
-            const removeBtn = newRow.querySelector('.btn-remove-social');
-            removeBtn.addEventListener('click', function() {
-                newRow.remove();
+        function createMatchNode() {
+            const container = document.createElement('div');
+            container.className = 'password-match';
+            container.innerHTML = `<div class="match">&nbsp;</div>`;
+            return container;
+        }
+
+        let strengthNode, matchNode;
+        if (newPass) {
+            const parent = newPass.closest('.form-group') || newPass.parentNode;
+            strengthNode = createStrengthNode();
+            parent.appendChild(strengthNode);
+        }
+
+        if (confirmPass) {
+            const parent = confirmPass.closest('.form-group') || confirmPass.parentNode;
+            matchNode = createMatchNode();
+            parent.appendChild(matchNode);
+        }
+
+        function scorePassword(pwd) {
+            let score = 0;
+            if (!pwd) return score;
+            if (pwd.length >= 8) score += 1;
+            if (/[A-Z]/.test(pwd)) score += 1;
+            if (/[0-9]/.test(pwd)) score += 1;
+            if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+            if (pwd.length >= 12) score += 1;
+            return score; // 0-5
+        }
+
+        function updateStrength(pwd) {
+            if (!strengthNode) return;
+            const score = scorePassword(pwd);
+            const bar = strengthNode.querySelector('.bar span');
+            const label = strengthNode.querySelector('.label');
+            const percentage = Math.min(100, Math.round((score / 5) * 100));
+            bar.style.width = percentage + '%';
+            
+            let text = 'Too weak';
+            let cls = 'weak';
+            if (score >= 4) { text = 'Strong'; cls = 'strong'; }
+            else if (score >= 3) { text = 'Good'; cls = 'good'; }
+            else if (score >= 1) { text = 'Weak'; cls = 'weak'; }
+            if (!pwd) { text = ''; cls = ''; bar.style.width = '0%'; }
+            
+            strengthNode.classList.remove('weak', 'good', 'strong');
+            if (cls) strengthNode.classList.add(cls);
+            label.textContent = text;
+        }
+
+        function updateMatch() {
+            if (!matchNode) return;
+            const matchEl = matchNode.querySelector('.match');
+            const a = newPass ? newPass.value : '';
+            const b = confirmPass ? confirmPass.value : '';
+            
+            if (!b && !a) {
+                matchEl.textContent = '';
+                matchNode.classList.remove('good', 'bad');
+                return;
+            }
+            
+            if (a === b && a.length > 0) {
+                matchEl.textContent = 'Passwords match';
+                matchNode.classList.remove('bad');
+                matchNode.classList.add('good');
+            } else {
+                matchEl.textContent = 'Passwords do not match';
+                matchNode.classList.remove('good');
+                matchNode.classList.add('bad');
+            }
+        }
+
+        if (newPass) {
+            newPass.addEventListener('input', function () {
+                updateStrength(this.value);
+                updateMatch();
+                this.classList.toggle('valid', scorePassword(this.value) >= 3);
+            });
+        }
+
+        if (confirmPass) {
+            confirmPass.addEventListener('input', function () {
+                updateMatch();
+            });
+        }
+    }
+
+    // Dynamic input styling (visual feedback only, no validation)
+    function initInputStyling() {
+        // Clear error state on input focus
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.classList.remove('error');
             });
         });
-    }
 
-    // Remove social link functionality for existing rows
-    const removeSocialBtns = document.querySelectorAll('.btn-remove-social');
-    removeSocialBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to remove this social link?')) {
-                this.closest('.social-link-row').remove();
-            }
-        });
-    });
-
-    // Password toggle functionality
-    const togglePasswordBtns = document.querySelectorAll('.toggle-password');
-    togglePasswordBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const input = this.previousElementSibling;
-            const icon = this.querySelector('i');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-
-    // Password validation
-    const newPasswordInput = document.getElementById('new-password');
-    const confirmPasswordInput = document.getElementById('confirm-password');
-
-    if (confirmPasswordInput) {
-        confirmPasswordInput.addEventListener('blur', function() {
-            if (newPasswordInput && this.value !== newPasswordInput.value) {
-                this.setCustomValidity('Passwords do not match');
-                this.reportValidity();
-            } else {
-                this.setCustomValidity('');
-            }
-        });
-    }
-
-    // Close account functionality
-    const closeAccountBtn = document.getElementById('close-account-btn');
-    if (closeAccountBtn) {
-        closeAccountBtn.addEventListener('click', function() {
-            const confirmed = confirm(
-                'Are you sure you want to close your account? This action cannot be undone. ' +
-                'You will lose access to all job postings, applications, and company data.'
-            );
-
-            if (confirmed) {
-                const doubleConfirm = confirm(
-                    'This is your final warning. Closing your account will permanently delete all your data. ' +
-                    'Do you really want to proceed?'
-                );
-
-                if (doubleConfirm) {
-                    // Submit form or make API call to close account
-                    console.log('Account closure requested');
-                    // window.location.href = '/close-account/';
-                    alert('Account closure request submitted. Please check your email for further instructions.');
-                }
-            }
-        });
-    }
-
-    // Date input formatting for establishment year
-    const establishmentYearInput = document.getElementById('establishment-year');
-    if (establishmentYearInput) {
-        establishmentYearInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2);
-            }
-            if (value.length >= 5) {
-                value = value.substring(0, 5) + '/' + value.substring(5, 9);
-            }
-
-            e.target.value = value;
-        });
-    }
-
-    // Form validation
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const requiredFields = this.querySelectorAll('[required]');
-            let isValid = true;
-
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.style.borderColor = '#e74c3c';
-                } else {
-                    field.style.borderColor = '#e0e0e0';
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                alert('Please fill in all required fields');
-            }
-        });
-    });
-
-    // Auto-save draft (optional feature)
-    let autoSaveTimeout;
-    const autoSaveInputs = document.querySelectorAll('input, textarea, select');
-
-    autoSaveInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                // Save draft to localStorage
-                const formData = {};
-                autoSaveInputs.forEach(inp => {
-                    if (inp.name) {
-                        formData[inp.name] = inp.value;
-                    }
+        // Auto-dismiss messages after 5 seconds
+        const messages = document.querySelectorAll('.alert, .messages-container .alert-success, .messages-container .alert-error');
+        if (messages.length > 0) {
+            setTimeout(() => {
+                messages.forEach(msg => {
+                    msg.style.transition = 'opacity 0.5s ease';
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 500);
                 });
-                localStorage.setItem('employer_settings_draft', JSON.stringify(formData));
-                console.log('Draft auto-saved');
-            }, 2000);
-        });
-    });
+            }, 5000);
+        }
+    }
 
-    // Load draft on page load
-    const savedDraft = localStorage.getItem('employer_settings_draft');
-    if (savedDraft) {
-        const formData = JSON.parse(savedDraft);
-        Object.keys(formData).forEach(key => {
-            const input = document.querySelector(`[name="${key}"]`);
-            if (input && !input.value) {
-                input.value = formData[key];
+    // Social links UI (no validation)
+    function initSocialLinks() {
+        const addButton = document.querySelector('[data-action="show-add-social-link"]');
+        const addForm = document.getElementById('add-social-link-form');
+        const cancelBtn = document.querySelector('[data-action="cancel-add-social-link"]');
+
+        function hideAdd() {
+            if (addForm) addForm.classList.add('is-hidden');
+            if (addButton) addButton.classList.remove('is-hidden');
+        }
+
+        function showAdd() {
+            if (addForm) addForm.classList.remove('is-hidden');
+            if (addButton) addButton.classList.add('is-hidden');
+        }
+
+        if (addButton) addButton.addEventListener('click', showAdd);
+        if (cancelBtn) cancelBtn.addEventListener('click', hideAdd);
+
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.dataset && e.target.dataset.action === 'delete-link') {
+                const item = e.target.closest('.social-link-item');
+                if (item && confirm('Remove this social link? (Changes will apply after clicking Save Changes)')) {
+                    item.remove();
+                }
             }
         });
     }
 
-    // Clear draft after successful submission
-    forms.forEach(form => {
-        form.addEventListener('submit', function() {
-            localStorage.removeItem('employer_settings_draft');
+    // Delete account modal functionality
+    function initDeleteAccount() {
+        const deleteBtn = document.getElementById('delete-account-btn');
+        const modal = document.getElementById('deleteAccountModal');
+        const confirmInput = document.getElementById('delete-confirm-text');
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        
+        window.openDeleteAccountModal = function() {
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+        
+        window.closeDeleteAccountModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                const form = document.getElementById('deleteAccountForm');
+                if (form) form.reset();
+                if (confirmBtn) confirmBtn.disabled = true;
+            }
+        };
+        
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', window.openDeleteAccountModal);
+        }
+        
+        // Enable delete button only when "DELETE" is typed
+        if (confirmInput && confirmBtn) {
+            confirmInput.addEventListener('input', function() {
+                confirmBtn.disabled = this.value.trim() !== 'DELETE';
+            });
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                window.closeDeleteAccountModal();
+            }
         });
+    }
+
+    // Init all
+    document.addEventListener('DOMContentLoaded', function () {
+        initTabs();
+        initPasswordToggles();
+        initPasswordChangeUX();
+        initInputStyling();
+        initSocialLinks();
+        initDeleteAccount();
     });
-});
+
+})();
