@@ -197,6 +197,103 @@
         });
     }
 
+    // Password change UX: strength meter and match indicator (visual only)
+    function initPasswordChangeUX() {
+        const newPass = document.querySelector('input[name="new_password1"]');
+        const confirmPass = document.querySelector('input[name="new_password2"]');
+        if (!newPass && !confirmPass) return;
+
+        function createStrengthNode() {
+            const container = document.createElement('div');
+            container.className = 'password-strength';
+            container.innerHTML = `
+                <div class="bar" aria-hidden="true"><span></span></div>
+                <div class="label">&nbsp;</div>
+            `;
+            return container;
+        }
+
+        function createMatchNode() {
+            const container = document.createElement('div');
+            container.className = 'password-match';
+            container.innerHTML = `<div class="match">&nbsp;</div>`;
+            return container;
+        }
+
+        let strengthNode, matchNode;
+        if (newPass) {
+            const parent = newPass.closest('.form-group') || newPass.parentNode;
+            strengthNode = createStrengthNode();
+            parent.appendChild(strengthNode);
+        }
+
+        if (confirmPass) {
+            const parent = confirmPass.closest('.form-group') || confirmPass.parentNode;
+            matchNode = createMatchNode();
+            parent.appendChild(matchNode);
+        }
+
+        function scorePassword(pwd) {
+            let score = 0;
+            if (!pwd) return score;
+            if (pwd.length >= 8) score += 1;
+            if (/[A-Z]/.test(pwd)) score += 1;
+            if (/[0-9]/.test(pwd)) score += 1;
+            if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+            if (pwd.length >= 12) score += 1;
+            return score; // 0-5
+        }
+
+        function updateStrength(pwd) {
+            if (!strengthNode) return;
+            const score = scorePassword(pwd);
+            const bar = strengthNode.querySelector('.bar span');
+            const label = strengthNode.querySelector('.label');
+            const percentage = Math.min(100, Math.round((score / 5) * 100));
+            bar.style.width = percentage + '%';
+            let text = 'Too weak';
+            let cls = 'weak';
+            if (score >= 4) { text = 'Strong'; cls = 'strong'; }
+            else if (score >= 3) { text = 'Good'; cls = 'good'; }
+            else if (score >= 1) { text = 'Weak'; cls = 'weak'; }
+            if (!pwd) { text = ''; cls = ''; bar.style.width = '0%'; }
+            strengthNode.classList.remove('weak', 'good', 'strong');
+            if (cls) strengthNode.classList.add(cls);
+            label.textContent = text;
+        }
+
+        function updateMatch() {
+            if (!matchNode) return;
+            const matchEl = matchNode.querySelector('.match');
+            const a = newPass ? newPass.value : '';
+            const b = confirmPass ? confirmPass.value : '';
+            if (!b && !a) { matchEl.textContent = '' ; matchNode.classList.remove('good','bad'); return; }
+            if (a === b && a.length > 0) {
+                matchEl.textContent = 'Passwords match';
+                matchNode.classList.remove('bad');
+                matchNode.classList.add('good');
+            } else {
+                matchEl.textContent = 'Passwords do not match';
+                matchNode.classList.remove('good');
+                matchNode.classList.add('bad');
+            }
+        }
+
+        if (newPass) {
+            newPass.addEventListener('input', function () {
+                updateStrength(this.value);
+                updateMatch();
+                this.classList.toggle('valid', scorePassword(this.value) >= 3);
+            });
+        }
+
+        if (confirmPass) {
+            confirmPass.addEventListener('input', function () {
+                updateMatch();
+            });
+        }
+    }
+
     // Dynamic input styling (visual feedback only, no validation)
     function initInputStyling() {
         // Clear error state on input focus
@@ -302,6 +399,7 @@
         initResumeModal();
         initSocialLinks();
         initPasswordToggles();
+        initPasswordChangeUX();
         initResumeMenuToggle();
         initInputStyling();
         initPrivacyToggle();

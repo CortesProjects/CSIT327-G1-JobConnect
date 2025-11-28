@@ -1239,6 +1239,59 @@ textarea.valid {
     border-color: #28a745;
 }
 
+/* Password strength meter and match indicator (UI-only) */
+.password-strength {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #495057;
+}
+.password-strength .bar {
+    flex: 1 1 auto;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.password-strength .bar span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff6b6b, #dc3545);
+    transition: width 240ms ease;
+}
+.password-strength.weak .bar span {
+    background: linear-gradient(90deg, #ff6b6b, #ff8a80);
+}
+.password-strength.good .bar span {
+    background: linear-gradient(90deg, #ffc107, #ffb300);
+}
+.password-strength.strong .bar span {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+.password-strength .label {
+    min-width: 80px;
+    text-align: right;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.password-match {
+    margin-top: 8px;
+}
+.password-match .match {
+    font-size: 13px;
+    color: #6c757d;
+}
+.password-match.good .match {
+    color: #28a745;
+}
+.password-match.bad .match {
+    color: #dc3545;
+}
+
 input.valid:focus,
 select.valid:focus,
 textarea.valid:focus {

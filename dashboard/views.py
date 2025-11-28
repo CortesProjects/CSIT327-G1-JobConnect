@@ -677,13 +677,16 @@ def applicant_settings(request):
                 messages.error(request, 'Incorrect password. Account deletion cancelled.')
                 return redirect('dashboard:applicant_settings')
     
-    # Initialize all forms with current data
+    # Initialize all forms with current data. For password form, only create
+    # an unbound form here if it hasn't been created/overwritten during POST
     personal_info_form = ApplicantPersonalInfoForm(instance=profile)
     profile_details_form = ApplicantProfileDetailsForm(instance=profile)
     contact_info_form = ApplicantContactInfoForm(instance=profile, user=request.user)
     profile_privacy_form = ApplicantProfilePrivacyForm(instance=profile)
     resume_form = ApplicantResumeForm(instance=profile)
-    password_form = PasswordChangeForm(request.user)
+    # password_form may be set during POST handling to the bound form with errors
+    if 'password_form' not in locals():
+        password_form = PasswordChangeForm(request.user)
     social_link_form = ApplicantSocialLinkForm()
     
     # Get existing social links for this user
