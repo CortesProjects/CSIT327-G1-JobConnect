@@ -212,19 +212,47 @@ def applicant_favorite_jobs(request):
 
 @login_required
 def applicant_job_alerts(request):
-    from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory
+    from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory, Job
     from django.core.paginator import Paginator
-    
-    # Get user's job alerts
+
     user_alerts = JobAlert.objects.filter(user=request.user).order_by('-created_at')
     
-    # Get all matching jobs from active alerts
+    
+    from django.db.models import Q
+
     matching_jobs = set()
     for alert in user_alerts.filter(is_active=True):
-        matching_jobs.update(alert.get_matching_jobs())
-    
-    # Convert to list and sort by posted date
-    alert_jobs = sorted(list(matching_jobs), key=lambda x: x.posted_date, reverse=True)
+        try:
+            
+            matches = alert.get_matching_jobs()
+            if matches is None:
+                matches = []
+            matching_jobs.update(matches)
+        except Exception:
+            
+            jobs_qs = Job.objects.filter(status='active').order_by('-posted_at')
+
+            if getattr(alert, 'job_title', None):
+                jobs_qs = jobs_qs.filter(title__icontains=alert.job_title)
+            if getattr(alert, 'location', None):
+                jobs_qs = jobs_qs.filter(location__icontains=alert.location)
+            if getattr(alert, 'job_type', None):
+                jobs_qs = jobs_qs.filter(job_type=alert.job_type)
+            if getattr(alert, 'job_category', None):
+                jobs_qs = jobs_qs.filter(category=alert.job_category)
+            if getattr(alert, 'min_salary', None):
+                jobs_qs = jobs_qs.filter(min_salary__gte=alert.min_salary)
+            if getattr(alert, 'max_salary', None):
+                jobs_qs = jobs_qs.filter(max_salary__lte=alert.max_salary)
+            if getattr(alert, 'keywords', None):
+                for kw in [k.strip() for k in alert.keywords.split(',') if k.strip()]:
+                    jobs_qs = jobs_qs.filter(
+                        Q(title__icontains=kw) | Q(description__icontains=kw) | Q(tags__icontains=kw)
+                    )
+
+            matching_jobs.update(list(jobs_qs))
+
+    alert_jobs = sorted(list(matching_jobs), key=lambda x: x.posted_at, reverse=True)
 
     # Server-side search/filter for alert results
     query = request.GET.get('query', '').strip()
