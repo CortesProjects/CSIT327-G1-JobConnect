@@ -169,9 +169,14 @@
                         </a>
 
                         <div class="job-actions">
-                            <button class="favorite-btn {% if job.id in favorited_job_ids %}active{% endif %}" data-job-id="{{ job.id }}" title="{% if job.id in favorited_job_ids %}Remove from favorites{% else %}Add to favorites{% endif %}">
-                                <i class="{% if job.id in favorited_job_ids %}fas fa-heart{% else %}far fa-heart{% endif %}"></i>
-                            </button>
+                            {% if user.is_authenticated and user.user_type == 'applicant' %}
+                            <form method="post" action="{% url 'jobs:toggle_favorite_job' job.id %}" class="favorite-form d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bookmark-btn {% if job.id in favorited_job_ids %}active{% endif %}" data-job-id="{{ job.id }}" title="{% if job.id in favorited_job_ids %}Remove bookmark{% else %}Add bookmark{% endif %}">
+                                    <i class="{% if job.id in favorited_job_ids %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
+                                </button>
+                            </form>
+                            {% endif %}
                             <a href="{% url 'jobs:job_detail' job.id %}" class="apply-btn">
                                 Apply Now <i class="fas fa-arrow-right"></i>
                             </a>

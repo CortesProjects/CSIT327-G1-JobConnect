@@ -1,9 +1,6 @@
-// Applicant Search Jobs JavaScript
+// Applicant Search Jobs JavaScript - Dynamic Styling Only
 
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // Initialize filter form auto-submit
-    initFilterAutoSubmit();
     
     // Initialize filter toggle panel
     initFilterToggle();
@@ -11,43 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize bookmark functionality
     initBookmarks();
     
-    // Initialize sort functionality
+    // Initialize sort functionality (client-side visual sorting only)
     initSortFunctionality();
     
-    // Initialize job card interactions
-    initJobCardInteractions();
-    
 });
-
-/**
- * Auto-submit filters when checkboxes or selects change
- */
-function initFilterAutoSubmit() {
-    const filtersForm = document.getElementById('searchFilterForm');
-    if (!filtersForm) return;
-    
-    // Auto-submit on select change
-    const selects = filtersForm.querySelectorAll('.filter-dropdown');
-    selects.forEach(select => {
-        select.addEventListener('change', function() {
-            clearTimeout(window.filterSubmitTimeout);
-            window.filterSubmitTimeout = setTimeout(() => {
-                filtersForm.submit();
-            }, 500);
-        });
-    });
-    
-    // Auto-submit on search input with debounce
-    const searchInputs = filtersForm.querySelectorAll('.search-input');
-    searchInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            clearTimeout(window.filterSubmitTimeout);
-            window.filterSubmitTimeout = setTimeout(() => {
-                filtersForm.submit();
-            }, 800);
-        });
-    });
-}
 
 /**
  * Toggle hidden filters panel when filter button is clicked
@@ -193,74 +157,7 @@ function getSalary(jobRow) {
     return salaryMatch ? parseInt(salaryMatch[1].replace(/,/g, '')) : 0;
 }
 
-/**
- * Initialize job card interactions
- */
-function initJobCardInteractions() {
-    // View Details buttons
-    const viewDetailsButtons = document.querySelectorAll('.btn-view, .btn-action.btn-view');
-    viewDetailsButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const jobId = this.getAttribute('data-job-id');
-            viewJobDetails(jobId);
-        });
-    });
-    
-    // Apply Now buttons
-    const applyButtons = document.querySelectorAll('.btn-apply, .btn-action.btn-apply');
-    applyButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const jobId = this.getAttribute('data-job-id');
-            applyToJob(jobId);
-        });
-    });
-}
 
-function viewJobDetails(jobId) {
-    // TODO: Implement job details modal or redirect to job details page
-    console.log('View job details:', jobId);
-    showNotification('Job details page coming soon!', 'info');
-    
-    // Example implementation:
-    // window.location.href = `/jobs/${jobId}/`;
-    // Or open a modal with job details
-}
-
-function applyToJob(jobId) {
-    // TODO: Implement job application flow
-    console.log('Apply to job:', jobId);
-    showNotification('Application feature coming soon!', 'info');
-    
-    // Example implementation:
-    /*
-    if (!confirm('Are you sure you want to apply to this job?')) {
-        return;
-    }
-    
-    fetch(`/api/jobs/${jobId}/apply/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Application submitted successfully!', 'success');
-            // Update UI to show applied state
-        } else {
-            showNotification('Error: ' + data.message, 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Application error:', error);
-        showNotification('Failed to submit application', 'error');
-    });
-    */
-}
 
 /**
  * Utility: Show notification

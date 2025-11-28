@@ -58,13 +58,13 @@
 
 /* Favorite button styles */
 .favorite-btn {
-    background: none;
-    border: 2px solid #ddd;
+    background:var(--primary-bg); 
+    color:var(--primary-color); 
+    border: 1px solid var(--primary-color);
     border-radius: 8px;
     padding: 8px 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #999;
 }
 
 .favorite-btn:hover {
@@ -73,9 +73,10 @@
 }
 
 .favorite-btn.active {
-    border-color: #f44336;
-    color: #f44336;
-    background: rgba(244, 67, 54, 0.1);
+    /* Use project variables for favorite state */
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: var(--secondary-bg);
 }
 
 .favorite-btn:disabled {
@@ -85,4 +86,49 @@
 
 .favorite-btn i {
     font-size: 18px;
+}
+
+/* Bookmark button variants used across templates */
+.bookmark-btn,
+.btn-bookmark,
+.square-heart {
+    background: var(--primary-bg, transparent);
+    color: var(--muted-text, #666);
+    border: 1px solid var(--muted-border, #ddd);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bookmark-btn i,
+.btn-bookmark i,
+.square-heart i {
+    font-size: 16px;
+    color: inherit;
+}
+
+.bookmark-btn:hover,
+.btn-bookmark:hover,
+.square-heart:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.bookmark-btn.active,
+.btn-bookmark.active,
+.square-heart.active {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: var(--secondary-bg);
+}
+
+.bookmark-btn:disabled,
+.btn-bookmark:disabled,
+.square-heart:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
