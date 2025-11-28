@@ -1,0 +1,77 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/jobs/job_table.css' %}">
+
+{% if applied_jobs %}
+<div class="job-table">
+    <div class="jt-header">
+        <div class="col col-job">JOBS</div>
+        <div class="col col-date">DATE APPLIED</div>
+        <div class="col col-status">STATUS</div>
+        <div class="col col-action">ACTION</div>
+    </div>
+
+    <div class="jt-body">
+        {% for application in applied_jobs %}
+        <div class="jt-row">
+            <div class="col col-job">
+                <div class="job-left">
+                    <div class="logo">
+                        {% if application.job.employer.employer_profile_rel.company_profile_image %}
+                            <img src="{{ application.job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ application.job.company_name }}">
+                        {% else %}
+                            <div class="logo-placeholder">{{ application.job.company_name|first|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="job-meta">
+                        <div class="title-row">
+                            <h4 class="job-title">{{ application.job.title }}</h4>
+                            <span class="pill type">{{ application.job.job_type.name|default:"Full Time" }}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-item"><i class="fas fa-map-marker-alt"></i> {{ application.job.location }}</span>
+                            <span class="meta-item"><i class="fas fa-dollar-sign"></i>
+                                {% if application.job.min_salary and application.job.max_salary %}
+                                    ${{ application.job.min_salary|floatformat:0 }}-${{ application.job.max_salary|floatformat:0 }}
+                                {% else %}
+                                    Negotiable
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-date-applied">
+                {{ application.applied_at|date:"M d, Y H:i" }}
+            </div>
+
+            <div class="col col-status">
+                {% if application.status == 'active' %}
+                    <span class="status active">✓ Active</span>
+                {% elif application.status == 'rejected' %}
+                    <span class="status rejected">✕ Rejected</span>
+                {% else %}
+                    <span class="status pending">● {{ application.status|capfirst }}</span>
+                {% endif %}
+            </div>
+
+            <div class="col col-action">
+                <a href="{% url 'jobs:job_detail' application.job.id %}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+{% else %}
+        <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-briefcase"></i>
+        </div>
+        <h3>No Applications Yet</h3>
+        <p>You haven't applied to any jobs yet. Start exploring opportunities and apply now!</p>
+        <a href="{% url 'dashboard:applicant_search_jobs' %}" class="empty-state-btn">
+            <i class="fas fa-search"></i> Browse Jobs
+        </a>
+    </div>
+        
+    </div>
+</div>
+{% endif %} 

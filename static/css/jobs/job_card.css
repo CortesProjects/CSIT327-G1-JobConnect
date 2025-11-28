@@ -1,0 +1,81 @@
+.job-card {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:22px 26px;
+    background: var(--bg-white);
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    transition: box-shadow .18s ease, transform .12s ease;
+}
+.job-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+.job-card-left {
+    display:flex;
+    gap:18px;
+    align-items:center;
+    flex:1 1 auto;
+    min-width:0;
+}
+
+.company-logo {
+   width:56px; 
+    height:56px; 
+    border-radius:10px; 
+    overflow:hidden;
+    background: var(--bg-light);
+    display:grid;
+    place-items:center;
+    flex:0 0 56px;
+}
+.company-logo img { 
+    width:100%; 
+    height:100%; 
+     display:block; }
+.company-placeholder {
+    width:100%; height:100%; display:grid; place-items:center; font-weight:700; color:var(--primary-color);
+}
+
+.job-card-info { flex:1 1 auto; min-width:0; }
+.job-card-title-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.job-title { font-size:18px; font-weight:700; color:var(--text-color-dark); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pill.type { padding:6px 10px; border-radius:14px; font-size:13px; font-weight:700; background:var(--secondary-color); color:var(--primary-color); }
+
+.job-card-meta { display:flex; gap:18px; margin-top:8px; flex-wrap:wrap; color:var(--text-color-light); font-size:13px; align-items:center; }
+.meta-item { display:flex; gap:8px; align-items:center; }
+.meta-item i { color:var(--text-color-light); font-size:14px; }
+
+.job-card-right { display:flex; align-items:center; gap:12px; flex:0 0 auto; }
+.btn-view-details {
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 22px;
+    border-radius:10px;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    text-decoration:none;
+    font-weight:700;
+    border:1px solid var(--border-color);
+}
+.btn-view-details i { margin-left:6px; }
+
+.bookmark-btn {
+    width:44px; height:44px; display:grid; place-items:center; border-radius:8px; border:1px solid var(--border-color); background:transparent; cursor:pointer; color:var(--text-color-light);
+}
+.bookmark-btn:hover { color:var(--primary-color); border-color:var(--primary-color); background:var(--secondary-color); }
+.bookmark-btn i { font-size:18px; }
+
+/* Responsive adjustments */
+@media (max-width: 880px) {
+    .job-card { padding:16px; }
+    .company-logo { width:60px; height:60px; flex:0 0 60px; }
+    .job-title { font-size:16px; }
+}
+
+@media (max-width: 520px) {
+    .job-card { flex-direction:column; align-items:flex-start; gap:12px; }
+    .job-card-right { width:100%; display:flex; justify-content:space-between; }
+    .btn-view-details { padding:10px 16px; }
+}

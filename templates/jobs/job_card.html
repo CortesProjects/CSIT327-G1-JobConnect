@@ -1,0 +1,51 @@
+{% load static %}
+{# Usage: {% include 'jobs/job_card.html' with job=job_instance %} #}
+<link rel="stylesheet" href="{% static 'css/jobs/job_card.css' %}">
+
+<div class="job-card" data-job-id="{{ job.id }}">
+    <div class="job-card-left">
+        <div class="company-logo">
+            {% if job.employer.employer_profile_rel.company_profile_image %}
+                <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}">
+            {% else %}
+                <div class="company-placeholder">{{ job.company_name|first|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="job-card-info">
+            <div class="job-card-title-row">
+                <h3 class="job-title">{{ job.title }}</h3>
+                <span class="pill type">{{ job.job_type.name|default:"Full Time" }}</span>
+            </div>
+            <div class="job-card-meta">
+                <span class="meta-item"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                <span class="meta-item"><i class="fas fa-dollar-sign"></i>
+                    {% if job.min_salary and job.max_salary %}
+                        ${{ job.min_salary|floatformat:0 }}-${{ job.max_salary|floatformat:0 }}
+                    {% else %}
+                        Negotiable
+                    {% endif %}
+                </span>
+                <span class="meta-item"><i class="far fa-calendar-alt"></i>
+                    {% if job.expiration_date %}
+                        {{ job.expiration_date|timeuntil }} remaining
+                    {% else %}
+                        No deadline
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="job-card-right">
+        <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-details">View Details <i class="fas fa-arrow-right"></i></a>
+        <button class="bookmark-btn" title="Save job" data-job-id="{{ job.id }}">
+            {% if user.is_authenticated and user.user_type == 'applicant' %}
+                {% if is_favorited or job.id in favorited_job_ids %}
+                <i class="fas fa-bookmark"></i>
+                {% else %}
+                <i class="far fa-bookmark"></i>
+                {% endif %}
+            {% endif %}
+        </button>
+    </div>
+</div>
