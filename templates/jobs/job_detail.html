@@ -236,3 +236,13 @@
     </div>
 </div>
 {% endblock %}
+
+{% comment %} If requested from My Jobs with goto=applications, redirect client-side so browser history contains Job then Applications {% endcomment %}
+{% if goto_applications %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Navigate to employer applications page — this leaves the job detail in history
+    window.location.href = "{% url 'dashboard:employer_job_applications' job.id %}";
+});
+</script>
+{% endif %}
