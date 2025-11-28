@@ -59,10 +59,10 @@
                     </button>
                     {% if user.is_authenticated and user.user_type == 'applicant' %}
                         {% if has_applied %}
-                            <button class="apply-btn applied" disabled><i class="fas fa-check"></i> Applied</button>
-                        {% else %}
-                            <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
-                        {% endif %}
+                                <button class="apply-btn applied" disabled><i class="fas fa-check"></i> Applied</button>
+                            {% else %}
+                                <a href="#" id="openApplyBtn" class="apply-btn" data-job-id="{{ job.id }}">Apply Now <i class="fas fa-arrow-right"></i></a>
+                            {% endif %}
                     {% else %}
                         <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="apply-btn">Login to Apply</a>
                     {% endif %}
@@ -153,6 +153,7 @@
 {% block extra_js %}
 {{ block.super }}
 <script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
+<script src="{% static 'js/jobs/apply_modal.js' %}"></script>
 <script>
     // Toggle ellipsis dropdown menu
     const menuBtn = document.getElementById('jobMenuBtn');
@@ -199,4 +200,33 @@
         }
     }
 </script>
+<!-- Apply Modal Markup -->
+<div id="applyModal" class="apply-modal" aria-hidden="true">
+    <div class="apply-modal-overlay" data-close></div>
+    <div class="apply-modal-panel" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle">
+        <button class="apply-modal-close" data-close aria-label="Close">&times;</button>
+        <div class="apply-modal-body">
+            <h3 id="applyModalTitle">Apply Job: {{ job.title }}</h3>
+            <form id="applyForm" class="apply-form">
+                <label class="field-label">Choose Resume</label>
+                <select id="resumeSelect" class="field-select">
+                    <option value="">Select...</option>
+                    {% if resumes %}
+                        {% for r in resumes %}
+                            <option value="{{ r.id }}">{{ r.name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+
+                <label class="field-label">Cover Letter</label>
+                <textarea id="coverLetter" class="field-textarea" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
+
+                <div class="apply-modal-actions">
+                    <button type="button" class="btn btn-cancel" data-close>Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitApplyBtn">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
