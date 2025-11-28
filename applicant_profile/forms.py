@@ -38,8 +38,7 @@ class PersonalInfoForm(forms.ModelForm):
             }),
             'resume': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': '.pdf,.doc,.docx',
-                'required': 'required'
+                'accept': '.pdf,.doc,.docx'
             }),
         }
         labels = {

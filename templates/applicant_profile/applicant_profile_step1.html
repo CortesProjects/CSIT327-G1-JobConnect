@@ -24,8 +24,13 @@
             </a>
         </section>
     </div>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="messages-container">
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        </div>
+        {% endif %}
 
         <div class="form-section-card">
             <h2>Personal Information</h2>
@@ -68,7 +73,7 @@
                     {% endif %}
                     {{ form.profile_image }}
                 </div>
-                <div id="profile-image-error" class="error-text"></div>
+                <div id="profile-image-error" class="error-text">{{ form.profile_image.errors }}</div>
             </div>
 
             {# Professional Title #}
@@ -76,7 +81,7 @@
                 <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
                 {{ form.title }}
                 <small class="form-text text-muted">e.g., Software Developer, Marketing Specialist</small>
-                <div id="title-error" class="error-text"></div>
+                <div id="title-error" class="error-text">{{ form.title.errors }}</div>
             </div>
             
             <div class="input-group-row">
@@ -84,17 +89,17 @@
                 <div class="field-container">
                     <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
                     {{ form.first_name }}
-                    <div id="first-name-error" class="error-text"></div>
+                    <div id="first-name-error" class="error-text">{{ form.first_name.errors }}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
                     {{ form.middle_name }}
-                    <div id="middle-name-error" class="error-text"></div>
+                    <div id="middle-name-error" class="error-text">{{ form.middle_name.errors }}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
                     {{ form.last_name }}
-                    <div id="last-name-error" class="error-text"></div>
+                    <div id="last-name-error" class="error-text">{{ form.last_name.errors }}</div>
                 </div>
             </div>
             
@@ -103,12 +108,12 @@
                     <label for="{{ form.experience.id_for_label }}">{{ form.experience.label }}</label>
                     {{ form.experience }}
                     <small class="form-text text-muted">Total years of professional experience</small>
-                    <div id="experience-error" class="error-text"></div>
+                    <div id="experience-error" class="error-text">{{ form.experience.errors }}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.education_level.id_for_label }}">{{ form.education_level.label }}</label>
                     {{ form.education_level }}
-                    <div id="education-level-error" class="error-text"></div>
+                    <div id="education-level-error" class="error-text">{{ form.education_level.errors }}</div>
                 </div>
             </div>
 
@@ -117,7 +122,9 @@
                 <label for="{{ form.resume.id_for_label }}">{{ form.resume.label }}</label>
                 <div class="upload-area resume-upload-area {% if form.instance.resume %}file-attached{% endif %}">
                     <label for="{{ form.resume.id_for_label }}" class="upload-label-full-area">
-                        {{ form.resume }}
+                        <div style="display: none;">
+                            {{ form.resume }}
+                        </div>
                         <div class="upload-content-placeholder" {% if form.instance.resume %}style="display: none;"{% endif %}>
                             <i class="fas fa-file-upload"></i>
                             <h4>Browse file or drop here</h4>
@@ -129,7 +136,7 @@
                         </div>
                     </label>
                 </div>
-                <div id="resume-error" class="error-text"></div>
+                <div id="resume-error" class="error-text">{{ form.resume.errors }}</div>
             </div>
         </div>
 
