@@ -1,41 +1,44 @@
+{% load static %}
 <!-- Application Card Component -->
-<div class="application-card">
-    <div class="card-header">
-        <div class="applicant-info">
-            <div class="applicant-avatar">
-                {% if applicant.profile_picture %}
-                    <img src="{{ applicant.profile_picture.url }}" alt="{{ applicant.full_name }}">
-                {% else %}
-                    <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ applicant.full_name }}">
-                {% endif %}
-                <div class="avatar-badge"></div>
-            </div>
-            <div class="applicant-details">
-                <h3 class="applicant-name">{{ applicant.full_name }}</h3>
-                <p class="applicant-role">{{ applicant.job_role|default:"Applicant" }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="info-row">
-            <div class="info-item">
-                <i class="fas fa-briefcase"></i>
-                <span>{{ applicant.years_experience|default:"0" }} Years Exp.</span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-graduation-cap"></i>
-                <span>{{ applicant.education|default:"N/A" }}</span>
+<a href="{% url 'dashboard:employer_candidate_detail' application.id %}" class="application-card-link" style="text-decoration: none; color: inherit; display: block;">
+    <div class="application-card" data-application-id="{{ application.id }}">
+        <div class="card-header">
+            <div class="applicant-info">
+                <div class="applicant-avatar">
+                    {% if application.applicant.applicant_profile_rel.profile_image %}
+                        <img src="{{ application.applicant.applicant_profile_rel.profile_image.url }}" alt="{{ application.applicant.get_full_name }}">
+                    {% else %}
+                        <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ application.applicant.get_full_name }}">
+                    {% endif %}
+                    <div class="avatar-badge"></div>
+                </div>
+                <div class="applicant-details">
+                    <h3 class="applicant-name">{{ application.applicant.applicant_profile_rel.full_name|default:application.applicant.email }}</h3>
+                    <p class="applicant-role">{{ application.applicant.applicant_profile_rel.title|default:"Applicant" }}</p>
+                </div>
             </div>
         </div>
-        <div class="info-date">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Applied {{ applicant.applied_date|date:"M d, Y" }}</span>
+        <div class="card-body">
+            <div class="info-row">
+                <div class="info-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>{{ application.applicant.applicant_profile_rel.experience|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>{{ application.applicant.applicant_profile_rel.education|default:"N/A" }}</span>
+                </div>
+            </div>
+            <div class="info-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Applied {{ application.application_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn-download" data-application-id="{{ application.id }}" onclick="event.preventDefault(); event.stopPropagation(); window.open('{{ application.applicant.applicant_profile_rel.resume.url }}', '_blank');" {% if not application.applicant.applicant_profile_rel.resume %}disabled{% endif %}>
+                <i class="fas fa-download"></i>
+                <span>Download CV</span>
+            </button>
         </div>
     </div>
-    <div class="card-footer">
-        <button class="btn-download" data-applicant-id="{{ applicant.id }}">
-            <i class="fas fa-download"></i>
-            <span>Download CV</span>
-        </button>
-    </div>
-</div>
+</a>
