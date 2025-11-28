@@ -402,6 +402,45 @@ class JobTag(models.Model):
         return f"{self.job.title} - {self.tag.name}"
 
 
+class ApplicationStage(models.Model):
+    """
+    Represents a stage in the hiring pipeline for a specific job.
+    E.g., 'Shortlisted', 'Interview', 'Offer', 'Hired'
+    """
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='application_stages',
+        help_text="The job this stage belongs to"
+    )
+    name = models.CharField(
+        max_length=100,
+        help_text="Stage name (e.g., 'Shortlisted', 'Phone Interview', 'Hired')"
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order of the stage (lower numbers first)"
+    )
+    is_system = models.BooleanField(
+        default=False,
+        help_text="True if this is a system-generated stage (e.g., 'Hired') that cannot be edited/deleted"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['job', 'order', 'created_at']
+        unique_together = ['job', 'name']
+        indexes = [
+            models.Index(fields=['job', 'order']),
+        ]
+        verbose_name = "Application Stage"
+        verbose_name_plural = "Application Stages"
+    
+    def __str__(self):
+        return f"{self.job.title} - {self.name}"
+
+
 class JobApplication(models.Model):
     """Links applicants to jobs and tracks application status."""
     STATUS_CHOICES = [
@@ -422,6 +461,16 @@ class JobApplication(models.Model):
         Job,
         on_delete=models.CASCADE,
         related_name='applications'
+    )
+    
+    # Stage in the hiring pipeline (null = default "All Applications" column)
+    stage = models.ForeignKey(
+        'ApplicationStage',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='applications',
+        help_text="Current stage in the hiring pipeline"
     )
     
     # Core fields

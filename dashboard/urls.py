@@ -20,7 +20,9 @@ urlpatterns = [
     path('employer/my-jobs/', views.employer_my_jobs, name='employer_my_jobs'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/job-applications/<int:job_id>/', views.employer_job_applications, name='employer_job_applications'),
-    path('employer/candidate-detail/', views.employer_candidate_detail, name='employer_candidate_detail'),
+    path('employer/move-application/<int:application_id>/', views.move_application_stage, name='move_application_stage'),
+    path('employer/candidate-detail/<int:application_id>/', views.employer_candidate_detail, name='employer_candidate_detail'),
+    path('employer/hire-candidate/<int:application_id>/', views.hire_candidate, name='hire_candidate'),
     # Admin URLs
     path('admin/dashboards', views.admin_dashboards, name='admin_dashboards'),
     path('admin/total-employers-verified', views.admin_total_employers_verified, name='admin_total_employers_verified'),

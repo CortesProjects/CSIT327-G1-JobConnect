@@ -571,7 +571,8 @@ def employer_job_applications(request, job_id):
     """Show applications for a specific job posting (employer-only)."""
     from django.shortcuts import get_object_or_404
     from django.core.exceptions import PermissionDenied
-    from jobs.models import Job
+    from jobs.models import Job, ApplicationStage, JobApplication
+    from django.db import models
 
     # Ensure user is an employer
     if getattr(request.user, 'user_type', None) != 'employer':
@@ -583,36 +584,269 @@ def employer_job_applications(request, job_id):
     if job.employer_id != request.user.id:
         raise PermissionDenied("You do not have permission to view these applications.")
 
-    # Get all applications for this job
-    applications_qs = []
-    if hasattr(job, 'applications'):
-        try:
-            applications_qs = job.applications.all()
-        except Exception:
-            applications_qs = []
-    elif hasattr(job, 'application_set'):
-        try:
-            applications_qs = job.application_set.all()
-        except Exception:
-            applications_qs = []
+    # Handle POST requests for stage management
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        stage_name = request.POST.get('stage_name', '').strip()
+        stage_id = request.POST.get('stage_id')
 
-    # TODO: When ApplicationStage model exists, fetch custom stages for this job
-    # For now, using empty list - columns will be created by employer
-    custom_columns = []
-    # Example structure when implemented:
-    # custom_columns = ApplicationStage.objects.filter(job=job).prefetch_related('applications')
-    # Each column should have: id, name, applications (queryset)
+        # Add new stage
+        if form_type == 'add_stage' and stage_name:
+            # Get max order for this job
+            max_order = ApplicationStage.objects.filter(job=job).aggregate(
+                models.Max('order')
+            )['order__max'] or 0
+            
+            ApplicationStage.objects.create(
+                job=job,
+                name=stage_name,
+                order=max_order + 1
+            )
+            messages.success(request, f'Column "{stage_name}" added.')
+            return redirect(request.path)
+
+        # Edit existing stage
+        if form_type == 'edit_stage' and stage_id and stage_name:
+            try:
+                stage = ApplicationStage.objects.get(id=stage_id, job=job)
+                if stage.is_system:
+                    messages.error(request, 'Cannot edit system-generated columns.')
+                else:
+                    stage.name = stage_name
+                    stage.save()
+                    messages.success(request, f'Column "{stage_name}" updated.')
+            except ApplicationStage.DoesNotExist:
+                messages.error(request, 'Stage not found.')
+            return redirect(request.path)
+
+        # Delete stage
+        if form_type == 'delete_stage' and stage_id:
+            try:
+                stage = ApplicationStage.objects.get(id=stage_id, job=job)
+                if stage.is_system:
+                    messages.error(request, 'Cannot delete system-generated columns.')
+                else:
+                    # Move applications in this stage back to null (All Applications)
+                    JobApplication.objects.filter(stage=stage).update(stage=None)
+                    stage.delete()
+                    messages.success(request, 'Column deleted. Applications moved to "All Applications".')
+            except ApplicationStage.DoesNotExist:
+                messages.error(request, 'Stage not found.')
+            return redirect(request.path)
+
+    # Get all applications without a stage ("All Applications" column)
+    all_applications = JobApplication.objects.filter(
+        job=job,
+        stage__isnull=True
+    ).select_related(
+        'applicant',
+        'applicant__applicant_profile_rel'
+    ).order_by('-application_date')
+
+    # Get custom stages (user-created, editable)
+    custom_stages = ApplicationStage.objects.filter(
+        job=job,
+        is_system=False
+    ).prefetch_related(
+        models.Prefetch(
+            'applications',
+            queryset=JobApplication.objects.select_related(
+                'applicant',
+                'applicant__applicant_profile_rel'
+            ).order_by('-application_date')
+        )
+    ).order_by('order', 'created_at')
+
+    # Get system stages (e.g., Hired - not editable/deletable)
+    system_stages = ApplicationStage.objects.filter(
+        job=job,
+        is_system=True
+    ).prefetch_related(
+        models.Prefetch(
+            'applications',
+            queryset=JobApplication.objects.select_related(
+                'applicant',
+                'applicant__applicant_profile_rel'
+            ).order_by('-application_date')
+        )
+    ).order_by('order', 'created_at')
 
     context = {
         'job': job,
-        'all_applications': applications_qs,  # All applications in first column
-        'custom_columns': custom_columns,      # Dynamic stages (Shortlisted, Interview, etc.)
+        'all_applications': all_applications,
+        'custom_columns': custom_stages,
+        'system_columns': system_stages,
     }
     return render(request, 'dashboard/employer/employer_job_applications.html', context)
 
 @login_required
-def employer_candidate_detail(request):
-    return render(request, 'dashboard/employer/employer_candidate_detail.html')
+def employer_candidate_detail(request, application_id):
+    """Display detailed information about a candidate/applicant for a specific job application."""
+    from django.shortcuts import get_object_or_404
+    from django.core.exceptions import PermissionDenied
+    from jobs.models import JobApplication
+    
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+    
+    # Fetch the application with related data
+    application = get_object_or_404(
+        JobApplication.objects.select_related(
+            'applicant',
+            'applicant__applicant_profile_rel',
+            'job'
+        ),
+        id=application_id
+    )
+    
+    # Verify the employer owns the job this application is for
+    if application.job.employer_id != request.user.id:
+        raise PermissionDenied("You do not have permission to view this candidate.")
+    
+    # Get applicant profile
+    profile = application.applicant.applicant_profile_rel
+    
+    # Get social links
+    social_links = application.applicant.social_links.all()
+    
+    context = {
+        'application': application,
+        'applicant': application.applicant,
+        'profile': profile,
+        'social_links': social_links,
+        'job': application.job,
+    }
+    
+    return render(request, 'dashboard/employer/employer_candidate_detail.html', context)
+
+
+@login_required
+def hire_candidate(request, application_id):
+    """Hire a candidate - creates/moves to Hired stage and updates application status."""
+    from django.shortcuts import get_object_or_404
+    from django.core.exceptions import PermissionDenied
+    from jobs.models import JobApplication, ApplicationStage
+    from django.db import models
+    
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method.')
+        return redirect('dashboard:dashboard')
+    
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+    
+    try:
+        # Fetch the application
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != request.user.id:
+            raise PermissionDenied("You do not have permission to hire this candidate.")
+        
+        # Get or create "Hired" stage with is_system=True flag
+        hired_stage, created = ApplicationStage.objects.get_or_create(
+            job=application.job,
+            name='Hired',
+            defaults={
+                'order': 9999,  # Put at the end
+                'is_system': True  # Mark as system-generated
+            }
+        )
+        
+        # Update application
+        application.stage = hired_stage
+        application.status = 'hired'
+        application.hired_date = timezone.now().date()
+        application.save()
+        
+        messages.success(request, f'Successfully hired {application.applicant.applicant_profile_rel.full_name or application.applicant.email}!')
+        return redirect('dashboard:employer_job_applications', job_id=application.job.id)
+        
+    except Exception as e:
+        messages.error(request, f'Error hiring candidate: {str(e)}')
+        return redirect('dashboard:employer_candidate_detail', application_id=application_id)
+
+
+@login_required
+def move_application_stage(request, application_id):
+    """Move an application to a different stage (for drag-and-drop persistence)."""
+    from django.shortcuts import get_object_or_404
+    from django.core.exceptions import PermissionDenied
+    from django.http import JsonResponse
+    from jobs.models import JobApplication, ApplicationStage
+    
+    # Only accept POST
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+    
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        return JsonResponse({'success': False, 'error': 'Employer access required'}, status=403)
+    
+    try:
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != request.user.id:
+            raise PermissionDenied("You do not have permission to modify this application.")
+        
+        # Get target stage from POST data
+        stage_id = request.POST.get('stage_id')
+        
+        if stage_id == '' or stage_id == 'null' or stage_id is None:
+            # Move to "All Applications" (no stage)
+            application.stage = None
+        else:
+            # Move to specific stage
+            stage = get_object_or_404(
+                ApplicationStage,
+                id=stage_id,
+                job=application.job
+            )
+            application.stage = stage
+        
+        application.save()
+
+        response_data = {
+            'success': True,
+            'message': 'Application moved successfully',
+            'stage_name': application.stage.name if application.stage else 'All Applications'
+        }
+
+        # If the request is an AJAX/XHR request, return JSON so client JS can consume it.
+        # Otherwise this was submitted as a normal form POST; redirect back and use
+        # Django messages so the browser doesn't render raw JSON.
+        is_xhr = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+        if is_xhr:
+            return JsonResponse(response_data)
+
+        # Non-AJAX: set a success message and redirect back to the employer applications page
+        messages.success(request, response_data['message'])
+        return redirect(reverse('dashboard:employer_job_applications', args=[application.job.id]))
+        
+    except Exception as e:
+        # For AJAX requests return JSON error payload; for normal POSTs set an error message
+        # and redirect back so the user sees the message instead of raw JSON.
+        is_xhr = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+        if is_xhr:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+        messages.error(request, f'Error moving application: {str(e)}')
+        # Try to redirect back to referrer or to the employer job applications listing
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        return redirect('dashboard:dashboard')
 
 #------------------------------------------
 #              Admin Stuff

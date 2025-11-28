@@ -1,5 +1,14 @@
 /* Candidate Detail Page Styles */
 
+:root {
+    --primary-color: #dc3545;
+    --primary-color-dark: #c82333;
+    --primary-bg: rgba(220, 53, 69, 0.08);
+    --success-color: #28a745;
+    --success-dark: #218838;
+    --muted: #6b7280;
+}
+
 .candidate-detail-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -124,31 +133,43 @@
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    border: 1px solid #0066ff;
+    border: 1px solid var(--primary-color);
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .btn-send-mail {
     background: white;
-    color: #0066ff;
+    color: var(--primary-color);
 }
 
 .btn-send-mail:hover {
-    background-color: #f0f7ff;
+    background-color: var(--primary-bg);
 }
 
 .btn-hire {
-    background: #0066ff;
+    background: var(--primary-color);
     color: white;
-    border-color: #0066ff;
+    border-color: var(--primary-color);
 }
 
 .btn-hire:hover {
-    background-color: #0052cc;
+    background-color: var(--primary-color-dark);
+}
+
+.btn-hire.hired {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    cursor: default;
+    pointer-events: none;
+}
+
+.btn-hire.hired:hover {
+    background: var(--success-color);
 }
 
 /* Filter Bar */
@@ -176,14 +197,14 @@
 
 .btn-filter:hover,
 .btn-sort:hover {
-    border-color: #0066ff;
-    color: #0066ff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .btn-filter.active {
-    background-color: #0066ff;
+    background-color: var(--primary-color);
     color: white;
-    border-color: #0066ff;
+    border-color: var(--primary-color);
 }
 
 /* Content Layout */
@@ -353,7 +374,7 @@
 }
 
 .info-value a {
-    color: #0066ff;
+    color: var(--primary-color);
     text-decoration: none;
 }
 
@@ -396,8 +417,8 @@
 }
 
 .btn-download-resume:hover {
-    border-color: #0066ff;
-    background-color: #f8f9ff;
+    border-color: var(--primary-color);
+    background-color: var(--primary-bg);
 }
 
 .resume-info {
@@ -426,7 +447,7 @@
 
 .btn-download-resume > i {
     font-size: 18px;
-    color: #0066ff;
+    color: var(--primary-color);
 }
 
 /* Responsive Design */
@@ -463,6 +484,143 @@
     }
 }
 
+/* Hire Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    color: #1a1a1a;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+}
+
+.hire-confirmation {
+    text-align: center;
+}
+
+.hire-confirmation i {
+    font-size: 48px;
+    color: var(--success-color);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.hire-confirmation p {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+}
+
+.hire-confirmation .info-text {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.btn-modal-cancel {
+    padding: 0.625rem 1.25rem;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-cancel:hover {
+    background: #f9fafb;
+}
+
+.btn-modal-primary {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--success-color);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-primary:hover {
+    background-color: var(--success-dark);
+}
+
 @media (max-width: 480px) {
     .candidate-detail-container {
         padding: 20px 15px;
@@ -491,5 +649,9 @@
 
     .social-link i {
         font-size: 16px;
+    }
+
+    .modal-container {
+        width: 95%;
     }
 }

@@ -36,17 +36,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Hire button
+    // Hire button — open the modal (no alerts/confirm dialogs)
     const hireBtn = document.querySelector('.btn-hire');
     if (hireBtn) {
-        hireBtn.addEventListener('click', function() {
-            const candidateName = document.querySelector('.candidate-name').textContent;
-            
-            if (confirm(`Are you sure you want to hire ${candidateName}?`)) {
-                console.log('Hiring candidate:', candidateName);
-                // Implement your hire logic here
-                // You might want to redirect to a contract page or show a success modal
-                alert(`Hiring process initiated for ${candidateName}`);
+        hireBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Prefer the modal opener if defined by the template
+            if (typeof openHireModal === 'function') {
+                openHireModal();
+                return;
+            }
+
+            // Fallback: navigate to the candidate detail hire endpoint (server will handle)
+            const applicationId = document.querySelector('.application-id')?.value || this.dataset?.applicationId;
+            if (applicationId) {
+                window.location.href = `/dashboard/employer/hire-candidate/${applicationId}/`;
             }
         });
     }
@@ -136,8 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close button
     const closeBtn = document.querySelector('.btn-close');
     if (closeBtn) {
-        closeBtn.addEventListener('click', function() {
-            // Go back in history or redirect to applications page
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Prefer explicit redirect target on the button (data-redirect)
+            const target = this.dataset && this.dataset.redirect;
+            if (target) {
+                window.location.href = target;
+                return;
+            }
+            // Fallback to referrer or my-jobs
             if (document.referrer) {
                 window.history.back();
             } else {

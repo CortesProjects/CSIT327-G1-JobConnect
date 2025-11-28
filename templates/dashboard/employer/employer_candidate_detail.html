@@ -9,7 +9,7 @@
 {% block dashboard_content %}
 <div class="candidate-detail-container">
     <!-- Close Button -->
-    <button class="btn-close" onclick="window.history.back()">
+    <button class="btn-close" data-redirect="{% url 'dashboard:employer_job_applications' job.id %}">
         <i class="fas fa-times"></i>
     </button>
 
@@ -17,38 +17,37 @@
     <div class="candidate-header">
         <div class="candidate-main-info">
             <div class="candidate-avatar">
-                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Esther Howard">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" alt="{{ profile.full_name }}">
+                {% else %}
+                    <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ profile.full_name }}">
+                {% endif %}
             </div>
             <div class="candidate-details">
-                <h1 class="candidate-name">Esther Howard</h1>
-                <p class="candidate-title">Website Designer (UI/UX)</p>
+                <h1 class="candidate-name">{{ profile.full_name|default:applicant.email }}</h1>
+                <p class="candidate-title">{{ profile.title|default:"Job Seeker" }}</p>
             </div>
         </div>
         <div class="candidate-actions">
             <button class="btn-bookmark">
                 <i class="far fa-star"></i>
             </button>
-            <button class="btn-send-mail">
+            <a href="mailto:{{ applicant.email }}" class="btn-send-mail">
                 <i class="fas fa-envelope"></i>
                 Send Mail
+            </a>
+            {% if application.status == 'hired' %}
+            <button class="btn-hire hired">
+                <i class="fas fa-check-circle"></i>
+                Hired
             </button>
+            {% else %}
             <button class="btn-hire">
                 <i class="fas fa-user-check"></i>
-                Hire Candidates
+                Hire Candidate
             </button>
+            {% endif %}
         </div>
-    </div>
-
-    <!-- Filter and Sort -->
-    <div class="filter-bar">
-        <button class="btn-filter active">
-            Filter
-            <i class="fas fa-sliders-h"></i>
-        </button>
-        <button class="btn-sort">
-            Sort
-            <i class="fas fa-sort"></i>
-        </button>
     </div>
 
     <!-- Candidate Content -->
@@ -59,9 +58,11 @@
             <section class="content-section">
                 <h2 class="section-title">BIOGRAPHY</h2>
                 <div class="section-content">
-                    <p>I've been passionate about graphic design and digital art from an early age, with a keen interest in Website and Mobile Application User Interfaces. I can create high-quality and aesthetically pleasing designs in a quick turnaround time. Check out my portfolio section at my website for some of my work, and feel free to discuss your designing needs with me.</p>
-                    <p>I have just completed my Bachelor of Science degree in Elementary Education and have successfully completed Praxis I and Praxis II. During my student teaching experience, I created and implemented lesson plans for students at three grade levels in accordance with state and federal laws...</p>
-                    <p>During my student teaching experience, I developed and initiated a Three-Week curriculum sequence in annual species and ant to discuss your designing needs with me.</p>
+                    {% if profile.biography %}
+                        {{ profile.biography|linebreaks }}
+                    {% else %}
+                        <p class="text-muted">No biography provided.</p>
+                    {% endif %}
                 </div>
             </section>
 
@@ -69,122 +70,126 @@
             <section class="content-section">
                 <h2 class="section-title">COVER LETTER</h2>
                 <div class="section-content">
-                    <p>Dear Sir,</p>
-                    <p>I am writing to express my interest in the fourth grade instructional position that is currently available at the Fort Wayne Community School System. I learned of the opening through a notice posted on JobZip.com, IPFW's job database. I am confident that my academic background and curriculum development skills would be an asset to your Elementary School teaching team.</p>
-                    <p>I have just completed my Bachelor of Science degree in Elementary Education and have successfully completed Praxis I and Praxis II. During my student teaching experience, I initiated and developed a Three-Week curriculum sequence on animal species and ant habitat. This collaborative and involved working with three third grade teachers within my team, and culminated in a field trip to the Indianapolis Zoo Animal Research Unit.</p>
-                    <p>As evidenced by my resume, I am knowledgeable about creating and adapting lesson plans for students at three grade levels in accordance with state and federal laws. For example, I have created lesson plans for students of varying ages in reading, arithmetic, social studies, and science. I also incorporate the use of technology when creating.</p>
-                    <p>Sincerely,</p>
-                    <p><strong>Esther Howard</strong></p>
+                    {% if application.applicant_notes %}
+                        {{ application.applicant_notes|linebreaks }}
+                    {% else %}
+                        <p class="text-muted">No cover letter provided with this application.</p>
+                    {% endif %}
                 </div>
             </section>
 
             <!-- Social Media Section -->
+            {% if social_links %}
             <section class="content-section">
-                <h2 class="section-title">Follow me Social Media</h2>
+                <h2 class="section-title">Follow on Social Media</h2>
                 <div class="social-media-links">
-                    <a href="#" class="social-link facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="social-link twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-link linkedin">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="social-link reddit">
-                        <i class="fab fa-reddit-alien"></i>
-                    </a>
-                    <a href="#" class="social-link instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="social-link youtube">
-                        <i class="fab fa-youtube"></i>
-                    </a>
+                    {% for link in social_links %}
+                        <a href="{{ link.url }}" target="_blank" class="social-link {{ link.platform }}">
+                            {% if link.platform == 'facebook' %}
+                                <i class="fab fa-facebook-f"></i>
+                            {% elif link.platform == 'twitter' %}
+                                <i class="fab fa-twitter"></i>
+                            {% elif link.platform == 'linkedin' %}
+                                <i class="fab fa-linkedin-in"></i>
+                            {% elif link.platform == 'instagram' %}
+                                <i class="fab fa-instagram"></i>
+                            {% elif link.platform == 'github' %}
+                                <i class="fab fa-github"></i>
+                            {% elif link.platform == 'youtube' %}
+                                <i class="fab fa-youtube"></i>
+                            {% elif link.platform == 'website' %}
+                                <i class="fas fa-globe"></i>
+                            {% elif link.platform == 'portfolio' %}
+                                <i class="fas fa-briefcase"></i>
+                            {% else %}
+                                <i class="fas fa-link"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
                 </div>
             </section>
+            {% endif %}
         </div>
 
         <!-- Right Column - Sidebar Info -->
         <div class="content-sidebar">
             <!-- Contact Information -->
             <div class="info-card">
+                {% if profile.date_of_birth %}
                 <div class="info-row">
                     <div class="info-icon">
                         <i class="fas fa-calendar"></i>
                     </div>
                     <div class="info-details">
                         <div class="info-label">DATE OF BIRTH</div>
-                        <div class="info-value">14 June, 2021</div>
+                        <div class="info-value">{{ profile.date_of_birth|date:"d F, Y" }}</div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if profile.nationality %}
                 <div class="info-row">
                     <div class="info-icon">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="info-details">
                         <div class="info-label">NATIONALITY</div>
-                        <div class="info-value">Bangladesh</div>
+                        <div class="info-value">{{ profile.nationality }}</div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if profile.marital_status %}
                 <div class="info-row">
                     <div class="info-icon">
                         <i class="fas fa-venus-mars"></i>
                     </div>
                     <div class="info-details">
                         <div class="info-label">MARITAL STATUS</div>
-                        <div class="info-value">Single</div>
+                        <div class="info-value">{{ profile.get_marital_status_display }}</div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if profile.gender %}
                 <div class="info-row">
                     <div class="info-icon">
-                        <i class="fas fa-mars"></i>
+                        <i class="fas fa-{% if profile.gender == 'male' %}mars{% elif profile.gender == 'female' %}venus{% else %}genderless{% endif %}"></i>
                     </div>
                     <div class="info-details">
                         <div class="info-label">GENDER</div>
-                        <div class="info-value">Male</div>
+                        <div class="info-value">{{ profile.get_gender_display }}</div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if profile.experience %}
                 <div class="info-row">
                     <div class="info-icon">
                         <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="info-details">
                         <div class="info-label">EXPERIENCE</div>
-                        <div class="info-value">7 Years</div>
+                        <div class="info-value">{{ profile.experience }}</div>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if profile.education_level %}
                 <div class="info-row">
                     <div class="info-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
                     <div class="info-details">
-                        <div class="info-label">EDUCATIONS</div>
-                        <div class="info-value">Master Degree</div>
+                        <div class="info-label">EDUCATION</div>
+                        <div class="info-value">{{ profile.get_education_level_display }}</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Website -->
-            <div class="info-card">
-                <div class="info-row">
-                    <div class="info-icon">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <div class="info-details">
-                        <div class="info-label">WEBSITE</div>
-                        <div class="info-value">
-                            <a href="https://www.estherhoward.com" target="_blank">www.estherhoward.com</a>
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
             </div>
 
             <!-- Location -->
+            {% if profile.location %}
             <div class="info-card">
                 <div class="info-row">
                     <div class="info-icon">
@@ -192,13 +197,17 @@
                     </div>
                     <div class="info-details">
                         <div class="info-label">LOCATION</div>
-                        <div class="info-value">Beverly Hills, CA 90210</div>
-                        <div class="info-subtext">Zone/Block Basement 1 Unit B2, 1372 Spring Avenue Newyork...</div>
+                        <div class="info-value">{{ profile.location_city|default:"" }}{% if profile.location_city and profile.location_country %}, {% endif %}{{ profile.location_country|default:"" }}</div>
+                        {% if profile.location_street %}
+                        <div class="info-subtext">{{ profile.location_street }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Contact Info -->
+            {% if profile.contact_number %}
             <div class="info-card">
                 <div class="info-row">
                     <div class="info-icon">
@@ -206,12 +215,11 @@
                     </div>
                     <div class="info-details">
                         <div class="info-label">PHONE</div>
-                        <div class="info-value">+1-202-555-0141</div>
-                        <div class="info-subtext">SECONDARY PHONE</div>
-                        <div class="info-value">+1-202-555-0189</div>
+                        <div class="info-value">{{ profile.contact_number }}</div>
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Email -->
             <div class="info-card">
@@ -222,29 +230,90 @@
                     <div class="info-details">
                         <div class="info-label">EMAIL ADDRESS</div>
                         <div class="info-value">
-                            <a href="mailto:esther.howard@gmail.com">esther.howard@gmail.com</a>
+                            <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Download Resume -->
+            {% if profile.resume %}
             <div class="download-section">
-                <h3 class="download-title">Download My Resume</h3>
-                <button class="btn-download-resume">
+                <h3 class="download-title">Download Resume</h3>
+                <a href="{{ profile.resume.url }}" target="_blank" class="btn-download-resume" style="text-decoration: none;">
                     <div class="resume-info">
-                        <i class="fas fa-file-pdf"></i>
+                        <i class="fas fa-file-{% if profile.resume.url|slice:'-4:' == '.pdf' %}pdf{% else %}alt{% endif %}"></i>
                         <div>
-                            <div class="resume-name">Esther Howard</div>
-                            <div class="resume-format">PDF</div>
+                            <div class="resume-name">{{ profile.full_name|default:"Resume" }}</div>
+                            <div class="resume-format">{{ profile.resume.url|slice:"-3:"|upper }}</div>
                         </div>
                     </div>
                     <i class="fas fa-download"></i>
-                </button>
+                </a>
             </div>
+            {% else %}
+            <div class="download-section">
+                <h3 class="download-title">Download Resume</h3>
+                <div class="text-muted text-center py-3">
+                    <i class="fas fa-file-slash"></i>
+                    <p>No resume uploaded</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Hire Confirmation Modal -->
+<div class="modal-overlay" id="hireModal">
+    <div class="modal-container modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">Hire Candidate</h3>
+            <button class="btn-close-modal" onclick="closeHireModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="hire-confirmation">
+                <i class="fas fa-user-check"></i>
+                <p>Are you sure you want to hire <strong>{{ profile.full_name|default:applicant.email }}</strong>?</p>
+                <small class="info-text">This will move the application to the "Hired" column and update the application status.</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" onclick="closeHireModal()">Cancel</button>
+            <form method="post" action="{% url 'dashboard:hire_candidate' application.id %}" style="display: inline; margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="btn-modal-primary">
+                    <i class="fas fa-check"></i>
+                    Confirm Hire
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openHireModal() {
+    const modal = document.getElementById('hireModal');
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+}
+
+function closeHireModal() {
+    const modal = document.getElementById('hireModal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+}
+
+// Update hire button to open modal (only if not hired)
+document.addEventListener('DOMContentLoaded', function() {
+    const hireBtn = document.querySelector('.btn-hire:not(.hired)');
+    if (hireBtn) {
+        hireBtn.addEventListener('click', openHireModal);
+    }
+});
+</script>
 
 <script src="{% static 'js/dashboard/employer/employer_candidate_detail.js' %}"></script>
 {% endblock %}

@@ -290,6 +290,16 @@ def job_detail(request, job_id):
     else:
         base_template = 'dashboard/applicant/applicant_dashboard_base.html'
     
+    # If `goto=applications` present and the current user is the job owner,
+    # perform a server-side redirect directly to the employer applications
+    # page. This causes an immediate HTTP redirect instead of relying on
+    # client-side JS. Note: server redirect does NOT leave the job detail
+    # URL in browser history (back will return to the previous page).
+    goto = request.GET.get('goto', '')
+    if goto == 'applications' and request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'employer' and job.employer == request.user:
+        from django.shortcuts import redirect
+        return redirect('dashboard:employer_job_applications', job.id)
+
     context = {
         'job': job,
         'is_favorited': is_favorited,
@@ -299,6 +309,12 @@ def job_detail(request, job_id):
         'breadcrumb_url': breadcrumb_url,
         'base_template': base_template,
     }
+    # If the query param `goto=applications` was provided, and the current user
+    # is the job owner (employer), set a context flag so the template can
+    # perform a client-side redirect to the applications view while keeping
+    # the job detail in the browser history.
+    goto = request.GET.get('goto', '')
+    context['goto_applications'] = (goto == 'applications' and request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'employer')
     
     return render(request, 'jobs/job_detail.html', context)
 
