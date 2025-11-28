@@ -39,7 +39,7 @@
 .jt-row:hover { box-shadow:0 6px 18px rgba(0,0,0,0.06); border-color:var(--primary-color); }
 
 .job-left { display:flex; gap:14px; align-items:center; }
-.logo { 
+.company-logo { 
     width:56px; 
     height:56px; 
     border-radius:10px; 
@@ -49,11 +49,11 @@
     place-items:center; 
     flex:0 0 56px; 
 }
-.logo img { 
+.company-logo img { 
     width:100%; 
     height:100%;
 }
-.logo-placeholder { 
+.company-logo-placeholder { 
     font-weight:700; 
     color:var(--primary-color); 
 }
