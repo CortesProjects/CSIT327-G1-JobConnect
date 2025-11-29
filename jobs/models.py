@@ -127,35 +127,6 @@ class SalaryType(models.Model):
     
     def __str__(self):
         return self.name
-
-
-class Tag(models.Model):
-    """Tags for job postings."""
-    name = models.CharField(max_length=50, unique=True, help_text="Tag name")
-    slug = models.SlugField(max_length=50, unique=True, help_text="URL-friendly version")
-    description = models.TextField(blank=True, help_text="Optional description")
-    is_active = models.BooleanField(default=True, help_text="Whether this tag is currently available")
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        verbose_name = "Tag"
-        verbose_name_plural = "Tags"
-        ordering = ['name']
-        indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['slug']),
-            models.Index(fields=['is_active']),
-        ]
-    
-    def __str__(self):
-        return self.name
-    
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-
 # ============================================================================
 # JOB MODEL
 # ============================================================================
@@ -361,45 +332,14 @@ class Job(models.Model):
     
     @property
     def tag_list(self):
-        """Returns a list of tag names associated with this job."""
-        return [job_tag.tag.name for job_tag in self.job_tags.select_related('tag')]
+        """Returns a list of tag names from the tags field."""
+        if not self.tags:
+            return []
+        return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
     
     def get_tag_names(self):
         """Returns comma-separated string of tag names."""
         return ', '.join(self.tag_list)
-
-
-class JobTag(models.Model):
-    """
-    Junction table for Many-to-Many relationship between Jobs and Tags.
-    Allows a job to have multiple tags and a tag to be associated with multiple jobs.
-    """
-    job = models.ForeignKey(
-        Job,
-        on_delete=models.CASCADE,
-        related_name='job_tags',
-        help_text="The job this tag is associated with"
-    )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        related_name='job_tags',
-        help_text="The tag associated with this job",
-        null=True,
-        blank=True
-    )
-    
-    class Meta:
-        unique_together = ['job', 'tag']
-        ordering = ['tag__name']
-        verbose_name = "Job Tag"
-        verbose_name_plural = "Job Tags"
-        indexes = [
-            models.Index(fields=['job', 'tag']),
-        ]
-    
-    def __str__(self):
-        return f"{self.job.title} - {self.tag.name}"
 
 
 class ApplicationStage(models.Model):

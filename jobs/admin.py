@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import (
-    Job, JobTag, JobApplication, FavoriteJob,
+    Job, JobApplication, FavoriteJob,
     JobCategory, EmploymentType, EducationLevel,
-    ExperienceLevel, JobLevel, SalaryType, Tag
+    ExperienceLevel, JobLevel, SalaryType
 )
 
 
@@ -54,29 +54,13 @@ class SalaryTypeAdmin(admin.ModelAdmin):
     ordering = ['order', 'name']
 
 
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'is_active', 'created_at']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['name', 'slug', 'description']
-    prepopulated_fields = {'slug': ('name',)}
-    ordering = ['name']
-
-
-class JobTagInline(admin.TabularInline):
-    model = JobTag
-    extra = 1
-    autocomplete_fields = ['tag']
-
-
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     list_display = ['title', 'company_name', 'category', 'job_type', 'location', 'status', 'posted_at']
     list_filter = ['status', 'category', 'job_type', 'job_level', 'posted_at']
-    search_fields = ['title', 'company_name', 'description', 'location']
+    search_fields = ['title', 'company_name', 'description', 'location', 'tags']
     readonly_fields = ['posted_at', 'updated_at']
     autocomplete_fields = ['employer', 'category', 'job_type', 'education', 'experience', 'job_level', 'salary_type']
-    inlines = [JobTagInline]
     fieldsets = (
         ('Basic Information', {
             'fields': ('employer', 'company_name', 'title', 'description', 'category', 'location')
@@ -95,13 +79,6 @@ class JobAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-
-
-@admin.register(JobTag)
-class JobTagAdmin(admin.ModelAdmin):
-    list_display = ['job', 'tag']
-    search_fields = ['job__title', 'tag__name']
-    autocomplete_fields = ['job', 'tag']
 
 
 @admin.register(JobApplication)
