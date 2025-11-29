@@ -2,7 +2,9 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .forms import ApplicantRegistrationForm, UserLoginForm, EmployerRegistrationForm 
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from django.urls import reverse_lazy
+from .forms import ApplicantRegistrationForm, UserLoginForm, EmployerRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm 
 
 
 def get_user_dashboard_url(user):
@@ -110,3 +112,27 @@ def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('home')
+
+
+# --- Password Reset Views ---
+class CustomPasswordResetView(PasswordResetView):
+    """Custom password reset view with styled form"""
+    form_class = CustomPasswordResetForm
+    template_name = 'accounts/forgot_password.html'
+    email_template_name = 'accounts/password_reset_email.txt'
+    success_url = reverse_lazy('accounts:password_reset_done')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Password reset email has been sent if an account with that email exists.')
+        return super().form_valid(form)
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Custom password reset confirm view with styled form"""
+    form_class = CustomSetPasswordForm
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Your password has been reset successfully!')
+        return super().form_valid(form)
