@@ -56,8 +56,8 @@
                         <i class="fas fa-briefcase"></i>
                     </span>
                     <div class="stat-text"> 
-                        <p class="stat-number">175,324</p>
-                        <p class="stat-label">Live Job</p>
+                        <p class="stat-number">{{ live_jobs_count|default:0 }}</p>
+                        <p class="stat-label">Live Jobs</p>
                     </div> 
                 </div>
                 <div class="stat-card">
@@ -65,7 +65,7 @@
                         <i class="fas fa-building"></i>
                     </span>
                     <div class="stat-text"> 
-                        <p class="stat-number">97,354</p>
+                        <p class="stat-number">{{ companies_count|default:0 }}</p>
                         <p class="stat-label">Companies</p>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                         <i class="fas fa-users"></i>
                     </span>
                     <div class="stat-text"> 
-                        <p class="stat-number">38,47,154</p>
+                        <p class="stat-number">{{ candidates_count|default:0 }}</p>
                         <p class="stat-label">Candidates</p>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                         <i class="fas fa-thumbs-up"></i>
                     </span>
                     <div class="stat-text"> 
-                        <p class="stat-number">7,532</p>
+                        <p class="stat-number">{{ total_jobs_count|default:0 }}</p>
                         <p class="stat-label">Total Jobs</p>
                     </div>
                 </div>
@@ -96,81 +96,22 @@
         <section class="popular-category-section">
             <div class="section-header">
                 <h2>Popular category</h2>
-                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <a href="{% url 'jobs:job_search' %}" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="category-grid">
+                {% for category in popular_categories %}
                 <div class="category-card">
                     <span class="category-icon-wrapper">
-                        <i class="fas fa-palette"></i>
+                        <i class="fas fa-tags"></i>
                     </span>
                     <div class="category-text-content">
-                        <h4>Graphics & Design</h4>
-                        <p>195 Jobs</p>
+                        <h4>{{ category.name }}</h4>
+                        <p>{{ category.job_count }} Jobs</p>
                     </div>
                 </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-code"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Code & Programming</h4>
-                        <p>125 Jobs</p>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-bullhorn"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Digital Marketing</h4>
-                        <p>110 Jobs</p>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-video"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Video & Animation</h4>
-                        <p>140 Jobs</p>
-                    </div>  
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-music"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Music & Audio</h4>
-                        <p>255 Jobs</p>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-chart-line"></i>
-                    </span> 
-                    <div class="category-text-content">
-                        <h4>Account & Finance</h4>
-                        <p>97 Jobs</p>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-heartbeat"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Health & Care</h4>
-                        <p>65 Jobs</p>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <span class="category-icon-wrapper">
-                        <i class="fas fa-flask"></i>
-                    </span>
-                    <div class="category-text-content">
-                        <h4>Data & Science</h4>
-                        <p>115 Jobs</p>
-                    </div>
-                </div>
+                {% empty %}
+                <p class="muted">No popular categories yet.</p>
+                {% endfor %}
             </div>
         </section>
 
@@ -179,69 +120,35 @@
         <section class="featured-jobs-section">
             <div class="section-header">
                 <h2>Featured job</h2>
-                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                <a href="{% url 'jobs:job_search' %}" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="job-list">
+                {% for job in featured_jobs %}
                 <div class="job-card">
                     <div class="job-info-left">
-                        <span class="company-logo bg-dark">A</span> 
+                        <span class="company-logo bg-dark">{{ job.company_name|default:job.employer.first_name|first|upper }}</span>
                         <div class="job-details">
                             <div class="job-title-line">
-                                <h4>Senior UX Designer</h4> 
-                                <span class="badge">Full Time</span>
+                                <h4>{{ job.title }}</h4>
+                                {% if job.job_type %}
+                                    <span class="badge">{{ job.job_type.name }}</span>
+                                {% endif %}
                             </div>
                             <div class="job-meta">
-                                <span><i class="fas fa-map-marker-alt"></i> New York, USA</span>
-                                <span><i class="fas fa-money-bill-wave"></i> $12k - $15k</span>
-                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
+                                <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                                <span><i class="fas fa-money-bill-wave"></i> {% if job.min_salary and job.max_salary %}${{ job.min_salary }} - ${{ job.max_salary }}{% else %}Salary not specified{% endif %}</span>
+                                <span><i class="fas fa-calendar-alt"></i> {% if job.expiration_date %}{{ job.expiration_date|timeuntil }} remaining{% else %}No deadline{% endif %}</span>
                             </div>
                         </div>
                     </div>
                     <div class="job-actions">
                         <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
-                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
+                        <a href="{% url 'jobs:job_detail' job.id %}" class="apply-btn">View <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
-                <div class="job-card">
-                    <div class="job-info-left">
-                        <span class="company-logo bg-dark">B</span> 
-                        <div class="job-details">
-                            <div class="job-title-line">
-                                <h4>Software Engineer</h4> 
-                                <span class="badge ">Full Time</span>
-                            </div>
-                            <div class="job-meta">
-                                <span><i class="fas fa-map-marker-alt"></i> China</span>
-                                <span><i class="fas fa-money-bill-wave"></i> $50K-$60K</span>
-                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="job-actions">
-                        <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
-                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="job-card">
-                    <div class="job-info-left">
-                        <span class="company-logo bg-dark">C</span> 
-                        <div class="job-details">
-                            <div class="job-title-line">
-                                <h4>Junior Graphic Designer</h4> 
-                                <span class="badge">Full Time</span>
-                            </div>
-                            <div class="job-meta">
-                                <span><i class="fas fa-map-marker-alt"></i> Canada </span>
-                                <span><i class="fas fa-money-bill-wave"></i> $50k - $70k</span>
-                                <span><i class="fas fa-calendar-alt"></i> 4 Days Remaining</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="job-actions">
-                        <button class="favorite-btn" title="Add to favorites"><i class="far fa-heart"></i></button>
-                        <a href="#" class="apply-btn">Apply Now <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
+                {% empty %}
+                <p class="muted">No featured jobs at the moment.</p>
+                {% endfor %}
             </div>
         </section>
 
@@ -263,6 +170,7 @@
 
 <script src="{% static 'js/search_suggestions.js' %}"></script>
 <script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
+<script src="{% static 'js/accounts/terms_modal.js' %}"></script>
 
 {% endblock content %}
 
@@ -272,42 +180,29 @@
             <div class="footer-brand">
                 <div class="logo">JobConnect</div>
                 <p>Find the job that suits your skills.</p>
-                <p>Call: +63 9223344222</p>
-                <p>Cebu City</p>
-            </div>
-            <div class="footer-links">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Contact</a></li> 
-                    <li><a href="#">Pricing</a></li>
-                    <li><a href="#">Blog</a></li>
-                </ul>
+                <p>Call:+63 (032) 555-0123</p>
+                <p>Cebu City, 6000 Cebu, Philippines</p>
             </div>
             <div class="footer-links">
                 <h4>Candidate</h4>
                 <ul>
-                    <li><a href="#">Browse Jobs</a></li>
-                    <li><a href="#">Browse Employers</a></li> 
-                    <li><a href="#">Candidate Dashboard</a></li>
-                    <li><a href="#">Saved Jobs</a></li>
+                    <li><a href="{% url 'jobs:job_search' %}">Browse Jobs</a></li>
+                    <li><a href="{% url 'dashboard:dashboard' %}">Candidate Dashboard</a></li>
+                    <li><a href="{% url 'jobs:applicant_favorite_jobs' %}">Saved Jobs</a></li>
                 </ul>
             </div>
             <div class="footer-links">
                 <h4>Employer</h4>
                 <ul>
-                    <li><a href="#">Post a Job</a></li>
-                    <li><a href="#">Browse Candidates</a></li> 
-                    <li><a href="#">Employers Dashboard</a></li>
-                    <li><a href="#">Applications</a></li>
+                    <li><a href="{% url 'dashboard:employer_post_job' %}">Post a Job</a></li>
+                    <li><a href="{% url 'dashboard:dashboard' %}">Employers Dashboard</a></li>
+                    <li><a href="{% url 'dashboard:employer_my_jobs' %}">My Jobs</a></li>
                 </ul>
             </div>
             <div class="footer-links">
                 <h4>Support</h4>
                  <ul>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Privacy Policy</a></li> 
-                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="{% url 'home' %}#terms">Terms & Conditions</a></li>
                 </ul>
             </div>
         </div>
@@ -323,3 +218,11 @@
     </footer>
 
     {% endblock footer %}
+
+{% block modals %}
+    {% include "accounts/terms_modal.html" with show_accept_buttons=False %}
+    <style>
+        /* Extra safeguard: hide accept/decline buttons when modal is included on home page */
+        #termsModal .modal-footer { display: none !important; }
+    </style>
+{% endblock %}

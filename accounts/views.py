@@ -19,7 +19,42 @@ def home(request):
     """Home page view that redirects authenticated users to their dashboard"""
     if request.user.is_authenticated:
         return redirect(get_user_dashboard_url(request.user))
-    return render(request, 'home.html')
+    # Provide dynamic site summary data for unauthenticated visitors
+    try:
+        from jobs.models import Job, JobCategory
+        from django.db.models import Count
+
+        live_jobs_count = Job.objects.filter(status='active').count()
+        total_jobs_count = Job.objects.count()
+        # Companies = registered employers
+        companies_count = User.objects.filter(user_type='employer').count()
+        candidates_count = User.objects.filter(user_type='applicant').count()
+
+        # Popular categories by job count (top 8)
+        popular_categories = JobCategory.objects.annotate(job_count=Count('jobs')).filter(job_count__gt=0).order_by('-job_count')[:8]
+
+        # Featured jobs: recent active jobs
+        featured_jobs = Job.objects.filter(status='active').annotate(applications_count=Count('applications')).order_by('-posted_at')[:3]
+
+    except Exception:
+        # Fallback to empty values if models are not available for any reason
+        live_jobs_count = 0
+        total_jobs_count = 0
+        companies_count = 0
+        candidates_count = 0
+        popular_categories = []
+        featured_jobs = []
+
+    context = {
+        'live_jobs_count': live_jobs_count,
+        'total_jobs_count': total_jobs_count,
+        'companies_count': companies_count,
+        'candidates_count': candidates_count,
+        'popular_categories': popular_categories,
+        'featured_jobs': featured_jobs,
+    }
+
+    return render(request, 'home.html', context)
 
 
 def register(request):

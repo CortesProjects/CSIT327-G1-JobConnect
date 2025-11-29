@@ -142,10 +142,12 @@
                 </section>
             </div>
         </div>
+        {% if show_accept_buttons|default:True %}
         <div class="modal-footer">
             <button class="btn-modal-primary" id="acceptTermsBtn">I Accept</button>
             <button class="btn-modal-cancel" id="declineTermsBtn">Decline</button>
         </div>
+        {% endif %}
     </div>
 </div>
 

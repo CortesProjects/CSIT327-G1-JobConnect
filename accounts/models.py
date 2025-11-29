@@ -11,6 +11,8 @@ def resume_upload_path(instance, filename):
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
+    # Whether the user has accepted the site's Terms & Conditions
+    accepted_terms = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
