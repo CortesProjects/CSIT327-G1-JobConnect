@@ -466,65 +466,7 @@ class JobApplicationForm(forms.Form):
         return cleaned_data
 
     def save(self, commit=True):
-        """Save the Job instance and synchronize Tag relationships.
-
-        The form exposes a legacy `tags` CharField (comma-separated). After
-        saving the Job instance we ensure Tag objects exist for each name and
-        that the JobTag junction table reflects the current set. This makes
-        tags available for search (`job_tags__tag__name__icontains`).
-        """
-        # Save the Job instance first
+        """Save the Job instance with tags stored in the tags CharField."""
+        # Simply save the Job instance - tags are already in the tags field
         job = super().save(commit=commit)
-
-        # Synchronize tags only if the tags field is present in cleaned_data
-        tags_value = self.cleaned_data.get('tags', '')
-        import re
-        try:
-            from .models import Tag, JobTag
-        except Exception:
-            # If models can't be imported for some reason, return the job
-            return job
-
-        # Parse comma-separated tags, normalize and deduplicate
-        tag_names = []
-        if tags_value:
-            # Allow commas or semicolons as separators
-            raw = [t.strip() for t in re.split('[,;]', tags_value) if t.strip()]
-            # Normalize to title-case or lower-case depending on preference
-            # Keep original case but strip duplicates by lowercasing keys
-            seen = set()
-            for t in raw:
-                key = t.lower()
-                if key not in seen:
-                    seen.add(key)
-                    tag_names.append(t)
-
-        # Current tags on the job
-        existing_tags = {jt.tag.name: jt for jt in job.job_tags.select_related('tag').all() if jt.tag}
-
-        # Create or get tags and ensure JobTag exists
-        desired_tag_objs = []
-        for name in tag_names:
-            if not name:
-                continue
-            # Case-insensitive lookup first
-            tag_obj = Tag.objects.filter(name__iexact=name).first()
-            if not tag_obj:
-                tag_obj = Tag.objects.create(name=name)
-            desired_tag_objs.append(tag_obj)
-
-        # Add missing JobTag relations
-        desired_ids = set([t.id for t in desired_tag_objs])
-        existing_ids = set([jt.tag_id for jt in job.job_tags.all() if jt.tag_id])
-
-        # Create new relationships
-        to_add = desired_ids - existing_ids
-        for tag_id in to_add:
-            JobTag.objects.create(job=job, tag_id=tag_id)
-
-        # Remove relationships that are no longer desired
-        to_remove = existing_ids - desired_ids
-        if to_remove:
-            JobTag.objects.filter(job=job, tag_id__in=list(to_remove)).delete()
-
         return job

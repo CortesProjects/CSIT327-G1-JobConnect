@@ -114,13 +114,12 @@ def applicant_search_jobs(request):
         # Keyword search
         query = cleaned_data.get('query')
         if query:
-            # Search title, description, company name, legacy tags field, and related Tag names
+            # Search title, description, company name, and tags field
             jobs = jobs.filter(
                 Q(title__icontains=query) |
                 Q(description__icontains=query) |
                 Q(company_name__icontains=query) |
-                Q(tags__icontains=query) |
-                Q(job_tags__tag__name__icontains=query)
+                Q(tags__icontains=query)
             ).distinct()
         
         # Category filter (single-select)
