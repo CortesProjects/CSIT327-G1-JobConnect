@@ -1,7 +1,10 @@
-// Post Job Form Functionality
+/**
+ * Post Job Form - Dynamic Styling & UI Only
+ * All validation is handled by Django backend
+ */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle rich text editor toolbar buttons
+    // Rich text editor toolbar
     const toolbarButtons = document.querySelectorAll('.toolbar-btn');
     
     toolbarButtons.forEach(button => {
@@ -11,371 +14,96 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (command === 'link') {
                 const url = prompt('Enter the URL:');
-                if (url) {
-                    document.execCommand('createLink', false, url);
-                }
+                if (url) { document.execCommand('createLink', false, url); }
             } else {
                 document.execCommand(command, false, null);
             }
         });
     });
 
-    // Prefill editors when editing an existing job (hidden inputs populated server-side)
-    // Note: use var to avoid duplicate const declarations elsewhere in this file
-    var prefillDesc = document.getElementById('description');
-    var prefillResp = document.getElementById('responsibilities');
-    var descHidden = document.getElementById('description_hidden');
-    var respHidden = document.getElementById('responsibilities_hidden');
+    // Prefill editor content when editing
+    const prefillDesc = document.getElementById('description');
+    const prefillResp = document.getElementById('responsibilities');
+    const descHidden = document.getElementById('description_hidden') || document.getElementById('id_description');
+    const respHidden = document.getElementById('responsibilities_hidden') || document.getElementById('id_responsibilities');
 
-        // Accept either custom hidden IDs (description_hidden) or default Django field IDs (id_description)
-        var descHidden = document.getElementById('description_hidden') || document.getElementById('id_description');
-        var respHidden = document.getElementById('responsibilities_hidden') || document.getElementById('id_responsibilities');
+    if (prefillDesc && descHidden && descHidden.value) { prefillDesc.innerHTML = descHidden.value; }
+    if (prefillResp && respHidden && respHidden.value) { prefillResp.innerHTML = respHidden.value; }
 
-        if (prefillDesc && descHidden && descHidden.value) {
-            prefillDesc.innerHTML = descHidden.value;
-        }
-        if (prefillResp && respHidden && respHidden.value) {
-            prefillResp.innerHTML = respHidden.value;
-        }
-
-    // Check for success message and show modal
-    const messagesContainer = document.getElementById('messagesContainer');
-    if (messagesContainer) {
-        const successMessages = messagesContainer.querySelectorAll('.alert-success');
-        if (successMessages.length > 0) {
-            // Hide messages container
-            messagesContainer.style.display = 'none';
-            
-            // Show success modal
-            const modal = document.getElementById('successModal');
-            if (modal) {
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-    }
-
-        // Auto-dismiss any messages container after 5 seconds (fade then remove)
-        if (messagesContainer) {
-            setTimeout(function() {
-                messagesContainer.style.opacity = '0';
-                messagesContainer.style.transition = 'opacity 0.5s';
-                setTimeout(function() {
-                    if (messagesContainer.parentElement) messagesContainer.remove();
-                }, 500);
-            }, 5000);
-        }
-
-    // Close modal functionality
-    const closeModal = document.getElementById('closeModal');
-    const successModal = document.getElementById('successModal');
-    
-    if (closeModal) {
-        closeModal.addEventListener('click', function() {
-            successModal.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        });
-    }
-    
-    // Close modal when clicking outside
-    if (successModal) {
-        successModal.addEventListener('click', function(e) {
-            if (e.target === successModal) {
-                successModal.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
-
-    // Save editor content to hidden inputs before form submission
+    // Form submission - sync editor content to hidden inputs
     const form = document.querySelector('.post-job-form');
-    
     if (form) {
-        form.addEventListener('submit', function(e) {
-            // Clear previous errors
-            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-            document.querySelectorAll('.form-control, .editor-content').forEach(el => {
-                el.classList.remove('error');
-            });
+        form.addEventListener('submit', function() {
+            const descEditor = document.getElementById('description');
+            const descHiddenInput = document.getElementById('description_hidden');
+            if (descEditor && descHiddenInput) { descHiddenInput.value = descEditor.innerHTML; }
 
-            let hasError = false;
-
-            // Get description content
-            const descriptionEditor = document.getElementById('description');
-            const descriptionHidden = document.getElementById('description_hidden');
-            if (descriptionEditor && descriptionHidden) {
-                const textContent = descriptionEditor.textContent.trim();
-                descriptionHidden.value = descriptionEditor.innerHTML;
-                
-                // Validate description length (minimum 50 characters)
-                if (!textContent) {
-                    showError(descriptionEditor, 'Job description cannot be empty.');
-                    hasError = true;
-                } else if (textContent.length < 50) {
-                    showError(descriptionEditor, 'Description must be at least 50 characters.');
-                    hasError = true;
-                }
-            }
-
-            // Get responsibilities content
-            const responsibilitiesEditor = document.getElementById('responsibilities');
-            const responsibilitiesHidden = document.getElementById('responsibilities_hidden');
-            if (responsibilitiesEditor && responsibilitiesHidden) {
-                responsibilitiesHidden.value = responsibilitiesEditor.innerHTML;
-            }
-
-            // Validate required fields
-            const requiredFields = [
-                { id: 'job_title', message: 'Job title cannot be empty.' },
-                { id: 'job_role', message: 'Please select a job role.' },
-                { id: 'location', message: 'Location cannot be empty.' },
-                { id: 'min_salary', message: 'Minimum salary is required.' },
-                { id: 'max_salary', message: 'Maximum salary is required.' },
-                { id: 'salary_type', message: 'Please select salary type.' },
-                { id: 'education', message: 'Please select education level.' },
-                { id: 'experience', message: 'Please select experience level.' },
-                { id: 'job_type', message: 'Please select job type.' },
-                { id: 'vacancies', message: 'Please select number of vacancies.' },
-                { id: 'expiration_date', message: 'Expiration date is required.' },
-                { id: 'job_level', message: 'Please select job level.' }
-            ];
-
-            requiredFields.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element && !element.value.trim()) {
-                    showError(element, field.message);
-                    hasError = true;
-                }
-            });
-
-            // Validate salary range
-            const minSalary = parseFloat(document.getElementById('min_salary')?.value) || 0;
-            const maxSalary = parseFloat(document.getElementById('max_salary')?.value) || 0;
-            
-            if (minSalary > maxSalary) {
-                showError(document.getElementById('min_salary'), 'Minimum salary cannot be greater than maximum salary.');
-                hasError = true;
-            }
-
-            // Validate expiration date is in the future
-            const expirationDate = document.getElementById('expiration_date')?.value;
-            if (expirationDate) {
-                const selectedDate = new Date(expirationDate);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                if (selectedDate < today) {
-                    showError(document.getElementById('expiration_date'), 'Deadline must be a future date.');
-                    hasError = true;
-                }
-            }
-
-            if (hasError) {
-                e.preventDefault();
-                // Scroll to first error
-                const firstError = document.querySelector('.error-message:not(:empty)');
-                if (firstError) {
-                    firstError.closest('.form-group').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return false;
-            }
+            const respEditor = document.getElementById('responsibilities');
+            const respHiddenInput = document.getElementById('responsibilities_hidden');
+            if (respEditor && respHiddenInput) { respHiddenInput.value = respEditor.innerHTML; }
         });
     }
 
-    function showError(element, message) {
-        element.classList.add('error');
-        const errorId = element.id + '_error';
-        const errorElement = document.getElementById(errorId);
-        if (errorElement) {
-            errorElement.textContent = message;
-        }
-    }
-
-    function clearError(element) {
-        element.classList.remove('error');
-        const errorId = element.id + '_error';
-        const errorElement = document.getElementById(errorId);
-        if (errorElement) {
-            errorElement.textContent = '';
-        }
-    }
-
-    // Add real-time validation on blur for required fields
-    const requiredFieldsForBlur = [
-        { id: 'job_title', message: 'This field is required' },
-        { id: 'job_role', message: 'This field is required' },
-        { id: 'location', message: 'This field is required' },
-        { id: 'min_salary', message: 'This field is required' },
-        { id: 'max_salary', message: 'This field is required' },
-        { id: 'salary_type', message: 'This field is required' },
-        { id: 'education', message: 'This field is required' },
-        { id: 'experience', message: 'This field is required' },
-        { id: 'job_type', message: 'This field is required' },
-        { id: 'vacancies', message: 'This field is required' },
-        { id: 'expiration_date', message: 'This field is required' },
-        { id: 'job_level', message: 'This field is required' }
-    ];
-
-    requiredFieldsForBlur.forEach(field => {
-        const element = document.getElementById(field.id);
-        if (element) {
-            // On blur, check if field is empty
-            element.addEventListener('blur', function() {
-                if (!this.value.trim()) {
-                    showError(this, field.message);
-                } else {
-                    clearError(this);
-                }
-            });
-
-            // On input/change, clear error if field has value
-            element.addEventListener('input', function() {
-                if (this.value.trim()) {
-                    clearError(this);
-                }
-            });
-        }
-    });
-
-    // Special validation for description editor on blur
-    const descriptionEditor = document.getElementById('description');
-    if (descriptionEditor) {
-        descriptionEditor.addEventListener('blur', function() {
-            const textContent = this.textContent.trim();
-            if (!textContent) {
-                showError(this, 'This field is required');
-            } else if (textContent.length < 50) {
-                showError(this, 'Description must be at least 50 characters');
-            } else {
-                clearError(this);
-            }
-        });
-
-        // Clear errors on input and keyup for contenteditable (some browsers/tools fire key events differently)
-        const descriptionValidateOnChange = function() {
-            const textContent = descriptionEditor.textContent.trim();
-            if (textContent.length >= 50) {
-                clearError(descriptionEditor);
-            }
-        };
-
-        descriptionEditor.addEventListener('input', descriptionValidateOnChange);
-        descriptionEditor.addEventListener('keyup', descriptionValidateOnChange);
-    }
-
-    // Ensure responsibilities editor clears error on input/keyup and updates hidden input
-    const responsibilitiesEditor = document.getElementById('responsibilities');
-    const responsibilitiesHidden = document.getElementById('responsibilities_hidden');
-    if (responsibilitiesEditor) {
-        const respOnChange = function() {
-            if (responsibilitiesHidden) responsibilitiesHidden.value = responsibilitiesEditor.innerHTML;
-            const text = responsibilitiesEditor.textContent.trim();
-            if (text.length > 0) {
-                clearError(responsibilitiesEditor);
-            }
-        };
-        responsibilitiesEditor.addEventListener('input', respOnChange);
-        responsibilitiesEditor.addEventListener('keyup', respOnChange);
-    }
-
-    // Date input formatting (simple implementation)
-    const dateInput = document.getElementById('expiration_date');
-    if (dateInput) {
-        // Only apply custom formatting if the input is plain text. If it's type="date",
-        // the browser will provide a proper YYYY-MM-DD value which Django expects.
-        if (dateInput.type === 'text') {
-            dateInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                
-                if (value.length >= 2) {
-                    value = value.substring(0, 2) + '/' + value.substring(2);
-                }
-                if (value.length >= 5) {
-                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
-                }
-                
-                e.target.value = value;
-            });
-        }
-
-        // Optionally, you can use a date picker library or HTML5 date input
-        // For better UX, consider using a library like flatpickr or converting to type="date"
-    }
-
-    // Salary validation - ensure max is greater than min
-    const minSalary = document.getElementById('min_salary');
-    const maxSalary = document.getElementById('max_salary');
-
-    if (minSalary && maxSalary) {
-        maxSalary.addEventListener('blur', function() {
-            const min = parseFloat(minSalary.value) || 0;
-            const max = parseFloat(maxSalary.value) || 0;
-
-            if (max > 0 && min > 0 && max < min) {
-                alert('Maximum salary must be greater than minimum salary');
-                maxSalary.value = '';
-                maxSalary.focus();
-            }
-        });
-    }
-
-    // Add focus styling to editor content
-    const editorContents = document.querySelectorAll('.editor-content');
-    editorContents.forEach(editor => {
+    // Editor focus styling
+    document.querySelectorAll('.editor-content').forEach(editor => {
         editor.addEventListener('focus', function() {
-            this.parentElement.querySelector('.editor-toolbar').style.borderColor = 'var(--primary-color)';
+            const toolbar = this.parentElement.querySelector('.editor-toolbar');
+            if (toolbar) toolbar.style.borderColor = 'var(--primary-color)';
         });
-
         editor.addEventListener('blur', function() {
-            this.parentElement.querySelector('.editor-toolbar').style.borderColor = '#e0e0e0';
+            const toolbar = this.parentElement.querySelector('.editor-toolbar');
+            if (toolbar) toolbar.style.borderColor = '#e0e0e0';
+        });
+        editor.addEventListener('input', function() {
+            if (this.id === 'description' && descHidden) descHidden.value = this.innerHTML;
+            if (this.id === 'responsibilities' && respHidden) respHidden.value = this.innerHTML;
         });
     });
 
-    // Modal functionality
+    // Clear error styling on input (visual feedback only)
+    document.querySelectorAll('.form-control, .editor-content, input, select, textarea').forEach(field => {
+        const clearError = function() {
+            this.classList.remove('error');
+            const errorEl = document.getElementById(this.id + '_error');
+            if (errorEl && this.value && this.value.trim()) {
+                errorEl.textContent = '';
+                errorEl.style.display = 'none';
+            }
+        };
+        field.addEventListener('input', clearError);
+        field.addEventListener('change', clearError);
+        field.addEventListener('focus', function() { this.classList.remove('error'); });
+    });
+
+    // Success modal handling
     const modal = document.getElementById('successModal');
     const closeModalBtn = document.getElementById('closeModal');
 
-    // Function to show modal
     function showModal() {
         if (modal) {
             modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
         }
     }
 
-    // Function to hide modal
     function hideModal() {
         if (modal) {
             modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
         }
     }
 
-    // Close modal when clicking the X button
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', hideModal);
-    }
-
-    // Close modal when clicking outside the modal content
+    if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
     if (modal) {
         modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideModal();
-            }
+            if (e.target === modal) hideModal();
         });
     }
 
-    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
-            hideModal();
-        }
+        if (e.key === 'Escape' && modal && modal.classList.contains('show')) hideModal();
     });
 
-    // Show modal on successful form submission
-    // This would typically be triggered after a successful AJAX request
-    // or you can add a URL parameter check if redirecting back after success
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-        showModal();
-    }
+    if (urlParams.get('success') === 'true') showModal();
 });
-
