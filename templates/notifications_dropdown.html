@@ -1,0 +1,283 @@
+<!-- Notifications Dropdown -->
+<div class="notifications-dropdown" id="notificationsDropdown">
+    <div class="notifications-header">
+        <h3>Notifications</h3>
+        <button class="btn-mark-all-read" id="markAllRead" title="Mark all as read">
+            <i class="fas fa-check-double"></i>
+        </button>
+    </div>
+    
+    <div class="notifications-list" id="notificationsList">
+        <!-- Notifications will be loaded here via JavaScript -->
+        <div class="notifications-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading notifications...</p>
+        </div>
+    </div>
+    
+    <div class="notifications-empty" id="notificationsEmpty" style="display: none;">
+        <i class="fas fa-bell-slash"></i>
+        <p>No notifications yet</p>
+        <small>You're all caught up!</small>
+    </div>
+</div>
+
+<style>
+
+.notifications-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    animation: notificationSlideIn 0.25s ease;
+}
+
+.notifications-dropdown.show {
+    display: flex;
+}
+
+@keyframes notificationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notifications-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #B00909 100%);
+    color: var(--bg-white);
+}
+
+.notifications-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.btn-mark-all-read {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: var(--bg-white);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.btn-mark-all-read:hover {
+    transform: translateY(-2px);
+}
+
+.notifications-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 420px;
+    background: var(--bg-white);
+}
+
+.notifications-loading,
+.notifications-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--text-color-light);
+    text-align: center;
+}
+
+.notifications-loading i,
+.notifications-empty i {
+    font-size: 44px;
+    margin-bottom: 14px;
+    color: #f0f0f0;
+}
+
+.notifications-empty p {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-color-dark);
+}
+
+.notifications-empty small {
+    font-size: 13px;
+    color: var(--text-color-light);
+}
+
+.notification-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.12s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item:hover {
+    background: var(--bg-light);
+}
+
+.notification-item.unread {
+    background: #fff8f7;
+    border-left: 4px solid var(--primary-color);
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+}
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.notification-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-color-dark);
+    margin: 0;
+}
+
+.notification-message {
+    font-size: 13px;
+    color: var(--text-color-light);
+    margin: 0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-color-light);
+    margin: 0;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-notification-action {
+    padding: 6px 12px;
+    border: none;
+    background: var(--bg-light);
+    color: var(--text-color-dark);
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.btn-notification-action:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+.btn-notification-delete {
+    background: #fff2f2;
+    color: var(--primary-color);
+}
+
+.btn-notification-delete:hover {
+    background: #ffe5e5;
+}
+
+/* Notification Bell Badge */
+.notification-bell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 0.18s ease;
+    color: var(--text-color-light);
+    text-decoration: none;
+}
+
+.notification-bell:hover {
+    background: var(--bg-light);
+    color: var(--primary-color);
+}
+
+.notification-bell i {
+    font-size: 20px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--primary-color);
+    color: var(--bg-white);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    border: 2px solid var(--bg-white);
+    animation: badgePop 0.28s ease;
+}
+
+.notification-badge.show {
+    display: flex;
+}
+
+@keyframes badgePop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+}
+
+/* Scrollbar styling */
+.notifications-list::-webkit-scrollbar { width: 6px; }
+.notifications-list::-webkit-scrollbar-track { background: var(--bg-light); }
+.notifications-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.notifications-list::-webkit-scrollbar-thumb:hover { background: #999; }
+
+@media (max-width: 768px) {
+    .notifications-dropdown { width: calc(100vw - 40px); right: -10px; max-width: 400px; }
+}
+</style>

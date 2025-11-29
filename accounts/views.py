@@ -4,7 +4,11 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-from .forms import ApplicantRegistrationForm, UserLoginForm, EmployerRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm 
+from .forms import ApplicantRegistrationForm, UserLoginForm, EmployerRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
+from notifications.utils import create_notification
+from django.contrib.auth import get_user_model
+
+User = get_user_model() 
 
 
 def get_user_dashboard_url(user):
@@ -37,6 +41,17 @@ def register(request):
                 user = form.save()
 
                 login(request, user)
+                
+                # Notify all admin/superusers about new registration
+                admin_users = User.objects.filter(is_staff=True, is_superuser=True)
+                for admin in admin_users:
+                    create_notification(
+                        user=admin,
+                        notification_type='system',
+                        title='New User Registration',
+                        message=f'New {user.user_type} registered: {user.email}',
+                        link=f'/admin/accounts/user/{user.id}/change/',
+                    )
 
                 messages.success(
                     request,

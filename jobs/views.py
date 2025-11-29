@@ -6,6 +6,7 @@ from django.urls import reverse
 from .models import Job, FavoriteJob
 from .forms import JobSearchForm
 from django.db.models import Q
+from notifications.utils import notify_application_received
 
 def job_search(request):
 
@@ -385,6 +386,9 @@ def apply_job(request, job_id):
             applicant_notes=cover_letter,
             status='pending'
         )
+        
+        # Notify employer about new application
+        notify_application_received(job.employer, request.user, job, application)
         
         # If the request was AJAX, return JSON response; otherwise redirect back with message
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
