@@ -36,7 +36,9 @@
                         <div class="authenticated-controls">
                             <a href="#" class="notification-bell">
                                 <i class="fas fa-bell"></i>
+                                <span class="notification-badge" id="notificationBadge"></span>
                             </a>
+                            {% include "notifications_dropdown.html" %}
                             <div class="user-profile">
                                 {% if user.user_type == 'employer' %}
                                     {% if user.employer_profile_rel.company_profile_image %}
@@ -84,6 +86,10 @@
 
     {% block modals %}
     {% endblock %}
+
+    {% if user.is_authenticated %}
+        <script src="{% static 'js/notifications.js' %}"></script>
+    {% endif %}
 
     {% block extra_js %} 
     {% endblock %} 

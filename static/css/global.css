@@ -147,7 +147,8 @@ hr {
 .authenticated-controls {
     display: flex;
     align-items: center;
-    gap: 25px; 
+    gap: 25px;
+    position: relative;
 }
 
 

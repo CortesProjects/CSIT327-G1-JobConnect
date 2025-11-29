@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
+from notifications.utils import notify_application_status_change, notify_application_shortlisted
 from accounts.models import User, UserSocialLink, UserVerification
 from applicant_profile.models import ApplicantProfile
 from .forms import (
@@ -1295,6 +1296,9 @@ def hire_candidate(request, application_id):
         application.hired_date = timezone.now().date()
         application.save()
         
+        # Notify applicant they've been hired
+        notify_application_status_change(application.applicant, application.job, 'hired')
+        
         messages.success(request, f'Successfully hired {application.applicant.applicant_profile_rel.full_name or application.applicant.email}!')
         return redirect('dashboard:employer_job_applications', job_id=application.job.id)
         
@@ -1345,6 +1349,13 @@ def move_application_stage(request, application_id):
             application.stage = stage
         
         application.save()
+        
+        # Notify applicant about stage change if moved to a significant stage
+        if stage and stage.name.lower() in ['shortlisted', 'interview', 'offer']:
+            if stage.name.lower() == 'shortlisted':
+                notify_application_shortlisted(application.applicant, application.job, application)
+            else:
+                notify_application_status_change(application.applicant, application.job, stage.name.lower())
 
         response_data = {
             'success': True,

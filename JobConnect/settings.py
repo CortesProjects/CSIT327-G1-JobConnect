@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'dashboard',
     'storages',
     'jobs',
+    'notifications',
 ]
 
 AWS_ACCESS_KEY_ID = os.getenv('SUPABASE_S3_ACCESS_KEY')
