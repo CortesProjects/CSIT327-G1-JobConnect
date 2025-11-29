@@ -1,45 +1,38 @@
 // Job Applications Page Functionality
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Filter button toggle
+    // Get filter and sort dropdown elements
     const filterBtn = document.getElementById('filterBtn');
     const filterDropdown = document.getElementById('filterDropdown');
-    
+    const sortBtn = document.getElementById('sortBtn');
+    const sortDropdown = document.getElementById('sortDropdown');
+
+    // Filter button toggle (UI-only)
     if (filterBtn && filterDropdown) {
         filterBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            filterDropdown.classList.toggle('show');
-            filterBtn.classList.toggle('active');
-            // Close sort dropdown if open
-            if (sortDropdown) {
-                sortDropdown.classList.remove('show');
-            }
-            if (sortBtn) {
-                sortBtn.classList.remove('active');
-            }
+            // Toggle filter dropdown visibility
+            const isShown = filterDropdown.classList.toggle('show');
+            filterBtn.classList.toggle('active', isShown);
+            // Ensure sort is closed when opening filter
+            if (sortDropdown) sortDropdown.classList.remove('show');
+            if (sortBtn) sortBtn.classList.remove('active');
         });
     }
 
-    // Sort button toggle
-    const sortBtn = document.getElementById('sortBtn');
-    const sortDropdown = document.getElementById('sortDropdown');
-    
+    // Sort button toggle (UI-only)
     if (sortBtn && sortDropdown) {
         sortBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            sortDropdown.classList.toggle('show');
-            sortBtn.classList.toggle('active');
-            // Close filter dropdown if open
-            if (filterDropdown) {
-                filterDropdown.classList.remove('show');
-            }
-            if (filterBtn) {
-                filterBtn.classList.remove('active');
-            }
+            const isShown = sortDropdown.classList.toggle('show');
+            sortBtn.classList.toggle('active', isShown);
+            // Ensure filter is closed when opening sort
+            if (filterDropdown) filterDropdown.classList.remove('show');
+            if (filterBtn) filterBtn.classList.remove('active');
         });
     }
-    
-    // Close dropdowns when clicking outside
+
+    // Close dropdowns when clicking outside (UI-only)
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#filterBtn') && !e.target.closest('#filterDropdown')) {
             if (filterDropdown) {
@@ -58,112 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // Sort functionality
-    const sortOptions = document.querySelectorAll('.sort-option input[type="radio"]');
-    sortOptions.forEach(option => {
-        option.addEventListener('change', function() {
-            const sortValue = this.value;
-            console.log('Sorting by:', sortValue);
-            
-            // Get all application cards
-            const columns = document.querySelectorAll('.applications-list');
-            columns.forEach(column => {
-                const cards = Array.from(column.querySelectorAll('.application-card'));
-                
-                // Sort based on selected option
-                if (sortValue === 'newest') {
-                    // Sort newest first (reverse alphabetically by name for demo)
-                    cards.sort((a, b) => {
-                        const nameA = a.querySelector('.applicant-name').textContent;
-                        const nameB = b.querySelector('.applicant-name').textContent;
-                        return nameB.localeCompare(nameA);
-                    });
-                } else if (sortValue === 'oldest') {
-                    // Sort oldest first (alphabetically by name for demo)
-                    cards.sort((a, b) => {
-                        const nameA = a.querySelector('.applicant-name').textContent;
-                        const nameB = b.querySelector('.applicant-name').textContent;
-                        return nameA.localeCompare(nameB);
-                    });
-                }
-                
-                // Reorder cards in the column
-                cards.forEach(card => column.appendChild(card));
-            });
-            
-            // Hide dropdown after selection
-            if (sortDropdown) {
-                sortDropdown.classList.remove('show');
-            }
-            if (sortBtn) {
-                sortBtn.classList.add('active');
-            }
-        });
-    });
-
-    // Filter functionality
-    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-    const filterCheckboxes = document.querySelectorAll('.filter-option input[type="checkbox"]');
-
-    // Clear all filters
-    if (clearFiltersBtn) {
-        clearFiltersBtn.addEventListener('click', function() {
-            filterCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            // Reset all cards to visible
-            document.querySelectorAll('.application-card').forEach(card => {
-                card.style.display = '';
-            });
-            console.log('Filters cleared');
-        });
-    }
-
-    // Apply filters
-    if (applyFiltersBtn) {
-        applyFiltersBtn.addEventListener('click', function() {
-            const selectedExperience = [];
-            const selectedEducation = [];
-
-            // Gather selected filters
-            filterCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    if (checkbox.name === 'experience') {
-                        selectedExperience.push(checkbox.value);
-                    } else if (checkbox.name === 'education') {
-                        selectedEducation.push(checkbox.value);
-                    }
-                }
-            });
-
-            console.log('Applying filters:', { experience: selectedExperience, education: selectedEducation });
-
-            // Filter cards (this is a demo - replace with actual data attributes)
-            const cards = document.querySelectorAll('.application-card');
-            cards.forEach(card => {
-                let showCard = true;
-
-                // If any filters selected, apply them
-                if (selectedExperience.length > 0 || selectedEducation.length > 0) {
-                    // You would check card's actual data here
-                    // For now, this is just demonstration logic
-                    showCard = true; // Replace with actual filtering logic
-                }
-
-                card.style.display = showCard ? '' : 'none';
-            });
-
-            // Close dropdown
-            if (filterDropdown) {
-                filterDropdown.classList.remove('show');
-            }
-            if (filterBtn) {
-                filterBtn.classList.remove('active');
-            }
-        });
-    }
     
     // Column menu toggle (updated selector)
     const columnMenuBtns = document.querySelectorAll('.btn-column-menu');

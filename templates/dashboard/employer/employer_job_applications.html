@@ -32,75 +32,71 @@
                     <i class="fas fa-sort"></i>
                     <span>Sort</span>
                 </button>
-                <!-- Filter Dropdown -->
+                <!-- Server-side Filter Form -->
                 <div class="filter-dropdown" id="filterDropdown">
                     <div class="dropdown-section">
-                        <h3 class="dropdown-title">FILTER BY</h3>
-                        
-                        <div class="filter-group">
-                            <h4 class="filter-group-title">Experience</h4>
-                            <label class="filter-option">
-                                <input type="checkbox" name="experience" value="0-2">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">0-2 years</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox" name="experience" value="3-5">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">3-5 years</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox" name="experience" value="6+">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">6+ years</span>
-                            </label>
-                        </div>
+                        <h3 class="dropdown-title">FILTER</h3>
+                        <form id="applicationsFilterForm" method="get" action="">
+                            <div class="form-row">
+                                <label for="id_education">Education</label>
+                                <select name="education" id="id_education" class="form-input">
+                                    <option value="">All Education Levels</option>
+                                    {% for key,label in education_choices %}
+                                        <option value="{{ key }}" {% if filter_form.data.education == key %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                        <div class="filter-group">
-                            <h4 class="filter-group-title">Education</h4>
-                            <label class="filter-option">
-                                <input type="checkbox" name="education" value="high-school">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">High School</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox" name="education" value="bachelor">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">Bachelor's Degree</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox" name="education" value="master">
-                                <span class="checkbox-custom"></span>
-                                <span class="option-label">Master's Degree</span>
-                            </label>
-                        </div>
+                            <div class="form-row">
+                                <label for="id_experience">Experience</label>
+                                <select name="experience" id="id_experience" class="form-input">
+                                    <option value="">All Experience Levels</option>
+                                    {% for key,label in experience_choices %}
+                                        <option value="{{ key }}" {% if filter_form.data.experience == key %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                        <div class="filter-actions">
-                            <button class="btn-filter-clear" id="clearFiltersBtn">Clear All</button>
-                            <button class="btn-filter-apply" id="applyFiltersBtn">Apply Filters</button>
-                        </div>
+                            <div class="filter-actions">
+                                <button type="submit" class="btn-filter-apply">Apply</button>
+                                <a href="?" class="btn-filter-clear">Clear</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Sort Dropdown -->
+                <!-- Server-side Sort Form -->
                 <div class="sort-dropdown" id="sortDropdown">
-                    <div class="sort-options">
-                        <h3 class="dropdown-title">SORT BY</h3>
-                        <label class="sort-option">
-                            <input type="radio" name="sort" value="newest" checked>
-                            <span class="radio-custom"></span>
-                            <span class="option-label">Newest First</span>
-                        </label>
-                        <label class="sort-option">
-                            <input type="radio" name="sort" value="oldest">
-                            <span class="radio-custom"></span>
-                            <span class="option-label">Oldest First</span>
-                        </label>
-                        <label class="sort-option">
-                            <input type="radio" name="sort" value="name">
-                            <span class="radio-custom"></span>
-                            <span class="option-label">Name (A-Z)</span>
-                        </label>
+                    <div class="dropdown-section">
+                        <h3 class="dropdown-title">SORT</h3>
+                        <form id="applicationsSortForm" method="get" action="">
+                            <!-- Preserve current filter values so sorting doesn't remove filters -->
+                            <input type="hidden" name="education" value="{{ filter_form.data.education|default:'' }}">
+                            <input type="hidden" name="experience" value="{{ filter_form.data.experience|default:'' }}">
+                            <div class="sort-options">
+                                {% with current_sort=filter_form.data.sort|default:"newest" %}
+                                <label class="sort-option">
+                                    <input type="radio" name="sort" value="newest" {% if current_sort == "newest" or current_sort == "" %}checked{% endif %}>
+                                    <span class="radio-custom"></span>
+                                    <span class="option-label">Newest First</span>
+                                </label>
+                                <label class="sort-option">
+                                    <input type="radio" name="sort" value="oldest" {% if current_sort == "oldest" %}checked{% endif %}>
+                                    <span class="radio-custom"></span>
+                                    <span class="option-label">Oldest First</span>
+                                </label>
+                                <label class="sort-option">
+                                    <input type="radio" name="sort" value="name" {% if current_sort == "name" %}checked{% endif %}>
+                                    <span class="radio-custom"></span>
+                                    <span class="option-label">Name (A-Z)</span>
+                                </label>
+                                {% endwith %}
+                            </div>
+
+                            <div class="filter-actions">
+                                <button type="submit" class="btn-filter-apply">Apply</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -126,14 +126,49 @@
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     min-width: 280px;
-    display: none;
     z-index: 1000;
     padding: 16px;
+    /* Hidden by default using opacity/visibility so we can animate */
+    opacity: 0;
+    transform: translateY(-6px);
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
 }
 
 .filter-dropdown.show {
-    display: block;
-    animation: fadeSlideDown 0.2s ease;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+
+/* Sort dropdown uses same animation/behavior but sits closer to the right */
+.sort-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 12px;
+    background: white;
+    border: 1px solid #E0E0E0;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    min-width: 220px;
+    z-index: 1000;
+    padding: 12px;
+    opacity: 0;
+    transform: translateY(-6px);
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+}
+
+.sort-dropdown.show {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
 }
 
 .dropdown-section {
@@ -217,6 +252,8 @@
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
+    text-decoration: none;
+    text-align: center;
 }
 
 .btn-filter-clear {
