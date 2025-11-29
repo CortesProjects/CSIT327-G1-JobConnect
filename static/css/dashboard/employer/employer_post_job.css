@@ -6,11 +6,63 @@
     padding: 40px 20px;
 }
 
+/* Breadcrumb */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb .separator {
+    color: #CCC;
+    font-size: 12px;
+}
+
+.breadcrumb .current {
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
 .page-title {
     font-size: 32px;
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 40px;
+}
+
+/* Edit notice shown on edit job form */
+.edit-info {
+    background-color: #fff8e6; /* subtle warm background */
+    border-left: 4px solid #ffb020; /* accent */
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 12px 0 24px;
+    color: #5a3d00;
+    font-size: 14px;
+    line-height: 1.45;
+}
+.edit-info strong {
+    color: #3f2a00;
+}
+.edit-info a {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* Form Sections */
@@ -252,8 +304,51 @@ select.error {
 /* Submit Button */
 .form-actions {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    gap: 12px;
     margin-top: 20px;
+}
+
+.btn-cancel-form {
+    padding: 14px 28px;
+    background-color: #fff;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-cancel-form:hover {
+    background-color: #f5f5f5;
+    border-color: #bbb;
+}
+
+.btn-submit-form {
+    padding: 14px 32px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit-form:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .submit-btn {
@@ -272,7 +367,7 @@ select.error {
 }
 
 .submit-btn:hover {
-    background-color: var(--secondary-color);
+    background-color: #c82333;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
 }
@@ -435,7 +530,7 @@ select.error {
 }
 
 .modal-btn:hover {
-    background-color: var(--secondary-color);
+    background-color: #c82333;
 }
 
 .modal-btn i {

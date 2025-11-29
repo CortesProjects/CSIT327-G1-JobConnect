@@ -8,18 +8,26 @@
 
 {% block dashboard_content %}
 <div class="post-job-container">
-    {% if is_edit %}
-    <h1 class="page-title">Edit Job: {{ job.title }}</h1>
-
-    <div class="edit-info" role="status" aria-live="polite">
-        <strong>Note:</strong> Jobs can only be edited within 7 days of posting.
-        {% if days_remaining is not None %}
-            You have <strong>{{ days_remaining }}</strong> day{% if days_remaining != 1 %}s{% endif %} left to edit this job.
-        {% endif %}
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+        <span class="separator">›</span>
+        <a href="{% url 'dashboard:employer_my_jobs' %}">My Jobs</a>
+        <span class="separator">›</span>
+        <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
+        <span class="separator">›</span>
+        <span class="current">Edit Job</span>
     </div>
-    {% else %}
-    <h1 class="page-title">Post a job</h1>
-    {% endif %}
+    
+    <h1 class="page-title">Edit Job</h1>
+    
+    <!-- Edit Window Notice -->
+    <div class="alert alert-info" style="margin-bottom: 20px;">
+        <i class="fas fa-info-circle"></i>
+        You can edit this job for <strong>{{ days_remaining }} more day{% if days_remaining != 1 %}s{% endif %}</strong> 
+        (posted {{ days_since_posted }} day{% if days_since_posted != 1 %}s{% endif %} ago).
+        Jobs can only be edited within 7 days of posting.
+    </div>
     
     {% if messages %}
     <div class="messages-container" id="messagesContainer">
@@ -39,7 +47,6 @@
         <div class="form-section">
             <div class="form-group full-width">
                 <label for="job_title">Job Title</label>
-                <!-- Render Django form field so widgets/querysets are used -->
                 {{ form.title }}
                 <span class="error-message" id="job_title_error">{% if form.title.errors %}{{ form.title.errors|join:", " }}{% endif %}</span>
             </div>
@@ -67,71 +74,54 @@
             </div>
         </div>
 
-        <!-- Salary Section -->
-        <div class="form-section">
-            <h3 class="section-title">Salary</h3>
-            <div class="salary-row">
-                <div class="form-group">
-                    <label for="min_salary">Min Salary</label>
-                    <div class="input-with-currency">
-                        {{ form.min_salary }}
-                        <span class="error-message" id="min_salary_error">{% if form.min_salary.errors %}{{ form.min_salary.errors|join:", " }}{% endif %}</span>
-                        <span class="currency">USD</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="max_salary">Max Salary</label>
-                    <div class="input-with-currency">
-                        {{ form.max_salary }}
-                        <span class="error-message" id="max_salary_error">{% if form.max_salary.errors %}{{ form.max_salary.errors|join:", " }}{% endif %}</span>
-                        <span class="currency">USD</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="salary_type">Salary Type</label>
-                    {{ form.salary_type }}
-                    <span class="error-message" id="salary_type_error">{% if form.salary_type.errors %}{{ form.salary_type.errors|join:", " }}{% endif %}</span>
-                </div>
+        <!-- Salary -->
+        <div class="form-section three-columns">
+            <div class="form-group">
+                <label for="min_salary">Minimum Salary</label>
+                {{ form.min_salary }}
+                <span class="error-message" id="min_salary_error">{% if form.min_salary.errors %}{{ form.min_salary.errors|join:", " }}{% endif %}</span>
+            </div>
+            <div class="form-group">
+                <label for="max_salary">Maximum Salary</label>
+                {{ form.max_salary }}
+                <span class="error-message" id="max_salary_error">{% if form.max_salary.errors %}{{ form.max_salary.errors|join:", " }}{% endif %}</span>
+            </div>
+            <div class="form-group">
+                <label for="salary_type">Salary Type</label>
+                {{ form.salary_type }}
             </div>
         </div>
 
-        <!-- Advance Information Section -->
-        <div class="form-section">
-            <h3 class="section-title">Advance Information</h3>
-            <div class="advance-info-row">
-                <div class="form-group">
-                    <label for="education">Education</label>
-                    {{ form.education }}
-                    <span class="error-message" id="education_error">{% if form.education.errors %}{{ form.education.errors|join:", " }}{% endif %}</span>
-                </div>
-                <div class="form-group">
-                    <label for="experience">Experience</label>
-                    {{ form.experience }}
-                    <span class="error-message" id="experience_error">{% if form.experience.errors %}{{ form.experience.errors|join:", " }}{% endif %}</span>
-                </div>
-                <div class="form-group">
-                    <label for="job_type">Job Type</label>
-                    {{ form.job_type }}
-                    <span class="error-message" id="job_type_error">{% if form.job_type.errors %}{{ form.job_type.errors|join:", " }}{% endif %}</span>
-                </div>
+        <!-- Advanced Information -->
+        <div class="form-section three-columns">
+            <div class="form-group">
+                <label for="education">Education</label>
+                {{ form.education }}
             </div>
-            <div class="advance-info-row second-row">
-                <div class="form-group">
-                    <label for="vacancies">Vacancies</label>
-                    {{ form.vacancies }}
-                    <span class="error-message" id="vacancies_error">{% if form.vacancies.errors %}{{ form.vacancies.errors|join:", " }}{% endif %}</span>
-                </div>
-                <div class="form-group">
-                    <label for="expiration_date">Expiration Date</label>
-                    <!-- Use HTML date input so the browser posts a YYYY-MM-DD value that Django can parse -->
-                    {{ form.expiration_date }}
-                    <span class="error-message" id="expiration_date_error">{% if form.expiration_date.errors %}{{ form.expiration_date.errors|join:", " }}{% endif %}</span>
-                </div>
-                <div class="form-group">
-                    <label for="job_level">Job Level</label>
-                    {{ form.job_level }}
-                    <span class="error-message" id="job_level_error">{% if form.job_level.errors %}{{ form.job_level.errors|join:", " }}{% endif %}</span>
-                </div>
+            <div class="form-group">
+                <label for="experience">Experience</label>
+                {{ form.experience }}
+            </div>
+            <div class="form-group">
+                <label for="job_type">Job Type</label>
+                {{ form.job_type }}
+            </div>
+        </div>
+
+        <div class="form-section three-columns">
+            <div class="form-group">
+                <label for="vacancies">Vacancies</label>
+                {{ form.vacancies }}
+                <span class="error-message" id="vacancies_error">{% if form.vacancies.errors %}{{ form.vacancies.errors|join:", " }}{% endif %}</span>
+            </div>
+            <div class="form-group">
+                <label for="expiration_date">Application Deadline <span class="required">*</span></label>
+                {{ form.expiration_date }}
+                <span class="error-message" id="expiration_date_error">{% if form.expiration_date.errors %}{{ form.expiration_date.errors|join:", " }}{% endif %}</span>
+            </div>
+            <div class="form-group">
+                <label for="job_level">Job Level</label>
+                {{ form.job_level }}
             </div>
         </div>
 
@@ -140,7 +130,7 @@
             <h3 class="section-title">Description & Responsibility</h3>
             
             <div class="form-group full-width">
-                <label for="description">Description</label>
+                <label for="description">Description <span class="required">*</span></label>
                 <div class="editor-toolbar">
                     <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
                         <i class="fas fa-bold"></i>
@@ -200,58 +190,21 @@
             </div>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Form Actions -->
         <div class="form-actions">
-            {% if is_edit %}
-            <a href="#" class="btn-cancel-form" id="cancelEditBtn"><i class="fas fa-times"></i> Cancel</a>
-            <button type="submit" class="btn-submit-form"><i class="fas fa-check"></i> Update Job</button>
-            {% else %}
-            <button type="submit" class="submit-btn">Post Job <i class="fas fa-arrow-right"></i></button>
-            {% endif %}
+            <a href="{% url 'jobs:job_detail' job.id %}" class="btn-cancel-form">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn-submit-form">
+                <i class="fas fa-check"></i> Update Job
+            </button>
         </div>
     </form>
 </div>
+{% endblock %}
 
-<!-- Success Modal -->
-<div id="successModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" id="closeModal">&times;</button>
-        <div class="modal-body">
-            <div class="modal-icon">🎉</div>
-            <h2 class="modal-title">Congratulation, Your Job is successfully posted!</h2>
-            <p class="modal-message">You can manage your form my-jobs section in your dashboard</p>
-            <a href="{% url 'dashboard:employer_my_jobs' %}" class="modal-btn">
-                View Jobs
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
+{% block extra_js %}
+{{ block.super }}
 <script src="{% static 'js/dashboard/employer/employer_post_job.js' %}"></script>
-
-<script>
-// Cancel behavior: go back to previous page when possible, otherwise fallback to employer jobs
-document.addEventListener('DOMContentLoaded', function () {
-    var btn = document.getElementById('cancelEditBtn');
-    if (!btn) return;
-    btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        try {
-            // If there is a referrer and it's from the same origin, go back
-            var ref = document.referrer || '';
-            var sameOrigin = ref && (new URL(ref)).origin === window.location.origin;
-            if (ref && sameOrigin) {
-                window.history.back();
-                return;
-            }
-        } catch (err) {
-            // ignore and fallback
-        }
-        // Fallback: go to employer jobs list
-        window.location.href = "{% url 'dashboard:employer_my_jobs' %}";
-    });
-});
-</script>
-
+{# Inline JS moved to `static/js/dashboard/employer/employer_post_job.js` #}
 {% endblock %}

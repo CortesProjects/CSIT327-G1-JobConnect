@@ -89,7 +89,7 @@ class JobTableManager {
         }
         
         // Navigate to job detail page
-        window.location.href = `/dashboard/employer/jobs/${jobId}/detail/`;
+        window.location.href = `/jobs/${jobId}/`;
     }
 
     /**
@@ -104,7 +104,7 @@ class JobTableManager {
         }
         
         // Navigate to edit page
-        window.location.href = `/dashboard/employer/jobs/${jobId}/edit/`;
+        window.location.href = `/dashboard/employer/edit-job/${jobId}/`;
     }
 
     /**
@@ -118,13 +118,8 @@ class JobTableManager {
             return;
         }
 
-        // Show confirmation dialog
-        if (!confirm('Are you sure you want to mark this job as expired?')) {
-            return;
-        }
-
-        // Send AJAX request to mark job as expired
-        this.updateJobStatus(jobId, 'expired');
+        // Show modal instead of confirm dialog
+        this.showMarkExpiredModal(jobId);
     }
 
     /**
@@ -138,96 +133,84 @@ class JobTableManager {
             return;
         }
 
-        // Show confirmation dialog
-        if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
-            return;
-        }
-
-        // Send AJAX request to delete job
-        this.deleteJob(jobId);
+        // Show modal instead of confirm dialog
+        this.showDeleteModal(jobId);
     }
 
     /**
-     * Update job status via AJAX
+     * Show mark as expired modal
      * @param {string} jobId - Job ID
-     * @param {string} status - New status
      */
-    async updateJobStatus(jobId, status) {
-        try {
-            const csrfToken = this.getCsrfToken();
-            
-            const response = await fetch(`/dashboard/employer/jobs/${jobId}/update-status/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                body: JSON.stringify({ status: status })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Show success message
-                this.showMessage('Job status updated successfully', 'success');
-                
-                // Reload page to reflect changes
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                throw new Error(data.message || 'Failed to update job status');
-            }
-        } catch (error) {
-            console.error('Error updating job status:', error);
-            this.showMessage(error.message || 'An error occurred', 'error');
+    showMarkExpiredModal(jobId) {
+        const modal = document.getElementById('markExpiredModal');
+        if (modal) {
+            const confirmBtn = modal.querySelector('#confirmMarkExpired');
+            confirmBtn.onclick = () => {
+                // Submit a POST form so Django performs all validation and handling server-side
+                this.submitPost(`/jobs/${jobId}/mark-expired/`);
+            };
+            modal.style.display = 'flex';
         }
+    }
+
+    /**
+     * Show delete modal
+     * @param {string} jobId - Job ID
+     */
+    showDeleteModal(jobId) {
+        const modal = document.getElementById('deleteJobModal');
+        if (modal) {
+            const confirmBtn = modal.querySelector('#confirmDelete');
+            confirmBtn.onclick = () => {
+                // Submit a POST form so Django performs all validation and handling server-side
+                this.submitPost(`/jobs/${jobId}/delete/`);
+            };
+            modal.style.display = 'flex';
+        }
+    }
+
+    /**
+     * Close modal
+     * @param {string} modalId - Modal ID
+     */
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    /**
+     * Mark job as expired via AJAX
+     * @param {string} jobId - Job ID
+     */
+    // Submit a POST form to the given URL so Django handles validation and response.
+    submitPost(url) {
+        // Create a hidden form and submit it. This keeps server-side validation centralised.
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.style.display = 'none';
+
+        // CSRF token
+        const csrfToken = this.getCsrfToken();
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 
     /**
      * Delete job via AJAX
      * @param {string} jobId - Job ID
      */
-    async deleteJob(jobId) {
-        try {
-            const csrfToken = this.getCsrfToken();
-            
-            const response = await fetch(`/dashboard/employer/jobs/${jobId}/delete/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                }
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Show success message
-                this.showMessage('Job deleted successfully', 'success');
-                
-                // Remove row from table
-                const row = document.querySelector(`.job-row[data-job-id="${jobId}"]`);
-                if (row) {
-                    row.remove();
-                }
-
-                // Check if table is now empty
-                const remainingRows = document.querySelectorAll('.job-row').length;
-                if (remainingRows === 0) {
-                    // Reload to show empty state
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                }
-            } else {
-                throw new Error(data.message || 'Failed to delete job');
-            }
-        } catch (error) {
-            console.error('Error deleting job:', error);
-            this.showMessage(error.message || 'An error occurred', 'error');
-        }
-    }
+    // deleteJob removed — use submitPost(url) instead to let Django validate and process the request.
 
     /**
      * Get CSRF token from cookie
