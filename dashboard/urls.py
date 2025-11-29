@@ -21,6 +21,7 @@ urlpatterns = [
     path('employer/profile/', views.employer_profile, name='employer_profile'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/post-job/', views.employer_post_job, name='employer_post_job'),
+    path('employer/edit-job/<int:job_id>/', views.employer_edit_job, name='employer_edit_job'),
     path('employer/my-jobs/', views.employer_my_jobs, name='employer_my_jobs'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/job-applications/<int:job_id>/', views.employer_job_applications, name='employer_job_applications'),

@@ -20,6 +20,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Prefill editors when editing an existing job (hidden inputs populated server-side)
+    // Note: use var to avoid duplicate const declarations elsewhere in this file
+    var prefillDesc = document.getElementById('description');
+    var prefillResp = document.getElementById('responsibilities');
+    var descHidden = document.getElementById('description_hidden');
+    var respHidden = document.getElementById('responsibilities_hidden');
+
+        // Accept either custom hidden IDs (description_hidden) or default Django field IDs (id_description)
+        var descHidden = document.getElementById('description_hidden') || document.getElementById('id_description');
+        var respHidden = document.getElementById('responsibilities_hidden') || document.getElementById('id_responsibilities');
+
+        if (prefillDesc && descHidden && descHidden.value) {
+            prefillDesc.innerHTML = descHidden.value;
+        }
+        if (prefillResp && respHidden && respHidden.value) {
+            prefillResp.innerHTML = respHidden.value;
+        }
+
     // Check for success message and show modal
     const messagesContainer = document.getElementById('messagesContainer');
     if (messagesContainer) {
@@ -36,6 +54,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+
+        // Auto-dismiss any messages container after 5 seconds (fade then remove)
+        if (messagesContainer) {
+            setTimeout(function() {
+                messagesContainer.style.opacity = '0';
+                messagesContainer.style.transition = 'opacity 0.5s';
+                setTimeout(function() {
+                    if (messagesContainer.parentElement) messagesContainer.remove();
+                }, 500);
+            }, 5000);
+        }
 
     // Close modal functionality
     const closeModal = document.getElementById('closeModal');

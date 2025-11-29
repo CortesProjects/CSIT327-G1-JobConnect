@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 from .models import Job, FavoriteJob
 from .forms import JobSearchForm
 from django.db.models import Q
@@ -290,6 +291,11 @@ def job_detail(request, job_id):
     else:
         base_template = 'dashboard/applicant/applicant_dashboard_base.html'
     
+    # Calculate days since job was posted (for edit window check)
+    from django.utils import timezone
+    days_since_posted = (timezone.now() - job.posted_at).days
+    can_edit = days_since_posted <= 7
+    
     # If `goto=applications` present and the current user is the job owner,
     # perform a server-side redirect directly to the employer applications
     # page. This causes an immediate HTTP redirect instead of relying on
@@ -308,6 +314,8 @@ def job_detail(request, job_id):
         'breadcrumb_label': breadcrumb_label,
         'breadcrumb_url': breadcrumb_url,
         'base_template': base_template,
+        'days_since_posted': days_since_posted,
+        'can_edit_job': can_edit,
     }
     # If the query param `goto=applications` was provided, and the current user
     # is the job owner (employer), set a context flag so the template can
@@ -381,3 +389,123 @@ def apply_job(request, job_id):
             'success': False,
             'error': f'Failed to submit application: {str(e)}'
         }, status=500)
+
+
+@login_required
+@require_POST
+def delete_job(request, job_id):
+    """Delete a job posting (employer only)."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    
+    # Get job
+    job = get_object_or_404(Job, id=job_id)
+    
+    # Verify user is employer and owns this job
+    if request.user.user_type != 'employer':
+        return JsonResponse({
+            'success': False,
+            'error': 'Only employers can delete jobs.'
+        }, status=403)
+    
+    if job.employer != request.user:
+        return JsonResponse({
+            'success': False,
+            'error': 'You do not have permission to delete this job.'
+        }, status=403)
+    
+    try:
+        job_title = job.title
+        job.delete()
+        
+        messages.success(request, f'Job "{job_title}" has been deleted successfully.')
+        
+        # Return JSON for AJAX requests
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': f'Job "{job_title}" deleted successfully.',
+                'redirect_url': reverse('dashboard:employer_my_jobs')
+            })
+        
+        return redirect('dashboard:employer_my_jobs')
+    
+    except Exception as e:
+        error_msg = f'Failed to delete job: {str(e)}'
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=500)
+        
+        messages.error(request, error_msg)
+        return redirect('jobs:job_detail', job_id=job_id)
+
+
+@login_required
+@require_POST
+def mark_job_expired(request, job_id):
+    """Mark a job as expired (employer only)."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    
+    # Get job
+    job = get_object_or_404(Job, id=job_id)
+    
+    # Verify user is employer and owns this job
+    if request.user.user_type != 'employer':
+        return JsonResponse({
+            'success': False,
+            'error': 'Only employers can mark jobs as expired.'
+        }, status=403)
+    
+    if job.employer != request.user:
+        return JsonResponse({
+            'success': False,
+            'error': 'You do not have permission to modify this job.'
+        }, status=403)
+    
+    # Check if already expired
+    if job.status == 'expired':
+        return JsonResponse({
+            'success': False,
+            'error': 'This job is already marked as expired.'
+        }, status=400)
+    
+    try:
+        # Set status and update the expiration_date to now so model logic and listings reflect when it was expired
+        from django.utils import timezone
+        job.status = 'expired'
+        try:
+            # expiration_date is a DateField; set to today's date in current timezone
+            job.expiration_date = timezone.localdate()
+        except Exception:
+            # fallback to date.today
+            from datetime import date as _date
+            job.expiration_date = _date.today()
+        job.save()
+        
+        messages.success(request, f'Job "{job.title}" has been marked as expired.')
+        
+        # Return JSON for AJAX requests
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': f'Job "{job.title}" marked as expired.',
+                'redirect_url': reverse('jobs:job_detail', kwargs={'job_id': job_id})
+            })
+        
+        return redirect('jobs:job_detail', job_id=job_id)
+    
+    except Exception as e:
+        error_msg = f'Failed to mark job as expired: {str(e)}'
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=500)
+        
+        messages.error(request, error_msg)
+        return redirect('jobs:job_detail', job_id=job_id)

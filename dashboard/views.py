@@ -175,7 +175,7 @@ def applicant_applied_jobs(request):
     
     if request.user.user_type != 'applicant':
         messages.error(request, 'Only applicants can view applied jobs.')
-        return redirect('dashboard')
+        return redirect('dashboard:dashboard')
     
     # Get all job applications for the current applicant
     applied_jobs = JobApplication.objects.filter(
@@ -203,7 +203,7 @@ def applicant_favorite_jobs(request):
     
     if request.user.user_type != 'applicant':
         messages.error(request, 'Only applicants can view favorite jobs.')
-        return redirect('dashboard')
+        return redirect('dashboard:dashboard')
     
     # Get all favorite jobs with related data
     favorites = FavoriteJob.objects.filter(
@@ -801,6 +801,77 @@ def employer_post_job(request):
     return render(request, 'dashboard/employer/employer_post_job.html', {
         'company_name': employer_profile.company_name if employer_profile else '',
         'form': form,
+    })
+
+
+@login_required
+def employer_edit_job(request, job_id):
+    """Handle job editing (limited to 7 days after posting)"""
+    from jobs.models import Job
+    from jobs.forms import JobPostForm
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    # Ensure user is an employer
+    if request.user.user_type != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('accounts:login')
+    
+    # Get job and verify ownership
+    job = get_object_or_404(Job, id=job_id)
+    
+    if job.employer != request.user:
+        messages.error(request, 'You do not have permission to edit this job.')
+        return redirect('dashboard:employer_my_jobs')
+    
+    # Check 7-day edit window
+    days_since_posted = (timezone.now() - job.posted_at).days
+    # Disallow edits if the job is already marked expired
+    if job.status == 'expired':
+        messages.error(request, 'This job has been marked as expired and can no longer be edited.')
+        return redirect('jobs:job_detail', job_id=job_id)
+
+    if days_since_posted > 7:
+        messages.error(request, f'You can only edit jobs within 7 days of posting. This job was posted {days_since_posted} days ago.')
+        return redirect('jobs:job_detail', job_id=job_id)
+    
+    # Get employer profile
+    try:
+        employer_profile = request.user.employer_profile_rel
+    except:
+        messages.error(request, 'Please complete your profile setup first.')
+        return redirect('dashboard:employer_settings')
+    
+    if request.method == 'POST':
+        form = JobPostForm(request.POST, instance=job)
+        
+        if form.is_valid():
+            try:
+                updated_job = form.save(commit=False)
+                updated_job.employer = request.user
+                updated_job.company_name = employer_profile.company_name
+                # Don't change the posted_at date or status during edit
+                updated_job.save()
+                
+                messages.success(request, f'Job "{updated_job.title}" has been updated successfully!')
+                return redirect('jobs:job_detail', job_id=job_id)
+            except Exception as e:
+                messages.error(request, f'Error updating job: {str(e)}')
+        else:
+            # Form has validation errors, will be displayed inline
+            pass
+    else:
+        # GET - populate form with existing job data
+        form = JobPostForm(instance=job)
+    
+    # Reuse the employer_post_job template for editing to avoid duplication.
+    return render(request, 'dashboard/employer/employer_post_job.html', {
+        'is_edit': True,
+        'job': job,
+        'form': form,
+        'company_name': employer_profile.company_name if employer_profile else '',
+        'days_since_posted': days_since_posted,
+        'days_remaining': 7 - days_since_posted,
     })
 
 @login_required
