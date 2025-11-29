@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from .models import User
 from applicant_profile.models import ApplicantProfile
 from employer_profile.models import EmployerProfile
@@ -134,3 +134,41 @@ class UserLoginForm(AuthenticationForm):
 
     class Meta:
         fields = ['username', 'password', 'remember_me']
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    """Custom password reset form with styled email field"""
+    email = forms.EmailField(
+        label="Email address",
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Email address',
+            'class': 'form-control',
+            'autocomplete': 'email',
+            'id': 'id_email'
+        })
+    )
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    """Custom set password form with styled fields"""
+    new_password1 = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'New password',
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+            'id': 'id_new_password1'
+        }),
+        strip=False,
+    )
+    new_password2 = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Confirm new password',
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+            'id': 'id_new_password2'
+        }),
+        strip=False,
+    )
