@@ -146,8 +146,8 @@ class JobTableManager {
         if (modal) {
             const confirmBtn = modal.querySelector('#confirmMarkExpired');
             confirmBtn.onclick = () => {
-                // Submit a POST form so Django performs all validation and handling server-side
-                this.submitPost(`/jobs/${jobId}/mark-expired/`);
+                // Submit via AJAX so we can close the modal and update the UI without redirect
+                this.submitPost(`/jobs/${jobId}/mark-expired/`, jobId, modal);
             };
             modal.style.display = 'flex';
         }
@@ -185,25 +185,57 @@ class JobTableManager {
      * @param {string} jobId - Job ID
      */
     // Submit a POST form to the given URL so Django handles validation and response.
-    submitPost(url) {
-        // Create a hidden form and submit it. This keeps server-side validation centralised.
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = url;
-        form.style.display = 'none';
-
-        // CSRF token
+    submitPost(url, jobId = null, modal = null) {
+        // Use fetch to POST so we can handle JSON responses and avoid full redirects.
         const csrfToken = this.getCsrfToken();
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-        }
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        };
+        if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
-        document.body.appendChild(form);
-        form.submit();
+        const body = new URLSearchParams();
+        if (csrfToken) body.append('csrfmiddlewaretoken', csrfToken);
+
+        fetch(url, {
+            method: 'POST',
+            headers,
+            body: body.toString(),
+            credentials: 'same-origin'
+        }).then(async (res) => {
+            let data = null;
+            try { data = await res.json(); } catch(e){ /* non-json response */ }
+            if (res.ok && data && data.success) {
+                // Close modal if provided
+                if (modal) modal.style.display = 'none';
+
+                // Update UI: find the row and set status to expired
+                if (jobId) {
+                    const actionBtn = document.querySelector(`.action-mark-expired[data-job-id="${jobId}"]`);
+                    if (actionBtn) {
+                        const row = actionBtn.closest('.jt-row');
+                        if (row) {
+                            const statusCol = row.querySelector('.col-status');
+                            if (statusCol) {
+                                statusCol.innerHTML = '<span class="status expired">✕ Expired</span>';
+                            }
+                            // Remove mark-expired button
+                            actionBtn.remove();
+                        }
+                    }
+                }
+
+                // Show message
+                this.showMessage(data.message || 'Job marked as expired.', 'success');
+            } else {
+                const err = (data && data.error) ? data.error : 'Failed to mark job as expired.';
+                this.showMessage(err, 'error');
+                // keep modal open so user can retry or cancel
+            }
+        }).catch((err) => {
+            console.error('mark-expired error', err);
+            this.showMessage('Network error while marking job expired.', 'error');
+        });
     }
 
     /**
