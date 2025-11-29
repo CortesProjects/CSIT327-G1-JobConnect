@@ -1296,9 +1296,6 @@ def hire_candidate(request, application_id):
         application.hired_date = timezone.now().date()
         application.save()
         
-        # Notify applicant they've been hired
-        notify_application_status_change(application.applicant, application.job, 'hired')
-        
         messages.success(request, f'Successfully hired {application.applicant.applicant_profile_rel.full_name or application.applicant.email}!')
         return redirect('dashboard:employer_job_applications', job_id=application.job.id)
         
