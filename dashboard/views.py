@@ -1072,6 +1072,8 @@ def employer_job_applications(request, job_id):
     from django.core.exceptions import PermissionDenied
     from jobs.models import Job, ApplicationStage, JobApplication
     from django.db import models
+    from django.db.models import Prefetch
+    from dashboard.forms import EmployerApplicationFilterForm
 
     # Ensure user is an employer
     if getattr(request.user, 'user_type', None) != 'employer':
@@ -1102,7 +1104,8 @@ def employer_job_applications(request, job_id):
                 order=max_order + 1
             )
             messages.success(request, f'Column "{stage_name}" added.')
-            return redirect(request.path)
+            # Preserve querystring when redirecting back
+            return redirect(request.get_full_path())
 
         # Edit existing stage
         if form_type == 'edit_stage' and stage_id and stage_name:
@@ -1116,7 +1119,7 @@ def employer_job_applications(request, job_id):
                     messages.success(request, f'Column "{stage_name}" updated.')
             except ApplicationStage.DoesNotExist:
                 messages.error(request, 'Stage not found.')
-            return redirect(request.path)
+            return redirect(request.get_full_path())
 
         # Delete stage
         if form_type == 'delete_stage' and stage_id:
@@ -1131,50 +1134,77 @@ def employer_job_applications(request, job_id):
                     messages.success(request, 'Column deleted. Applications moved to "All Applications".')
             except ApplicationStage.DoesNotExist:
                 messages.error(request, 'Stage not found.')
-            return redirect(request.path)
+            return redirect(request.get_full_path())
 
-    # Get all applications without a stage ("All Applications" column)
-    all_applications = JobApplication.objects.filter(
-        job=job,
-        stage__isnull=True
-    ).select_related(
+    # Education and experience choices come from applicant profile model
+    from applicant_profile.models import ApplicantProfile
+    education_choices = list(getattr(ApplicantProfile, 'EDUCATION_LEVEL_CHOICES', []))
+
+    try:
+        experience_field = ApplicantProfile._meta.get_field('experience')
+        experience_choices = list(experience_field.choices)
+    except Exception:
+        experience_choices = []
+
+    # Initialize filter form with GET parameters and dynamic choices (only education/experience)
+    filter_form = EmployerApplicationFilterForm(
+        request.GET or None,
+        education_choices=education_choices,
+        experience_choices=experience_choices,
+    )
+
+    # Base queryset for applications for this job (will be filtered below)
+    base_qs = JobApplication.objects.filter(job=job).select_related(
         'applicant',
         'applicant__applicant_profile_rel'
-    ).order_by('-application_date')
+    )
 
-    # Get custom stages (user-created, editable)
+    # Apply education/experience filters and sorting from validated form
+    if filter_form.is_valid():
+        cd = filter_form.cleaned_data
+        education_val = cd.get('education')
+        if education_val:
+            base_qs = base_qs.filter(applicant__applicant_profile_rel__education_level=education_val)
+
+        experience_val = cd.get('experience')
+        if experience_val:
+            base_qs = base_qs.filter(applicant__applicant_profile_rel__experience=experience_val)
+
+        # Server-side sorting
+        sort_val = cd.get('sort', '').strip()
+        if sort_val == 'oldest':
+            base_qs = base_qs.order_by('application_date')
+        elif sort_val == 'name':
+            base_qs = base_qs.order_by('applicant__first_name', 'applicant__last_name')
+        else:  # 'newest' or default
+            base_qs = base_qs.order_by('-application_date')
+    else:
+        base_qs = base_qs.order_by('-application_date')
+
+    # Split into columns: All Applications (stage is null) and stages
+    all_applications = base_qs.filter(stage__isnull=True)
+
+    # Use Prefetch with the filtered base_qs so each stage's applications reflect filters
+    prefetch_apps = Prefetch('applications', queryset=base_qs)
+
     custom_stages = ApplicationStage.objects.filter(
         job=job,
         is_system=False
-    ).prefetch_related(
-        models.Prefetch(
-            'applications',
-            queryset=JobApplication.objects.select_related(
-                'applicant',
-                'applicant__applicant_profile_rel'
-            ).order_by('-application_date')
-        )
-    ).order_by('order', 'created_at')
+    ).prefetch_related(prefetch_apps).order_by('order', 'created_at')
 
-    # Get system stages (e.g., Hired - not editable/deletable)
     system_stages = ApplicationStage.objects.filter(
         job=job,
         is_system=True
-    ).prefetch_related(
-        models.Prefetch(
-            'applications',
-            queryset=JobApplication.objects.select_related(
-                'applicant',
-                'applicant__applicant_profile_rel'
-            ).order_by('-application_date')
-        )
-    ).order_by('order', 'created_at')
+    ).prefetch_related(prefetch_apps).order_by('order', 'created_at')
 
     context = {
         'job': job,
         'all_applications': all_applications,
         'custom_columns': custom_stages,
         'system_columns': system_stages,
+        'filter_form': filter_form,
+        'education_choices': education_choices,
+        'experience_choices': experience_choices,
     }
     return render(request, 'dashboard/employer/employer_job_applications.html', context)
 

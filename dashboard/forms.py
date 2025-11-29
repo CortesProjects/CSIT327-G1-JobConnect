@@ -598,6 +598,32 @@ class JobSearchForm(forms.Form):
         return cleaned_data
 
 
+class EmployerApplicationFilterForm(forms.Form):
+    """Filter form for employer job applications (education, experience, and sort)."""
+
+    education = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'filter-dropdown'}), label='Education')
+    experience = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'filter-dropdown'}), label='Experience')
+    sort = forms.ChoiceField(
+        required=False,
+        choices=[
+            ('', 'Default (Newest)'),
+            ('newest', 'Newest First'),
+            ('oldest', 'Oldest First'),
+            ('name', 'Name (A-Z)'),
+        ],
+        widget=forms.RadioSelect(attrs={'class': 'sort-radio'}),
+        label='Sort By'
+    )
+
+    def __init__(self, *args, **kwargs):
+        education_choices = kwargs.pop('education_choices', [])
+        experience_choices = kwargs.pop('experience_choices', [])
+        super().__init__(*args, **kwargs)
+        # Provide defaults
+        self.fields['education'].choices = [('', 'All Education Levels')] + list(education_choices)
+        self.fields['experience'].choices = [('', 'All Experience Levels')] + list(experience_choices)
+
+
 class FavoriteJobForm(forms.Form):
     """Form for favoriting/unfavoriting a job with validation"""
     
