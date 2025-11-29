@@ -85,6 +85,11 @@ class ApplicantRegistrationForm(UserCreationForm):
         user.set_name_from_full_name(self.cleaned_data['full_name'])
         user.user_type = self.cleaned_data.get('account_type', 'applicant') 
 
+        # Persist accepted terms flag if present on the form
+        accepted = self.cleaned_data.get('terms_and_conditions')
+        if accepted:
+            user.accepted_terms = True
+
         if commit:
             user.save()
 
