@@ -517,14 +517,14 @@ def mark_job_expired(request, job_id):
         
         messages.success(request, f'Job "{job.title}" has been marked as expired.')
         
-        # Return JSON for AJAX requests
+        # Return JSON for AJAX requests (no redirect - let frontend handle UI)
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
-                'message': f'Job "{job.title}" marked as expired.',
-                'redirect_url': reverse('jobs:job_detail', kwargs={'job_id': job_id})
+                'message': f'Job "{job.title}" marked as expired.'
             })
-        
+
+        # Non-AJAX requests: redirect to job detail (existing behaviour)
         return redirect('jobs:job_detail', job_id=job_id)
     
     except Exception as e:

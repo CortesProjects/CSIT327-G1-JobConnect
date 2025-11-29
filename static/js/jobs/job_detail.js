@@ -10,24 +10,36 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    // Submit POST form to Django (server-side validation)
-    function submitPost(url) {
-        const formEl = document.createElement('form');
-        formEl.method = 'POST';
-        formEl.action = url;
-        formEl.style.display = 'none';
-
+    // Submit POST via AJAX to Django (server-side validation, no redirect)
+    function submitPost(url, successCallback) {
         const token = getCookie('csrftoken');
-        if (token) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'csrfmiddlewaretoken';
-            input.value = token;
-            formEl.appendChild(input);
-        }
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        };
+        if (token) headers['X-CSRFToken'] = token;
 
-        document.body.appendChild(formEl);
-        formEl.submit();
+        const body = new URLSearchParams();
+        if (token) body.append('csrfmiddlewaretoken', token);
+
+        fetch(url, {
+            method: 'POST',
+            headers,
+            body: body.toString(),
+            credentials: 'same-origin'
+        }).then(async (res) => {
+            let data = null;
+            try { data = await res.json(); } catch(e) { /* non-json */ }
+            if (res.ok && data && data.success) {
+                if (successCallback) successCallback(data);
+            } else {
+                const err = (data && data.error) ? data.error : 'Operation failed.';
+                alert(err);
+            }
+        }).catch((err) => {
+            console.error('AJAX error', err);
+            alert('Network error occurred.');
+        });
     }
 
     // Close modal helper (UI only)
@@ -161,11 +173,16 @@
                 const jobId = modal ? modal.dataset.jobId : null;
                 if (!jobId) return;
 
-                // Optimistic UI update
-                try { markJobExpiredUI(); } catch(e) {}
-                
-                // Submit to Django
-                submitPost(`/jobs/${jobId}/mark-expired/`);
+                // Submit to Django via AJAX
+                submitPost(`/jobs/${jobId}/mark-expired/`, function(data) {
+                    // Close modal
+                    closeModalById('markExpiredModal');
+                    
+                    // Optimistic UI update
+                    try { markJobExpiredUI(); } catch(e) {}
+                    
+                    // success: no blocking alert shown — UI updated and modal closed
+                });
             });
         });
 
@@ -175,8 +192,16 @@
                 const jobId = modal ? modal.dataset.jobId : null;
                 if (!jobId) return;
 
-                // Submit to Django
-                submitPost(`/jobs/${jobId}/delete/`);
+                // Submit to Django via AJAX (delete should redirect to job list)
+                submitPost(`/jobs/${jobId}/delete/`, function(data) {
+                    // Close modal
+                    closeModalById('deleteJobModal');
+                    
+                    // For delete, redirect to My Jobs
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                });
             });
         });
 
