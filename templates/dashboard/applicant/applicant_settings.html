@@ -7,16 +7,6 @@
 {% endblock %}
 
 {% block dashboard_content %}
-{% if messages %}
-<div class="messages-container">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div >
     <div class="main-content-header">
         <h2>Setting</h2>

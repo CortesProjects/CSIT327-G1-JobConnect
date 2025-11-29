@@ -7,16 +7,6 @@
 {% endblock %}
 
 {% block dashboard_content %}
-{% if messages %}
-<div class="messages-container">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="settings-container">
     <h1 class="page-title">Settings</h1>
 
@@ -588,17 +578,6 @@ if (bannerInput) {
         }
     });
 }
-
-
-
-// Auto-dismiss messages after 5 seconds
-setTimeout(function() {
-    const messages = document.querySelector('.messages-container');
-    if (messages) {
-        messages.style.opacity = '0';
-        setTimeout(() => messages.remove(), 300);
-    }
-}, 5000);
 
 // Business Permit Modal Functions
 function openPermitModal() {
