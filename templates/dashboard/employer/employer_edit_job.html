@@ -29,17 +29,6 @@
         Jobs can only be edited within 7 days of posting.
     </div>
     
-    {% if messages %}
-    <div class="messages-container" id="messagesContainer">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    
     <form method="post" class="post-job-form" id="jobPostForm" novalidate>
         {% csrf_token %}
         

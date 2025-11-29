@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}JobConnect - Find Your Dream Job{% endblock %}</title> 
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/messages_toast.css' %}">
     
     {% block extra_css %}
     {% endblock %}
@@ -66,15 +67,7 @@
         {% endif %}
     </header>
     
-    {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="{% if 'error' in message.tags or 'danger' in message.tags %}alert error-message{% else %}alert{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {% include "messages_toast.html" %}
     
     <main>
         {% block content %}
@@ -87,6 +80,8 @@
     {% block modals %}
     {% endblock %}
 
+    <script src="{% static 'js/messages_toast.js' %}"></script>
+    
     {% if user.is_authenticated %}
         <script src="{% static 'js/notifications.js' %}"></script>
     {% endif %}
