@@ -1,24 +1,8 @@
 // Candidate Detail Page Functionality
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Bookmark button toggle
-    const bookmarkBtn = document.querySelector('.btn-bookmark');
-    if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            if (icon.classList.contains('far')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                this.style.backgroundColor = '#fff3cd';
-                this.style.borderColor = '#ffc107';
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                this.style.backgroundColor = 'white';
-                this.style.borderColor = '#e0e0e0';
-            }
-        });
-    }
+    // Save Candidate button - no JS needed, form handles submission
+    // Styling is handled by CSS classes from backend
 
     // Send Mail button
     const sendMailBtn = document.querySelector('.btn-send-mail');

@@ -37,6 +37,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'dashboard:employer_saved_candidates' %}" class="{% if request.resolver_match.url_name == 'employer_saved_candidates' %}active{% endif %}">
+                        <i class="fas fa-star"></i>
+                        <span>Saved Candidates</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{% url 'dashboard:employer_settings' %}" class="{% if request.resolver_match.url_name == 'employer_settings' %}active{% endif %}">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>

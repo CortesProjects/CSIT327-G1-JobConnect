@@ -117,6 +117,11 @@
     transition: all 0.2s ease;
 }
 
+.btn-bookmark.saved {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
 .btn-bookmark:hover {
     background-color: #fff3cd;
     border-color: #ffc107;
