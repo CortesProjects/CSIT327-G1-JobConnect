@@ -751,6 +751,55 @@ def employer_profile(request):
         'active_jobs': active_jobs,
         'total_applications': total_applications,
         'hired_count': hired_count,
+        'is_owner': True,
+    }
+    
+    return render(request, 'dashboard/employer/employer_profile.html', context)
+
+def public_employer_profile(request, employer_id):
+    """Display public employer profile (read-only view)"""
+    from jobs.models import Job
+    from django.db.models import Count
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
+    # Get employer user
+    employer = get_object_or_404(User, id=employer_id, user_type='employer')
+    
+    # Get employer profile
+    try:
+        profile = employer.employer_profile_rel
+    except:
+        profile = None
+    
+    # Get social links
+    social_links = UserSocialLink.objects.filter(user=employer).order_by('platform')
+    
+    # Get recent jobs with application counts (only active jobs for public view)
+    recent_jobs = Job.objects.filter(
+        employer=employer,
+        status='active'
+    ).annotate(
+        applications_count=Count('applications')
+    ).order_by('-posted_at')[:3]
+    
+    # Calculate statistics (public view - only show active jobs)
+    total_jobs = Job.objects.filter(employer=employer, status='active').count()
+    active_jobs = total_jobs
+    total_applications = 0  # Hide application stats for public view
+    hired_count = 0  # Hide hiring stats for public view
+    
+    context = {
+        'profile': profile,
+        'social_links': social_links,
+        'recent_jobs': recent_jobs,
+        'total_jobs': total_jobs,
+        'active_jobs': active_jobs,
+        'total_applications': total_applications,
+        'hired_count': hired_count,
+        'is_owner': False,
+        'profile_employer': employer,
     }
     
     return render(request, 'dashboard/employer/employer_profile.html', context)

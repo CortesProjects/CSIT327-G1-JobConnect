@@ -8,6 +8,15 @@
 
 {% block dashboard_content %}
 <div class="employer-profile-container">
+    <!-- Back Button -->
+    {% if not is_owner %}
+    <div class="back-button-container">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Job
+        </a>
+    </div>
+    {% endif %}
+    
     <!-- Banner Section with Company Logo -->
     <div class="profile-banner-section">
         <div class="banner-image-wrapper">
@@ -33,7 +42,7 @@
                 <h1 class="company-name">{{ profile.company_name|default:"Company Name" }}</h1>
                 <p class="company-industry">{{ profile.get_industry_type_display|default:"Information Technology (IT)" }}</p>
             </div>
-            {% if user.is_authenticated and user.user_type == 'employer' %}
+            {% if is_owner %}
                 <a href="{% url 'dashboard:employer_settings' %}" class="edit-btn btn btn-primary">Edit Profile</a>
             {% endif %}
         </div>

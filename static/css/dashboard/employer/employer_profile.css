@@ -6,9 +6,39 @@
     padding: 0 20px 40px;
 }
 
+/* Back Button */
+.back-button-container {
+    margin-bottom: 16px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: var(--primary-bg);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.back-btn i {
+    font-size: 14px;
+}
+
 /* Banner Section with Company Logo */
 .profile-banner-section {
-    margin: -40px -20px 0px;
+    margin: 20px -20px 0px;
     position: relative;
 }
 
@@ -537,7 +567,7 @@
     }
 
     .profile-banner-section {
-        margin: -40px -15px 25px;
+        margin: 20px -15px 25px;
     }
 
     .banner-image-wrapper {
