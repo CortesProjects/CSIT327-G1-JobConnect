@@ -29,6 +29,8 @@ urlpatterns = [
     path('employer/move-application/<int:application_id>/', views.move_application_stage, name='move_application_stage'),
     path('employer/candidate-detail/<int:application_id>/', views.employer_candidate_detail, name='employer_candidate_detail'),
     path('employer/hire-candidate/<int:application_id>/', views.hire_candidate, name='hire_candidate'),
+    path('employer/toggle-save-candidate/<int:application_id>/', views.toggle_save_candidate, name='toggle_save_candidate'),
+    path('employer/saved-candidates/', views.employer_saved_candidates, name='employer_saved_candidates'),
     # Admin URLs
     path('admin/dashboards', views.admin_dashboards, name='admin_dashboards'),
     path('admin/total-employers-verified', views.admin_total_employers_verified, name='admin_total_employers_verified'),

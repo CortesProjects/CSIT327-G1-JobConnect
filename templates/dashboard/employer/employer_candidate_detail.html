@@ -9,9 +9,16 @@
 {% block dashboard_content %}
 <div class="candidate-detail-container">
     <!-- Close Button -->
-    <button class="btn-close" data-redirect="{% url 'dashboard:employer_job_applications' job.id %}">
-        <i class="fas fa-times"></i>
-    </button>
+    {% comment %} If the page was opened from saved candidates, return there. Use GET param `from_page=saved`. {% endcomment %}
+    {% if request.GET.from_page == 'saved' %}
+        <button class="btn-close" data-redirect="{% url 'dashboard:employer_saved_candidates' %}">
+            <i class="fas fa-times"></i>
+        </button>
+    {% else %}
+        <button class="btn-close" data-redirect="{% url 'dashboard:employer_job_applications' job.id %}">
+            <i class="fas fa-times"></i>
+        </button>
+    {% endif %}
 
     <!-- Candidate Header -->
     <div class="candidate-header">
@@ -29,9 +36,12 @@
             </div>
         </div>
         <div class="candidate-actions">
-            <button class="btn-bookmark">
-                <i class="far fa-star"></i>
-            </button>
+            <form method="post" action="{% url 'dashboard:toggle_save_candidate' application.id %}" id="saveCandidateForm" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-bookmark {% if is_saved %}saved{% endif %}" data-application-id="{{ application.id }}" id="saveCandidateBtn">
+                    <i class="{% if is_saved %}fas{% else %}far{% endif %} fa-star"></i>
+                </button>
+            </form>
             <a href="mailto:{{ applicant.email }}" class="btn-send-mail">
                 <i class="fas fa-envelope"></i>
                 Send Mail

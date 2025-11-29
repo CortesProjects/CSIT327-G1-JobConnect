@@ -48,6 +48,7 @@ def dashboard_view(request):
     elif user.user_type == 'employer':
         from jobs.models import Job
         from django.db.models import Count
+        from dashboard.models import SavedCandidate
         
         # Fetch employer's jobs with application counts
         all_jobs = Job.objects.filter(employer=request.user)
@@ -55,12 +56,15 @@ def dashboard_view(request):
             applications_count=Count('applications')
         ).order_by('-posted_at')[:5]
         
+        # Get saved candidates count
+        saved_candidates_count = SavedCandidate.objects.filter(employer=request.user).count()
+        
         context = {
             'has_jobs': all_jobs.exists(),
             'open_jobs_count': all_jobs.filter(status='active').count(),
             'total_jobs_count': all_jobs.count(),
             'recent_jobs': recent_jobs,
-            'saved_candidates_count': 0,  # TODO: Implement when application system is ready
+            'saved_candidates_count': saved_candidates_count,
         }
         
         return render(request, 'dashboard/employer/employer_overview.html', context)
@@ -933,9 +937,13 @@ def employer_my_jobs(request):
         return redirect('dashboard:dashboard')
     
     from jobs.models import Job
-    
-    # Fetch jobs posted by this employer
-    all_jobs = Job.objects.filter(employer=request.user).order_by('-posted_at')
+    from django.db.models import Count
+
+    # Fetch jobs posted by this employer (annotate application counts so templates
+    # using `job.applications_count` show correct values)
+    all_jobs = Job.objects.filter(employer=request.user).annotate(
+        applications_count=Count('applications')
+    ).order_by('-posted_at')
     
     # Apply status filter
     status_filter = request.GET.get('status', 'all')
@@ -1264,6 +1272,7 @@ def employer_candidate_detail(request, application_id):
     from django.shortcuts import get_object_or_404
     from django.core.exceptions import PermissionDenied
     from jobs.models import JobApplication
+    from dashboard.models import SavedCandidate
     
     # Ensure user is an employer
     if getattr(request.user, 'user_type', None) != 'employer':
@@ -1290,12 +1299,19 @@ def employer_candidate_detail(request, application_id):
     # Get social links
     social_links = application.applicant.social_links.all()
     
+    # Check if candidate is saved
+    is_saved = SavedCandidate.objects.filter(
+        employer=request.user,
+        application=application
+    ).exists()
+    
     context = {
         'application': application,
         'applicant': application.applicant,
         'profile': profile,
         'social_links': social_links,
         'job': application.job,
+        'is_saved': is_saved,
     }
     
     return render(request, 'dashboard/employer/employer_candidate_detail.html', context)
@@ -1351,6 +1367,95 @@ def hire_candidate(request, application_id):
     except Exception as e:
         messages.error(request, f'Error hiring candidate: {str(e)}')
         return redirect('dashboard:employer_candidate_detail', application_id=application_id)
+
+
+@login_required
+def toggle_save_candidate(request, application_id):
+    """Toggle save/unsave status for a candidate"""
+    from django.shortcuts import get_object_or_404
+    from django.core.exceptions import PermissionDenied
+    from jobs.models import JobApplication
+    from dashboard.models import SavedCandidate
+    
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method.')
+        return redirect('dashboard:dashboard')
+    
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+    
+    try:
+        # Fetch the application
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != request.user.id:
+            messages.error(request, 'You do not have permission to save this candidate.')
+            return redirect('dashboard:dashboard')
+        
+        # Toggle save status
+        saved_candidate, created = SavedCandidate.objects.get_or_create(
+            employer=request.user,
+            application=application
+        )
+        
+        if not created:
+            # Already saved, so unsave it
+            saved_candidate.delete()
+            messages.success(request, 'Candidate removed from saved list.')
+        else:
+            # Newly saved
+            messages.success(request, 'Candidate saved successfully!')
+        
+        # Redirect back to the referring page
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        else:
+            return redirect('dashboard:employer_candidate_detail', application_id=application_id)
+        
+    except PermissionDenied:
+        messages.error(request, 'You do not have permission to save this candidate.')
+        return redirect('dashboard:dashboard')
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        else:
+            return redirect('dashboard:dashboard')
+
+
+@login_required
+def employer_saved_candidates(request):
+    """Display all saved candidates for the employer"""
+    from dashboard.models import SavedCandidate
+    
+    # Ensure user is an employer
+    if getattr(request.user, 'user_type', None) != 'employer':
+        messages.error(request, 'Access denied. Employer account required.')
+        return redirect('dashboard:dashboard')
+    
+    # Get all saved candidates with related data
+    saved_candidates = SavedCandidate.objects.filter(
+        employer=request.user
+    ).select_related(
+        'application',
+        'application__applicant',
+        'application__applicant__applicant_profile_rel',
+        'application__job'
+    ).order_by('-saved_at')
+    
+    context = {
+        'saved_candidates': saved_candidates,
+    }
+    
+    return render(request, 'dashboard/employer/employer_saved_candidates.html', context)
 
 
 @login_required

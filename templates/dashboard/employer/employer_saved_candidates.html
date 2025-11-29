@@ -1,0 +1,110 @@
+{% extends "dashboard/employer/employer_dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_saved_candidates.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="saved-candidates-container">
+    <div class="page-header">
+        <h1 class="page-title">Saved Candidates</h1>
+        <p class="page-subtitle">Candidates you've saved for future reference</p>
+    </div>
+
+    {% if saved_candidates %}
+        <div class="candidates-grid">
+            {% for saved in saved_candidates %}
+                <div class="candidate-card" data-application-id="{{ saved.application.id }}">
+                    <div class="candidate-card-header">
+                        <div class="candidate-avatar">
+                            {% if saved.application.applicant.applicant_profile_rel.profile_image %}
+                                <img src="{{ saved.application.applicant.applicant_profile_rel.profile_image.url }}" alt="{{ saved.application.applicant.applicant_profile_rel.full_name }}">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="candidate-info">
+                            <h3 class="candidate-name">{{ saved.application.applicant.applicant_profile_rel.full_name|default:saved.application.applicant.email }}</h3>
+                            <p class="candidate-title">{{ saved.application.applicant.applicant_profile_rel.title|default:"Job Seeker" }}</p>
+                        </div>
+                        <form method="post" action="{% url 'dashboard:toggle_save_candidate' saved.application.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-unsave" data-application-id="{{ saved.application.id }}" title="Remove from saved" onclick="return confirm('Are you sure you want to remove this candidate from your saved list?');">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="candidate-card-body">
+                        <div class="candidate-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-briefcase"></i>
+                                Applied for: <strong>{{ saved.application.job.title }}</strong>
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                Saved: {{ saved.saved_at|date:"M d, Y" }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-envelope"></i>
+                                {{ saved.application.applicant.email }}
+                            </span>
+                            {% if saved.application.applicant.applicant_profile_rel.phone_number %}
+                            <span class="meta-item">
+                                <i class="fas fa-phone"></i>
+                                {{ saved.application.applicant.applicant_profile_rel.phone_number }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        {% if saved.application.applicant.applicant_profile_rel.biography %}
+                        <div class="candidate-bio">
+                            <p>{{ saved.application.applicant.applicant_profile_rel.biography|truncatewords:30 }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="candidate-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Status</span>
+                                <span class="stat-value status-{{ saved.application.status }}">
+                                    {{ saved.application.get_status_display|default:saved.application.status|title }}
+                                </span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Applied</span>
+                                <span class="stat-value">{{ saved.application.application_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="candidate-card-footer">
+                        <a href="{% url 'dashboard:employer_candidate_detail' saved.application.id %}?from_page=saved" class="btn-view-profile">
+                            View Full Profile <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h2 class="empty-state-title">No Saved Candidates Yet</h2>
+            <p class="empty-state-description">
+                When you view a candidate's profile, you can save them for future reference by clicking the star icon. 
+                Saved candidates will appear here for easy access.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/employer/employer_saved_candidates.js' %}"></script>
+{% endblock %}
