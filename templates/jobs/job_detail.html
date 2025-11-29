@@ -28,8 +28,10 @@
                     {% endif %}
                 </div>
                 <div class="title-wrap">
+                    <div style="align-items: center; display: flex; gap: 10px;">
                     <h1>{{ job.title }}</h1>
                     <span class="pill type">{{ job.job_type.name|default:"Full Time" }}</span>
+                    </div>
                     <div class="title-meta">
                         <div class="contact-inline">
                             {% if job.employer.employer_profile_rel.contact_phone_number %}
@@ -186,7 +188,7 @@
             </div>
         </div>
 
-        <div class="card company-card">
+        <a href="{% url 'dashboard:public_employer_profile' job.employer.id %}" class="card company-card clickable-card">
             <div class="company-top">
                 {% if job.employer.employer_profile_rel.company_profile_image %}
                     <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}" class="company-small">
@@ -217,26 +219,26 @@
                     <div><span class="label">Email:</span><span class="val">{{ job.employer.employer_profile_rel.contact_email }}</span></div>
                 {% endif %}
                 {% if job.employer.employer_profile_rel.website %}
-                    <div><span class="label">Website:</span><span class="val"><a href="{{ job.employer.employer_profile_rel.website }}" target="_blank">{{ job.employer.employer_profile_rel.website }}</a></span></div>
+                    <div><span class="label">Website:</span><span class="val"><a href="{{ job.employer.employer_profile_rel.website }}" target="_blank" onclick="event.stopPropagation();">{{ job.employer.employer_profile_rel.website }}</a></span></div>
                 {% endif %}
             </div>
             {% if job.employer.employer_profile_rel.facebook or job.employer.employer_profile_rel.twitter or job.employer.employer_profile_rel.instagram or job.employer.employer_profile_rel.linkedin %}
             <div class="company-social">
                 {% if job.employer.employer_profile_rel.facebook %}
-                    <a class="s" href="{{ job.employer.employer_profile_rel.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a class="s" href="{{ job.employer.employer_profile_rel.facebook }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>
                 {% endif %}
                 {% if job.employer.employer_profile_rel.twitter %}
-                    <a class="s" href="{{ job.employer.employer_profile_rel.twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a class="s" href="{{ job.employer.employer_profile_rel.twitter }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-twitter"></i></a>
                 {% endif %}
                 {% if job.employer.employer_profile_rel.instagram %}
-                    <a class="s" href="{{ job.employer.employer_profile_rel.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a class="s" href="{{ job.employer.employer_profile_rel.instagram }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-instagram"></i></a>
                 {% endif %}
                 {% if job.employer.employer_profile_rel.linkedin %}
-                    <a class="s" href="{{ job.employer.employer_profile_rel.linkedin }}" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a class="s" href="{{ job.employer.employer_profile_rel.linkedin }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>
                 {% endif %}
             </div>
             {% endif %}
-        </div>
+        </a>
     </aside>
     </div>
 </div>
