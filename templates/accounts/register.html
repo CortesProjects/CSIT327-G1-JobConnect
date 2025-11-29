@@ -135,4 +135,9 @@
 
 {% block extra_js %} 
     <script src="{% static 'js/accounts/register.js' %}"></script>
+    <script src="{% static 'js/accounts/terms_modal.js' %}"></script>
+{% endblock %}
+
+{% block modals %}
+    {% include "accounts/terms_modal.html" %}
 {% endblock %}  
