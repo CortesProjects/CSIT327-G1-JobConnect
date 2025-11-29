@@ -360,10 +360,18 @@ def apply_job(request, job_id):
                     error_message = field_errors[0]
                     break
         
-        return JsonResponse({
-            'success': False,
-            'error': error_message
-        }, status=400)
+        # If AJAX request, return JSON error; otherwise set message and redirect back
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'error': error_message
+            }, status=400)
+
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.error(request, error_message)
+        return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
     
     # Get validated data
     job = form.cleaned_data['job']
@@ -378,17 +386,34 @@ def apply_job(request, job_id):
             status='pending'
         )
         
-        return JsonResponse({
-            'success': True,
-            'message': f'Successfully applied for {job.title}!',
-            'application_id': application.id
-        })
+        # If the request was AJAX, return JSON response; otherwise redirect back with message
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully applied for {job.title}!',
+                'application_id': application.id
+            })
+
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.success(request, f'Successfully applied for {job.title}!')
+        return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
     
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Failed to submit application: {str(e)}'
-        }, status=500)
+        # On errors, return JSON for AJAX or set message + redirect for normal requests
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        error_msg = f'Failed to submit application: {str(e)}'
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=500)
+
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.error(request, error_msg)
+        return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
 
 
 @login_required
