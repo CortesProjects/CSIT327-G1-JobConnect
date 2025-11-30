@@ -9,6 +9,7 @@ from django.utils import timezone
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
 from accounts.models import User, UserSocialLink, UserVerification
 from applicant_profile.models import ApplicantProfile
+from jobs.models import Job
 from .forms import (
     ApplicantPersonalInfoForm, 
     ApplicantProfileDetailsForm,
@@ -1660,8 +1661,13 @@ def admin_applicants(request):
 
 @login_required
 def admin_job_postings(request):
+    # Only show jobs with status 'active' (lowercase)
+    active_jobs = Job.objects.filter(status__in=['active', 'expired']).order_by('-posted_at')
 
-    return render(request, "dashboard/admin/admin_job_postings.html")
+    context = {
+        'active_jobs': active_jobs
+    }
+    return render(request, "dashboard/admin/admin_job_postings.html", context)
 #------------------------------------------
 #          Admin Stuff Ends Here
 # -----------------------------------------
