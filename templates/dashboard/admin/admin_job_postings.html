@@ -28,7 +28,7 @@
             <img src="{% static 'cover.png' %}" alt="{{ job.company_name }} Logo" class="job-logo">
             <div class="job-info">
               <div class="job-info-left">
-                <p class="job-name">{{ job.job_title }}</p>
+                <p class="job-name">{{ job.title }}</p>
 
                 {% if job.badge == "Full Time" %}
                   <span class="badge fulltime">Full Time</span>
@@ -43,16 +43,19 @@
                 {% endif %}
               </div>
               <div class="job-meta">
-                <span><i class="fas fa-map-marker-alt"></i> {{ job.place }}</span>
-                {% if job.salary %}
-                  <span><i class="fas fa-dollar-sign"></i> {{ job.salary }}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                {% if job.min_salary and job.max_salary %}
+                <span><i class="fas fa-dollar-sign"></i> {{ job.min_salary }} - {{ job.max_salary }}</span>
                 {% endif %}
               </div>
             </div>
           </div>
 
           <div class="job-right">
-            <span class="job-date">{{ job.date_posted }} · {{ job.time_posted }}</span>
+            <span class="job-date">
+                {{ job.posted_at|date:"M d, Y" }} · {{ job.posted_at|time:"H:i" }}
+            </span>
+
             <span class="status active"><i class="fas fa-circle"></i> {{ job.status }}</span>
             <button class="view-btn">View Details <i class="fas fa-arrow-right"></i></button>
           </div>
