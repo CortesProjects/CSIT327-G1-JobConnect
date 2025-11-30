@@ -1596,7 +1596,7 @@ def admin_accept_reject_employer(request):
     return render(request, 'dashboard/admin/admin_accept_reject_employer.html', context)
 
 @login_required
-@user_passes_test(lambda u: u.user_type == 'admin')  # Only admins can approve
+@user_passes_test(lambda u: u.user_type == 'ADMIN')  # Only admins can approve
 def approve_employer(request, employer_id):
     if request.method == 'POST':
         employer = get_object_or_404(User, id=employer_id, user_type='employer')
@@ -1624,7 +1624,7 @@ def approve_employer(request, employer_id):
     return redirect('dashboard:admin_accept_reject_employer')
 
 @login_required
-@user_passes_test(lambda u: u.user_type == 'admin')  # Only admins can reject
+@user_passes_test(lambda u: u.user_type == 'ADMIN')  # Only admins can reject
 def reject_employer(request, employer_id):
     if request.method == 'POST':
         employer = get_object_or_404(User, id=employer_id, user_type='employer')
