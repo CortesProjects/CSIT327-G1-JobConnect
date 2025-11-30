@@ -12,6 +12,8 @@ User = get_user_model()
 
 
 def get_user_dashboard_url(user):
+    if user.is_staff or user.user_type == 'ADMIN':
+        return '/dashboard/admin/dashboards'
     return 'dashboard:dashboard'
 
 
