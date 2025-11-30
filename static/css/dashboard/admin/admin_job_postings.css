@@ -88,7 +88,7 @@
 
 .job-list-header {
   display: grid;
-  grid-template-columns: 1fr 180px 150px 120px;
+  grid-template-columns: 1fr 140px 100px 120px;
   font-weight: bold;
   font-size: 14px;
   color: #888;
