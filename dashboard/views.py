@@ -1761,26 +1761,39 @@ def admin_job_detail(request, job_id):
 class EmployerJobListView(EmployerRequiredMixin, ListView):
     """
     Displays list of jobs posted by the current employer.
-    Allows filtering by job status (active, expired, draft).
+    Allows filtering by job status (active, expired).
     """
     model = Job
     template_name = 'dashboard/employer/employer_my_jobs.html'
-    context_object_name = 'jobs'
-    paginate_by = 10
+    context_object_name = 'all_jobs'
 
     def get_queryset(self):
-        queryset = Job.objects.filter(employer=self.request.user).order_by('-posted_at')
-        status_filter = self.request.GET.get('status')
-        if status_filter:
+        from django.db.models import Count
+        
+        queryset = Job.objects.filter(
+            employer=self.request.user
+        ).select_related(
+            'category',
+            'job_type',
+            'education',
+            'experience',
+            'job_level',
+            'salary_type'
+        ).annotate(
+            applications_count=Count('applications')
+        ).order_by('-posted_at')
+        
+        status_filter = self.request.GET.get('status', 'all')
+        if status_filter != 'all':
             queryset = queryset.filter(status=status_filter)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['status_filter'] = self.request.GET.get('status', '')
-        context['total_jobs'] = Job.objects.filter(employer=self.request.user).count()
-        context['active_jobs'] = Job.objects.filter(employer=self.request.user, status='active').count()
-        context['expired_jobs'] = Job.objects.filter(employer=self.request.user, status='expired').count()
+        queryset = self.get_queryset()
+        context['status_filter'] = self.request.GET.get('status', 'all')
+        context['has_jobs'] = queryset.exists()
+        context['total_jobs'] = queryset.count()
         return context
 
 
@@ -1884,4 +1897,34 @@ class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_favorites'] = self.get_queryset().count()
+        return context
+
+
+class ApplicantAppliedJobsListView(ApplicantRequiredMixin, ListView):
+    """
+    Display all job applications submitted by the current applicant.
+    Shows application status, date applied, and job details.
+    """
+    model = JobApplication
+    template_name = 'dashboard/applicant/applicant_applied_jobs.html'
+    context_object_name = 'applied_jobs'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        return JobApplication.objects.filter(
+            applicant=self.request.user
+        ).select_related(
+            'job',
+            'job__employer',
+            'job__employer__employer_profile_rel',
+            'job__category',
+            'job__job_type',
+            'job__education',
+            'job__experience',
+            'job__job_level'
+        ).order_by('-application_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['application_count'] = self.get_queryset().count()
         return context
