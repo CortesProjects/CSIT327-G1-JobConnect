@@ -38,6 +38,7 @@ urlpatterns = [
     path('admin/approve-employer/<int:employer_id>/', views.approve_employer, name='approve_employer'),
     path('admin/reject-employer/<int:employer_id>/', views.reject_employer, name='reject_employer'),
     path('admin/applicants', views.admin_applicants, name='admin_applicants'),
+    path('admin/applicants/<int:applicant_id>/', views.admin_applicant_detail, name='admin_applicant_detail'),
     path('admin/job-postings', views.admin_job_postings, name='admin_job_postings'),
     
 ]
