@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from .forms import ApplicantRegistrationForm, UserLoginForm, EmployerRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
 from notifications.utils import create_notification
 from django.contrib.auth import get_user_model
+from utils.caching import get_site_statistics, get_popular_categories, get_featured_jobs
 
 User = get_user_model() 
 
@@ -21,40 +22,36 @@ def home(request):
     """Home page view that redirects authenticated users to their dashboard"""
     if request.user.is_authenticated:
         return redirect(get_user_dashboard_url(request.user))
-    # Provide dynamic site summary data for unauthenticated visitors
+    
+    # Use cached data for unauthenticated visitors
     try:
-        from jobs.models import Job, JobCategory
-        from django.db.models import Count
-
-        live_jobs_count = Job.objects.filter(status='active').count()
-        total_jobs_count = Job.objects.count()
-        # Companies = registered employers
-        companies_count = User.objects.filter(user_type='employer').count()
-        candidates_count = User.objects.filter(user_type='applicant').count()
-
-        # Popular categories by job count (top 8)
-        popular_categories = JobCategory.objects.annotate(job_count=Count('jobs')).filter(job_count__gt=0).order_by('-job_count')[:8]
-
-        # Featured jobs: recent active jobs
-        featured_jobs = Job.objects.filter(status='active').annotate(applications_count=Count('applications')).order_by('-posted_at')[:3]
-
+        # Get cached statistics (5 min cache)
+        stats = get_site_statistics()
+        
+        # Get cached popular categories (15 min cache)
+        popular_categories = get_popular_categories(limit=8)
+        
+        # Get cached featured jobs (10 min cache)
+        featured_jobs = get_featured_jobs(limit=3)
+        
+        context = {
+            'live_jobs_count': stats['live_jobs_count'],
+            'total_jobs_count': stats['total_jobs_count'],
+            'companies_count': stats['companies_count'],
+            'candidates_count': stats['candidates_count'],
+            'popular_categories': popular_categories,
+            'featured_jobs': featured_jobs,
+        }
     except Exception:
         # Fallback to empty values if models are not available for any reason
-        live_jobs_count = 0
-        total_jobs_count = 0
-        companies_count = 0
-        candidates_count = 0
-        popular_categories = []
-        featured_jobs = []
-
-    context = {
-        'live_jobs_count': live_jobs_count,
-        'total_jobs_count': total_jobs_count,
-        'companies_count': companies_count,
-        'candidates_count': candidates_count,
-        'popular_categories': popular_categories,
-        'featured_jobs': featured_jobs,
-    }
+        context = {
+            'live_jobs_count': 0,
+            'total_jobs_count': 0,
+            'companies_count': 0,
+            'candidates_count': 0,
+            'popular_categories': [],
+            'featured_jobs': [],
+        }
 
     return render(request, 'home.html', context)
 
