@@ -85,11 +85,22 @@
             <div class="jobs-table-wrapper">
                 <div class="empty-jobs-placeholder">
                     <div class="empty-jobs-content">
-                        <h4>You haven't posted a job yet</h4>
-                        <p class="muted">Create your first job posting to start receiving applications.</p>
-                        <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
-                            <i class="fas fa-plus"></i> Post a Job
-                        </a>
+                        {% if status_filter == 'active' %}
+                            <h4>No Active Jobs</h4>
+                            <p class="muted">You don't have any active job postings at the moment.</p>
+                            <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
+                                <i class="fas fa-plus"></i> Post a Job
+                            </a>
+                        {% elif status_filter == 'expired' %}
+                            <h4>No Expired Jobs</h4>
+                            <p class="muted">You don't have any expired job postings.</p>
+                        {% else %}
+                            <h4>You haven't posted a job yet</h4>
+                            <p class="muted">Create your first job posting to start receiving applications.</p>
+                            <a href="{% url 'dashboard:employer_post_job' %}" class="btn-post-job">
+                                <i class="fas fa-plus"></i> Post a Job
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
