@@ -54,14 +54,15 @@ def cache_result(timeout=300, key_prefix='default'):
 @cache_result(timeout=900, key_prefix='popular_categories')
 def get_popular_categories(limit=8):
     """
-    Get popular job categories with job counts.
+    Get popular job categories with job counts (only active jobs).
     Cached for 15 minutes.
     """
     from jobs.models import JobCategory
+    from django.db.models import Q
     
     return list(
         JobCategory.objects.annotate(
-            job_count=Count('jobs')
+            job_count=Count('jobs', filter=Q(jobs__status='active'))
         ).filter(
             job_count__gt=0,
             is_active=True
