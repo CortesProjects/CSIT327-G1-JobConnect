@@ -21,15 +21,38 @@
     {% endfor %}
 </div>
 
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
 <div class="pagination-container">
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-left"></i></a>
-    <a href="#" class="pagination-number active">01</a>
-    <a href="#" class="pagination-number">02</a>
-    <a href="#" class="pagination-number">03</a>
-    <a href="#" class="pagination-number">04</a>
-    <a href="#" class="pagination-number">05</a>
-    <a href="#" class="pagination-arrow"><i class="fas fa-arrow-right"></i></a>
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="pagination-arrow">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled">
+        <i class="fas fa-arrow-left"></i>
+    </span>
+    {% endif %}
+    
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <a href="?page={{ num }}" class="pagination-number active">{{ num|stringformat:"02d" }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}" class="pagination-number">{{ num|stringformat:"02d" }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="pagination-arrow">
+        <i class="fas fa-arrow-right"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled">
+        <i class="fas fa-arrow-right"></i>
+    </span>
+    {% endif %}
 </div>
+{% endif %}
 {% else %}
 <div class="empty-state">
     <div class="empty-state-icon">

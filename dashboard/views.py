@@ -155,6 +155,12 @@ def applicant_search_jobs(request):
     # Order by most recent
     jobs = jobs.order_by('-posted_at')
     
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(jobs, 10)  # 10 jobs per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     # Get favorited job IDs for the current applicant
     favorited_job_ids = []
     if request.user.is_authenticated and request.user.user_type == 'applicant':
@@ -164,7 +170,8 @@ def applicant_search_jobs(request):
     
     context = {
         "form": form,
-        "jobs": jobs,
+        "jobs": page_obj,
+        "page_obj": page_obj,
         "categories": all_categories,
         "educations": all_educations,
         "experiences": all_experiences,
@@ -196,8 +203,15 @@ def applicant_applied_jobs(request):
         'job__job_level'
     ).order_by('-application_date')
     
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(applied_jobs, 10)  # 10 applications per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'applied_jobs': applied_jobs,
+        'applied_jobs': page_obj,
+        'page_obj': page_obj,
         'application_count': applied_jobs.count()
     }
     return render(request, 'dashboard/applicant/applicant_applied_jobs.html', context)
@@ -223,11 +237,18 @@ def applicant_favorite_jobs(request):
         'job__job_level'
     ).order_by('-created_at')
     
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(favorites, 10)  # 10 favorites per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     # Get list of favorited job IDs (all jobs in favorites by definition)
     favorited_job_ids = list(favorites.values_list('job_id', flat=True))
     
     context = {
-        'favorites': favorites,
+        'favorites': page_obj,
+        'page_obj': page_obj,
         'favorite_count': favorites.count(),
         'favorited_job_ids': favorited_job_ids,
     } 

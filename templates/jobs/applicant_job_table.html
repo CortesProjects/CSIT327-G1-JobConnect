@@ -66,6 +66,41 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination-container" style="margin-top: 2rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="pagination-arrow" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px; color: #ccc;">
+        <i class="fas fa-arrow-left"></i>
+    </span>
+    {% endif %}
+    
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <a href="?page={{ num }}" class="pagination-number active" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px;">{{ num|stringformat:"02d" }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}" class="pagination-number" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">{{ num|stringformat:"02d" }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="pagination-arrow" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">
+        <i class="fas fa-arrow-right"></i>
+    </a>
+    {% else %}
+    <span class="pagination-arrow disabled" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px; color: #ccc;">
+        <i class="fas fa-arrow-right"></i>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
 {% else %}
         <div class="empty-state">
         <div class="empty-state-icon">
