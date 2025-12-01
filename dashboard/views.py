@@ -109,8 +109,16 @@ def applicant_search_jobs(request):
         job_level_choices=job_level_choices
     )
     
-    # Start with active jobs only
-    jobs = Job.objects.filter(status='active').annotate(applications_count=Count('applications'))
+    # Start with active jobs only with optimized queries
+    jobs = Job.objects.filter(status='active').select_related(
+        'employer',
+        'category',
+        'job_type',
+        'education',
+        'experience',
+        'job_level',
+        'salary_type'
+    ).annotate(applications_count=Count('applications'))
     
     # Apply filters only if form is valid
     if form.is_valid():
@@ -757,19 +765,27 @@ def employer_profile(request):
     # Get social links
     social_links = UserSocialLink.objects.filter(user=request.user).order_by('platform')
     
-    # Get recent jobs with application counts
+    # Get recent jobs with application counts and related data
     recent_jobs = Job.objects.filter(
         employer=request.user
+    ).select_related(
+        'category',
+        'job_type',
+        'education',
+        'experience',
+        'job_level',
+        'salary_type'
     ).annotate(
         applications_count=Count('applications')
     ).order_by('-posted_at')[:3]
     
-    # Calculate statistics
+    # Calculate statistics (optimized single query for total applications)
     total_jobs = Job.objects.filter(employer=request.user).count()
     active_jobs = Job.objects.filter(employer=request.user, status='active').count()
-    total_applications = sum(job.applications_count for job in Job.objects.filter(employer=request.user).annotate(applications_count=Count('applications')))
-    hired_count = 0  # Count applications with 'hired' status
+    
+    # Single query for total applications instead of looping
     from jobs.models import JobApplication
+    total_applications = JobApplication.objects.filter(job__employer=request.user).count()
     hired_count = JobApplication.objects.filter(job__employer=request.user, status='hired').count()
     
     context = {
@@ -809,6 +825,13 @@ def public_employer_profile(request, employer_id):
     recent_jobs = Job.objects.filter(
         employer=employer,
         status='active'
+    ).select_related(
+        'category',
+        'job_type',
+        'education',
+        'experience',
+        'job_level',
+        'salary_type'
     ).annotate(
         applications_count=Count('applications')
     ).order_by('-posted_at')[:3]
