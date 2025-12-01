@@ -2,18 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from employer_profile.models import EmployerProfile 
+from utils.mixins import employer_required
 from .forms import (
     EmployerProfileCompanyInfoForm, 
     EmployerProfileFoundingInfoForm, 
     EmployerProfileContactForm
 )
 
-@login_required
-# @check_employer_access (Assuming you apply this decorator)
+@employer_required
 def employer_profile_setup_step1(request):
-    # redirect_check = check_employer_access(request.user)
-    # if redirect_check: return redirect_check
-    
     profile, created = EmployerProfile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
@@ -35,11 +32,8 @@ def employer_profile_setup_step1(request):
     }
     return render(request, 'employer_profile/employer_profile_step1.html', context)
 
-@login_required
+@employer_required
 def employer_profile_setup_step2(request):
-    # redirect_check = check_employer_access(request.user)
-    # if redirect_check: return redirect_check
-
     profile = get_object_or_404(EmployerProfile, user=request.user)
     
     if request.method == 'POST':
@@ -60,11 +54,8 @@ def employer_profile_setup_step2(request):
     }
     return render(request, 'employer_profile/employer_profile_step2.html', context)
 
-@login_required
+@employer_required
 def employer_profile_setup_step3(request):
-    # redirect_check = check_employer_access(request.user)
-    # if redirect_check: return redirect_check
-
     profile = get_object_or_404(EmployerProfile, user=request.user)
     
     if request.method == 'POST':
@@ -87,7 +78,7 @@ def employer_profile_setup_step3(request):
     return render(request, 'employer_profile/employer_profile_step3.html', context)
 
 
-@login_required
+@employer_required
 def employer_profile_completion(request):
     context = {
         'is_setup_page': True,

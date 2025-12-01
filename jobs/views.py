@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse
+from utils.mixins import applicant_required, employer_required
 from .models import Job, FavoriteJob
 from .forms import JobSearchForm
 from django.db.models import Q
@@ -125,7 +126,7 @@ def job_suggestions(request):
     return JsonResponse(suggestions, safe=False)
 
 
-@login_required
+@applicant_required
 @require_POST
 def toggle_favorite_job(request, job_id):
     from dashboard.forms import FavoriteJobForm
@@ -195,15 +196,9 @@ def toggle_favorite_job(request, job_id):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-@login_required
+@applicant_required
 def applicant_favorite_jobs(request):
     """Display applicant's favorite jobs."""
-    if request.user.user_type != 'applicant':
-        return JsonResponse({
-            'success': False,
-            'error': 'Only applicants can view favorite jobs'
-        }, status=403)
-    
     # Get all favorite jobs for the current applicant
     favorites = FavoriteJob.objects.filter(
         applicant=request.user
@@ -336,7 +331,7 @@ def job_detail(request, job_id):
     return render(request, 'jobs/job_detail.html', context)
 
 
-@login_required
+@applicant_required
 @require_POST
 def apply_job(request, job_id):
     """Handle job application submission with Django validation."""
@@ -428,7 +423,7 @@ def apply_job(request, job_id):
         return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
 
 
-@login_required
+@employer_required
 @require_POST
 def delete_job(request, job_id):
     """Delete a job posting (employer only)."""
@@ -437,13 +432,6 @@ def delete_job(request, job_id):
     
     # Get job
     job = get_object_or_404(Job, id=job_id)
-    
-    # Verify user is employer and owns this job
-    if request.user.user_type != 'employer':
-        return JsonResponse({
-            'success': False,
-            'error': 'Only employers can delete jobs.'
-        }, status=403)
     
     if job.employer != request.user:
         return JsonResponse({
@@ -480,7 +468,7 @@ def delete_job(request, job_id):
         return redirect('jobs:job_detail', job_id=job_id)
 
 
-@login_required
+@employer_required
 @require_POST
 def mark_job_expired(request, job_id):
     """Mark a job as expired (employer only)."""
@@ -489,13 +477,6 @@ def mark_job_expired(request, job_id):
     
     # Get job
     job = get_object_or_404(Job, id=job_id)
-    
-    # Verify user is employer and owns this job
-    if request.user.user_type != 'employer':
-        return JsonResponse({
-            'success': False,
-            'error': 'Only employers can mark jobs as expired.'
-        }, status=403)
     
     if job.employer != request.user:
         return JsonResponse({

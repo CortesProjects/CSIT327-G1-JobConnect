@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from applicant_profile.models import ApplicantProfile
+from utils.mixins import applicant_required
 from .forms import PersonalInfoForm, ProfileDetailsForm, ContactInfoForm
 
-@login_required
+@applicant_required
 def applicant_profile_setup_step1(request):
     profile, created = ApplicantProfile.objects.get_or_create(user=request.user)
     
@@ -22,7 +23,7 @@ def applicant_profile_setup_step1(request):
     }
     return render(request, 'applicant_profile/applicant_profile_step1.html', context)
 
-@login_required
+@applicant_required
 def applicant_profile_setup_step2(request):
     profile = request.user.applicant_profile_rel
     
@@ -43,7 +44,7 @@ def applicant_profile_setup_step2(request):
     }
     return render(request, 'applicant_profile/applicant_profile_step2.html', context)
 
-@login_required
+@applicant_required
 def applicant_profile_setup_step3(request):
     profile = request.user.applicant_profile_rel
 
@@ -64,7 +65,7 @@ def applicant_profile_setup_step3(request):
     }
     return render(request, 'applicant_profile/applicant_profile_step3.html', context)
 
-@login_required
+@applicant_required
 def applicant_profile_setup_complete(request):
     """Displays the final completion page."""
     context = {
