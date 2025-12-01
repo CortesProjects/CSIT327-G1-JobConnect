@@ -1,11 +1,12 @@
-#dashboard/urls.py
+# dashboard/urls.py
 from django.urls import path
 from . import views
 
-app_name = 'dashboard'
+app_name = 'dashboard'   # <-- important: enables {% url 'dashboard:...' %} in templates
 
 urlpatterns = [
     path('', views.dashboard_view, name='dashboard'),
+
     # Applicant URLs
     path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
     path('applicant/applied-jobs/', views.ApplicantAppliedJobsListView.as_view(), name='applicant_applied_jobs'),
@@ -16,20 +17,21 @@ urlpatterns = [
     path('applicant/job-alerts/<int:alert_id>/delete/', views.delete_job_alert, name='delete_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/toggle/', views.toggle_job_alert_status, name='toggle_job_alert_status'),
     path('applicant/settings/', views.applicant_settings, name='applicant_settings'),
+
     # Employer URLs
     path('employer/profile/', views.employer_profile, name='employer_profile'),
     path('employer/profile/<int:employer_id>/', views.public_employer_profile, name='public_employer_profile'),
-    path('employer/settings/', views.employer_settings, name='employer_settings'),
+    path('employer/settings/', views.employer_settings, name='employer_settings'),  # single entry
     path('employer/post-job/', views.employer_post_job, name='employer_post_job'),
     path('employer/edit-job/<int:job_id>/', views.employer_edit_job, name='employer_edit_job'),
     path('employer/my-jobs/', views.EmployerJobListView.as_view(), name='employer_my_jobs'),
-    path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/job-applications/<int:job_id>/', views.employer_job_applications, name='employer_job_applications'),
     path('employer/move-application/<int:application_id>/', views.move_application_stage, name='move_application_stage'),
     path('employer/candidate-detail/<int:application_id>/', views.employer_candidate_detail, name='employer_candidate_detail'),
     path('employer/hire-candidate/<int:application_id>/', views.hire_candidate, name='hire_candidate'),
     path('employer/toggle-save-candidate/<int:application_id>/', views.toggle_save_candidate, name='toggle_save_candidate'),
     path('employer/saved-candidates/', views.employer_saved_candidates, name='employer_saved_candidates'),
+
     # Admin URLs
     path('admin/dashboards', views.admin_dashboards, name='admin_dashboards'),
     path('admin/total-employers-verified', views.admin_total_employers_verified, name='admin_total_employers_verified'),
