@@ -57,7 +57,10 @@
             </span>
 
             <span class="status active"><i class="fas fa-circle"></i> {{ job.status }}</span>
-            <button class="view-btn">View Details <i class="fas fa-arrow-right"></i></button>
+            <a href="{% url 'dashboard:admin_job_detail' job.id %}" class="view-btn">
+                View Details <i class="fas fa-arrow-right"></i>
+            </a>
+
           </div>
         </div>
         <!-- Reusable Job Card End -->
