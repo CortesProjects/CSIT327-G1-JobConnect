@@ -1560,13 +1560,13 @@ def admin_dashboards(request):
     total_applicants = User.objects.filter(user_type='applicant').count()
     
     # Optional: count active job postings if needed
-    # total_job_postings = JobPosting.objects.filter(is_active=True).count()
+    total_job_postings = Job.objects.filter(status='active').count()
 
     context = {
         'total_verified_employers': total_verified_employers,
         'total_unverified_employers': total_unverified_employers,
         'total_applicants': total_applicants,
-        # 'total_job_postings': total_job_postings,
+        'total_job_postings': total_job_postings,
     }
     return render(request, 'dashboard/admin/admin_dashboards.html', context)
 
@@ -1686,6 +1686,21 @@ def admin_job_postings(request):
         'active_jobs': active_jobs
     }
     return render(request, "dashboard/admin/admin_job_postings.html", context)
+
+@login_required
+def admin_job_detail(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    
+    # Only admins can access
+    if not request.user.is_staff:
+        return redirect('accounts:login')
+
+    context = {
+        'job': job,
+        'can_edit_job': True,  # or your logic
+    }
+    return render(request, "dashboard/admin/admin_job_detail.html", context)
+
 #------------------------------------------
 #          Admin Stuff Ends Here
 # -----------------------------------------
