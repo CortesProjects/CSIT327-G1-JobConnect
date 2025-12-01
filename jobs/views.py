@@ -103,6 +103,18 @@ def job_search(request):
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
 
+        # SORTING
+        sort = request.GET.get("sort", "recent")
+
+        if sort == "salary_high":
+            jobs = jobs.order_by("-max_salary", "-min_salary")
+
+        elif sort == "salary_low":
+            jobs = jobs.order_by("min_salary", "max_salary")
+
+        else:  # default
+            jobs = jobs.order_by("-posted_at")
+
     context = {
         "jobs": jobs,
         "query": query,
@@ -117,6 +129,7 @@ def job_search(request):
         "experiences": all_experiences,
         "job_levels": all_job_levels,
         "locations": all_locations,
+        "sort": sort,
 
         # Persist selected values (note: still strings — template compares with stringformat)
         "selected_job_types": job_types,

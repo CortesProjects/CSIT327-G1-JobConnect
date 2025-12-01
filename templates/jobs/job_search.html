@@ -30,7 +30,12 @@
       <label class="sort-label">Sort by:</label>
       <select name="sort" class="sort-select" onchange="location.search = updateQueryStringParameter(location.search, 'sort', this.value)">
         <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most Recent</option>
-        <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Most Relevant</option>
+        <option value="salary_low" {% if sort == 'salary_low' %}selected{% endif %}>
+        Salary: Low to High
+        </option>
+        <option value="salary_high" {% if sort == 'salary_high' %}selected{% endif %}>
+        Salary: High to Low
+      </option>
       </select>
     </div>
   </div>
