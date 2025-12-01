@@ -11,7 +11,6 @@
 <div class="my-jobs-container">
     <div class="page-header">
         <h1 class="page-title">My Jobs <span class="job-count">({{ total_jobs }})</span></h1>
-        {% if has_jobs %}
         <div class="header-actions">
             <div class="filter-group">
                 <label for="job-status">Job status</label>
@@ -19,15 +18,13 @@
                     <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Jobs</option>
                     <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
                     <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
-                    <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
                 </select>
             </div>
         </div>
-        {% endif %}
     </div>
 
     <div class="recently-posted-jobs {% if not has_jobs %}empty{% endif %}">
-        {% include 'jobs/employer_job_table.html' with jobs=all_jobs %}
+        {% include 'jobs/employer_job_table.html' with jobs=all_jobs status_filter=status_filter %}
     </div>
 </div>
 
