@@ -65,7 +65,7 @@ def admin_required(view_func):
     @wraps(view_func)
     @login_required
     def wrapped_view(request, *args, **kwargs):
-        if not (request.user.is_staff or request.user.user_type == 'ADMIN'):
+        if not (request.user.is_staff or request.user.user_type == 'admin'):
             messages.error(request, 'Access denied. Admin privileges required.')
             return redirect('dashboard:dashboard')
         return view_func(request, *args, **kwargs)
@@ -114,7 +114,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = reverse_lazy('accounts:login')
     
     def test_func(self):
-        return self.request.user.is_staff or self.request.user.user_type == 'ADMIN'
+        return self.request.user.is_staff or self.request.user.user_type == 'admin'
     
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
