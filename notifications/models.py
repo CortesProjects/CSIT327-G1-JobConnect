@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from utils.managers import NotificationManager
 
 
 class Notification(models.Model):
@@ -66,6 +67,9 @@ class Notification(models.Model):
         blank=True,
         help_text="ID of related application (if applicable)"
     )
+    
+    # Custom manager with chainable queryset methods
+    objects = NotificationManager()
     
     class Meta:
         ordering = ['-created_at']

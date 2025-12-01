@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.text import slugify
 from datetime import date
+from utils.managers import JobManager
 
 
 class JobCategory(models.Model):
@@ -243,6 +244,9 @@ class Job(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     posted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Custom manager with chainable queryset methods
+    objects = JobManager()
     
     class Meta:
         ordering = ['-posted_at']
