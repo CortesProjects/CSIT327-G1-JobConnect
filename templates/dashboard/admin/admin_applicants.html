@@ -36,9 +36,9 @@
             </div>
             <div class="applicant-right">
               <i class="far fa-bookmark save-icon"></i>
-              <button class="view-btn">
-                View Profile <i class="fas fa-arrow-right"></i>
-              </button>
+              <a href="{% url 'dashboard:admin_applicant_detail' applicant.id %}" class="view-btn">
+                  View Profile <i class="fas fa-arrow-right"></i>
+              </a>
             </div>
           </div>
 
