@@ -1,0 +1,288 @@
+{% extends 'dashboard/admin/admin_dashboard_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/admin/admin_candidate_detail.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="candidate-detail-container">
+    <!-- Close Button -->
+    {% comment %} If the page was opened from saved candidates, return there. Use GET param `from_page=saved`. {% endcomment %}
+    {% if request.GET.from_page == 'saved' %}
+        <button class="btn-close" data-redirect="{% url 'dashboard:employer_saved_candidates' %}">
+            <i class="fas fa-times"></i>
+        </button>
+    {% else %}
+        <button class="btn-close" data-redirect="{% url 'dashboard:admin_applicants' %}">
+            <i class="fas fa-times"></i>
+        </button>
+    {% endif %}
+
+    <!-- Candidate Header -->
+    <div class="candidate-header">
+        <div class="candidate-main-info">
+            <div class="candidate-avatar">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" alt="{{ profile.full_name }}">
+                {% else %}
+                    <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ profile.full_name }}">
+                {% endif %}
+            </div>
+            <div class="candidate-details">
+                <h1 class="candidate-name">{{ profile.full_name|default:applicant.email }}</h1>
+                <p class="candidate-title">{{ profile.title|default:"Job Seeker" }}</p>
+            </div>
+        </div>
+
+    <!-- Candidate Content -->
+    <div class="candidate-content">
+        <!-- Left Column - Main Info -->
+        <div class="content-main">
+            <!-- Biography Section -->
+            <section class="content-section">
+                <h2 class="section-title">BIOGRAPHY</h2>
+                <div class="section-content">
+                    {% if profile.biography %}
+                        {{ profile.biography|linebreaks }}
+                    {% else %}
+                        <p class="text-muted">No biography provided.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Cover Letter Section -->
+            <section class="content-section">
+                <h2 class="section-title">COVER LETTER</h2>
+                <div class="section-content">
+                    {% if application.applicant_notes %}
+                        {{ application.applicant_notes|linebreaks }}
+                    {% else %}
+                        <p class="text-muted">No cover letter provided with this application.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Social Media Section -->
+            {% if social_links %}
+            <section class="content-section">
+                <h2 class="section-title">Follow on Social Media</h2>
+                <div class="social-media-links">
+                    {% for link in social_links %}
+                        <a href="{{ link.url }}" target="_blank" class="social-link {{ link.platform }}">
+                            {% if link.platform == 'facebook' %}
+                                <i class="fab fa-facebook-f"></i>
+                            {% elif link.platform == 'twitter' %}
+                                <i class="fab fa-twitter"></i>
+                            {% elif link.platform == 'linkedin' %}
+                                <i class="fab fa-linkedin-in"></i>
+                            {% elif link.platform == 'instagram' %}
+                                <i class="fab fa-instagram"></i>
+                            {% elif link.platform == 'github' %}
+                                <i class="fab fa-github"></i>
+                            {% elif link.platform == 'youtube' %}
+                                <i class="fab fa-youtube"></i>
+                            {% elif link.platform == 'website' %}
+                                <i class="fas fa-globe"></i>
+                            {% elif link.platform == 'portfolio' %}
+                                <i class="fas fa-briefcase"></i>
+                            {% else %}
+                                <i class="fas fa-link"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+        <!-- Right Column - Sidebar Info -->
+        <div class="content-sidebar">
+            <!-- Contact Information -->
+            <div class="info-card">
+                {% if profile.date_of_birth %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">DATE OF BIRTH</div>
+                        <div class="info-value">{{ profile.date_of_birth|date:"d F, Y" }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.nationality %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">NATIONALITY</div>
+                        <div class="info-value">{{ profile.nationality }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.marital_status %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-venus-mars"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">MARITAL STATUS</div>
+                        <div class="info-value">{{ profile.get_marital_status_display }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.gender %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-{% if profile.gender == 'male' %}mars{% elif profile.gender == 'female' %}venus{% else %}genderless{% endif %}"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">GENDER</div>
+                        <div class="info-value">{{ profile.get_gender_display }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.experience %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EXPERIENCE</div>
+                        <div class="info-value">{{ profile.experience }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.education_level %}
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EDUCATION</div>
+                        <div class="info-value">{{ profile.get_education_level_display }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Location -->
+            {% if profile.location %}
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">LOCATION</div>
+                        <div class="info-value">{{ profile.location_city|default:"" }}{% if profile.location_city and profile.location_country %}, {% endif %}{{ profile.location_country|default:"" }}</div>
+                        {% if profile.location_street %}
+                        <div class="info-subtext">{{ profile.location_street }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Contact Info -->
+            {% if profile.contact_number %}
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">PHONE</div>
+                        <div class="info-value">{{ profile.contact_number }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Email -->
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-label">EMAIL ADDRESS</div>
+                        <div class="info-value">
+                            <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Resume -->
+            {% if profile.resume %}
+            <div class="download-section">
+                <h3 class="download-title">Download Resume</h3>
+                <a href="{{ profile.resume.url }}" target="_blank" class="btn-download-resume" style="text-decoration: none;">
+                    <div class="resume-info">
+                        <i class="fas fa-file-{% if profile.resume.url|slice:'-4:' == '.pdf' %}pdf{% else %}alt{% endif %}"></i>
+                        <div>
+                            <div class="resume-name">{{ profile.full_name|default:"Resume" }}</div>
+                            <div class="resume-format">{{ profile.resume.url|slice:"-3:"|upper }}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-download"></i>
+                </a>
+            </div>
+            {% else %}
+            <div class="download-section">
+                <h3 class="download-title">Download Resume</h3>
+                <div class="text-muted text-center py-3">
+                    <i class="fas fa-file-slash"></i>
+                    <p>No resume uploaded</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Hire Confirmation Modal -->
+<div class="modal-overlay" id="hireModal">
+    <div class="modal-container modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">Hire Candidate</h3>
+            <button class="btn-close-modal" onclick="closeHireModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openHireModal() {
+    const modal = document.getElementById('hireModal');
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+}
+
+function closeHireModal() {
+    const modal = document.getElementById('hireModal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+}
+
+// Update hire button to open modal (only if not hired)
+document.addEventListener('DOMContentLoaded', function() {
+    const hireBtn = document.querySelector('.btn-hire:not(.hired)');
+    if (hireBtn) {
+        hireBtn.addEventListener('click', openHireModal);
+    }
+});
+</script>
+
+<script src="{% static 'js/dashboard/employer/employer_candidate_detail.js' %}"></script>
+{% endblock %}
