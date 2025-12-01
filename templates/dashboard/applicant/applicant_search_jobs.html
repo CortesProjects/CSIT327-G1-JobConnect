@@ -194,15 +194,37 @@
             </table>
 
             <!-- Pagination -->
-            {% if jobs.count > 10 %}
-            <div class="pagination">
-                <button class="page-btn prev"><i class="fas fa-chevron-left"></i></button>
-                <span class="page-numbers">
-                    <button class="page-btn active">1</button>
-                    <button class="page-btn">2</button>
-                    <button class="page-btn">3</button>
+            {% if page_obj.has_other_pages %}
+            <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+                {% if page_obj.has_previous %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="page-btn prev" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% else %}
+                <span class="page-btn prev disabled" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px; color: #ccc;">
+                    <i class="fas fa-chevron-left"></i>
                 </span>
-                <button class="page-btn next"><i class="fas fa-chevron-right"></i></button>
+                {% endif %}
+                
+                <span class="page-numbers" style="display: flex; gap: 0.25rem;">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="page-btn active" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #007bff; background: #007bff; color: white; border-radius: 4px;">{{ num }}</a>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="page-btn" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </span>
+                
+                {% if page_obj.has_next %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="page-btn next" style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <span class="page-btn next disabled" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 4px; color: #ccc;">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+                {% endif %}
             </div>
             {% endif %}
 
