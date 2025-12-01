@@ -21,8 +21,16 @@ def job_search(request):
     salary_min = request.GET.get("salary_min")
     salary_max = request.GET.get("salary_max")
 
-    # Start with all jobs
-    jobs = Job.objects.all()
+    # Start with all jobs with optimized queries
+    jobs = Job.objects.select_related(
+        'employer',
+        'category',
+        'job_type',
+        'education',
+        'experience',
+        'job_level',
+        'salary_type'
+    ).all()
 
     # 🔍 Keyword search
     if query:
