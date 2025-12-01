@@ -1725,7 +1725,7 @@ class EmployerJobListView(EmployerRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Job.objects.filter(employer=self.request.user).order_by('-created_at')
+        queryset = Job.objects.filter(employer=self.request.user).order_by('-posted_at')
         status_filter = self.request.GET.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
@@ -1751,7 +1751,7 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Job.objects.filter(status='active').order_by('-created_at')
+        queryset = Job.objects.filter(status='active').order_by('-posted_at')
         
         # Search keyword
         keyword = self.request.GET.get('keyword', '').strip()
@@ -1835,7 +1835,7 @@ class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
         favorite_job_ids = FavoriteJob.objects.filter(
             user=self.request.user
         ).values_list('job_id', flat=True)
-        return Job.objects.filter(id__in=favorite_job_ids).order_by('-created_at')
+        return Job.objects.filter(id__in=favorite_job_ids).order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
