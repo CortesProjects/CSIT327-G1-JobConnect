@@ -8,8 +8,7 @@ urlpatterns = [
     path('', views.dashboard_view, name='dashboard'),
     # Applicant URLs
     path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
-    path('applicant/applied-jobs/', views.applicant_applied_jobs, name='applicant_applied_jobs'),
-    path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
+    path('applicant/applied-jobs/', views.ApplicantAppliedJobsListView.as_view(), name='applicant_applied_jobs'),
     path('applicant/favorite-jobs/', views.ApplicantFavoriteJobsView.as_view(), name='applicant_favorite_jobs'),
     path('applicant/job-alerts/', views.applicant_job_alerts, name='applicant_job_alerts'),
     path('applicant/job-alerts/create/', views.create_job_alert, name='create_job_alert'),
