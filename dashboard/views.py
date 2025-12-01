@@ -9,7 +9,7 @@ from django.utils import timezone
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
 from accounts.models import User, UserSocialLink, UserVerification
 from applicant_profile.models import ApplicantProfile
-from jobs.models import Job
+from jobs.models import Job, JobApplication
 from .forms import (
     ApplicantPersonalInfoForm, 
     ApplicantProfileDetailsForm,
@@ -1658,6 +1658,24 @@ def admin_applicants(request):
     applicants = User.objects.filter(user_type='applicant')
     context = {'applicants': applicants}
     return render(request, 'dashboard/admin/admin_applicants.html', context)
+
+@login_required
+def admin_applicant_detail(request, applicant_id):
+    applicant = get_object_or_404(User, id=applicant_id, user_type='applicant')
+    profile = getattr(applicant, 'applicant_profile_rel', None)
+    application = JobApplication.objects.filter(applicant=applicant).last()
+    social_links = UserSocialLink.objects.filter(user=applicant)
+    is_saved = False
+    
+    context = {
+        'applicant': applicant,
+        'profile': profile,
+        'application': application,
+        'social_links': social_links,
+        'is_saved': is_saved,
+    }
+    
+    return render(request, 'dashboard/admin/admin_candidate_detail.html', context)
 
 @login_required
 def admin_job_postings(request):
