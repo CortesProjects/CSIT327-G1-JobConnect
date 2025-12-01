@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'storages',
     'jobs',
     'notifications',
+    'django.contrib.humanize',
 ]
 
 AWS_ACCESS_KEY_ID = os.getenv('SUPABASE_S3_ACCESS_KEY')

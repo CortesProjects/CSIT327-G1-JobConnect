@@ -10,17 +10,24 @@ from django.db.models import Q
 from notifications.utils import notify_application_received
 
 def job_search(request):
+    from decimal import Decimal, InvalidOperation
+    from .models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
 
     # GET parameters
-    query = request.GET.get("query", "")
-    location = request.GET.get("location", "")
-    job_types = request.GET.getlist("job_type")     # Multiple checkboxes
-    categories = request.GET.getlist("category")    # Multi-select (job categories)
-    educations = request.GET.getlist("education")  # Multi-select
-    experiences = request.GET.getlist("experience")
-    job_levels = request.GET.getlist("job_level")
-    salary_min = request.GET.get("salary_min")
-    salary_max = request.GET.get("salary_max")
+    query = request.GET.get("query", "").strip()
+    location = request.GET.get("location", "").strip()
+
+    # Some filters come as single-select (single value) and some as multi (getlist).
+    # We use getlist() for everything that could be multiple, then sanitize (remove empty strings).
+    job_types = [v for v in request.GET.getlist("job_type") if v != ""]
+    categories = [v for v in request.GET.getlist("category") if v != ""]
+    educations = [v for v in request.GET.getlist("education") if v != ""]
+    experiences = [v for v in request.GET.getlist("experience") if v != ""]
+    job_levels = [v for v in request.GET.getlist("job_level") if v != ""]
+
+    # For the salary inputs the template uses names salary_min / salary_max
+    salary_min_raw = request.GET.get("salary_min", "").strip()
+    salary_max_raw = request.GET.get("salary_max", "").strip()
 
     # Start with all jobs with optimized queries
     jobs = Job.objects.select_related(
@@ -44,11 +51,11 @@ def job_search(request):
     if location:
         jobs = jobs.filter(location__icontains=location)
 
-    # 🧩 Job type (checkbox)
+    # 🧩 Job type (checkbox or single-select)
     if job_types:
         jobs = jobs.filter(job_type_id__in=job_types)
 
-    # 🧩 Job category (replaces job_role)
+    # 🧩 Job category
     if categories:
         jobs = jobs.filter(category_id__in=categories)
 
@@ -64,16 +71,24 @@ def job_search(request):
     if job_levels:
         jobs = jobs.filter(job_level_id__in=job_levels)
 
-    # 💰 Salary filter
-    if salary_min:
-        jobs = jobs.filter(salary_min__gte=salary_min)
+    # 💰 Salary filter (use actual model fields min_salary / max_salary,
+    # parse to Decimal safely)
+    if salary_min_raw:
+        try:
+            salary_min_val = Decimal(salary_min_raw)
+            jobs = jobs.filter(min_salary__gte=salary_min_val)
+        except (InvalidOperation, ValueError):
+            # ignore invalid numeric input
+            pass
 
-    if salary_max:
-        jobs = jobs.filter(salary_max__lte=salary_max)
+    if salary_max_raw:
+        try:
+            salary_max_val = Decimal(salary_max_raw)
+            jobs = jobs.filter(max_salary__lte=salary_max_val)
+        except (InvalidOperation, ValueError):
+            pass
 
     # DYNAMIC FILTER VALUES (from lookup tables)
-    from .models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
-    
     all_job_types = EmploymentType.objects.filter(is_active=True)
     all_categories = JobCategory.objects.filter(is_active=True)
     all_educations = EducationLevel.objects.filter(is_active=True)
@@ -83,7 +98,7 @@ def job_search(request):
 
     # Get favorited job IDs for logged-in applicants
     favorited_job_ids = []
-    if request.user.is_authenticated and request.user.user_type == 'applicant':
+    if request.user.is_authenticated and getattr(request.user, "user_type", "") == 'applicant':
         favorited_job_ids = list(
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
@@ -92,24 +107,24 @@ def job_search(request):
         "jobs": jobs,
         "query": query,
         "location": location,
-        "salary_min": salary_min,
-        "salary_max": salary_max,
+        "salary_min": salary_min_raw,
+        "salary_max": salary_max_raw,
 
         # Dynamic filters
         "job_types": all_job_types,
-        "categories": all_categories,  # Renamed from job_roles
+        "categories": all_categories,
         "educations": all_educations,
         "experiences": all_experiences,
         "job_levels": all_job_levels,
         "locations": all_locations,
 
-        # Persist selected values
+        # Persist selected values (note: still strings — template compares with stringformat)
         "selected_job_types": job_types,
-        "selected_categories": categories,  # Renamed from selected_job_roles
+        "selected_categories": categories,
         "selected_educations": educations,
         "selected_experiences": experiences,
         "selected_job_levels": job_levels,
-        
+
         # Favorite status
         "favorited_job_ids": favorited_job_ids,
     }
