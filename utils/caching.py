@@ -54,14 +54,15 @@ def cache_result(timeout=300, key_prefix='default'):
 @cache_result(timeout=900, key_prefix='popular_categories')
 def get_popular_categories(limit=8):
     """
-    Get popular job categories with job counts.
+    Get popular job categories with job counts (only active jobs).
     Cached for 15 minutes.
     """
     from jobs.models import JobCategory
+    from django.db.models import Q
     
     return list(
         JobCategory.objects.annotate(
-            job_count=Count('jobs')
+            job_count=Count('jobs', filter=Q(jobs__status='active'))
         ).filter(
             job_count__gt=0,
             is_active=True
@@ -89,7 +90,8 @@ def get_featured_jobs(limit=3):
 @cache_result(timeout=300, key_prefix='site_stats')
 def get_site_statistics():
     """
-    Get site-wide statistics (job counts, user counts).
+    Get site-wide statistics (active job counts, user counts).
+    Both live_jobs_count and total_jobs_count show only active jobs.
     Cached for 5 minutes.
     """
     from jobs.models import Job
@@ -97,9 +99,11 @@ def get_site_statistics():
     
     User = get_user_model()
     
+    active_jobs = Job.objects.filter(status='active')
+    
     return {
-        'live_jobs_count': Job.objects.filter(status='active').count(),
-        'total_jobs_count': Job.objects.count(),
+        'live_jobs_count': active_jobs.count(),
+        'total_jobs_count': active_jobs.count(),  # Show only active jobs
         'companies_count': User.objects.filter(user_type='employer').count(),
         'candidates_count': User.objects.filter(user_type='applicant').count(),
     }
