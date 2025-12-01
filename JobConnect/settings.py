@@ -109,6 +109,35 @@ DATABASES = {
 
 DATABASES['default']['CONN_MAX_AGE'] = 0
 
+# Cache configuration
+# Use Redis in production, local-memory cache in development
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
+# For production with Redis, use this configuration:
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+#         'KEY_PREFIX': 'jobconnect',
+#         'TIMEOUT': 300,  # 5 minutes default timeout
+#     }
+# }
+
+# Cache timeout settings
+CACHE_TTL = 60 * 15  # 15 minutes default
+CACHE_TTL_LONG = 60 * 60 * 24  # 24 hours for rarely-changing data
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
