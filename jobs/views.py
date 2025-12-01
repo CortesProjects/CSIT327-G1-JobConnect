@@ -6,8 +6,9 @@ from django.urls import reverse
 from utils.mixins import applicant_required, employer_required
 from .models import Job, FavoriteJob
 from .forms import JobSearchForm
-from django.db.models import Q
+from django.db.models import Q, Value, DecimalField
 from notifications.utils import notify_application_received
+from django.db.models.functions import Coalesce
 
 def job_search(request):
     from decimal import Decimal, InvalidOperation
@@ -28,6 +29,8 @@ def job_search(request):
     # For the salary inputs the template uses names salary_min / salary_max
     salary_min_raw = request.GET.get("salary_min", "").strip()
     salary_max_raw = request.GET.get("salary_max", "").strip()
+
+    sort = request.GET.get("sort", "recent")
 
     # Start with all jobs with optimized queries
     jobs = Job.objects.select_related(
@@ -103,17 +106,20 @@ def job_search(request):
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
 
-        # SORTING
-        sort = request.GET.get("sort", "recent")
+    # --- Sorting (minimal insert) ---
+    # sorts: 'recent' (default), 'salary_low', 'salary_high'
+    if sort == "salary_low":
+        jobs = jobs.annotate(
+            sort_salary=Coalesce('min_salary', 'max_salary', Value(0, output_field=DecimalField()))
+        ).order_by('sort_salary', '-posted_at')
+    elif sort == "salary_high":
+        jobs = jobs.annotate(
+            sort_salary=Coalesce('max_salary', 'min_salary', Value(0, output_field=DecimalField()))
+        ).order_by('-sort_salary', '-posted_at')
+    else:
+        jobs = jobs.order_by('-posted_at')
+    # --- end sorting ---
 
-        if sort == "salary_high":
-            jobs = jobs.order_by("-max_salary", "-min_salary")
-
-        elif sort == "salary_low":
-            jobs = jobs.order_by("min_salary", "max_salary")
-
-        else:  # default
-            jobs = jobs.order_by("-posted_at")
 
     context = {
         "jobs": jobs,
