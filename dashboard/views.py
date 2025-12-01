@@ -6,10 +6,14 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
+from django.views.generic import ListView
+from django.db.models import Q
+from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
 from accounts.models import User, UserSocialLink, UserVerification
 from applicant_profile.models import ApplicantProfile
 from jobs.models import Job, JobApplication
+from utils.mixins import EmployerRequiredMixin, ApplicantRequiredMixin
 from .forms import (
     ApplicantPersonalInfoForm, 
     ApplicantProfileDetailsForm,
@@ -1725,3 +1729,136 @@ def admin_job_detail(request, job_id):
 #------------------------------------------
 #          Admin Stuff Ends Here
 # -----------------------------------------
+
+
+#------------------------------------------
+#          Class-Based Views
+# -----------------------------------------
+
+class EmployerJobListView(EmployerRequiredMixin, ListView):
+    """
+    Displays list of jobs posted by the current employer.
+    Allows filtering by job status (active, expired, draft).
+    """
+    model = Job
+    template_name = 'dashboard/employer/employer_my_jobs.html'
+    context_object_name = 'jobs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Job.objects.filter(employer=self.request.user).order_by('-posted_at')
+        status_filter = self.request.GET.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_filter'] = self.request.GET.get('status', '')
+        context['total_jobs'] = Job.objects.filter(employer=self.request.user).count()
+        context['active_jobs'] = Job.objects.filter(employer=self.request.user, status='active').count()
+        context['expired_jobs'] = Job.objects.filter(employer=self.request.user, status='expired').count()
+        return context
+
+
+class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
+    """
+    Advanced job search view for applicants.
+    Supports filtering by keyword, location, salary, job type, experience level, and category.
+    """
+    model = Job
+    template_name = 'dashboard/applicant/applicant_search_jobs.html'
+    context_object_name = 'jobs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Job.objects.filter(status='active').order_by('-posted_at')
+        
+        # Search keyword
+        keyword = self.request.GET.get('keyword', '').strip()
+        if keyword:
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) |
+                Q(description__icontains=keyword) |
+                Q(requirements__icontains=keyword)
+            )
+        
+        # Location filter
+        location = self.request.GET.get('location', '').strip()
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        
+        # Salary range filter
+        min_salary = self.request.GET.get('min_salary', '').strip()
+        max_salary = self.request.GET.get('max_salary', '').strip()
+        if min_salary:
+            try:
+                queryset = queryset.filter(salary_min__gte=int(min_salary))
+            except ValueError:
+                pass
+        if max_salary:
+            try:
+                queryset = queryset.filter(salary_max__lte=int(max_salary))
+            except ValueError:
+                pass
+        
+        # Job type filter
+        job_type = self.request.GET.get('job_type', '').strip()
+        if job_type:
+            queryset = queryset.filter(job_type=job_type)
+        
+        # Experience level filter
+        experience_level = self.request.GET.get('experience_level', '').strip()
+        if experience_level:
+            queryset = queryset.filter(experience_level=experience_level)
+        
+        # Category filter
+        category = self.request.GET.get('category', '').strip()
+        if category:
+            queryset = queryset.filter(category=category)
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Pass filter values back to template
+        context['keyword'] = self.request.GET.get('keyword', '')
+        context['location'] = self.request.GET.get('location', '')
+        context['min_salary'] = self.request.GET.get('min_salary', '')
+        context['max_salary'] = self.request.GET.get('max_salary', '')
+        context['job_type'] = self.request.GET.get('job_type', '')
+        context['experience_level'] = self.request.GET.get('experience_level', '')
+        context['category'] = self.request.GET.get('category', '')
+        
+        # Job type choices for filter dropdown
+        context['job_types'] = Job.JOB_TYPE_CHOICES
+        context['experience_levels'] = Job.EXPERIENCE_LEVEL_CHOICES
+        context['categories'] = Job.CATEGORY_CHOICES
+        
+        # Count results
+        context['total_results'] = self.get_queryset().count()
+        
+        return context
+
+
+class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
+    """
+    Displays jobs favorited by the current applicant.
+    """
+    model = Job
+    template_name = 'dashboard/applicant/applicant_favorite_jobs.html'
+    context_object_name = 'jobs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        from jobs.models import FavoriteJob
+        favorite_job_ids = FavoriteJob.objects.filter(
+            user=self.request.user
+        ).values_list('job_id', flat=True)
+        return Job.objects.filter(id__in=favorite_job_ids).order_by('-posted_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_favorites'] = self.get_queryset().count()
+        return context
