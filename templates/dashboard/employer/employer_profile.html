@@ -16,7 +16,7 @@
         </a>
     </div>
     {% endif %}
-    
+
     <!-- Banner Section with Company Logo -->
     <div class="profile-banner-section">
         <div class="banner-image-wrapper">
@@ -26,7 +26,7 @@
                 <div class="banner-placeholder"></div>
             {% endif %}
         </div>
-        
+
         <div class="company-header-info">
             <div class="company-logo-container">
                 {% if profile and profile.company_profile_image %}
@@ -37,11 +37,12 @@
                     </div>
                 {% endif %}
             </div>
-            
+
             <div class="company-title-section">
                 <h1 class="company-name">{{ profile.company_name|default:"Company Name" }}</h1>
                 <p class="company-industry">{{ profile.get_industry_type_display|default:"Information Technology (IT)" }}</p>
             </div>
+
             {% if is_owner %}
                 <a href="{% url 'dashboard:employer_settings' %}" class="edit-btn btn btn-primary">Edit Profile</a>
             {% endif %}
@@ -50,9 +51,10 @@
 
     <!-- Main Content Grid -->
     <div class="profile-content-wrapper">
-        <!-- Left Column - About and Benefits -->
+        <!-- LEFT COLUMN -->
         <div class="profile-main-column">
-            <!-- About Us Section -->
+
+            <!-- About Us -->
             <section class="profile-card">
                 <h2 class="section-title">About Us</h2>
                 <div class="section-content">
@@ -64,7 +66,7 @@
                 </div>
             </section>
 
-            <!-- Company Benefits Section -->
+            <!-- Company Benefits -->
             {% if profile and profile.company_vision %}
             <section class="profile-card">
                 <h2 class="section-title">Company Benefits</h2>
@@ -74,7 +76,7 @@
             </section>
             {% endif %}
 
-            <!-- Company Vision Section -->
+            <!-- Company Vision -->
             <section class="profile-card">
                 <h2 class="section-title">Company Vision</h2>
                 <div class="section-content">
@@ -86,7 +88,7 @@
                 </div>
             </section>
 
-            <!-- Recent Jobs Section -->
+            <!-- Recent Jobs -->
             {% if recent_jobs %}
             <section class="profile-card">
                 <h2 class="section-title">Recent Job Posts</h2>
@@ -104,7 +106,7 @@
                             <h3 class="job-card-title">{{ job.title }}</h3>
                             <div class="job-card-meta">
                                 <span><i class="fas fa-briefcase"></i> {{ job.job_type.name|default:"Full Time" }}</span>
-                                <span><i class="fas fa-dollar-sign"></i> 
+                                <span><i class="fas fa-dollar-sign"></i>
                                     {% if job.min_salary and job.max_salary %}
                                         ${{ job.min_salary|floatformat:0 }}-${{ job.max_salary|floatformat:0 }}
                                     {% else %}
@@ -124,15 +126,15 @@
             {% endif %}
         </div>
 
-        <!-- Right Sidebar - Contact & Stats -->
+        <!-- RIGHT SIDEBAR -->
         <div class="profile-sidebar-column">
+
             <!-- Company Stats -->
             <div class="stats-card">
-                {% if profile and profile.year_established %}
+
+                {% if profile.year_established %}
                 <div class="stat-item">
-                    <div class="stat-icon founded">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
+                    <div class="stat-icon founded"><i class="fas fa-calendar-alt"></i></div>
                     <div class="stat-details">
                         <p class="stat-label">FOUNDED IN</p>
                         <p class="stat-value">{{ profile.year_established|date:"d F, Y" }}</p>
@@ -140,11 +142,9 @@
                 </div>
                 {% endif %}
 
-                {% if profile and profile.organization_type %}
+                {% if profile.organization_type %}
                 <div class="stat-item">
-                    <div class="stat-icon org-type">
-                        <i class="fas fa-building"></i>
-                    </div>
+                    <div class="stat-icon org-type"><i class="fas fa-building"></i></div>
                     <div class="stat-details">
                         <p class="stat-label">ORGANIZATION TYPE</p>
                         <p class="stat-value">{{ profile.get_organization_type_display }}</p>
@@ -152,11 +152,9 @@
                 </div>
                 {% endif %}
 
-                {% if profile and profile.team_size %}
+                {% if profile.team_size %}
                 <div class="stat-item">
-                    <div class="stat-icon team-size">
-                        <i class="fas fa-users"></i>
-                    </div>
+                    <div class="stat-icon team-size"><i class="fas fa-users"></i></div>
                     <div class="stat-details">
                         <p class="stat-label">TEAM SIZE</p>
                         <p class="stat-value">{{ profile.get_team_size_display }}</p>
@@ -164,11 +162,9 @@
                 </div>
                 {% endif %}
 
-                {% if profile and profile.industry_type %}
+                {% if profile.industry_type %}
                 <div class="stat-item">
-                    <div class="stat-icon industry">
-                        <i class="fas fa-industry"></i>
-                    </div>
+                    <div class="stat-icon industry"><i class="fas fa-industry"></i></div>
                     <div class="stat-details">
                         <p class="stat-label">INDUSTRY TYPES</p>
                         <p class="stat-value">{{ profile.get_industry_type_display }}</p>
@@ -180,24 +176,22 @@
             <!-- Contact Information -->
             <div class="contact-info-card">
                 <h3 class="contact-title">Contact Information</h3>
-                
-                {% if profile and profile.company_website %}
+
+                {% if profile.company_website %}
                 <div class="contact-item">
-                    <div class="contact-icon website">
-                        <i class="fas fa-globe"></i>
-                    </div>
+                    <div class="contact-icon website"><i class="fas fa-globe"></i></div>
                     <div class="contact-details">
                         <p class="contact-label">WEBSITE</p>
-                        <a href="{{ profile.company_website }}" target="_blank" class="contact-value-link">{{ profile.company_website }}</a>
+                        <a href="{{ profile.company_website }}" target="_blank" class="contact-value-link">
+                            {{ profile.company_website }}
+                        </a>
                     </div>
                 </div>
                 {% endif %}
 
-                {% if profile and profile.contact_phone_number %}
+                {% if profile.contact_phone_number %}
                 <div class="contact-item">
-                    <div class="contact-icon phone">
-                        <i class="fas fa-phone"></i>
-                    </div>
+                    <div class="contact-icon phone"><i class="fas fa-phone"></i></div>
                     <div class="contact-details">
                         <p class="contact-label">PHONE</p>
                         <p class="contact-value">{{ profile.contact_phone_number }}</p>
@@ -205,16 +199,45 @@
                 </div>
                 {% endif %}
 
-                {% if profile and profile.contact_email %}
+                {% if profile.contact_email %}
                 <div class="contact-item">
-                    <div class="contact-icon email">
-                        <i class="fas fa-envelope"></i>
-                    </div>
+                    <div class="contact-icon email"><i class="fas fa-envelope"></i></div>
                     <div class="contact-details">
                         <p class="contact-label">EMAIL ADDRESS</p>
                         <p class="contact-value">{{ profile.contact_email }}</p>
                     </div>
                 </div>
+                {% endif %}
+
+                {# LOCATION: nested if checks to be safe for template parsing #}
+                {% if profile %}
+                    {% if profile.company_location_street or profile.company_location_city or profile.company_location_country %}
+                    <div class="contact-item">
+                        <div class="contact-icon location" aria-hidden="true">
+                            <!-- Inline SVG pin (reliable across environments) -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+                                <path d="M12 2C8.686 2 6 4.686 6 8c0 4.667 6 12 6 12s6-7.333 6-12c0-3.314-2.686-6-6-6z" />
+                                <circle cx="12" cy="8" r="2.2" />
+                            </svg>
+                        </div>
+                        <div class="contact-details">
+                            <p class="contact-label">LOCATION</p>
+                            <p class="contact-value">
+                                {% if profile.company_location_street %}
+                                    {{ profile.company_location_street }}
+                                {% endif %}
+                                {% if profile.company_location_city %}
+                                    {% if profile.company_location_street %}, {% endif %}
+                                    {{ profile.company_location_city }}
+                                {% endif %}
+                                {% if profile.company_location_country %}
+                                    {% if profile.company_location_street or profile.company_location_city %}, {% endif %}
+                                    {{ profile.company_location_country }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
                 {% endif %}
 
                 <!-- Social Media -->
@@ -247,6 +270,7 @@
                         {% endif %}
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

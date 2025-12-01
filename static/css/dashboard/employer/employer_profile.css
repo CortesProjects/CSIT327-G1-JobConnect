@@ -409,6 +409,7 @@
     color: var(--bg-white);
 }
 
+/* backgrounds for circular icons */
 .contact-icon.website {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -420,6 +421,22 @@
 .contact-icon.email {
     background: linear-gradient(135deg, var(--primary-color) 0%, #a00809 100%);
 }
+
+/* New location circular background */
+.contact-icon.location {
+    background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+    color: #fff;
+}
+
+/* ensure inline SVG inherits color from .contact-icon */
+.contact-icon.location svg,
+.contact-icon.location svg path,
+.contact-icon.location svg circle {
+    fill: currentColor;
+}
+
+/* if you want the inner pin circle white, override path/circle separately (kept consistent above) */
+/* .contact-icon.location svg circle { fill: #fff; } */
 
 .contact-details {
     flex: 1;
@@ -664,5 +681,21 @@
         width: 40px;
         height: 40px;
         font-size: 16px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background: #F4F4F4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }

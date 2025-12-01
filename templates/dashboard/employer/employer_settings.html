@@ -37,7 +37,7 @@
             <form method="post" enctype="multipart/form-data" class="settings-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="company_info">
-                
+
                 <!-- Logo & Banner Upload -->
                 <div class="form-section">
                     <h3 class="section-title">Logo & Banner Image</h3>
@@ -146,7 +146,7 @@
                         <i class="fas fa-sync-alt"></i> Replace
                     </button>
                 </div>
-                
+
                 {% if profile.company_business_permit %}
                 <div class="file-item">
                     <i class="fas fa-file-pdf"></i>
@@ -182,7 +182,7 @@
                     <form method="post" enctype="multipart/form-data" id="permitForm">
                         {% csrf_token %}
                         <input type="hidden" name="form_type" value="business_permit">
-                        
+
                         <div class="modal-body">
                             <div class="upload-zone" id="permitUploadZone">
                                 <i class="fas fa-cloud-upload-alt"></i>
@@ -192,7 +192,7 @@
                             </div>
                             <div id="permitFileName" class="file-name-display"></div>
                         </div>
-                        
+
                         <div class="modal-footer">
                             <button type="button" class="btn-cancel" onclick="closePermitModal()">Cancel</button>
                             <button type="submit" class="btn-save">Upload Permit</button>
@@ -202,57 +202,105 @@
             </div>
         </div>
 
-        <!-- Founding Info Tab -->
+        <!-- Founding Info Tab (updated to include Location fields) -->
         <div class="tab-content" id="founding-info">
             <form method="post" class="settings-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="founding_info">
-                
+
                 <div class="form-section">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="id_organization_type">Organization Type</label>
+                            <label for="{{ founding_info_form.organization_type.id_for_label }}">Organization Type</label>
                             {{ founding_info_form.organization_type }}
-                            {% if not profile.organization_type %}
-                            <small class="empty-hint">Select your organization type</small>
+                            {% if founding_info_form.organization_type.errors %}
+                                <div class="error-text">{{ founding_info_form.organization_type.errors.0 }}</div>
+                            {% elif not profile.organization_type %}
+                                <small class="empty-hint">Select your organization type</small>
                             {% endif %}
                         </div>
 
                         <div class="form-group">
-                            <label for="id_industry_type">Industry Types</label>
+                            <label for="{{ founding_info_form.industry_type.id_for_label }}">Industry Types</label>
                             {{ founding_info_form.industry_type }}
-                            {% if not profile.industry_type %}
-                            <small class="empty-hint">Select your industry</small>
+                            {% if founding_info_form.industry_type.errors %}
+                                <div class="error-text">{{ founding_info_form.industry_type.errors.0 }}</div>
+                            {% elif not profile.industry_type %}
+                                <small class="empty-hint">Select your industry</small>
                             {% endif %}
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="id_team_size">Team Size</label>
+                            <label for="{{ founding_info_form.team_size.id_for_label }}">Team Size</label>
                             {{ founding_info_form.team_size }}
-                            {% if not profile.team_size %}
-                            <small class="empty-hint">Select your team size</small>
+                            {% if founding_info_form.team_size.errors %}
+                                <div class="error-text">{{ founding_info_form.team_size.errors.0 }}</div>
+                            {% elif not profile.team_size %}
+                                <small class="empty-hint">Select your team size</small>
                             {% endif %}
                         </div>
 
                         <div class="form-group">
-                            <label for="id_year_established">Year of Establishment</label>
+                            <label for="{{ founding_info_form.year_established.id_for_label }}">Year of Establishment</label>
                             {{ founding_info_form.year_established }}
-                            {% if not profile.year_established %}
-                            <small class="empty-hint">When was your company established?</small>
+                            {% if founding_info_form.year_established.errors %}
+                                <div class="error-text">{{ founding_info_form.year_established.errors.0 }}</div>
+                            {% elif not profile.year_established %}
+                                <small class="empty-hint">When was your company established?</small>
                             {% endif %}
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_company_website">Company Website</label>
+                    <!-- Location fields: two-column for Street / City, country on next row -->
+                    <div class="form-section" style="margin-top:12px;">
+                        <h4 class="section-subtitle">Location</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ founding_info_form.company_location_street.id_for_label }}">Street / Building</label>
+                                {{ founding_info_form.company_location_street }}
+                                {% if founding_info_form.company_location_street.errors %}
+                                    <div class="error-text">{{ founding_info_form.company_location_street.errors.0 }}</div>
+                                {% elif not profile.company_location_street %}
+                                    <small class="empty-hint">Street, building, unit (optional)</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ founding_info_form.company_location_city.id_for_label }}">City</label>
+                                {{ founding_info_form.company_location_city }}
+                                {% if founding_info_form.company_location_city.errors %}
+                                    <div class="error-text">{{ founding_info_form.company_location_city.errors.0 }}</div>
+                                {% elif not profile.company_location_city %}
+                                    <small class="empty-hint">City (optional)</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group" style="width:48%;">
+                                <label for="{{ founding_info_form.company_location_country.id_for_label }}">Country</label>
+                                {{ founding_info_form.company_location_country }}
+                                {% if founding_info_form.company_location_country.errors %}
+                                    <div class="error-text">{{ founding_info_form.company_location_country.errors.0 }}</div>
+                                {% elif not profile.company_location_country %}
+                                    <small class="empty-hint">Country (optional)</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:14px;">
+                        <label for="{{ founding_info_form.company_website.id_for_label }}">Company Website</label>
                         <div class="input-with-icon">
                             <i class="fas fa-link"></i>
                             {{ founding_info_form.company_website }}
                         </div>
-                        {% if not profile.company_website %}
-                        <small class="empty-hint">Add your company website URL</small>
+                        {% if founding_info_form.company_website.errors %}
+                            <div class="error-text">{{ founding_info_form.company_website.errors.0 }}</div>
+                        {% elif not profile.company_website %}
+                            <small class="empty-hint">Add your company website URL</small>
                         {% endif %}
                     </div>
                 </div>
@@ -260,10 +308,12 @@
                 <!-- Company Vision -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="id_company_vision">Company Vision</label>
+                        <label for="{{ founding_info_form.company_vision.id_for_label }}">Company Vision</label>
                         {{ founding_info_form.company_vision }}
-                        {% if not profile.company_vision %}
-                        <small class="empty-hint">Share your company's vision and goals</small>
+                        {% if founding_info_form.company_vision.errors %}
+                            <div class="error-text">{{ founding_info_form.company_vision.errors.0 }}</div>
+                        {% elif not profile.company_vision %}
+                            <small class="empty-hint">Share your company's vision and goals</small>
                         {% endif %}
                     </div>
                 </div>
@@ -275,16 +325,17 @@
             </form>
         </div>
 
+
         <!-- Account Setting Tab -->
         <div class="tab-content" id="account-setting">
             <!-- Contact Information Form -->
             <form method="post" class="settings-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="contact_info">
-                
+
                 <div class="form-section">
                     <h3 class="section-title">Contact Information</h3>
-                    
+
                     <div class="form-group">
                         <label for="id_contact_phone_number">Phone</label>
                         {{ contact_info_form.contact_phone_number }}
@@ -323,7 +374,7 @@
             <form method="post" class="settings-form" style="margin-top: 30px;">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="change_password">
-                
+
                 <div class="form-section">
                     <h3 class="section-title">Change Password</h3>
                     <div class="form-row-three-columns">
@@ -362,7 +413,7 @@
                 </div>
             </form>
 
-            <hr>  
+            <hr>
             <div class="account-section-block delete-account-section">
                 <h3>Delete Your Company Account</h3>
                 <p class="delete-warning">If you delete your JobConnect company account, you will no longer be able to post jobs, view applications, or access any employer services. This action is <strong>permanent and cannot be undone</strong>.</p>
@@ -370,19 +421,19 @@
                     <i class="fas fa-exclamation-triangle"></i> Delete Account
                 </button>
             </div>
-            
+
             <!-- Delete Account Confirmation Modal -->
             <div class="modal" id="deleteAccountModal">
                 <div class="modal-content delete-confirm-modal">
                     <button type="button" class="modal-close" onclick="closeDeleteAccountModal()">
                         <i class="fas fa-times"></i>
                     </button>
-                    
+
                     <div class="delete-modal-header">
                         <i class="fas fa-exclamation-circle"></i>
                         <h2>Delete Company Account?</h2>
                     </div>
-                    
+
                     <div class="delete-modal-body">
                         <p>Are you absolutely sure you want to delete your company account? This will:</p>
                         <ul>
@@ -392,16 +443,16 @@
                             <li>Cancel any ongoing recruitment processes</li>
                         </ul>
                         <p><strong>This action cannot be undone!</strong></p>
-                        
+
                         <form method="post" id="deleteAccountForm">
                             {% csrf_token %}
                             <input type="hidden" name="form_type" value="delete_account">
-                            
+
                             <div class="form-group" style="margin-top: 20px;">
                                 <label for="delete-confirm-text">Type <strong>DELETE</strong> to confirm:</label>
                                 <input type="text" id="delete-confirm-text" class="form-control" placeholder="Type DELETE" autocomplete="off" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="delete-password">Enter your password to confirm:</label>
                                 <div class="input-with-icon">
@@ -409,7 +460,7 @@
                                     <i class="fas fa-eye toggle-password"></i>
                                 </div>
                             </div>
-                            
+
                             <div class="modal-actions">
                                 <button type="button" class="btn-cancel" onclick="closeDeleteAccountModal()">Cancel</button>
                                 <button type="submit" class="btn-delete-confirm" id="confirm-delete-btn" disabled>
@@ -427,11 +478,11 @@
             <form method="post" id="social-links-form" class="settings-form">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="social_links_bulk">
-                
+
                 <div class="form-section">
                     <h3 class="section-title">Social Media Links</h3>
                     <p class="section-description">Add your company's social media profiles to help candidates connect with you</p>
-                    
+
                     <div id="social-links-list">
                         {% if social_links %}
                             {% for link in social_links %}
@@ -454,7 +505,7 @@
                             <p class="empty-social-message">No social links added yet. Click the button below to add your first social link.</p>
                         {% endif %}
                     </div>
-                    
+
                     <div id="add-social-link-form" class="social-link-form is-hidden">
                         <div class="social-link-item new-link-item">
                             <div class="social-link-input-group">
@@ -473,11 +524,11 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <button type="button" class="btn-add-social-link" data-action="show-add-social-link">
                         <i class="fas fa-plus-circle"></i> Add New Social Link
                     </button>
-                    
+
                     <button type="submit" class="btn-save is-hidden" id="save-social-changes">
                         <i class="fas fa-save"></i> Save Changes
                     </button>
@@ -500,11 +551,11 @@ function clickInputByFieldName(fieldName) {
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const targetTab = this.getAttribute('data-tab');
-        
+
         // Remove active classes
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
+
         // Add active classes
         this.classList.add('active');
         document.getElementById(targetTab).classList.add('active');
@@ -520,12 +571,12 @@ if (logoInput) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const preview = document.getElementById('logo-preview');
-                
+
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Logo Preview">`;
                     preview.classList.add('has-image');
                     preview.onclick = function() { clickInputByFieldName('company_profile_image'); };
-                    
+
                     // Update or create file size display
                     let actions = preview.nextElementSibling;
                     if (!actions || !actions.classList.contains('upload-actions')) {
@@ -533,9 +584,9 @@ if (logoInput) {
                         actions.className = 'upload-actions';
                         preview.parentElement.insertBefore(actions, logoInput);
                     }
-                    
-                    const fileSize = file.size < 1024 * 1024 
-                        ? `${(file.size / 1024).toFixed(1)} KB` 
+
+                    const fileSize = file.size < 1024 * 1024
+                        ? `${(file.size / 1024).toFixed(1)} KB`
                         : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
                     actions.textContent = fileSize;
                 }
@@ -554,12 +605,12 @@ if (bannerInput) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const preview = document.getElementById('banner-preview');
-                
+
                 if (preview) {
                     preview.innerHTML = `<img src="${event.target.result}" alt="Banner Preview">`;
                     preview.classList.add('has-image');
                     preview.onclick = function() { document.getElementById('id_company_banner_image').click(); };
-                    
+
                     // Update or create file size display
                     let actions = preview.nextElementSibling;
                     if (!actions || !actions.classList.contains('upload-actions')) {
@@ -567,9 +618,9 @@ if (bannerInput) {
                         actions.className = 'upload-actions';
                         preview.parentElement.insertBefore(actions, bannerInput);
                     }
-                    
-                    const fileSize = file.size < 1024 * 1024 
-                        ? `${(file.size / 1024).toFixed(1)} KB` 
+
+                    const fileSize = file.size < 1024 * 1024
+                        ? `${(file.size / 1024).toFixed(1)} KB`
                         : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
                     actions.textContent = fileSize;
                 }
@@ -590,11 +641,11 @@ function closePermitModal() {
     const modal = document.getElementById('permitModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     const form = document.getElementById('permitForm');
     form.reset();
-    
+
     const fileNameDisplay = document.getElementById('permitFileName');
     fileNameDisplay.classList.remove('active');
     fileNameDisplay.textContent = '';
@@ -632,12 +683,12 @@ if (permitFileInput) {
     permitFileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         const fileNameDisplay = document.getElementById('permitFileName');
-        
+
         if (file) {
-            const fileSize = file.size < 1024 * 1024 
-                ? `${(file.size / 1024).toFixed(1)} KB` 
+            const fileSize = file.size < 1024 * 1024
+                ? `${(file.size / 1024).toFixed(1)} KB`
                 : `${(file.size / 1024 / 1024).toFixed(1)} MB`;
-            
+
             fileNameDisplay.innerHTML = `
                 <i class="fas fa-file-pdf"></i>
                 <strong>${file.name}</strong> (${fileSize})
@@ -670,7 +721,7 @@ if (cancelAddBtn) {
     cancelAddBtn.addEventListener('click', function() {
         addSocialForm.classList.add('is-hidden');
         addSocialLinkBtn.classList.remove('is-hidden');
-        
+
         // Clear inputs
         document.getElementById('new-platform').value = '';
         document.getElementById('new-url').value = '';
@@ -683,29 +734,29 @@ if (confirmAddBtn) {
     confirmAddBtn.addEventListener('click', function() {
         const platform = document.getElementById('new-platform').value;
         const url = document.getElementById('new-url').value;
-        
+
         // Note: No client-side validation - Django handles all validation
         // Just skip if URL is empty (UI convenience only)
         if (!url.trim()) {
             return;
         }
-        
+
         // Add link to the list
         const linksList = document.getElementById('social-links-list');
-        
+
         // Remove empty message if it exists
         const emptyMsg = linksList.querySelector('.empty-social-message');
         if (emptyMsg) {
             emptyMsg.remove();
         }
-        
+
         // Create new link item
         const newLinkItem = document.createElement('div');
         newLinkItem.className = 'social-link-item';
         newLinkItem.innerHTML = `
             <div class="social-link-input-group">
                 <select name="platform[]" class="social-platform-select">
-                    ${Array.from(document.getElementById('new-platform').options).map(opt => 
+                    ${Array.from(document.getElementById('new-platform').options).map(opt =>
                         `<option value="${opt.value}" ${opt.value === platform ? 'selected' : ''}>${opt.text}</option>`
                     ).join('')}
                 </select>
@@ -716,20 +767,20 @@ if (confirmAddBtn) {
                 </button>
             </div>
         `;
-        
+
         linksList.appendChild(newLinkItem);
-        
+
         // Show save button
         saveChangesBtn.classList.remove('is-hidden');
-        
+
         // Hide add form and show add button
         addSocialForm.classList.add('is-hidden');
         addSocialLinkBtn.classList.remove('is-hidden');
-        
+
         // Clear inputs
         document.getElementById('new-platform').value = '';
         document.getElementById('new-url').value = '';
-        
+
         // Attach delete handler to the new button
         const deleteBtn = newLinkItem.querySelector('[data-action="delete-link"]');
         deleteBtn.addEventListener('click', handleDeleteLink);
@@ -741,10 +792,10 @@ function handleDeleteLink(e) {
     const linkItem = e.target.closest('.social-link-item');
     if (linkItem) {
         linkItem.remove();
-        
+
         // Show save button
         saveChangesBtn.classList.remove('is-hidden');
-        
+
         // Check if list is now empty
         const linksList = document.getElementById('social-links-list');
         if (linksList.children.length === 0) {
