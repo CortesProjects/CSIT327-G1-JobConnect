@@ -1,0 +1,301 @@
+{% extends 'dashboard/admin/admin_dashboard_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/jobs/job_detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/applicant/favorite_jobs.css' %}">
+{% endblock %}
+
+{% block title %}{{ job.title }} - {{ job.company_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="job-detail-container">
+    <!-- Breadcrumb Navigation -->
+
+    <header class="jd-header">
+            <div class="jd-left">
+                <div class="logo-wrap">
+                    {% if job.employer.employer_profile_rel.company_profile_image %}
+                        <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}">
+                    {% else %}
+                        <div class="company-logo-circle">{{ job.company_name|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div class="title-wrap">
+                    <div style="align-items: center; display: flex; gap: 10px;">
+                    <h1>{{ job.title }}</h1>
+                    <span class="pill type">{{ job.job_type.name|default:"Full Time" }}</span>
+                    </div>
+                    <div class="title-meta">
+                        <div class="contact-inline">
+                            {% if job.employer.employer_profile_rel.contact_phone_number %}
+                                <span><i class="fas fa-phone"></i> {{ job.employer.employer_profile_rel.contact_phone_number }}</span>
+                            {% elif job.employer.contact_phone_number %}
+                                <span><i class="fas fa-phone"></i> {{ job.employer.contact_phone_number }}</span>
+                            {% endif %}
+
+                            {% if job.employer.employer_profile_rel.contact_email %}
+                                <span><i class="fas fa-envelope"></i> {{ job.employer.employer_profile_rel.contact_email }}</span>
+                            {% elif job.employer.email %}
+                                <span><i class="fas fa-envelope"></i> {{ job.employer.email }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="jd-right">
+                {% if user.is_authenticated and user.user_type == 'employer' and job.employer == user %}
+                    <!-- Employer View: View Applications + Actions Menu -->
+                    <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn-view-applications">
+                        <i class="fas fa-users"></i> View Applications
+                    </a>
+                    <div class="btn-ellipsis" id="jobMenuBtn">
+                        <i class="fas fa-ellipsis-v"></i>
+                        <div class="dropdown-menu" id="jobMenuDropdown">
+                            {% if can_edit_job %}
+                            <a href="{% url 'dashboard:employer_edit_job' job.id %}">
+                                <i class="fas fa-edit"></i> Edit Job
+                            </a>
+                            {% else %}
+                            <a href="#" class="disabled" title="Jobs can only be edited within 7 days of posting (posted {{ days_since_posted }} days ago)">
+                                <i class="fas fa-edit"></i> Edit Job (Edit window expired)
+                            </a>
+                            {% endif %}
+                            {% if job.status == 'active' %}
+                            <a href="#" class="mark-expired" data-job-id="{{ job.id }}" data-action="mark-expired">
+                                <i class="fas fa-clock"></i> Mark as Expired
+                            </a>
+                            {% endif %}
+                            <a href="#" class="delete" data-job-id="{{ job.id }}" data-action="delete">
+                                <i class="fas fa-trash"></i> Delete Job
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="expire-text">
+                    {% if job.expiration_date %}
+                        {% if job.status == 'expired' %}
+                            <span class="expired-label">Expired on:</span>
+                            <span class="expire-date">{{ job.expiration_date|date:"j F, Y" }}</span>
+                        {% else %}
+                            <span class="expires-label">Expires:</span>
+                            <span class="expire-date">{{ job.expiration_date|date:"j F, Y" }}</span>
+                            <small class="muted">({{ job.expiration_date|timeuntil }})</small>
+                        {% endif %}
+                    {% else %}
+                        <span class="muted">No expiration date set</span>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+    <div class="job-detail-body">
+        <div class="job-detail-main">
+        <section class="jd-section">
+            <h3>Job Description</h3>
+            <div class="jd-content">{{ job.description|safe }}</div>
+        </section>
+
+        {% if job.responsibilities %}
+        <section class="jd-section">
+            <h3>Responsibilities</h3>
+            <div class="jd-content">{{ job.responsibilities|safe }}</div>
+        </section>
+        {% endif %}
+        </div>
+
+        <aside class="job-detail-right">
+        <div class="card overview-card">
+            <h4>Job Overview</h4>
+            <div class="overview-grid">
+                {% if job.posted_at %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Posted</div><div class="ov-value">{{ job.posted_at|date:"j F, Y" }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.expiration_date %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-clock"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Expire In</div><div class="ov-value">{{ job.expiration_date|date:"j F, Y" }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.education %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="ov-text"><div class="ov-label">Education</div><div class="ov-value">{{ job.education.name }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.min_salary or job.max_salary %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="ov-text"><div class="ov-label">Salary</div><div class="ov-value">{% if job.min_salary and job.max_salary %}${{ job.min_salary|floatformat:0 }}-${{ job.max_salary|floatformat:0 }}{% elif job.min_salary %}From ${{ job.min_salary|floatformat:0 }}{% elif job.max_salary %}Up to ${{ job.max_salary|floatformat:0 }}{% endif %}{% if job.salary_type %} / {{ job.salary_type.name }}{% endif %}</div></div>
+                </div>
+                {% endif %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="ov-text"><div class="ov-label">Location</div><div class="ov-value">{{ job.location }}</div></div>
+                </div>
+                {% if job.job_type %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Type</div><div class="ov-value">{{ job.job_type.name }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.experience %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-user-clock"></i></div>
+                    <div class="ov-text"><div class="ov-label">Experience</div><div class="ov-value">{{ job.experience.name }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.job_level %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="ov-text"><div class="ov-label">Job Level</div><div class="ov-value">{{ job.job_level.name }}</div></div>
+                </div>
+                {% endif %}
+                {% if job.vacancies %}
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="fas fa-users"></i></div>
+                    <div class="ov-text"><div class="ov-label">Vacancies</div><div class="ov-value">{{ job.vacancies }} position{% if job.vacancies != 1 %}s{% endif %}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{% url 'dashboard:public_employer_profile' job.employer.id %}" class="card company-card clickable-card">
+            <div class="company-top">
+                {% if job.employer.employer_profile_rel.company_profile_image %}
+                    <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}" class="company-small">
+                {% else %}
+                    <div class="company-small placeholder">{{ job.company_name|first|upper }}</div>
+                {% endif %}
+                <div class="company-info">
+                    <h4>{{ job.company_name }}</h4>
+                    {% if job.employer.employer_profile_rel.company_type %}
+                        <p class="muted">{{ job.employer.employer_profile_rel.company_type.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="company-details-list">
+                {% if job.employer.employer_profile_rel.founded_date %}
+                    <div><span class="label">Founded in:</span><span class="val">{{ job.employer.employer_profile_rel.founded_date|date:"F j, Y" }}</span></div>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.organization_type %}
+                    <div><span class="label">Organization type:</span><span class="val">{{ job.employer.employer_profile_rel.organization_type.name }}</span></div>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.company_size %}
+                    <div><span class="label">Company size:</span><span class="val">{{ job.employer.employer_profile_rel.company_size.name }}</span></div>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.contact_phone_number %}
+                    <div><span class="label">Phone:</span><span class="val">{{ job.employer.employer_profile_rel.contact_phone_number }}</span></div>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.contact_email %}
+                    <div><span class="label">Email:</span><span class="val">{{ job.employer.employer_profile_rel.contact_email }}</span></div>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.website %}
+                    <div><span class="label">Website:</span><span class="val"><a href="{{ job.employer.employer_profile_rel.website }}" target="_blank" onclick="event.stopPropagation();">{{ job.employer.employer_profile_rel.website }}</a></span></div>
+                {% endif %}
+            </div>
+            {% if job.employer.employer_profile_rel.facebook or job.employer.employer_profile_rel.twitter or job.employer.employer_profile_rel.instagram or job.employer.employer_profile_rel.linkedin %}
+            <div class="company-social">
+                {% if job.employer.employer_profile_rel.facebook %}
+                    <a class="s" href="{{ job.employer.employer_profile_rel.facebook }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.twitter %}
+                    <a class="s" href="{{ job.employer.employer_profile_rel.twitter }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-twitter"></i></a>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.instagram %}
+                    <a class="s" href="{{ job.employer.employer_profile_rel.instagram }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-instagram"></i></a>
+                {% endif %}
+                {% if job.employer.employer_profile_rel.linkedin %}
+                    <a class="s" href="{{ job.employer.employer_profile_rel.linkedin }}" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </a>
+    </aside>
+    </div>
+</div>
+
+<!-- Mark as Expired Modal -->
+<div id="markExpiredModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Mark Job as Expired</h3>
+            <button class="modal-close" data-modal-close="markExpiredModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to mark this job as expired?</p>
+            <p class="text-muted">This will close the job to new applications.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" data-modal-close="markExpiredModal">Cancel</button>
+            <button id="confirmMarkExpiredDetail" class="btn-danger" data-confirm="mark-expired">Mark as Expired</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Job Modal -->
+<div id="deleteJobModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Delete Job</h3>
+            <button class="modal-close" data-modal-close="deleteJobModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this job?</p>
+            <p class="text-danger">This action cannot be undone and will remove all associated applications.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" data-modal-close="deleteJobModal">Cancel</button>
+            <button id="confirmDeleteJobDetail" class="btn-danger" data-confirm="delete">Delete Job</button>
+        </div>
+    </div>
+</div>
+
+<!-- Apply Modal Markup -->
+<div id="applyModal" class="apply-modal" aria-hidden="true">
+    <div class="apply-modal-overlay" data-close></div>
+    <div class="apply-modal-panel" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle">
+        <button class="apply-modal-close" data-close aria-label="Close">&times;</button>
+        <div class="apply-modal-body">
+            <h3 id="applyModalTitle">Apply Job: {{ job.title }}</h3>
+            <form id="applyForm" class="apply-form" method="post" action="{% url 'jobs:apply_job' job.id %}">
+                {% csrf_token %}
+                <label class="field-label">Choose Resume</label>
+                <select id="resumeSelect" name="resume_id" class="field-select">
+                    <option value="">Select...</option>
+                    {% if resumes %}
+                        {% for r in resumes %}
+                            <option value="{{ r.id }}">{{ r.name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+
+                <label class="field-label">Cover Letter</label>
+                <textarea id="coverLetter" name="cover_letter" class="field-textarea" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
+
+                <div class="apply-modal-actions">
+                    <button type="button" class="btn btn-cancel" data-close>Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitApplyBtn">Apply Now <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboard/applicant/favorite_jobs.js' %}"></script>
+<script src="{% static 'js/jobs/job_detail.js' %}"></script>
+{% if goto_applications %}
+<script>
+// Redirect to applications page (preserves job detail in history)
+window.location.href = "{% url 'dashboard:employer_job_applications' job.id %}";
+</script>
+{% endif %}
+{% endblock %}
