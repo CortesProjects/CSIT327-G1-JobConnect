@@ -1,7 +1,6 @@
 #dashboard/urls.py
 from django.urls import path
 from . import views
-from .views_cbv import EmployerJobListView, ApplicantFavoriteJobsView
 
 app_name = 'dashboard'
 
@@ -11,7 +10,7 @@ urlpatterns = [
     path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
     path('applicant/applied-jobs/', views.applicant_applied_jobs, name='applicant_applied_jobs'),
     path('applicant/search-jobs/', views.applicant_search_jobs, name='applicant_search_jobs'),
-    path('applicant/favorite-jobs/', ApplicantFavoriteJobsView.as_view(), name='applicant_favorite_jobs'),
+    path('applicant/favorite-jobs/', views.ApplicantFavoriteJobsView.as_view(), name='applicant_favorite_jobs'),
     path('applicant/job-alerts/', views.applicant_job_alerts, name='applicant_job_alerts'),
     path('applicant/job-alerts/create/', views.create_job_alert, name='create_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/edit/', views.edit_job_alert, name='edit_job_alert'),
@@ -24,7 +23,7 @@ urlpatterns = [
     path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/post-job/', views.employer_post_job, name='employer_post_job'),
     path('employer/edit-job/<int:job_id>/', views.employer_edit_job, name='employer_edit_job'),
-    path('employer/my-jobs/', EmployerJobListView.as_view(), name='employer_my_jobs'),
+    path('employer/my-jobs/', views.EmployerJobListView.as_view(), name='employer_my_jobs'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),
     path('employer/job-applications/<int:job_id>/', views.employer_job_applications, name='employer_job_applications'),
     path('employer/move-application/<int:application_id>/', views.move_application_stage, name='move_application_stage'),
