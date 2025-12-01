@@ -211,21 +211,6 @@ def toggle_favorite_job(request, job_id):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-@applicant_required
-def applicant_favorite_jobs(request):
-    """Display applicant's favorite jobs."""
-    # Get all favorite jobs for the current applicant
-    favorites = FavoriteJob.objects.filter(
-        applicant=request.user
-    ).select_related('job', 'job__employer', 'job__category')
-    
-    context = {
-        'favorites': favorites,
-        'favorite_count': favorites.count()
-    }
-    
-    return render(request, 'jobs/favorite_jobs.html', context)
-
 
 def job_detail(request, job_id):
     """Display detailed information about a specific job."""

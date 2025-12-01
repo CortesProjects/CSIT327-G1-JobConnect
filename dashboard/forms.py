@@ -347,11 +347,22 @@ class EmployerCompanyInfoForm(forms.ModelForm):
 
 
 class EmployerFoundingInfoForm(forms.ModelForm):
-    """Form for Founding Info tab"""
-    
+    """Form for Founding Info tab (now includes company location fields)."""
+
     class Meta:
         model = EmployerProfile
-        fields = ['organization_type', 'industry_type', 'team_size', 'year_established', 'company_website', 'company_vision']
+        fields = [
+            'organization_type',
+            'industry_type',
+            'team_size',
+            'year_established',
+            'company_location_street',
+            'company_location_city',
+            'company_location_country',
+            'company_website',
+            'company_vision',
+        ]
+
         widgets = {
             'organization_type': forms.Select(attrs={'class': 'form-control'}),
             'industry_type': forms.Select(attrs={'class': 'form-control'}),
@@ -360,6 +371,18 @@ class EmployerFoundingInfoForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'dd/mm/yyyy',
                 'type': 'date'
+            }),
+            'company_location_street': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Street, building, unit (optional)'
+            }),
+            'company_location_city': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'City (optional)'
+            }),
+            'company_location_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country (optional)'
             }),
             'company_website': forms.URLInput(attrs={
                 'class': 'form-control',
@@ -371,20 +394,38 @@ class EmployerFoundingInfoForm(forms.ModelForm):
                 'rows': 6
             }),
         }
+
         labels = {
             'organization_type': 'Organization Type',
             'industry_type': 'Industry Types',
             'team_size': 'Team Size',
             'year_established': 'Year of Establishment',
+            'company_location_street': 'Street / Building',
+            'company_location_city': 'City',
+            'company_location_country': 'Country',
             'company_website': 'Company Website',
             'company_vision': 'Company Vision',
         }
-    
+
     def clean_company_website(self):
         url = self.cleaned_data.get('company_website')
         if url and not url.startswith(('http://', 'https://')):
             url = 'https://' + url
         return url
+
+    # Optional: normalize/trim location fields
+    def clean_company_location_street(self):
+        val = self.cleaned_data.get('company_location_street')
+        return val.strip() if isinstance(val, str) else val
+
+    def clean_company_location_city(self):
+        val = self.cleaned_data.get('company_location_city')
+        return val.strip() if isinstance(val, str) else val
+
+    def clean_company_location_country(self):
+        val = self.cleaned_data.get('company_location_country')
+        return val.strip() if isinstance(val, str) else val
+
 
 
 class EmployerContactInfoForm(forms.ModelForm):

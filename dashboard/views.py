@@ -194,50 +194,39 @@ def applicant_search_jobs(request):
     return render(request, 'dashboard/applicant/applicant_search_jobs.html', context)
 
 @login_required
-def applicant_applied_jobs(request):
-    from jobs.models import JobApplication
-    
-    if request.user.user_type != 'applicant':
-        messages.error(request, 'Only applicants can view applied jobs.')
-        return redirect('dashboard:dashboard')
-    
-    # Get all job applications for the current applicant
-    applied_jobs = JobApplication.objects.filter(
-        applicant=request.user
-    ).select_related(
-        'job',
-        'job__employer',
-        'job__employer__employer_profile_rel',
-        'job__category',
-        'job__job_type',
-        'job__education',
-        'job__experience',
-        'job__job_level'
-    ).order_by('-application_date')
-    
-    # Pagination
-    from django.core.paginator import Paginator
-    paginator = Paginator(applied_jobs, 10)  # 10 applications per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'applied_jobs': page_obj,
-        'page_obj': page_obj,
-        'application_count': applied_jobs.count()
-    }
-    return render(request, 'dashboard/applicant/applicant_applied_jobs.html', context)
-
-@login_required
 def applicant_favorite_jobs(request):
-    from jobs.models import FavoriteJob
-    
-    if request.user.user_type != 'applicant':
+    """
+    Show favorite jobs for the current applicant.
+
+    Template expects `favorites` to be a page of FavoriteJob objects so it can use
+    `favorite.job` inside each loop. This view provides:
+      - 'favorites' (page of FavoriteJob objects)
+      - 'page_obj'
+      - 'favorite_count' (total count)
+      - 'favorited_job_ids' (list of all job IDs favorited by the user)
+    """
+    from django.apps import apps
+    from django.core.paginator import Paginator
+    from django.http import Http404
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    # Guard: only applicants allowed
+    if getattr(request.user, 'user_type', None) != 'applicant':
         messages.error(request, 'Only applicants can view favorite jobs.')
         return redirect('dashboard:dashboard')
-    
-    # Get all favorite jobs with related data
-    favorites = FavoriteJob.objects.filter(
+
+    # Lazily resolve FavoriteJob model (prevents circular imports)
+    try:
+        FavoriteJob = apps.get_model('jobs', 'FavoriteJob')
+    except LookupError:
+        logger.error("FavoriteJob model not found in 'jobs' app.")
+        messages.error(request, 'Favorite jobs feature is currently unavailable.')
+        raise Http404("FavoriteJob model not found")
+
+    # Query: applicant's favorites, with related Job data for efficiency
+    favorites_qs = FavoriteJob.objects.filter(
         applicant=request.user
     ).select_related(
         'job',
@@ -248,22 +237,26 @@ def applicant_favorite_jobs(request):
         'job__experience',
         'job__job_level'
     ).order_by('-created_at')
-    
-    # Pagination
-    from django.core.paginator import Paginator
-    paginator = Paginator(favorites, 10)  # 10 favorites per page
+
+    # Single count to avoid repeated DB hits in template
+    favorite_count = favorites_qs.count()
+
+    # Pagination (10 items per page)
     page_number = request.GET.get('page', 1)
+    paginator = Paginator(favorites_qs, 10)
     page_obj = paginator.get_page(page_number)
-    
-    # Get list of favorited job IDs (all jobs in favorites by definition)
-    favorited_job_ids = list(favorites.values_list('job_id', flat=True))
-    
+
+    # Job ID lists (keeps compatibility with existing templates/JS)
+    favorited_job_ids = list(favorites_qs.values_list('job_id', flat=True))
+    favorited_job_ids_page = list(page_obj.object_list.values_list('job_id', flat=True))
+
     context = {
-        'favorites': page_obj,
+        'favorites': page_obj,                     # page of FavoriteJob objects (template uses favorite.job)
         'page_obj': page_obj,
-        'favorite_count': favorites.count(),
-        'favorited_job_ids': favorited_job_ids,
-    } 
+        'favorite_count': favorite_count,
+        'favorited_job_ids': favorited_job_ids,   # all favorited job ids
+        'favorited_job_ids_page': favorited_job_ids_page,  # ids for current page (optional)
+    }
     return render(request, 'dashboard/applicant/applicant_favorite_jobs.html', context)
 
 @login_required
