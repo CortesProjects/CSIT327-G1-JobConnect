@@ -6,9 +6,41 @@ from resumes.models import Resume
 from utils.mixins import applicant_required
 from .forms import PersonalInfoForm, ProfileDetailsForm, ContactInfoForm, ResumeUploadSetupForm
 
+
+def is_step1_complete(profile):
+    """Check if Step 1 (Personal Info) is complete."""
+    return bool(
+        profile.first_name and 
+        profile.last_name and 
+        profile.title
+    )
+
+
+def is_step2_complete(profile):
+    """Check if Step 2 (Profile Details) is complete."""
+    return bool(
+        profile.biography and
+        profile.education_level and
+        profile.experience
+    )
+
+
+def is_step3_complete(profile):
+    """Check if Step 3 (Contact Info) is complete."""
+    return bool(
+        profile.contact_number and
+        profile.location_city and
+        profile.location_country
+    )
+
 @applicant_required
 def applicant_profile_setup_step1(request):
     profile, created = ApplicantProfile.objects.get_or_create(user=request.user)
+    
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
     
     if request.method == 'POST':
         form = PersonalInfoForm(request.POST, request.FILES, instance=profile)
@@ -29,7 +61,15 @@ def applicant_profile_setup_step1(request):
 def applicant_profile_setup_step2(request):
     profile = request.user.applicant_profile_rel
     
-    # Previously enforced server-side progress gating; frontend now handles step access
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
+    
+    # Validate that step 1 is complete before allowing access to step 2
+    if not is_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Personal Information) before proceeding to Step 2.')
+        return redirect('applicant_profile:applicant_profile_setup_step1')
 
     if request.method == 'POST':
         form = ProfileDetailsForm(request.POST, instance=profile)
@@ -49,8 +89,20 @@ def applicant_profile_setup_step2(request):
 @applicant_required
 def applicant_profile_setup_step3(request):
     profile = request.user.applicant_profile_rel
+    
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
 
-    # Previously enforced server-side progress gating; frontend now handles step access
+    # Validate that steps 1 and 2 are complete before allowing access to step 3
+    if not is_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Personal Information) before proceeding.')
+        return redirect('applicant_profile:applicant_profile_setup_step1')
+    
+    if not is_step2_complete(profile):
+        messages.warning(request, 'Please complete Step 2 (Profile Details) before proceeding to Step 3.')
+        return redirect('applicant_profile:applicant_profile_setup_step2')
 
     if request.method == 'POST':
         form = ContactInfoForm(request.POST, request.FILES, instance=profile)
@@ -72,6 +124,24 @@ def applicant_profile_setup_step4(request):
     """Step 4: Resume upload (required) using new Resume model."""
     profile = request.user.applicant_profile_rel
     
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
+    
+    # Validate that steps 1, 2, and 3 are complete before allowing access to step 4
+    if not is_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Personal Information) before proceeding.')
+        return redirect('applicant_profile:applicant_profile_setup_step1')
+    
+    if not is_step2_complete(profile):
+        messages.warning(request, 'Please complete Step 2 (Profile Details) before proceeding.')
+        return redirect('applicant_profile:applicant_profile_setup_step2')
+    
+    if not is_step3_complete(profile):
+        messages.warning(request, 'Please complete Step 3 (Contact Information) before proceeding to Step 4.')
+        return redirect('applicant_profile:applicant_profile_setup_step3')
+    
     # Check if user already has at least one resume
     has_resume = Resume.objects.filter(user=request.user).exists()
     
@@ -91,6 +161,11 @@ def applicant_profile_setup_step4(request):
                 Resume.objects.filter(user=request.user, is_default=True).update(is_default=False)
             
             resume.save()
+            
+            # Mark profile setup as completed
+            profile.setup_completed = True
+            profile.save()
+            
             messages.success(request, f'Resume "{resume.name}" uploaded successfully!')
             return redirect('applicant_profile:applicant_profile_setup_complete')
     else:
@@ -107,6 +182,13 @@ def applicant_profile_setup_step4(request):
 @applicant_required
 def applicant_profile_setup_complete(request):
     """Displays the final completion page."""
+    profile = request.user.applicant_profile_rel
+    
+    # Ensure setup is marked as complete
+    if not profile.setup_completed:
+        profile.setup_completed = True
+        profile.save()
+    
     context = {
         'is_setup_page': True,
         'progress_percent': 100
