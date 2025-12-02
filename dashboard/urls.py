@@ -30,7 +30,7 @@ urlpatterns = [
     path('employer/candidate-detail/<int:application_id>/', views.employer_candidate_detail, name='employer_candidate_detail'),
     path('employer/hire-candidate/<int:application_id>/', views.hire_candidate, name='hire_candidate'),
     path('employer/toggle-save-candidate/<int:application_id>/', views.toggle_save_candidate, name='toggle_save_candidate'),
-    path('employer/saved-candidates/', views.employer_saved_candidates, name='employer_saved_candidates'),
+    path('employer/saved-candidates/', views.EmployerSavedCandidatesView.as_view(), name='employer_saved_candidates'),
 
     # Admin URLs
     path('admin/dashboards', views.admin_dashboards, name='admin_dashboards'),

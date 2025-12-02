@@ -2032,6 +2032,28 @@ class EmployerPostJobView(EmployerRequiredMixin, FormView):
         return super().form_invalid(form)
 
 
+class EmployerSavedCandidatesView(EmployerRequiredMixin, ListView):
+    """
+    Display all saved candidates for the employer.
+    Matches the logic of the original employer_saved_candidates function-based view.
+    """
+    template_name = 'dashboard/employer/employer_saved_candidates.html'
+    context_object_name = 'saved_candidates'
+    
+    def get_queryset(self):
+        from dashboard.models import SavedCandidate
+        
+        # Get all saved candidates with related data
+        return SavedCandidate.objects.filter(
+            employer=self.request.user
+        ).select_related(
+            'application',
+            'application__applicant',
+            'application__applicant__applicant_profile_rel',
+            'application__job'
+        ).order_by('-saved_at')
+
+
 class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
     """
     Applicant settings page handling multiple forms:
