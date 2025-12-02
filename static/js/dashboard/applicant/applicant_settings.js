@@ -121,7 +121,8 @@
         const fileAttached = document.getElementById('fileAttached');
         const attachedFileName = document.getElementById('attachedFileName');
         const attachedFileSize = document.getElementById('attachedFileSize');
-        const resumeInput = document.querySelector('input[name="resume"]') || document.getElementById('id_resume');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const resumeInput = document.getElementById('id_file');
 
         window.openResumeModal = function () {
             if (resumeModal) {
@@ -142,24 +143,74 @@
             if (!uploadArea) return;
             uploadArea.classList.remove('has-file');
             if (fileAttached) fileAttached.style.display = 'none';
-            const uploadPrompt = uploadArea.querySelector('.upload-prompt');
             if (uploadPrompt) uploadPrompt.style.display = 'flex';
             if (attachedFileName) attachedFileName.textContent = '';
             if (attachedFileSize) attachedFileSize.textContent = '';
         }
 
         window.resetUploadArea = resetUploadArea;
+        window.removeFile = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (resumeInput) resumeInput.value = '';
+            resetUploadArea();
+        };
 
+        // Click upload area to trigger file input
+        if (uploadArea) {
+            uploadArea.addEventListener('click', function() {
+                if (resumeInput) resumeInput.click();
+            });
+        }
+
+        // Handle file selection
         if (resumeInput) {
             resumeInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
-                if (!file) { resetUploadArea(); return; }
+                if (!file) { 
+                    resetUploadArea(); 
+                    return; 
+                }
+                
+                // Update file details display
                 if (attachedFileName) attachedFileName.textContent = file.name;
                 if (attachedFileSize) attachedFileSize.textContent = formatFileSize(file.size);
+                
+                // Show file attached section
                 if (uploadArea) uploadArea.classList.add('has-file');
                 if (fileAttached) fileAttached.style.display = 'flex';
-                const uploadPrompt = uploadArea.querySelector('.upload-prompt');
                 if (uploadPrompt) uploadPrompt.style.display = 'none';
+            });
+        }
+
+        // Drag and drop support
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#dc3545';
+                this.style.backgroundColor = '#fff5f5';
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#e0e0e0';
+                this.style.backgroundColor = '#fafafa';
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#e0e0e0';
+                this.style.backgroundColor = '#fafafa';
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && resumeInput) {
+                    resumeInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    resumeInput.dispatchEvent(event);
+                }
             });
         }
     }
@@ -392,6 +443,280 @@
         });
     }
 
+    // Resume management functions
+    window.toggleResumeMenu = function(btn) {
+        const menu = btn.nextElementSibling;
+        document.querySelectorAll('.action-menu').forEach(m => { 
+            if (m !== menu) m.classList.remove('active'); 
+        });
+        if (menu) menu.classList.toggle('active');
+    };
+
+    window.confirmDeleteResume = function(resumeId, resumeName) {
+        if (!confirm(`Are you sure you want to delete "${resumeName}"?`)) {
+            return;
+        }
+        
+        fetch(`/resumes/delete/${resumeId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to delete resume');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete resume');
+        });
+    };
+
+    window.setDefaultResume = function(resumeId) {
+        fetch(`/resumes/set-default/${resumeId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to set default resume');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to set default resume');
+        });
+    };
+
+    // Resume Upload Modal Functions
+    window.openResumeModal = function() {
+        const modal = document.getElementById('uploadResumeModal');
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Check if user has no resumes and auto-check "set as default"
+            const hasResumes = document.querySelectorAll('.resume-card').length > 0;
+            const setDefaultCheckbox = document.getElementById('set_as_default');
+            if (setDefaultCheckbox && !hasResumes) {
+                setDefaultCheckbox.checked = true;
+            }
+        }
+    };
+
+    window.closeResumeModal = function() {
+        const modal = document.getElementById('uploadResumeModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            const form = document.getElementById('uploadResumeForm');
+            if (form) form.reset();
+            resetUploadArea();
+        }
+    };
+
+    function resetUploadArea() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileAttached = document.getElementById('fileAttached');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const fileInput = document.getElementById('resume_file');
+        
+        if (fileInput) fileInput.value = '';
+        if (uploadArea) uploadArea.classList.remove('has-file');
+        if (fileAttached) fileAttached.style.display = 'none';
+        if (uploadPrompt) uploadPrompt.style.display = 'flex';
+    }
+
+    window.removeFile = function(event) {
+        if (event) event.preventDefault();
+        resetUploadArea();
+    };
+
+    // Set Default Resume (AJAX)
+    window.setDefaultResume = function(resumeId) {
+        if (!resumeId) return;
+        
+        fetch(`/dashboard/applicant/set-default-resume/${resumeId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to update UI
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to set default resume');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while setting default resume');
+        });
+    };
+
+    // Delete Resume Confirmation
+    window.confirmDeleteResume = function(resumeId, resumeName) {
+        const modal = document.getElementById('deleteResumeModal');
+        const nameSpan = document.getElementById('deleteResumeName');
+        const idInput = document.getElementById('deleteResumeId');
+        
+        if (modal && nameSpan && idInput) {
+            nameSpan.textContent = resumeName;
+            idInput.value = resumeId;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeDeleteResumeModal = function() {
+        const modal = document.getElementById('deleteResumeModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Initialize upload resume modal file handling
+    function initUploadResumeModal() {
+        const fileInput = document.getElementById('resume_file');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileAttached = document.getElementById('fileAttached');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+
+        if (!fileInput) return;
+
+        // Click to browse
+        if (uploadArea) {
+            uploadArea.addEventListener('click', function(e) {
+                if (e.target.id !== 'removeFileBtn' && !e.target.closest('#removeFileBtn')) {
+                    fileInput.click();
+                }
+            });
+        }
+
+        // File input change handler
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) {
+                resetUploadArea();
+                return;
+            }
+
+            if (fileName) fileName.textContent = file.name;
+            if (fileSize) fileSize.textContent = formatFileSize(file.size);
+            if (uploadArea) uploadArea.classList.add('has-file');
+            if (fileAttached) fileAttached.style.display = 'flex';
+            if (uploadPrompt) uploadPrompt.style.display = 'none';
+        });
+
+        // Drag and drop functionality
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#dc3545';
+                this.style.backgroundColor = '#fff5f5';
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#e0e0e0';
+                this.style.backgroundColor = '#fafafa';
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.borderColor = '#e0e0e0';
+                this.style.backgroundColor = '#fafafa';
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(event);
+                }
+            });
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const uploadModal = document.getElementById('uploadResumeModal');
+                const deleteModal = document.getElementById('deleteResumeModal');
+                
+                if (uploadModal && uploadModal.classList.contains('active')) {
+                    window.closeResumeModal();
+                }
+                if (deleteModal && deleteModal.classList.contains('active')) {
+                    window.closeDeleteResumeModal();
+                }
+            }
+        });
+
+        // Close modals on overlay click
+        const uploadModal = document.getElementById('uploadResumeModal');
+        const deleteModal = document.getElementById('deleteResumeModal');
+        
+        if (uploadModal) {
+            const overlay = uploadModal.querySelector('.modal-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', window.closeResumeModal);
+            }
+        }
+        
+        if (deleteModal) {
+            const overlay = deleteModal.querySelector('.modal-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', window.closeDeleteResumeModal);
+            }
+        }
+
+        // Bind click on add-resume card
+        const addResumeCard = document.querySelector('.add-resume-card');
+        if (addResumeCard) {
+            addResumeCard.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.openResumeModal();
+            });
+        }
+    }
+
     // Init all
     document.addEventListener('DOMContentLoaded', function () {
         initProfilePreview();
@@ -404,6 +729,7 @@
         initInputStyling();
         initPrivacyToggle();
         initDeleteAccount();
+        initUploadResumeModal();
     });
 
 })();

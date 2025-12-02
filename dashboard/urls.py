@@ -18,6 +18,7 @@ urlpatterns = [
     path('applicant/job-alerts/<int:alert_id>/toggle/', views.ToggleJobAlertStatusView.as_view(), name='toggle_job_alert_status'),
 
     path('applicant/settings/', views.ApplicantSettingsView.as_view(), name='applicant_settings'),
+    path('applicant/set-default-resume/<int:resume_id>/', views.SetDefaultResumeView.as_view(), name='set_default_resume'),
 
     # Employer URLs
     path('employer/profile/', views.EmployerProfileView.as_view(), name='employer_profile'),

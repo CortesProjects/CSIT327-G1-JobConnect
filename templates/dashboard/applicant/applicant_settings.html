@@ -114,32 +114,51 @@
         <div class="cv-resume-section">
             <h3>Your CV/Resume</h3>
             <div class="resume-list">
-                {% if profile.resume %}
-                <div class="resume-card">
-                    <i class="fas fa-file-alt"></i>
-                    <div class="resume-info">
-                        <p class="resume-title">{{ profile.resume.name|slice:"28:" }}</p>
-                        <small class="resume-size">{{ profile.resume.size|filesizeformat }}</small>
-                    </div>
-                    <button type="button" class="action-menu-btn" onclick="toggleResumeMenu(this)">
-                        <i class="fas fa-ellipsis-h"></i>
-                    </button>
-                    <div class="action-menu">
-                        <a href="{{ profile.resume.url }}" target="_blank" class="menu-item edit">
-                            <i class="fas fa-edit"></i> Edit Resume
-                        </a>
-                        <button type="button" class="menu-item delete" onclick="confirmDeleteResume()">
-                            <i class="fas fa-trash"></i> Delete
+                {% if resumes %}
+                    {% for resume in resumes %}
+                    <div class="resume-card" data-resume-id="{{ resume.id }}">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="resume-info">
+                            <p class="resume-title">{{ resume.name }}</p>
+                            <small class="resume-size">{{ resume.file.size|filesizeformat }} • Uploaded {{ resume.uploaded_at|date:"M d, Y" }}</small>
+                            {% if resume.is_default %}
+                                <span class="default-badge"><i class="fas fa-star"></i> Default</span>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="action-menu-btn" onclick="toggleResumeMenu(this)">
+                            <i class="fas fa-ellipsis-h"></i>
                         </button>
+                        <div class="action-menu">
+                            <a href="{{ resume.file.url }}" target="_blank" class="menu-item view">
+                                <i class="fas fa-eye"></i> View Resume
+                            </a>
+                            <a href="{{ resume.file.url }}" download class="menu-item download">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            {% if not resume.is_default %}
+                            <button type="button" class="menu-item set-default" onclick="setDefaultResume({{ resume.id }})">
+                                <i class="fas fa-star"></i> Set as Default
+                            </button>
+                            {% endif %}
+                            <button type="button" class="menu-item delete" onclick="confirmDeleteResume({{ resume.id }}, '{{ resume.name }}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
                     </div>
-                </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-resume-state">
+                        <i class="fas fa-file-alt"></i>
+                        <p>No resumes uploaded yet</p>
+                        <small>Upload your first resume to start applying for jobs</small>
+                    </div>
                 {% endif %}
                 
                 <div class="add-resume-card" onclick="openResumeModal()">
                     <i class="fas fa-plus-circle"></i>
                     <div class="add-resume-card-info">
                         <p class="add-title">Add CV/Resume</p>
-                        <small class="add-hint">Browse file or drop here. only pdf</small>
+                        <small class="add-hint">PDF, DOC, or DOCX (max 5MB)</small>
                     </div>
                 </div>
             </div>
@@ -155,24 +174,35 @@
                 
                 <h2 class="modal-title">Add CV/Resume</h2>
                 
-                <form method="post" enctype="multipart/form-data" id="resumeForm">
+                <form method="post" enctype="multipart/form-data" id="resumeForm" action="{% url 'dashboard:applicant_settings' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="form_type" value="resume">
+                    <input type="hidden" name="form_type" value="resume_upload">
                     
                     <div class="modal-form-group">
-                        <label for="resume_name">CV/Resume Name</label>
-                        <input type="text" id="resume_name" name="resume_name" class="modal-input" placeholder="e.g., Professional Resume">
+                        <label for="id_name">
+                            Resume Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="id_name" 
+                            name="name" 
+                            class="modal-input" 
+                            placeholder="e.g., Software Developer Resume 2024"
+                            required
+                            maxlength="255"
+                        >
+                        <small class="field-hint">Give your resume a descriptive name to easily identify it</small>
                     </div>
                     
                     <div class="modal-form-group">
-                        <label>Upload your CV/Resume</label>
-                        <div class="modal-upload-area" id="uploadArea" onclick="document.getElementById('id_resume').click()">
-                            <div class="upload-prompt">
+                        <label>Upload your CV/Resume <span class="required">*</span></label>
+                        <div class="modal-upload-area" id="uploadArea">
+                            <div class="upload-prompt" id="uploadPrompt">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <p><strong>Browse File</strong> or drop here</p>
-                                <small>Only PDF format available . Max file size 12 MB.</small>
+                                <p><strong>Click to browse</strong> or drag and drop</p>
+                                <small>PDF, DOC, or DOCX • Max file size 5 MB</small>
                             </div>
-                            <div class="file-attached" id="fileAttached">
+                            <div class="file-attached" id="fileAttached" style="display: none;">
                                 <i class="fas fa-file-pdf"></i>
                                 <div class="file-details">
                                     <p class="file-name" id="attachedFileName"></p>
@@ -183,18 +213,65 @@
                                 </button>
                             </div>
                         </div>
-                        {{ resume_form.resume }}
+                        <input 
+                            type="file" 
+                            id="id_file" 
+                            name="file" 
+                            style="display: none;" 
+                            accept=".pdf,.doc,.docx"
+                            required
+                        >
+                        <div class="error-message" id="fileError"></div>
                     </div>
                     
-                    {% if resume_form.resume.errors %}
-                        <div class="error-text">{{ resume_form.resume.errors.0 }}</div>
-                    {% endif %}
+                    <div class="modal-form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="id_is_default" name="is_default" {% if not resumes %}checked{% endif %}>
+                            <span>Set as default resume</span>
+                        </label>
+                        <small class="field-hint">This resume will be automatically selected when applying for jobs</small>
+                    </div>
                     
                     <div class="modal-actions">
                         <button type="button" class="btn-cancel" onclick="closeResumeModal()">Cancel</button>
-                        <button type="submit" class="btn-submit">Add CV/Resume</button>
+                        <button type="submit" class="btn-submit" id="submitResumeBtn">
+                            <i class="fas fa-upload"></i> Upload Resume
+                        </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Delete Resume Confirmation Modal -->
+        <div class="modal" id="deleteResumeModal">
+            <div class="modal-overlay" onclick="closeDeleteResumeModal()"></div>
+            <div class="modal-content delete-confirm-modal">
+                <button type="button" class="modal-close" onclick="closeDeleteResumeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="delete-modal-header">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h2>Delete Resume?</h2>
+                </div>
+                
+                <div class="delete-modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteResumeName"></strong>?</p>
+                    <p class="text-muted">This action cannot be undone. Any job applications using this resume will still retain their copy.</p>
+                    
+                    <form method="post" id="deleteResumeForm" action="{% url 'dashboard:applicant_settings' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="resume_delete">
+                        <input type="hidden" name="resume_id" id="deleteResumeId">
+                        
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeDeleteResumeModal()">Cancel</button>
+                            <button type="submit" class="btn-delete-confirm">
+                                <i class="fas fa-trash"></i> Delete Resume
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

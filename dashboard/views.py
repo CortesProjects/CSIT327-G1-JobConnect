@@ -7,7 +7,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
 from django.views.generic import ListView, TemplateView, FormView, UpdateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
@@ -820,6 +820,51 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                     field_label = form.fields.get(field).label if field in form.fields else field
                     for error in errors:
                         messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'resume_upload':
+            from resumes.forms import ResumeUploadForm
+            from resumes.models import Resume
+            
+            form = ResumeUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                try:
+                    resume = form.save(commit=False)
+                    resume.user = request.user
+                    resume.save()
+                    messages.success(request, f'Resume "{resume.name}" uploaded successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error uploading resume: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'resume_delete':
+            from resumes.models import Resume
+            
+            resume_id = request.POST.get('resume_id')
+            if resume_id:
+                try:
+                    resume = Resume.objects.get(id=resume_id, user=request.user)
+                    resume_name = resume.name
+                    
+                    # Check if this is the last resume
+                    resume_count = Resume.objects.filter(user=request.user).count()
+                    if resume_count == 1:
+                        messages.warning(request, 'Cannot delete your only resume. Please upload another resume first.')
+                        return redirect('dashboard:applicant_settings')
+                    
+                    resume.delete()
+                    messages.success(request, f'Resume "{resume_name}" deleted successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Resume.DoesNotExist:
+                    messages.error(request, 'Resume not found or you do not have permission to delete it.')
+                except Exception as e:
+                    messages.error(request, f'Error deleting resume: {str(e)}')
+            else:
+                messages.error(request, 'No resume specified for deletion.')
         
         elif form_type == 'change_password':
             password_form = PasswordChangeForm(request.user, request.POST)
@@ -1712,6 +1757,41 @@ class EmployerSettingsView(EmployerRequiredMixin, TemplateView):
                     messages.error(request, error[0])
         
         return self.get(request, *args, **kwargs)
+
+
+class SetDefaultResumeView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """AJAX endpoint to set a resume as default"""
+    
+    def test_func(self):
+        return self.request.user.user_type == 'applicant'
+    
+    def post(self, request, resume_id):
+        from resumes.models import Resume
+        from django.http import JsonResponse
+        
+        try:
+            # Get the resume and verify ownership
+            resume = Resume.objects.get(id=resume_id, user=request.user)
+            
+            # Set as default (model's save method handles removing default from others)
+            resume.is_default = True
+            resume.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'"{resume.name}" is now your default resume.'
+            })
+        except Resume.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Resume not found or you do not have permission.'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error setting default resume: {str(e)}'
+            }, status=500)
+
 
 class EmployerProfileView(EmployerRequiredMixin, TemplateView):
     """
