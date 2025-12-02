@@ -23,7 +23,6 @@ def home(request):
     if request.user.is_authenticated:
         return redirect(get_user_dashboard_url(request.user))
     
-    # Use cached data for unauthenticated visitors
     try:
         # Get cached statistics (5 min cache)
         stats = get_site_statistics()
@@ -43,7 +42,6 @@ def home(request):
             'featured_jobs': featured_jobs,
         }
     except Exception:
-        # Fallback to empty values if models are not available for any reason
         context = {
             'live_jobs_count': 0,
             'total_jobs_count': 0,
@@ -76,7 +74,6 @@ def register(request):
 
                 login(request, user)
                 
-                # Notify all admin/superusers about new registration
                 admin_users = User.objects.filter(is_staff=True, is_superuser=True)
                 for admin in admin_users:
                     create_notification(
@@ -93,10 +90,8 @@ def register(request):
                 )
 
                 if user.user_type == 'employer':
-                    # FIX: Redirect to the new app's URL name
                     return redirect('employer_profile:employer_profile_setup_step1') 
                 else:
-                    # This should be the Applicant Setup start page
                     return redirect('applicant_profile:applicant_profile_setup_step1') 
 
             except IntegrityError as e:
@@ -126,7 +121,6 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             
             if user is not None:
-                # Handle 'Remember Me' logic
                 if not remember_me:
                     request.session.set_expiry(0) 
                 else:
@@ -165,7 +159,6 @@ def user_logout(request):
 
 # --- Password Reset Views ---
 class CustomPasswordResetView(PasswordResetView):
-    """Custom password reset view with styled form"""
     form_class = CustomPasswordResetForm
     template_name = 'accounts/forgot_password.html'
     email_template_name = 'accounts/password_reset_email.txt'
@@ -177,7 +170,6 @@ class CustomPasswordResetView(PasswordResetView):
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    """Custom password reset confirm view with styled form"""
     form_class = CustomSetPasswordForm
     template_name = 'accounts/password_reset_confirm.html'
     success_url = reverse_lazy('accounts:password_reset_complete')

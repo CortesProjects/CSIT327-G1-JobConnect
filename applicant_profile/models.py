@@ -115,7 +115,6 @@ class ApplicantProfile(models.Model):
         help_text="Applicant's nationality"
     )
     
-    # Location (Composite)
     location_street = models.CharField(
         max_length=255,
         blank=True,
@@ -132,7 +131,6 @@ class ApplicantProfile(models.Model):
         help_text="Country of residence"
     )
     
-    # Metadata
     updated_at = models.DateTimeField(
         auto_now=True,
         help_text="Automatically records the last time the profile was modified"
@@ -162,7 +160,6 @@ class ApplicantProfile(models.Model):
     def education(self):
         """Human-readable education label for templates expecting `applicant.education`."""
         if self.education_level:
-            # Use Django model display for choice fields
             try:
                 return self.get_education_level_display()
             except Exception:
@@ -171,15 +168,12 @@ class ApplicantProfile(models.Model):
 
     @property
     def is_complete(self):
-        """Basic heuristic to determine if the applicant profile is complete."""
         required = [self.first_name, self.last_name]
-        # treat presence of either profile image or resume or contact number as further completeness
         additional = any([bool(self.profile_image), bool(self.resume), bool(self.contact_number)])
         return all(required) and additional
 
     @property
     def profile_image_url(self):
-        """Return profile image URL or a default placeholder path."""
         try:
             if self.profile_image and hasattr(self.profile_image, 'url'):
                 return self.profile_image.url
@@ -192,7 +186,6 @@ class ApplicantProfile(models.Model):
 
 
 class NotificationPreferences(models.Model):
-    """Notification preferences for applicants"""
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

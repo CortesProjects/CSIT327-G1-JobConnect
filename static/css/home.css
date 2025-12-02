@@ -1,4 +1,3 @@
-/* --- Hero Section --- */
 .hero-section {
     display: flex;
     justify-content: space-between;
@@ -53,7 +52,6 @@
 }
 
 
-/* --- Stats Section --- */
 .stats-section-wrapper {
     transform: translateY(-50px); 
     position: relative;
@@ -112,7 +110,6 @@
     margin-top: 0;
 }
 
-/* --- Popular Category Section --- */
 .popular-category-section {
     padding: 40px 0;
 }
@@ -188,7 +185,6 @@
     color: var(--text-color-light); 
 }
 
-/* --- Featured Jobs Section --- */
 .featured-jobs-section {
     padding: 40px 0;
 }
@@ -222,7 +218,6 @@
     color: var(--bg-white);
     font-weight: bold;
     font-size: 20px;
-    /* Nested style moved to job-card specific CSS */
     .bg-dark { background-color: #222; } 
     .bg-red-logo { background-color: #333333; } 
 }
@@ -311,7 +306,6 @@
     font-weight: 500;
 }
 
-/* --- CTA Section --- */
 .cta-section {
     display: flex;
     gap: 20px;
@@ -355,7 +349,6 @@
     border: none;
 }
 
-/* --- Footer Styles --- */
 .footer {
     background-color: #18191C;
     color: #DDDDDD;

@@ -5,7 +5,6 @@ User = get_user_model()
 
 
 class SavedCandidate(models.Model):
-    """Model to track candidates saved by employers for future reference"""
     employer = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 

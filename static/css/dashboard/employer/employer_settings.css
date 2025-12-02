@@ -1,7 +1,3 @@
-/* =====================================================
-   EMPLOYER SETTINGS PAGE STYLES
-===================================================== */
-
 .settings-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -15,7 +11,6 @@
     margin-bottom: 30px;
 }
 
-/* Messages */
 .messages-container {
     margin-bottom: 20px;
     transition: opacity 0.3s ease;
@@ -50,7 +45,6 @@
     color: #856404;
 }
 
-/* Tabs Navigation */
 .settings-tabs {
     display: flex;
     gap: 10px;
@@ -90,7 +84,6 @@
     font-size: 16px;
 }
 
-/* Tab Content */
 .tab-content-wrapper {
     position: relative;
 }
@@ -103,7 +96,6 @@
     display: block;
 }
 
-/* Form Sections */
 .form-section {
     margin: 10px 0;
 }
@@ -119,7 +111,6 @@
     margin-bottom: 20px;
 }
 
-/* Form Groups */
 .form-group {
     margin-bottom: 20px;
 }
@@ -183,7 +174,6 @@
     font-style: italic;
 }
 
-/* Form Rows */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -203,13 +193,11 @@
     margin-bottom: 20px;
 }
 
-/* Input with Icon */
 .input-with-icon {
     position: relative;
 }
 
 .input-with-icon > i:not(.toggle-password) {
-    /* Non-toggle icons (e.g. envelope) should sit on the left */
     position: absolute;
     left: 15px;
     top: 50%;
@@ -219,23 +207,19 @@
     z-index: 1;
 }
 
-/* Default input padding: small left padding so password fields don't have large empty space. Reserve right padding for the eye toggle. */
 .input-with-icon input {
     padding-left: 12px;
     padding-right: 44px;
-    /* Ensure padding doesn't increase element's rendered width and push the toggle out of the container */
     box-sizing: border-box;
     width: 100%;
 }
 
-/* If a left icon element immediately precedes the input, expand left padding to make room. Works when template renders icon before the input. */
 .input-with-icon > i:not(.toggle-password) + input,
 .input-with-icon > i:not(.toggle-password) + select,
 .input-with-icon > i:not(.toggle-password) + textarea {
     padding-left: 45px !important;
 }
 
-/* Image Upload */
 .upload-item {
     flex: 1;
 }
@@ -289,7 +273,6 @@
     object-fit: cover;
 }
 
-/* Applicant-style upload placeholders and hover overlays (copied/adapted) */
 .image-preview-setup {
     border: 2px dashed #dc3545;
     border-radius: 8px;
@@ -374,15 +357,9 @@
 .hover-overlay-setup p { color: white; margin: 8px 0; font-size: 14px; font-weight: 500; }
 .hover-overlay-setup small { color: rgba(255,255,255,0.85); font-size: 12px; }
 
-/* Size helpers */
 .square-logo-area { width: 220px; height: 220px; }
 .banner-preview-area { width: 100%; height: 160px; }
 
-/* Empty State Placeholder and image hover overlays are handled by
-   the applicant-style classes .image-preview-setup, .upload-content-placeholder,
-   and .hover-overlay-setup (defined above). */
-
-/* Hover Overlay - upload zone (modal) */
 .upload-zone::after {
     content: '';
     position: absolute;
@@ -410,12 +387,10 @@
     font-size: 12px;
 }
 
-/* Hide file inputs */
 .upload-item input[type="file"] {
     display: none;
 }
 
-/* Section Header with Button */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -447,7 +422,6 @@
     font-size: 12px;
 }
 
-/* Empty Permit State */
 .empty-permit-state {
     padding: 40px;
     border: 2px dashed #cbd5e0;
@@ -497,7 +471,6 @@
     box-shadow: 0 2px 8px rgba(204, 10, 13, 0.3);
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -678,7 +651,6 @@
     color: var(--primary-color);
 }
 
-/* File Item */
 .file-item {
     display: flex;
     align-items: center;
@@ -735,7 +707,6 @@
     box-shadow: 0 2px 4px rgba(128, 0, 0, 0.2);
 }
 
-/* Password Input & Toggle */
 .input-with-icon .toggle-password {
     position: absolute;
     right: 12px;
@@ -753,7 +724,6 @@
     color: var(--primary-color);
 }
 
-/* Password strength meter and match indicator (UI-only, visual feedback) */
 .password-strength {
     margin-top: 10px;
     display: flex;
@@ -822,7 +792,6 @@ textarea.valid:focus {
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
-/* Save Button */
 .form-actions {
     margin-bottom:30px;
 }
@@ -851,7 +820,6 @@ textarea.valid:focus {
     transform: translateY(0);
 }
 
-/* Danger Zone */
 .danger-zone {
     background-color: #fff5f5;
     border: 2px solid var(--primary-color);
@@ -889,10 +857,6 @@ textarea.valid:focus {
 .btn-close-account i {
     font-size: 18px;
 }
-
-/* =====================================================
-   SOCIAL LINKS SECTION STYLES
-===================================================== */
 
 .section-description {
     font-size: 14px;
@@ -1062,9 +1026,6 @@ textarea.valid:focus {
     display: none;
 }
 
-/* =====================================================
-   DELETE ACCOUNT SECTION STYLES
-===================================================== */
 
 .delete-account-section {
     background-color: #fff5f5;
@@ -1112,7 +1073,6 @@ textarea.valid:focus {
     font-size: 16px;
 }
 
-/* Delete Account Modal Styles */
 .delete-confirm-modal {
     max-width: 550px;
     padding: 20px;
@@ -1189,7 +1149,6 @@ textarea.valid:focus {
     z-index: 999;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
         padding: 20px 15px;

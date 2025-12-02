@@ -1,12 +1,9 @@
-/* Employer Profile Page - Revised Design with Global Palette */
-
 .employer-profile-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px 40px;
 }
 
-/* Back Button */
 .back-button-container {
     margin-bottom: 16px;
 }
@@ -36,7 +33,6 @@
     font-size: 14px;
 }
 
-/* Banner Section with Company Logo */
 .profile-banner-section {
     margin: 20px -20px 0px;
     position: relative;
@@ -103,7 +99,6 @@
     padding-bottom: 0px;
 }
 
-/* Edit Profile Button */
 .edit-btn {
     position: absolute;
     right: 20px;
@@ -145,7 +140,6 @@
     margin: 0;
 }
 
-/* Main Content Wrapper */
 .profile-content-wrapper {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -154,7 +148,6 @@
     margin: 0 auto;
 }
 
-/* Left Column - Main Content */
 .profile-main-column {
     display: flex;
     flex-direction: column;
@@ -188,7 +181,6 @@
     margin-bottom: 0;
 }
 
-/* Job Posts List */
 .job-posts-list {
     display: flex;
     flex-direction: column;
@@ -286,14 +278,12 @@
     color: var(--error-color);
 }
 
-/* Right Sidebar Column */
 .profile-sidebar-column {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
 
-/* Stats Card */
 .stats-card {
     background: var(--bg-white);
     border-radius: 12px;
@@ -368,7 +358,6 @@
     word-break: break-word;
 }
 
-/* Contact Information Card */
 .contact-info-card {
     background: var(--bg-white);
     border-radius: 12px;
@@ -409,7 +398,6 @@
     color: var(--bg-white);
 }
 
-/* backgrounds for circular icons */
 .contact-icon.website {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -422,21 +410,16 @@
     background: linear-gradient(135deg, var(--primary-color) 0%, #a00809 100%);
 }
 
-/* New location circular background */
 .contact-icon.location {
     background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
     color: #fff;
 }
 
-/* ensure inline SVG inherits color from .contact-icon */
 .contact-icon.location svg,
 .contact-icon.location svg path,
 .contact-icon.location svg circle {
     fill: currentColor;
 }
-
-/* if you want the inner pin circle white, override path/circle separately (kept consistent above) */
-/* .contact-icon.location svg circle { fill: #fff; } */
 
 .contact-details {
     flex: 1;
@@ -474,7 +457,6 @@
     text-decoration: underline;
 }
 
-/* Social Media Section */
 .social-media-section {
     margin-top: 25px;
     padding-top: 20px;
@@ -563,7 +545,6 @@
     color: var(--bg-white);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .profile-content-wrapper {
         grid-template-columns: 1fr;

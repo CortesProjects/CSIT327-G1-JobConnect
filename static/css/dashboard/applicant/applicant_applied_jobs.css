@@ -1,6 +1,3 @@
-/* Applied Jobs Page Styles */
-
-/* Main Content Header */
 .main-content-header h2 {
     font-size: 24px;
     font-weight: 600;
@@ -49,7 +46,6 @@
     vertical-align: middle;
 }
 
-/* Job Info */
 .job-info {
     display: flex;
     align-items: center;
@@ -88,7 +84,6 @@
     font-size: 12px;
 }
 
-/* Job Type Badge */
 .job-type-badge {
     display: inline-block;
     padding: 5px 10px;
@@ -109,14 +104,12 @@
     color: #7b1fa2;
 }
 
-/* Date Applied */
 .date-applied {
     font-size: 14px;
     color: #495057;
     white-space: nowrap;
 }
 
-/* Status Styles */
 .status {
     display: inline-flex;
     align-items: center;
@@ -163,7 +156,6 @@
     margin-left: 10px;
 }
 
-/* Action Button */
 .action-btn {
     display: inline-block;
     background-color: transparent;
@@ -184,7 +176,6 @@
     color: #fff;
 }
 
-/* Pagination */
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -223,7 +214,6 @@
     font-size: 14px;
 }
 
-/* Empty State */
 .empty-state {
     background-color: #f8f9fa;
     border-radius: 8px;

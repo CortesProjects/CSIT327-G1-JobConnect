@@ -1,5 +1,3 @@
-
-/* Form Validation Errors */
 .form-errors {
     background: #fee;
     border: 1px solid var(--error-color, #dc3545);
@@ -263,7 +261,6 @@
     cursor: pointer;
 }
 
-/* Jobs Table/List - Compact Design */
 .jobs-table {
     width: 100%;
     border-collapse: collapse;
@@ -298,7 +295,6 @@
     font-size: 0.9rem;
 }
 
-/* Job Info Column */
 .job-info-cell {
     display: flex;
     align-items: center;
@@ -376,7 +372,6 @@
     color: var(--text-color-dark, #333);
 }
 
-/* Meta Info Columns */
 .meta-info {
     display: flex;
     align-items: center;
@@ -396,7 +391,6 @@
     color: var(--success-green, #4CAF50);
 }
 
-/* Actions Column */
 .job-actions {
     display: flex;
     gap: 0.5rem;
@@ -463,7 +457,6 @@
     color: #ffc107;
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
@@ -507,7 +500,6 @@
     transform: translateY(-1px);
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -545,7 +537,6 @@
     gap: 0.5rem;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .filters-row {
         grid-template-columns: repeat(3, 1fr);
@@ -580,7 +571,6 @@
         gap: 1rem;
     }
 
-    /* Mobile: Stack job info vertically */
     .jobs-table {
         display: block;
     }

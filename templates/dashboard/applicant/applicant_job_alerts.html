@@ -25,7 +25,6 @@
     </div>
 </div>
 
-<!-- Configured Alerts Section -->
 {% if has_configured_alerts %}
 <div class="alerts-config-section" id="alertsConfigSection" style="display: none;">
     <div class="alerts-config-header">
@@ -92,7 +91,6 @@
 </div>
 {% endif %}
 
-<!-- Matching Jobs Section -->
 {% if alert_jobs %}
 <div class="job-alerts-list">
     {% for job in page_obj %}
@@ -100,7 +98,6 @@
     {% endfor %}
 </div>
 
-<!-- Pagination -->
 {% if page_obj.has_other_pages %}
 <div class="pagination-container">
     {% if page_obj.has_previous %}
@@ -146,7 +143,6 @@
 </div>
 {% endif %}
 
-<!-- Job Alert Modal -->
 <div class="alert-modal" id="alertModal">
     <div class="alert-modal-content">
         <div class="alert-modal-header">
@@ -249,7 +245,6 @@
     </div>
 </div>
 
-<!-- Delete Alert Confirmation Modal -->
 <div class="alert-modal" id="deleteAlertModal">
     <div class="alert-modal-content delete-modal-content">
         <div class="alert-modal-header delete-modal-header">

@@ -1,12 +1,9 @@
-/* My Jobs Page Styles */
-
 .my-jobs-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -68,12 +65,10 @@
     border-color: var(--primary-color);
 }
 
-/* My Jobs specific overrides */
 .recently-posted-jobs {
     margin-top: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;
@@ -85,9 +80,6 @@
     }
 }
 
-/* All table and empty state styles inherited from employer_dashboard.css */
-
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;

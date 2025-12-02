@@ -1,5 +1,5 @@
 {% load static %}
-{# Usage: {% include 'jobs/job_card.html' with job=job_instance %} #}
+{# Usage: include this template with `with job=job_instance` #}
 <link rel="stylesheet" href="{% static 'css/jobs/job_card.css' %}">
 
 <div class="job-card" data-job-id="{{ job.id }}">

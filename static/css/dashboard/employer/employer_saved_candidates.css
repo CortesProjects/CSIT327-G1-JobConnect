@@ -1,5 +1,3 @@
-/* Saved Candidates Page Styles */
-
 .saved-candidates-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -23,14 +21,12 @@
     margin: 0;
 }
 
-/* Candidates Grid */
 .candidates-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 24px;
 }
 
-/* Candidate Card - Similar to job_card.html */
 .candidate-card {
     background: var(--bg-white);
     border: 2px solid var(--border-color);
@@ -48,7 +44,6 @@
     transform: translateY(-2px);
 }
 
-/* Card Header */
 .candidate-card-header {
     display: flex;
     align-items: center;
@@ -127,7 +122,6 @@
     transform: scale(1.1);
 }
 
-/* Card Body */
 .candidate-card-body {
     display: flex;
     flex-direction: column;
@@ -219,7 +213,6 @@
     color: #f44336;
 }
 
-/* Card Footer */
 .candidate-card-footer {
     padding-top: 12px;
     border-top: 1px solid var(--border-color);
@@ -250,7 +243,6 @@
     font-size: 12px;
 }
 
-/* Empty State */
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -311,7 +303,6 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .candidates-grid {
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));

@@ -6,7 +6,6 @@
     --muted: #6b7280;
 }
 
-/* Breadcrumb */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -39,7 +38,6 @@
     font-weight: 500;
 }
 
-/* Container and layout */
 .job-detail-container {
     display: block;
     padding: 0 0 24px 0;
@@ -57,7 +55,6 @@
     padding: 0;
 }
 
-/* Header spans full width above the two-column body */
 .job-detail-container > .jd-header,
 .jd-header {
     width: 100%;
@@ -71,7 +68,6 @@
     margin-bottom: 22px;
 }
 
-/* Left side inside header */
 .jd-left { 
     display:flex; 
     gap:18px; 
@@ -122,7 +118,6 @@
     display:flex; gap:14px; color:var(--muted); font-size:13px; align-items:center; 
 }
 
-/* Right side (heart + apply + expire) */
 .jd-right { 
     display:flex; 
     gap:10px; 
@@ -256,12 +251,10 @@
 }
 
 
-/* Sections */
 .jd-section { margin-bottom:28px; }
 .jd-section h3 { margin:0 0 12px 0; font-size:16px; }
 .jd-content { color:#4b5563; line-height:1.8; }
 
-/* Right column cards */
 .job-detail-right { display:flex; flex-direction:column; gap:18px; }
 .card {
     border: 2px solid #e5e7eb;
@@ -356,7 +349,6 @@
     text-decoration:none; 
 }
 
-/* Clickable company card styles */
 .company-card.clickable-card {
     cursor: pointer;
     text-decoration: none;
@@ -393,7 +385,6 @@
     color: var(--primary-color);
 }
 
-/* Left Content - Job Details */
 .job-detail-left { 
     background: white; 
     border-radius: 12px; 
@@ -401,7 +392,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); 
 }
 
-/* Responsibilities list */
 .job-responsibilities-content ul { 
     list-style: none; 
     padding: 0; 
@@ -455,29 +445,108 @@
     }
 }
 
-/* Apply modal styles */
-.apply-modal { display:none; position:fixed; inset:0; z-index:1200; font-family:inherit; }
-.apply-modal.show { display:block; }
-.apply-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); }
-.apply-modal-panel { position:relative; width:640px; max-width:92%; margin:6% auto; background:var(--bg-white); border-radius:12px; box-shadow:var(--card-shadow); overflow:hidden; }
-.apply-modal-close { position:absolute; top:12px; right:12px; border:none; background:transparent; font-size:26px; line-height:1; cursor:pointer; color:var(--text-color-light); }
-.apply-modal-body { padding:28px; }
-.apply-modal-body h3 { margin:0 0 14px 0; font-size:18px; }
-.field-label { display:block; margin:10px 0 6px 0; color:var(--text-color-light); font-weight:600; font-size:13px; }
-.field-select, .field-textarea { width:100%; border:1px solid var(--border-color); border-radius:8px; padding:12px; font-size:14px; color:var(--text-color-dark); background:var(--bg-white); }
-.field-select { height:44px; }
-.field-textarea { min-height:140px; resize:vertical; }
-.apply-modal-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:16px; }
-.btn { padding:10px 18px; border-radius:8px; cursor:pointer; border:1px solid transparent; }
-.btn-cancel { background:transparent; border:1px solid var(--border-color); color:var(--text-color-dark); }
-.btn-primary { background:var(--primary-color); color:var(--bg-white); border-color:var(--primary-color); }
-.btn-primary:hover { background:var(--primary-color); opacity:0.95; }
+.apply-modal { 
+    display:none; 
+    position:fixed; 
+    inset:0; 
+    z-index:1200; 
+    font-family:inherit; 
+}
+
+.apply-modal.show { 
+    display:block; 
+}
+
+.apply-modal-overlay { 
+    position:fixed; 
+    inset:0; 
+    background:rgba(0,0,0,0.45); 
+}
+
+.apply-modal-panel { 
+    position:relative; 
+    width:640px; 
+    max-width:92%; 
+    margin:6% auto; 
+    background:var(--bg-white); 
+    border-radius:12px; 
+    box-shadow:var(--card-shadow); 
+    overflow:hidden; 
+}
+
+.apply-modal-close { 
+    position:absolute; 
+    top:12px; 
+    right:12px; 
+    border:none; 
+    background:transparent; 
+    font-size:26px; 
+    line-height:1; 
+    cursor:pointer; 
+    color:var(--text-color-light); 
+}
+
+.apply-modal-body { 
+    padding:28px; 
+}
+.apply-modal-body h3 { 
+    margin:0 0 14px 0; 
+    font-size:18px; 
+}
+.field-label { 
+    display:block; 
+    margin:10px 0 6px 0; 
+    color:var(--text-color-light); 
+    font-weight:600; 
+    font-size:13px; 
+}
+.field-select, .field-textarea { 
+    width:100%; 
+    border:1px solid var(--border-color); 
+    border-radius:8px; 
+    padding:12px; 
+    font-size:14px; 
+    color:var(--text-color-dark); 
+    background:var(--bg-white); 
+}
+.field-select { 
+    height:44px; 
+}
+.field-textarea { 
+    min-height:140px; 
+    resize:vertical; 
+}
+.apply-modal-actions { 
+    display:flex; 
+    justify-content:flex-end; 
+    gap:12px; 
+    margin-top:16px; 
+}
+.btn { 
+    padding:10px 18px; 
+    border-radius:8px; 
+    cursor:pointer; 
+    border:1px solid transparent; 
+}
+.btn-cancel { 
+    background:transparent; 
+    border:1px solid var(--border-color); 
+    color:var(--text-color-dark); 
+}
+.btn-primary { 
+    background:var(--primary-color); 
+    color:var(--bg-white); 
+    border-color:var(--primary-color); 
+}
+.btn-primary:hover { 
+    background:var(--primary-color); 
+    opacity:0.95; 
+}
 
 @media (max-width: 520px) {
     .apply-modal-panel { margin:10% 12px; }
 }
 
-/* Modal Styles for Delete and Mark Expired */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -619,7 +688,6 @@
     background: #c82333;
 }
 
-/* Styling for formatted text in job description */
 .jd-content {
     line-height: 1.8;
     color: #333;

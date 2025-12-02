@@ -84,7 +84,6 @@
 }
 .bookmark-btn i { font-size:18px; }
 
-/* Responsive adjustments */
 @media (max-width: 880px) {
     .job-card { padding:16px; }
     .company-logo { width:60px; height:60px; flex:0 0 60px; }

@@ -1,4 +1,3 @@
-/* Base Dashboard Layout - Common styles for all dashboards */
 body {
     background-color: #F8F9FA;
 }
@@ -204,7 +203,6 @@ body {
     color: #d32f2f;
 }
 
-/* Common Form Styles */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -233,7 +231,6 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Common Button Styles */
 .btn-save {
     background-color: #007bff;
     color: #fff;
@@ -250,15 +247,12 @@ body {
     background-color: #0056b3;
 }
 
-/* Common Table Styles */
 .jobs-table-wrapper {
     overflow-x: auto;
 }
 
 .jobs-table {
     width: 100%;
-    /* Use separate collapse so we can round row corners cleanly without
-       affecting column borders. Keep spacing at 0 so cells sit flush. */
     border-collapse: separate;
     border-spacing: 0;
 }
@@ -268,7 +262,6 @@ body {
 }
 
 
-/* Round outer corners of the header row only (no radius between cells) */
 .jobs-table thead th:first-child {
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
@@ -334,7 +327,6 @@ body {
     border-bottom-right-radius: 8px;
 }
 
-/* Job Type Badges */
 .job-type-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -373,7 +365,6 @@ body {
     color: #1976d2;
 }
 
-/* Status Badges */
 .status-badge {
     display: inline-flex;
     align-items: center;

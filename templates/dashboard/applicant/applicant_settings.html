@@ -26,7 +26,6 @@
         </div>
     </div>
 
-    <!-- Personal Tab -->
     <div id="personal-tab" class="tab-content active">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -55,7 +54,6 @@
                             </button>
                         </div>
                         {% endif %}
-                        <!-- Render hidden file input for profile image so JS can trigger it -->
                         <div style="display:none;">
                             {{ personal_info_form.profile_image }}
                         </div>
@@ -145,7 +143,6 @@
             </div>
         </div>
 
-        <!-- Resume Upload Modal -->
         <div class="modal" id="resumeModal">
             <div class="modal-overlay" onclick="closeResumeModal()"></div>
             <div class="modal-content">
@@ -199,7 +196,6 @@
         </div>
     </div>
 
-    <!-- Profile Tab -->
     <div class="tab-content" id="profile-tab">
         <form method="post">
             {% csrf_token %}
@@ -278,7 +274,6 @@
         </form>
     </div>
 
-    <!-- Social Links Tab -->
     <div class="tab-content" id="social-tab">
         <form method="post" id="social-links-form">
             {% csrf_token %}
@@ -470,7 +465,6 @@
                 </button>
             </div>
             
-            <!-- Delete Account Confirmation Modal -->
             <div class="modal" id="deleteAccountModal">
                 <div class="modal-overlay" onclick="closeDeleteAccountModal()"></div>
                 <div class="modal-content delete-confirm-modal">
@@ -524,7 +518,6 @@
     </div>
 </div>
 
-<!-- Load applicant settings UI-only script (validation is server-side) -->
 <script src="{% static 'js/dashboard/applicant/applicant_settings.js' %}"></script>
 
 {% endblock %}

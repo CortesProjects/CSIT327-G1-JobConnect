@@ -11,17 +11,8 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 
 
-# Decorator versions for function-based views
 def employer_required(view_func):
-    """
-    Decorator that requires the user to be authenticated and have employer user type.
-    Use this instead of manually checking user_type in function-based views.
     
-    Usage:
-        @employer_required
-        def my_view(request):
-            ...
-    """
     @wraps(view_func)
     @login_required
     def wrapped_view(request, *args, **kwargs):
@@ -33,15 +24,7 @@ def employer_required(view_func):
 
 
 def applicant_required(view_func):
-    """
-    Decorator that requires the user to be authenticated and have applicant user type.
-    Use this instead of manually checking user_type in function-based views.
-    
-    Usage:
-        @applicant_required
-        def my_view(request):
-            ...
-    """
+   
     @wraps(view_func)
     @login_required
     def wrapped_view(request, *args, **kwargs):
@@ -53,15 +36,7 @@ def applicant_required(view_func):
 
 
 def admin_required(view_func):
-    """
-    Decorator that requires the user to be authenticated and be an admin/staff user.
-    Use this instead of manually checking is_staff in function-based views.
-    
-    Usage:
-        @admin_required
-        def my_view(request):
-            ...
-    """
+   
     @wraps(view_func)
     @login_required
     def wrapped_view(request, *args, **kwargs):
@@ -73,10 +48,7 @@ def admin_required(view_func):
 
 
 class EmployerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """
-    Mixin that requires the user to be authenticated and have employer user type.
-    Redirects to login if not authenticated, or shows error if wrong user type.
-    """
+    
     login_url = reverse_lazy('accounts:login')
     
     def test_func(self):
@@ -90,10 +62,7 @@ class EmployerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class ApplicantRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """
-    Mixin that requires the user to be authenticated and have applicant user type.
-    Redirects to login if not authenticated, or shows error if wrong user type.
-    """
+    
     login_url = reverse_lazy('accounts:login')
     
     def test_func(self):
@@ -107,10 +76,7 @@ class ApplicantRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """
-    Mixin that requires the user to be authenticated and be an admin/staff user.
-    Redirects to login if not authenticated, or shows error if not admin.
-    """
+    
     login_url = reverse_lazy('accounts:login')
     
     def test_func(self):
@@ -124,10 +90,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class JobOwnerRequiredMixin(UserPassesTestMixin):
-    """
-    Mixin that requires the user to be the owner of the job being accessed.
-    Use with views that have a job object (e.g., DetailView, UpdateView).
-    """
+    
     def test_func(self):
         job = self.get_object()
         return job.employer == self.request.user
@@ -138,10 +101,7 @@ class JobOwnerRequiredMixin(UserPassesTestMixin):
 
 
 class AjaxResponseMixin:
-    """
-    Mixin to add AJAX response capabilities to class-based views.
-    Detects AJAX requests and returns JSON instead of rendering HTML.
-    """
+    
     def is_ajax(self):
         return (
             self.request.headers.get('x-requested-with') == 'XMLHttpRequest' or

@@ -1,7 +1,4 @@
-/* Candidate Detail Page Styles */
-
 :root {
-    --primary-color: #dc3545;
     --primary-color-dark: #c82333;
     --primary-bg: rgba(220, 53, 69, 0.08);
     --success-color: #28a745;
@@ -16,7 +13,6 @@
     position: relative;
 }
 
-/* Close Button */
 .btn-close {
     position: absolute;
     top: 20px;
@@ -44,7 +40,6 @@
     color: #666;
 }
 
-/* Candidate Header */
 .candidate-header {
     background: white;
     border-radius: 12px;
@@ -177,7 +172,6 @@
     background: var(--success-color);
 }
 
-/* Filter Bar */
 .filter-bar {
     display: flex;
     gap: 12px;
@@ -212,14 +206,12 @@
     border-color: var(--primary-color);
 }
 
-/* Content Layout */
 .candidate-content {
     display: grid;
     grid-template-columns: 1fr 380px;
     gap: 30px;
 }
 
-/* Main Content */
 .content-main {
     display: flex;
     flex-direction: column;
@@ -256,7 +248,6 @@
     margin-bottom: 0;
 }
 
-/* Social Media Links */
 .social-media-links {
     display: flex;
     gap: 12px;
@@ -308,7 +299,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Sidebar */
 .content-sidebar {
     display: flex;
     flex-direction: column;
@@ -393,7 +383,6 @@
     margin: 8px 0 3px 0;
 }
 
-/* Download Section */
 .download-section {
     background: white;
     border-radius: 12px;
@@ -455,7 +444,6 @@
     color: var(--primary-color);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .candidate-content {
         grid-template-columns: 1fr;
@@ -489,7 +477,6 @@
     }
 }
 
-/* Hire Modal Styles */
 .modal-overlay {
     display: none;
     position: fixed;

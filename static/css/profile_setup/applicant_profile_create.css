@@ -1,6 +1,3 @@
-/* =====================================================================
-   APPLICANT PROFILE SETUP STYLES
-===================================================================== */
 .setup-progress-header {
     display: flex;
     flex-direction: column;
@@ -47,10 +44,6 @@
     gap: 15px;
     flex-shrink: 0;
 }
-
-/* =====================================================================
-   1. MAIN CONTENT LAYOUT & NAVIGATION
-===================================================================== */
 
 .profile-setup-container {
     max-width: 800px;
@@ -111,9 +104,6 @@
     color: #b0b0b0; 
 }
 
-/* =====================================================================
-   2. FORM CARDS & INPUT AREAS
-===================================================================== */
 
 .form-section-card {
     background-color: #fff;
@@ -147,10 +137,6 @@
 }
 
 .field-container.flex-2 { flex: 2; }
-
-/* =====================================================================
-   3. INPUT & UPLOAD STYLES
-===================================================================== */
 
 .field-container {
     display: flex;
@@ -314,7 +300,6 @@
     color: #dc3545;
 }
 
-/* Profile Picture Upload Styles (matching settings) */
 .profile-picture-container {
     margin-bottom: 30px;
 }
@@ -437,9 +422,6 @@
     display: none;
 }
 
-/* =====================================================================
-   4. BUTTONS AND NAVIGATION
-===================================================================== */
 
 .form-navigation-row {
     display: flex;
@@ -487,9 +469,6 @@
     color: #c82333;
 }
 
-/* =====================================================================
-   5. COMPLETION PAGE STYLES
-===================================================================== */
 
 .profile-completion-container {
     display: flex;
@@ -555,10 +534,6 @@
     background-color: #e2e6ea;
 }
 
-/* =====================================================================
-   ERROR HIGHLIGHTING STYLES
-===================================================================== */
-
 .error-text {
     color: #dc3545 !important;
     font-size: 0.875rem;
@@ -566,14 +541,12 @@
     display: block;
 }
 
-/* Highlight field containers with errors */
 .field-container:has(.error-text:not(:empty)) input,
 .field-container:has(.error-text:not(:empty)) select,
 .field-container:has(.error-text:not(:empty)) textarea {
     border-color: #dc3545 !important;
 }
 
-/* Highlight upload areas with errors */
 .upload-area:has(+ .error-text:not(:empty)) {
     border-color: #dc3545 !important;
 }

@@ -11,7 +11,6 @@
 {% block content %}
 <div class="search-results-page">
 
-  <!-- TOP SEARCH BAR -->
   <div class="top-search-bar">
     <form class="top-search-form" method="get" action="{% url 'jobs:job_search' %}" id="top-search-form">
       <div class="search-input-wrapper">
@@ -40,17 +39,14 @@
     </div>
   </div>
 
-  <!-- FILTER DRAWER -->
   <div id="filter-drawer" class="filter-drawer" aria-hidden="true">
     <form method="get" id="filters-form" class="filters-form-inner">
 
-      <!-- Persist Search -->
       <input type="hidden" name="query" value="{{ query|default:'' }}">
       <input type="hidden" name="location" value="{{ location|default:'' }}">
 
       <div class="filters-row">
 
-        <!-- JOB TYPE DROPDOWN -->
         <div class="filter-field">
           <label class="filter-heading">Job Type</label>
           <select name="job_type" class="filter-select">
@@ -61,7 +57,6 @@
           </select>
         </div>
 
-        <!-- CATEGORY DROPDOWN -->
         <div class="filter-field">
           <label class="filter-heading">Category</label>
           <select name="category" class="filter-select">
@@ -72,7 +67,6 @@
           </select>
         </div>
 
-        <!-- EDUCATION DROPDOWN -->
         <div class="filter-field">
           <label class="filter-heading">Education</label>
           <select name="education" class="filter-select">
@@ -83,7 +77,6 @@
           </select>
         </div>
 
-        <!-- EXPERIENCE DROPDOWN -->
         <div class="filter-field">
           <label class="filter-heading">Experience</label>
           <select name="experience" class="filter-select">
@@ -94,7 +87,6 @@
           </select>
         </div>
 
-        <!-- JOB LEVEL DROPDOWN -->
         <div class="filter-field">
           <label class="filter-heading">Level</label>
           <select name="job_level" class="filter-select">
@@ -105,7 +97,6 @@
           </select>
         </div>
 
-        <!-- SALARY RANGE -->
         <div class="filter-field salary-range-field">
           <label class="filter-heading">Salary range</label>
           <div class="salary-inputs" style="display:flex; gap:8px; align-items:center;">
@@ -125,7 +116,6 @@
     </form>
   </div>
 
-  <!-- RESULTS -->
   <div class="content-wrapper no-sidebar">
     <section class="results-section">
 
@@ -152,7 +142,6 @@
           {% for job in jobs %}
           <div class="results-row">
 
-            <!-- JOB DETAILS -->
             <div class="col job-details-col">
               <a href="{% url 'jobs:job_detail' job.id %}" class="job-link">
 
@@ -173,13 +162,11 @@
               </a>
             </div>
 
-            <!-- LOCATION -->
             <div class="col location-col">
               <i class="fas fa-map-marker-alt"></i>
               <span class="location-text">{{ job.location }}</span>
             </div>
 
-            <!-- SALARY -->
             <div class="col salary-col">
               <i class="fas fa-money-bill-wave"></i>
               {% if job.min_salary %}
@@ -195,7 +182,6 @@
               {% endif %}
             </div>
 
-            <!-- POSTED -->
             <div class="col posted-col">
               <i class="far fa-clock"></i>
               {% if job.posted_at %}
@@ -205,7 +191,6 @@
               {% endif %}
             </div>
 
-            <!-- ACTIONS -->
             <div class="col actions-col">
               <a href="{% url 'jobs:job_detail' job.id %}" class="btn view-details-btn">View details <i class="fas fa-arrow-right"></i></a>
 

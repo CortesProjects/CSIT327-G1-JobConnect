@@ -11,7 +11,7 @@ def resume_upload_path(instance, filename):
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
-    # Whether the user has accepted the site's Terms & Conditions
+    
     accepted_terms = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'email'
@@ -52,10 +52,7 @@ class User(AbstractUser):
     
     @property
     def profile(self):
-        '''
-        Returns the specific profile instance (Applicant or Employer) 
-        based on the user_type. This simplifies template access.
-        '''
+        
         if self.user_type == 'applicant':
             return self.applicant_profile_rel 
         elif self.user_type == 'employer':
@@ -67,10 +64,6 @@ class User(AbstractUser):
 
 
 class UserVerification(models.Model):
-    """
-    Tracks the administrative approval status for accounts requiring verification.
-    Primarily used for Employers and their business permits.
-    """
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('verified', 'Verified'),
@@ -115,10 +108,6 @@ class UserVerification(models.Model):
 
 
 class UserSocialLink(models.Model):
-    """
-    Handles social media links for all users (Applicants and Employers).
-    Supports multivalued social links (e.g., multiple platforms per user).
-    """
     PLATFORM_CHOICES = [
         ('linkedin', 'LinkedIn'),
         ('twitter', 'Twitter'),

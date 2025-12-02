@@ -1,7 +1,6 @@
 from django import forms
 from applicant_profile.models import ApplicantProfile 
 
-# Form for Step 1: Personal Information
 class PersonalInfoForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
@@ -145,8 +144,6 @@ class ProfileDetailsForm(forms.ModelForm):
         self.fields['marital_status'].required = False
         self.fields['biography'].required = False
     
-
-# Form for Step 3: Contact Information and Resume
 class ContactInfoForm(forms.ModelForm):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
@@ -175,7 +172,6 @@ class ContactInfoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Set email from user instance if available
         if self.instance and self.instance.user:
             self.fields['email'].initial = self.instance.user.email
         
@@ -204,7 +200,6 @@ class ContactInfoForm(forms.ModelForm):
                 raise forms.ValidationError("You must be at least 16 years old to register.")
             if age > 100:
                 raise forms.ValidationError("Please enter a valid date of birth.")
-            # Ensure date is not in the future
             if dob > today:
                 raise forms.ValidationError("Date of birth cannot be in the future.")
         return dob

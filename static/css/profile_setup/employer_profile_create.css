@@ -1,9 +1,3 @@
-/* accounts/static/css/employer_profile_create.css */
-
-/* =====================================================================
-1. HEADER PROGRESS BAR STYLES (For insertion into base.html)
-===================================================================== */
-
 .setup-progress-header {
     display: flex;
     flex-direction: column;
@@ -15,7 +9,6 @@
 .setup-progress-header .progress-text-row {
     display: flex;
     justify-content: space-between;
-    /* Increased width */
     width: 250px; 
     margin-bottom: 3px;
 }
@@ -52,24 +45,17 @@
     flex-shrink: 0;
 }
 
-/* =====================================================================
-2. MAIN CONTENT LAYOUT & NAVIGATION
-===================================================================== */
-
-/* Container for form content (900px wide) */
 .profile-setup-container {
     max-width: 900px;
     margin: 20px auto 40px;
     padding: 20px;
 }
 
-/* Reset any unwanted main content header styles */
 .setup-header {
     margin-bottom: 30px;
     display: block; 
 }
 
-/* Wrapper to hold and center the navigation tabs (Added in HTML structure) */
 .step-navigation-wrapper {
     width: 100%;
     margin-bottom: 30px;
@@ -77,15 +63,12 @@
     box-sizing: border-box;
 }
 
-/* Step Navigation Tabs (Centered over the content) */
 .step-navigation {
     display: flex;
-    /* FIX: Center the navigation block over the 900px container */
     justify-content: center; 
     max-width: 900px;
     width: 100%;
-    margin: 0 auto; /* Centers the block */
-    
+    margin: 0 auto;
     gap: 30px;
     border-bottom: 1px solid var(--border-color);
     padding: 0 0 5px 0;
@@ -117,10 +100,6 @@
     font-weight: 500;
 }
 
-/* =====================================================================
-3. FORM CARDS & INPUT AREAS
-===================================================================== */
-
 .form-section-card {
     background-color: var(--bg-white);
     padding: 30px;
@@ -134,7 +113,6 @@
     font-weight: 600;
 }
 
-/* --- GRID & ROW LAYOUTS (NEW/MODIFIED for Step 2) --- */
 .input-group-grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -148,12 +126,10 @@
     margin-bottom: 20px;
 }
 
-/* Specific styling for Date/Website row in Step 2 */
 .input-group-row .field-container {
     flex: 1;
 }
 
-/* --- UPLOAD AREAS (Step 1: Logo & Permit) --- */
 .upload-group-row {
     display: flex;
     gap: 30px;
@@ -173,7 +149,6 @@
     margin-bottom: 10px; 
 }
 
-/* FIX: Specific Flex Rules for Columns */
 .upload-group-row > .upload-column:first-child {
     flex-grow: 0;   
     flex-shrink: 0; 
@@ -186,7 +161,6 @@
     flex-shrink: 1; 
 }
 
-/* --- UPLOAD AREA STYLING --- */
 .upload-area {
     width: 100%;
     border-radius: 8px;
@@ -202,7 +176,6 @@
     align-items: center;
 }
 
-/* NEW: Image Preview Setup for Logo and Permit */
 .image-preview-setup.square-logo-area {
     width: 200px;
     height: 200px;
@@ -267,7 +240,6 @@
     display: block;
 }
 
-/* Embedded PDF preview and image sizing for business permit */
 .permit-embed-wrap {
     width: 100%;
     height: 250px;
@@ -287,7 +259,6 @@
     border-radius: 8px;
 }
 
-/* Compact card view for business permit (filename + icon) */
 .permit-card {
     display: flex;
     align-items: center;
@@ -305,7 +276,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    background-color: #f8d7da; /* light red shade */
+    background-color: #f8d7da; 
     color: #dc3545;
     font-size: 22px;
 }
@@ -415,7 +386,6 @@
     font-size: 12px;
 }
 
-/* OLD: Square Logo Area (Uses Padding-Bottom Trick for Shape) - Kept for compatibility */
 .upload-area.square-logo-area {
     width: 100%; 
     height: 0;
@@ -425,7 +395,6 @@
     position: relative;
 }
 
-/* Content wrapper for the square area to re-apply centering */
 .upload-area.square-logo-area .upload-content-placeholder,
 .upload-area.square-logo-area .file-attached-display {
     position: absolute;
@@ -440,7 +409,6 @@
     padding: 20px;
 }
 
-/* Business Permit Area (Flexible Rectangle) */
 .upload-area.business-permit-area {
     aspect-ratio: auto; 
     height: 100%;
@@ -449,9 +417,6 @@
     min-height: 200px; 
 }
 
-/* Hide native file input elements inside upload wrappers so the browser
-   "Choose File / No file chosen" control does not appear. Templates
-   render hidden inputs; this ensures any leftover visible inputs are hidden. */
 .logo-upload-wrapper input[type="file"],
 .permit-upload-wrapper input[type="file"],
 .profile-picture-wrapper input[type="file"],
@@ -464,7 +429,6 @@ input[type="file"].actual-file-input {
     visibility: hidden !important;
 }
 
-/* --- UPLOAD UX/FEEDBACK --- */
 .upload-area:not(.file-attached):hover {
     border-color: var(--primary-color);
 }
@@ -479,11 +443,6 @@ input[type="file"].actual-file-input {
 }
 
 
-/* =====================================================================
-4. INPUT STYLES & RICH TEXT TOOLBAR / DATE PICKER FIX
-===================================================================== */
-
-/* Styles for labels above form fields */
 .field-container label {
     display: block;
     font-size: 0.95rem;
@@ -503,48 +462,36 @@ input[type="file"].actual-file-input {
     font-size: 1rem;
 }
 
-/* FIX: Date Input Wrapper Styling */
 .field-container.date-input-wrapper {
     position: relative;
 }
 
-/* FIX: Calendar Icon Styling (Positioned over the input) */
 .date-input-wrapper .date-icon {
     position: absolute;
-    /* Adjusted top based on label margin and input padding */
     top: 48px; 
     right: 12px;
     color: var(--text-color-light);
-    /* CRITICAL FIX: Ensure the icon is NOT pointer-events: none 
-       because the JS needs to click it. */
     cursor: pointer;
     font-size: 1.1rem;
-    z-index: 2; /* Ensure it's above the input text */
+    z-index: 2;
 }
 
-/* Ensure date input has padding on the right so text doesn't overlap the icon */
 .date-picker-input {
     padding-right: 35px !important;
 }
 
-/* CRITICAL FIX: Ensure the native calendar icon is made invisible but clickable */
 .date-picker-input::-webkit-calendar-picker-indicator {
     opacity: 0;
     position: absolute;
     top: 0;
     right: 0;
-    width: 35px; /* Size matching the custom icon area */
+    width: 35px;
     height: 100%;
     cursor: pointer;
-    /* Set z-index lower than the custom icon, but higher than the input text */
     z-index: 3; 
-    
-    /* Remove transforms and use standard positioning to ensure full coverage */
     margin: 0;
 }
 
-
-/* --- RICH TEXT TOOLBAR STYLES --- */
 #about-us-editor,
 #company-vision-editor { 
     resize: vertical;
@@ -599,7 +546,6 @@ input[type="file"].actual-file-input {
     background-color: #eee;
 }
 
-/* --- DROPDOWN STYLES --- */
 .form-select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -608,25 +554,18 @@ input[type="file"].actual-file-input {
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px;
-    padding-right: 35px; /* Space for the custom arrow */
+    padding-right: 35px;
 }
 
-
-/* =====================================================================
-5. BUTTONS AND NAVIGATION
-===================================================================== */
 .form-navigation-row {
     display: flex;
-    /* FIX: Align items to the right */
     justify-content: flex-end; 
     align-items: center;
     margin-top: 30px;
-    /* Remove unnecessary padding on the right as the form is already centered */
     padding-right: 0; 
     gap: 15px;
 }
 
-/* FIX: Styling for the 'Previous' button (link tag) */
 .form-navigation-row a.btn-secondary, .btn-secondary {
     background-color: transparent;
     color: var(--primary-color);
@@ -638,7 +577,7 @@ input[type="file"].actual-file-input {
     transition: background-color 0.2s;
 }
 .form-navigation-row a.btn-secondary:hover {
-    background-color: var(--secondary-color); /* Light hover effect */
+    background-color: var(--secondary-color); 
 }
 
 .cta-btn {
@@ -656,8 +595,6 @@ input[type="file"].actual-file-input {
     transition: background-color 0.2s;
 }
 
-
-
 .phone-prefix.narrow-prefix {
     width: 80px; 
     flex-grow: 0.2;
@@ -672,7 +609,6 @@ input[type="file"].actual-file-input {
     white-space: nowrap;
 }
 
-/* --- COMPLETION PAGE STYLES (MODIFIED) --- */
 .profile-completion-container {
     display: flex;
     justify-content: center;
@@ -683,14 +619,14 @@ input[type="file"].actual-file-input {
 .completion-box {
     max-width: 500px;
     padding: 40px;
-    background-color: var(--bg-white, #fff); /* Ensure white background */
+    background-color: var(--bg-white, #fff); 
     border-radius: 8px;
     /* box-shadow: 0 4px 12px rgba(0,0,0,0.05);  */
 }
 .completion-icon-wrapper {
     width: 100px;
     height: 100px;
-    background-color: #E7F0FA; /* Light blue background for the circle */
+    background-color: #E7F0FA; 
     border-radius: 50%;
     margin: 0 auto 30px;
     display: flex;
@@ -731,10 +667,10 @@ input[type="file"].actual-file-input {
 }
 
 .btn-completion-secondary {
-    background-color: #E7F0FA; /* Light grey background */
-    color: var(--primary-color); /* Red text */
+    background-color: #E7F0FA;
+    color: var(--primary-color);
     padding: 15px 30px;
-    border: none; /* No border for this style */
+    border: none; 
     border-radius: 8px;
     font-size: 1.1rem;
     cursor: pointer;
@@ -743,14 +679,13 @@ input[type="file"].actual-file-input {
     align-items: center;
     gap: 10px;
     transition: background-color 0.2s;
-    font-weight: 500; /* Slightly bolder text */
+    font-weight: 500; 
 }
 
 .btn-completion-secondary:hover {
-    background-color: #e2e6ea; /* Darker grey on hover */
+    background-color: #e2e6ea;
 }
 
-/* Ensure the primary button is consistent */
 .cta-btn.save-next-btn {
     background-color: var(--primary-color, #dc3545);
     color: white;
@@ -773,13 +708,12 @@ input[type="file"].actual-file-input {
     margin-bottom: 5px;
     display: block; 
 }
-/* Error field highlighting */
+
 .field-container:has(.error-text:not(:empty)) .form-control,
 .field-container:has(.error-text:not(:empty)) .form-select {
     border-color: #dc3545;
 }
 
-/* Highlight upload areas with errors */
 .upload-column:has(.error-text:not(:empty)) .upload-area {
     border-color: #dc3545;
     background-color: #fff5f5;

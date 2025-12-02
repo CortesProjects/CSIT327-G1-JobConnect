@@ -85,17 +85,14 @@ class JobPostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ensure FK fields use active lookup table entries
         from .models import (
             JobCategory, EmploymentType, EducationLevel,
             ExperienceLevel, JobLevel, SalaryType
         )
 
-        # If the model fields are present on the form, set their querysets
         if 'category' in self.fields:
             self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
         if 'job_type' in self.fields:
-            # ModelChoiceField will be created for ForeignKey fields
             self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
         if 'education' in self.fields:
             self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
@@ -106,7 +103,6 @@ class JobPostForm(forms.ModelForm):
         if 'salary_type' in self.fields:
             self.fields['salary_type'].queryset = SalaryType.objects.filter(is_active=True)
 
-        # Vacancies should be a numeric input rather than a select
         self.fields['vacancies'].widget = forms.NumberInput(attrs={
             'class': 'form-control', 'id': 'vacancies', 'min': '1'
         })
@@ -124,7 +120,6 @@ class JobPostForm(forms.ModelForm):
         if not description or not description.strip():
             raise ValidationError('Job description is required. Please provide details about the position.')
         
-        # Remove HTML tags for length validation
         import re
         text_only = re.sub('<[^<]+?>', '', description)
         if len(text_only.strip()) < 50:
@@ -165,7 +160,7 @@ class JobPostForm(forms.ModelForm):
             raise ValidationError('Application deadline is required.')
         if expiration_date < date.today():
             raise ValidationError('Application deadline must be a future date.')
-        # Check if deadline is too far in future (e.g., more than 1 year)
+       
         from datetime import timedelta
         max_date = date.today() + timedelta(days=365)
         if expiration_date > max_date:
@@ -177,7 +172,6 @@ class JobPostForm(forms.ModelForm):
         min_salary = cleaned_data.get('min_salary')
         max_salary = cleaned_data.get('max_salary')
 
-        # Validate salary range
         if min_salary is not None and max_salary is not None:
             if min_salary < 0:
                 self.add_error('min_salary', 'Minimum salary cannot be negative.')
@@ -186,14 +180,11 @@ class JobPostForm(forms.ModelForm):
             if min_salary > max_salary:
                 self.add_error('min_salary', 'Minimum salary cannot be greater than maximum salary.')
 
-        # Mirror model-level validation by populating instance and running its clean()
         try:
-            # Assign cleaned values onto the instance for validation
             for field in self.Meta.fields:
                 if field in cleaned_data:
                     setattr(self.instance, field, cleaned_data.get(field))
 
-            # Call model.clean() to enforce model constraints
             self.instance.clean()
         except ValidationError as e:
             if hasattr(e, 'message_dict'):
@@ -207,7 +198,6 @@ class JobPostForm(forms.ModelForm):
 
 
 class JobAlertForm(forms.ModelForm):
-    """Form for creating and editing job alerts."""
     
     class Meta:
         model = JobAlert
@@ -265,7 +255,6 @@ class JobAlertForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set querysets for FK fields to only show active options
         from .models import JobCategory, EmploymentType
         
         self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
@@ -275,7 +264,6 @@ class JobAlertForm(forms.ModelForm):
         self.fields['job_category'].empty_label = "Any Category"
     
     def clean_alert_name(self):
-        """Validate alert name."""
         alert_name = self.cleaned_data.get('alert_name')
         if not alert_name or not alert_name.strip():
             raise ValidationError('Alert name is required.')
@@ -284,7 +272,6 @@ class JobAlertForm(forms.ModelForm):
         return alert_name.strip()
     
     def clean_job_title(self):
-        """Validate and clean job title."""
         job_title = self.cleaned_data.get('job_title')
         if job_title:
             job_title = job_title.strip()
@@ -293,7 +280,6 @@ class JobAlertForm(forms.ModelForm):
         return job_title or ''
     
     def clean_location(self):
-        """Validate and clean location."""
         location = self.cleaned_data.get('location')
         if location:
             location = location.strip()
@@ -302,7 +288,6 @@ class JobAlertForm(forms.ModelForm):
         return location or ''
     
     def clean_keywords(self):
-        """Validate and clean keywords."""
         keywords = self.cleaned_data.get('keywords')
         if keywords:
             keywords = keywords.strip()
@@ -311,12 +296,10 @@ class JobAlertForm(forms.ModelForm):
         return keywords or ''
     
     def clean(self):
-        """Additional validation for salary range."""
         cleaned_data = super().clean()
         min_salary = cleaned_data.get('min_salary')
         max_salary = cleaned_data.get('max_salary')
         
-        # Validate salary range
         if min_salary is not None and min_salary < 0:
             self.add_error('min_salary', 'Minimum salary cannot be negative.')
         
@@ -326,7 +309,6 @@ class JobAlertForm(forms.ModelForm):
         if min_salary and max_salary and min_salary > max_salary:
             self.add_error('min_salary', 'Minimum salary cannot be greater than maximum salary.')
         
-        # Ensure at least one filter criterion is provided
         if not any([
             cleaned_data.get('job_title'),
             cleaned_data.get('location'),
@@ -350,37 +332,37 @@ class JobSearchForm(forms.Form):
     )
 
     location = forms.MultipleChoiceField(
-        choices=[],  # populated dynamically
+        choices=[],  
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     job_type = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+        queryset=None,  
         required=False,
         widget=forms.CheckboxSelectMultiple
     )
 
     category = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+        queryset=None, 
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     education = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+        queryset=None,  
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     experience = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+        queryset=None,  
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
 
     job_level = forms.ModelMultipleChoiceField(
-        queryset=None,  # Will be set in __init__
+        queryset=None, 
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-select'})
     )
@@ -390,7 +372,6 @@ class JobSearchForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Dynamically set querysets from lookup tables
         from .models import (
             JobCategory, EmploymentType, EducationLevel, 
             ExperienceLevel, JobLevel
@@ -403,7 +384,6 @@ class JobSearchForm(forms.Form):
 
 
 class JobApplicationForm(forms.Form):
-    """Form for applying to a job with resume and cover letter."""
     
     job_id = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -444,8 +424,7 @@ class JobApplicationForm(forms.Form):
         
         if job.status != 'active':
             raise ValidationError('This job is no longer accepting applications.')
-        
-        # Check if job has expired
+
         if job.expiration_date and job.expiration_date < date.today():
             raise ValidationError('This job posting has expired.')
         
@@ -457,12 +436,10 @@ class JobApplicationForm(forms.Form):
         resume_id = self.cleaned_data.get('resume_id')
         
         if not resume_id:
-            # Check if applicant has a resume in their profile
             if self.user and hasattr(self.user, 'applicant_profile_rel'):
                 profile = self.user.applicant_profile_rel
                 if not profile.resume:
                     raise ValidationError('Please upload a resume to your profile before applying.')
-                # Use profile resume
                 self.cleaned_data['resume_file'] = profile.resume
                 return None
             else:
@@ -478,14 +455,12 @@ class JobApplicationForm(forms.Form):
         """Additional validation."""
         cleaned_data = super().clean()
         
-        # Ensure user is authenticated and is an applicant
         if not self.user or not self.user.is_authenticated:
             raise ValidationError('You must be logged in to apply.')
         
         if not hasattr(self.user, 'user_type') or self.user.user_type != 'applicant':
             raise ValidationError('Only applicants can apply for jobs.')
         
-        # Check for duplicate application
         from .models import JobApplication
         job = cleaned_data.get('job')
         if job:
