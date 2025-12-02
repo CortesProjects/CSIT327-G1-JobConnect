@@ -20,7 +20,6 @@ from .forms import (
     ApplicantProfileDetailsForm,
     ApplicantContactInfoForm,
     ApplicantProfilePrivacyForm,
-    ApplicantResumeForm,
     ApplicantSocialLinkForm,
     EmployerCompanyInfoForm,
     EmployerFoundingInfoForm,
@@ -648,7 +647,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         context['profile_details_form'] = ApplicantProfileDetailsForm(instance=profile)
         context['contact_info_form'] = ApplicantContactInfoForm(instance=profile, user=self.request.user)
         context['profile_privacy_form'] = ApplicantProfilePrivacyForm(instance=profile)
-        context['resume_form'] = ApplicantResumeForm(instance=profile)
         context['password_form'] = PasswordChangeForm(self.request.user)
         context['social_link_form'] = ApplicantSocialLinkForm()
         context['social_links'] = self.request.user.social_links.all()
@@ -800,21 +798,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                     return redirect('dashboard:applicant_settings')
                 except Exception as e:
                     messages.error(request, f'Error saving privacy settings: {str(e)}')
-            else:
-                for field, errors in form.errors.items():
-                    field_label = form.fields.get(field).label if field in form.fields else field
-                    for error in errors:
-                        messages.error(request, f'{field_label}: {error}')
-        
-        elif form_type == 'resume':
-            form = ApplicantResumeForm(request.POST, request.FILES, instance=profile)
-            if form.is_valid():
-                try:
-                    form.save()
-                    messages.success(request, 'Resume uploaded successfully!')
-                    return redirect('dashboard:applicant_settings')
-                except Exception as e:
-                    messages.error(request, f'Error uploading resume: {str(e)}')
             else:
                 for field, errors in form.errors.items():
                     field_label = form.fields.get(field).label if field in form.fields else field
