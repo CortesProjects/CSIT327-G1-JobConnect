@@ -897,13 +897,13 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         return self.get(request, *args, **kwargs)
 
 #-----EMPLOYER VIEWS-----#
-class PublicEmployerProfileView(TemplateView):
+class PublicEmployerProfileView(ApplicantRequiredMixin, TemplateView):
     """
     Display public employer profile (read-only view).
     No login required - accessible to anyone.
     Shows only active jobs and hides sensitive statistics.
     """
-    template_name = 'dashboard/employer/employer_profile.html'
+    template_name = 'dashboard/applicant/applicant_employer_profile.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
