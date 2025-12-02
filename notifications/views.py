@@ -12,7 +12,21 @@ def get_notifications(request):
     """
     Get all notifications for the current user.
     Returns JSON with notifications list and unread count.
+    AJAX only - redirects to dashboard if accessed directly.
     """
+    # Check if this is an AJAX request
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.shortcuts import redirect
+        # Redirect based on user type
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        elif request.user.is_staff or request.user.is_superuser:
+            return redirect('/admin/')
+        elif hasattr(request.user, 'employer_profile'):
+            return redirect('dashboard:employer_dashboard')
+        else:
+            return redirect('dashboard:applicant_dashboard')
+    
     notifications = Notification.objects.filter(user=request.user)[:20]  # Last 20 notifications
     
     notifications_data = []
@@ -40,7 +54,23 @@ def get_notifications(request):
 @login_required
 @require_http_methods(["GET"])
 def get_unread_count(request):
-    """Get the count of unread notifications for the current user."""
+    """
+    Get the count of unread notifications for the current user.
+    AJAX only - redirects to dashboard if accessed directly.
+    """
+    # Check if this is an AJAX request
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.shortcuts import redirect
+        # Redirect based on user type
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        elif request.user.is_staff or request.user.is_superuser:
+            return redirect('/admin/')
+        elif hasattr(request.user, 'employer_profile'):
+            return redirect('dashboard:employer_dashboard')
+        else:
+            return redirect('dashboard:applicant_dashboard')
+    
     unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
     return JsonResponse({
         'success': True,
