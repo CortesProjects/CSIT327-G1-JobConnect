@@ -9,9 +9,34 @@ from .forms import (
     EmployerProfileContactForm
 )
 
+
+def is_employer_step1_complete(profile):
+    """Check if Step 1 (Company Info) is complete."""
+    return bool(
+        profile.company_name and 
+        profile.company_profile_image and 
+        profile.company_business_permit
+    )
+
+
+def is_employer_step2_complete(profile):
+    """Check if Step 2 (Founding Info) is complete."""
+    return bool(
+        profile.organization_type and
+        profile.industry_type and
+        profile.team_size and
+        profile.year_established
+    )
+
+
 @employer_required
 def employer_profile_setup_step1(request):
     profile, created = EmployerProfile.objects.get_or_create(user=request.user)
+    
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
     
     if request.method == 'POST':
         form = EmployerProfileCompanyInfoForm(request.POST, request.FILES, instance=profile)
@@ -36,6 +61,16 @@ def employer_profile_setup_step1(request):
 def employer_profile_setup_step2(request):
     profile = get_object_or_404(EmployerProfile, user=request.user)
     
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
+    
+    # Validate that step 1 is complete before allowing access to step 2
+    if not is_employer_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Company Information) before proceeding to Step 2.')
+        return redirect('employer_profile:employer_profile_setup_step1')
+    
     if request.method == 'POST':
         form = EmployerProfileFoundingInfoForm(request.POST, instance=profile)
         if form.is_valid():
@@ -58,10 +93,29 @@ def employer_profile_setup_step2(request):
 def employer_profile_setup_step3(request):
     profile = get_object_or_404(EmployerProfile, user=request.user)
     
+    # Redirect if setup already completed
+    if profile.setup_completed:
+        messages.info(request, 'You have already completed your profile setup.')
+        return redirect('dashboard:dashboard')
+    
+    # Validate that steps 1 and 2 are complete before allowing access to step 3
+    if not is_employer_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Company Information) before proceeding.')
+        return redirect('employer_profile:employer_profile_setup_step1')
+    
+    if not is_employer_step2_complete(profile):
+        messages.warning(request, 'Please complete Step 2 (Founding Information) before proceeding to Step 3.')
+        return redirect('employer_profile:employer_profile_setup_step2')
+    
     if request.method == 'POST':
         form = EmployerProfileContactForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
+            
+            # Mark profile setup as completed
+            profile.setup_completed = True
+            profile.save()
+            
             messages.success(request, "Contact Info saved. Profile is complete!")
             return redirect('employer_profile:employer_profile_completion')
         else:
@@ -80,6 +134,13 @@ def employer_profile_setup_step3(request):
 
 @employer_required
 def employer_profile_completion(request):
+    profile = request.user.employer_profile_rel
+    
+    # Ensure setup is marked as complete
+    if not profile.setup_completed:
+        profile.setup_completed = True
+        profile.save()
+    
     context = {
         'is_setup_page': True,
         'progress_percent': 100

@@ -12,26 +12,19 @@ def is_step1_complete(profile):
     return bool(
         profile.first_name and 
         profile.last_name and 
-        profile.title
-    )
-
-
-def is_step2_complete(profile):
-    """Check if Step 2 (Profile Details) is complete."""
-    return bool(
-        profile.biography and
         profile.education_level and
         profile.experience
     )
 
 
+def is_step2_complete(profile):
+    """Check if Step 2 (Profile Details) is complete."""
+    return bool(profile.date_of_birth)
+
+
 def is_step3_complete(profile):
     """Check if Step 3 (Contact Info) is complete."""
-    return bool(
-        profile.contact_number and
-        profile.location_city and
-        profile.location_country
-    )
+    return bool(profile.contact_number)
 
 @applicant_required
 def applicant_profile_setup_step1(request):
