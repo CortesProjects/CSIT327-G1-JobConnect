@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
-from django.views.generic import ListView, TemplateView, FormView, UpdateView
+from django.views.generic import ListView, TemplateView, FormView, UpdateView, View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
@@ -27,22 +28,40 @@ from .forms import (
     EmployerBusinessPermitForm
 )
 
-@login_required
-def dashboard_view(request):
-    user = request.user
-    if user.user_type == 'applicant':
-        # Gather applicant-specific stats
+
+class DashboardView(LoginRequiredMixin, View):
+    """
+    Main dashboard view that routes users to their respective dashboard
+    based on user type (applicant, employer, or admin).
+    """
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+        if user.user_type == 'applicant':
+            return self._render_applicant_dashboard(request)
+        elif user.user_type == 'employer':
+            return self._render_employer_dashboard(request)
+        elif user.user_type == 'admin':
+            return render(request, 'dashboard/admin/admin_dashboards.html')
+        else:
+            return render(request, 'home.html')
+    
+    def _render_applicant_dashboard(self, request):
+        """Render applicant dashboard with stats"""
         from jobs.models import JobApplication, FavoriteJob, JobAlert
+        
+        user = request.user
         applied_count = JobApplication.objects.filter(applicant=user).count()
         favorite_count = FavoriteJob.objects.filter(applicant=user).count()
         alerts_count = JobAlert.objects.filter(user=user).count()
-
+        
         # Ensure profile exists
         try:
             profile = user.profile
         except Exception:
             profile = None
-
+        
         context = {
             'applied_count': applied_count,
             'favorite_count': favorite_count,
@@ -50,7 +69,9 @@ def dashboard_view(request):
             'profile': profile,
         }
         return render(request, 'dashboard/applicant/applicant_overview.html', context)
-    elif user.user_type == 'employer':
+    
+    def _render_employer_dashboard(self, request):
+        """Render employer dashboard with job stats"""
         from jobs.models import Job
         from django.db.models import Count
         from dashboard.models import SavedCandidate
@@ -73,10 +94,7 @@ def dashboard_view(request):
         }
         
         return render(request, 'dashboard/employer/employer_overview.html', context)
-    elif user.user_type == 'admin':
-        return render(request, 'dashboard/admin/admin_dashboards.html')
-    else:
-        return render(request, 'home.html')
+
 
 @login_required
 def applicant_job_alerts(request):
