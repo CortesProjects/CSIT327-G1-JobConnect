@@ -249,66 +249,6 @@ class CreateJobAlertView(ApplicantRequiredMixin, FormView):
         return super().form_invalid(form)
 
 
-@login_required
-def edit_job_alert(request, alert_id):
-    """Edit an existing job alert."""
-    from jobs.models import JobAlert
-    from jobs.forms import JobAlertForm
-    from django.http import JsonResponse
-    
-    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
-    
-    if request.method == 'POST':
-        form = JobAlertForm(request.POST, instance=alert)
-        if form.is_valid():
-            form.save()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Job alert updated successfully!'
-                })
-            
-            messages.success(request, 'Job alert updated successfully!')
-            return redirect('dashboard:applicant_job_alerts')
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': form.errors
-                }, status=400)
-            
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = JobAlertForm(instance=alert)
-    
-    context = {
-        'form': form,
-        'alert': alert,
-        'is_edit': True
-    }
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Return alert data as JSON for AJAX requests
-        return JsonResponse({
-            'success': True,
-            'alert': {
-                'id': alert.id,
-                'alert_name': alert.alert_name,
-                'job_title': alert.job_title,
-                'location': alert.location,
-                'job_type': alert.job_type.id if alert.job_type else None,
-                'job_category': alert.job_category.id if alert.job_category else None,
-                'min_salary': str(alert.min_salary) if alert.min_salary else '',
-                'max_salary': str(alert.max_salary) if alert.max_salary else '',
-                'keywords': alert.keywords,
-                'is_active': alert.is_active
-            }
-        })
-    
-    return render(request, 'dashboard/applicant/create_job_alert.html', context)
-
-
 class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
     """
     Edit an existing job alert.
@@ -400,32 +340,6 @@ class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
-@login_required
-def delete_job_alert(request, alert_id):
-    """Delete a job alert."""
-    from jobs.models import JobAlert
-    from django.http import JsonResponse
-    
-    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
-    
-    if request.method == 'POST':
-        alert.delete()
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': 'Job alert deleted successfully!'
-            })
-        
-        messages.success(request, 'Job alert deleted successfully!')
-        return redirect('dashboard:applicant_job_alerts')
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
-    
-    return redirect('dashboard:applicant_job_alerts')
-
-
 class DeleteJobAlertView(ApplicantRequiredMixin, View):
     """
     Delete a job alert.
@@ -466,36 +380,6 @@ class DeleteJobAlertView(ApplicantRequiredMixin, View):
             }, status=405)
         
         return redirect('dashboard:applicant_job_alerts')
-
-
-@login_required
-def toggle_job_alert_status(request, alert_id):
-    """Toggle job alert active/inactive status."""
-    from jobs.models import JobAlert
-    from django.http import JsonResponse
-    
-    alert = get_object_or_404(JobAlert, id=alert_id, user=request.user)
-    
-    if request.method == 'POST':
-        alert.is_active = not alert.is_active
-        alert.save()
-        
-        status_text = 'activated' if alert.is_active else 'deactivated'
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'is_active': alert.is_active,
-                'message': f'Job alert {status_text} successfully!'
-            })
-        
-        messages.success(request, f'Job alert {status_text} successfully!')
-        return redirect('dashboard:applicant_job_alerts')
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
-    
-    return redirect('dashboard:applicant_job_alerts')
 
 
 class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
@@ -756,56 +640,6 @@ def employer_job_applications(request, job_id):
     }
     return render(request, 'dashboard/employer/employer_job_applications.html', context)
 
-@login_required
-def employer_candidate_detail(request, application_id):
-    """Display detailed information about a candidate/applicant for a specific job application."""
-    from django.shortcuts import get_object_or_404
-    from django.core.exceptions import PermissionDenied
-    from jobs.models import JobApplication
-    from dashboard.models import SavedCandidate
-    
-    # Ensure user is an employer
-    if getattr(request.user, 'user_type', None) != 'employer':
-        messages.error(request, 'Access denied. Employer account required.')
-        return redirect('dashboard:dashboard')
-    
-    # Fetch the application with related data
-    application = get_object_or_404(
-        JobApplication.objects.select_related(
-            'applicant',
-            'applicant__applicant_profile_rel',
-            'job'
-        ),
-        id=application_id
-    )
-    
-    # Verify the employer owns the job this application is for
-    if application.job.employer_id != request.user.id:
-        raise PermissionDenied("You do not have permission to view this candidate.")
-    
-    # Get applicant profile
-    profile = application.applicant.applicant_profile_rel
-    
-    # Get social links
-    social_links = application.applicant.social_links.all()
-    
-    # Check if candidate is saved
-    is_saved = SavedCandidate.objects.filter(
-        employer=request.user,
-        application=application
-    ).exists()
-    
-    context = {
-        'application': application,
-        'applicant': application.applicant,
-        'profile': profile,
-        'social_links': social_links,
-        'job': application.job,
-        'is_saved': is_saved,
-    }
-    
-    return render(request, 'dashboard/employer/employer_candidate_detail.html', context)
-
 
 class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
     """
@@ -863,58 +697,6 @@ class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
         })
         
         return context
-
-
-@login_required
-def hire_candidate(request, application_id):
-    """Hire a candidate - creates/moves to Hired stage and updates application status."""
-    from django.shortcuts import get_object_or_404
-    from django.core.exceptions import PermissionDenied
-    from jobs.models import JobApplication, ApplicationStage
-    from django.db import models
-    
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('dashboard:dashboard')
-    
-    # Ensure user is an employer
-    if getattr(request.user, 'user_type', None) != 'employer':
-        messages.error(request, 'Access denied. Employer account required.')
-        return redirect('dashboard:dashboard')
-    
-    try:
-        # Fetch the application
-        application = get_object_or_404(
-            JobApplication.objects.select_related('job'),
-            id=application_id
-        )
-        
-        # Verify employer owns this job
-        if application.job.employer_id != request.user.id:
-            raise PermissionDenied("You do not have permission to hire this candidate.")
-        
-        # Get or create "Hired" stage with is_system=True flag
-        hired_stage, created = ApplicationStage.objects.get_or_create(
-            job=application.job,
-            name='Hired',
-            defaults={
-                'order': 9999,  # Put at the end
-                'is_system': True  # Mark as system-generated
-            }
-        )
-        
-        # Update application
-        application.stage = hired_stage
-        application.status = 'hired'
-        application.hired_date = timezone.now().date()
-        application.save()
-        
-        messages.success(request, f'Successfully hired {application.applicant.applicant_profile_rel.full_name or application.applicant.email}!')
-        return redirect('dashboard:employer_job_applications', job_id=application.job.id)
-        
-    except Exception as e:
-        messages.error(request, f'Error hiring candidate: {str(e)}')
-        return redirect('dashboard:employer_candidate_detail', application_id=application_id)
 
 
 class HireCandidateView(EmployerRequiredMixin, View):
@@ -976,68 +758,6 @@ class HireCandidateView(EmployerRequiredMixin, View):
         """Reject GET requests"""
         messages.error(request, 'Invalid request method.')
         return redirect('dashboard:dashboard')
-
-
-@login_required
-def toggle_save_candidate(request, application_id):
-    """Toggle save/unsave status for a candidate"""
-    from django.shortcuts import get_object_or_404
-    from django.core.exceptions import PermissionDenied
-    from jobs.models import JobApplication
-    from dashboard.models import SavedCandidate
-    
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('dashboard:dashboard')
-    
-    # Ensure user is an employer
-    if getattr(request.user, 'user_type', None) != 'employer':
-        messages.error(request, 'Access denied. Employer account required.')
-        return redirect('dashboard:dashboard')
-    
-    try:
-        # Fetch the application
-        application = get_object_or_404(
-            JobApplication.objects.select_related('job'),
-            id=application_id
-        )
-        
-        # Verify employer owns this job
-        if application.job.employer_id != request.user.id:
-            messages.error(request, 'You do not have permission to save this candidate.')
-            return redirect('dashboard:dashboard')
-        
-        # Toggle save status
-        saved_candidate, created = SavedCandidate.objects.get_or_create(
-            employer=request.user,
-            application=application
-        )
-        
-        if not created:
-            # Already saved, so unsave it
-            saved_candidate.delete()
-            messages.success(request, 'Candidate removed from saved list.')
-        else:
-            # Newly saved
-            messages.success(request, 'Candidate saved successfully!')
-        
-        # Redirect back to the referring page
-        referer = request.META.get('HTTP_REFERER')
-        if referer:
-            return redirect(referer)
-        else:
-            return redirect('dashboard:employer_candidate_detail', application_id=application_id)
-        
-    except PermissionDenied:
-        messages.error(request, 'You do not have permission to save this candidate.')
-        return redirect('dashboard:dashboard')
-    except Exception as e:
-        messages.error(request, f'Error: {str(e)}')
-        referer = request.META.get('HTTP_REFERER')
-        if referer:
-            return redirect(referer)
-        else:
-            return redirect('dashboard:dashboard')
 
 
 class ToggleSaveCandidateView(EmployerRequiredMixin, View):
@@ -1103,88 +823,6 @@ class ToggleSaveCandidateView(EmployerRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         """Reject GET requests"""
         messages.error(request, 'Invalid request method.')
-        return redirect('dashboard:dashboard')
-
-
-@login_required
-def move_application_stage(request, application_id):
-    """Move an application to a different stage (for drag-and-drop persistence)."""
-    from django.shortcuts import get_object_or_404
-    from django.core.exceptions import PermissionDenied
-    from django.http import JsonResponse
-    from jobs.models import JobApplication, ApplicationStage
-    
-    # Only accept POST
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
-    
-    # Ensure user is an employer
-    if getattr(request.user, 'user_type', None) != 'employer':
-        return JsonResponse({'success': False, 'error': 'Employer access required'}, status=403)
-    
-    try:
-        application = get_object_or_404(
-            JobApplication.objects.select_related('job'),
-            id=application_id
-        )
-        
-        # Verify employer owns this job
-        if application.job.employer_id != request.user.id:
-            raise PermissionDenied("You do not have permission to modify this application.")
-        
-        # Get target stage from POST data
-        stage_id = request.POST.get('stage_id')
-        
-        if stage_id == '' or stage_id == 'null' or stage_id is None:
-            # Move to "All Applications" (no stage)
-            application.stage = None
-        else:
-            # Move to specific stage
-            stage = get_object_or_404(
-                ApplicationStage,
-                id=stage_id,
-                job=application.job
-            )
-            application.stage = stage
-        
-        application.save()
-        
-        # Notify applicant about stage change if moved to a significant stage
-        if stage and stage.name.lower() in ['shortlisted', 'interview', 'offer']:
-            if stage.name.lower() == 'shortlisted':
-                notify_application_shortlisted(application.applicant, application.job, application)
-            else:
-                notify_application_status_change(application.applicant, application.job, stage.name.lower())
-
-        response_data = {
-            'success': True,
-            'message': 'Application moved successfully',
-            'stage_name': application.stage.name if application.stage else 'All Applications'
-        }
-
-        # If the request is an AJAX/XHR request, return JSON so client JS can consume it.
-        # Otherwise this was submitted as a normal form POST; redirect back and use
-        # Django messages so the browser doesn't render raw JSON.
-        is_xhr = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-        if is_xhr:
-            return JsonResponse(response_data)
-
-        # Non-AJAX: set a success message and redirect back to the employer applications page
-        messages.success(request, response_data['message'])
-        return redirect(reverse('dashboard:employer_job_applications', args=[application.job.id]))
-        
-    except Exception as e:
-        # For AJAX requests return JSON error payload; for normal POSTs set an error message
-        # and redirect back so the user sees the message instead of raw JSON.
-        is_xhr = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-        if is_xhr:
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
-        messages.error(request, f'Error moving application: {str(e)}')
-        # Try to redirect back to referrer or to the employer job applications listing
-        referer = request.META.get('HTTP_REFERER')
-        if referer:
-            return redirect(referer)
         return redirect('dashboard:dashboard')
 
 
