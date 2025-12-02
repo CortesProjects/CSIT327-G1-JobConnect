@@ -9,6 +9,26 @@ from .forms import (
     EmployerProfileContactForm
 )
 
+
+def is_employer_step1_complete(profile):
+    """Check if Step 1 (Company Info) is complete."""
+    return bool(
+        profile.company_name and 
+        profile.company_profile_image and 
+        profile.company_business_permit
+    )
+
+
+def is_employer_step2_complete(profile):
+    """Check if Step 2 (Founding Info) is complete."""
+    return bool(
+        profile.organization_type and
+        profile.industry_type and
+        profile.team_size and
+        profile.year_established
+    )
+
+
 @employer_required
 def employer_profile_setup_step1(request):
     profile, created = EmployerProfile.objects.get_or_create(user=request.user)
@@ -46,9 +66,8 @@ def employer_profile_setup_step2(request):
         messages.info(request, 'You have already completed your profile setup.')
         return redirect('dashboard:dashboard')
     
-    # Check if Step 1 is complete (required fields: company_name, company_profile_image, company_business_permit)
-    if not all([profile.company_name, profile.company_profile_image, profile.company_business_permit]):
-        messages.warning(request, 'Please complete Step 1: Company Information first.')
+    if not is_employer_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Company Information) before proceeding to Step 2.')
         return redirect('employer_profile:employer_profile_setup_step1')
     
     if request.method == 'POST':
@@ -78,14 +97,13 @@ def employer_profile_setup_step3(request):
         messages.info(request, 'You have already completed your profile setup.')
         return redirect('dashboard:dashboard')
     
-    # Check if Step 1 is complete
-    if not all([profile.company_name, profile.company_profile_image, profile.company_business_permit]):
-        messages.warning(request, 'Please complete Step 1: Company Information first.')
+    # Validate that steps 1 and 2 are complete before allowing access to step 3
+    if not is_employer_step1_complete(profile):
+        messages.warning(request, 'Please complete Step 1 (Company Information) before proceeding.')
         return redirect('employer_profile:employer_profile_setup_step1')
     
-    # Check if Step 2 is complete (required fields: organization_type, industry_type, team_size, year_established)
-    if not all([profile.organization_type, profile.industry_type, profile.team_size, profile.year_established]):
-        messages.warning(request, 'Please complete Step 2: Founding Information first.')
+    if not is_employer_step2_complete(profile):
+        messages.warning(request, 'Please complete Step 2 (Founding Information) before proceeding to Step 3.')
         return redirect('employer_profile:employer_profile_setup_step2')
     
     if request.method == 'POST':
