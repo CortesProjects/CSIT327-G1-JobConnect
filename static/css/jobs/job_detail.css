@@ -42,7 +42,10 @@
 /* Container and layout */
 .job-detail-container {
     display: block;
-    padding: 0 0 24px 0;
+    padding: 0 20px 24px 20px;
+    max-width: 1200px; /* center the overall job detail layout on large screens */
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .job-detail-body {
@@ -55,6 +58,12 @@
 .job-detail-main{
     background: transparent;
     padding: 0;
+    /* Constrain the main content column for better readability and line-length */
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;    /* center the main content column within the container */
+    /* allow this grid item to shrink inside the two-column layout and prevent overflow */
+    min-width: 0;
 }
 
 /* Header spans full width above the two-column body */
@@ -623,6 +632,17 @@
 .jd-content {
     line-height: 1.8;
     color: #333;
+}
+
+/* Ensure long unbroken words or pasted content wrap inside the job detail column
+   and do not push the right column out of place. */
+.jd-content, .job-detail-main {
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+    /* hyphenation where supported */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
 }
 
 .jd-content strong,
