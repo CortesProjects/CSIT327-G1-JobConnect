@@ -1,7 +1,3 @@
-"""
-Custom error handler views for JobConnect.
-These provide user-friendly error pages that match the application design.
-"""
 from django.shortcuts import render
 
 

@@ -10,26 +10,13 @@ import json
 
 
 def make_cache_key(prefix, *args, **kwargs):
-    """
-    Generate a consistent cache key from arguments.
-    Useful for dynamic cache keys based on user ID, filters, etc.
-    """
-    # Serialize args and kwargs to create unique key
+    
     key_data = f"{prefix}:{args}:{sorted(kwargs.items())}"
     key_hash = hashlib.md5(key_data.encode()).hexdigest()
     return f"{prefix}:{key_hash}"
 
 
 def cache_result(timeout=300, key_prefix='default'):
-    """
-    Decorator to cache function results.
-    
-    Usage:
-        @cache_result(timeout=600, key_prefix='job_stats')
-        def get_job_statistics(user_id):
-            # Expensive database query
-            return stats
-    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
