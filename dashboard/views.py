@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
-from django.views.generic import ListView, TemplateView, FormView
+from django.views.generic import ListView, TemplateView, FormView, UpdateView
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
@@ -2052,6 +2052,79 @@ class EmployerSavedCandidatesView(EmployerRequiredMixin, ListView):
             'application__applicant__applicant_profile_rel',
             'application__job'
         ).order_by('-saved_at')
+
+
+class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
+    """
+    Handle job editing (limited to 7 days after posting).
+    Matches the logic of the original employer_edit_job function-based view.
+    """
+    model = Job
+    template_name = 'dashboard/employer/employer_post_job.html'
+    pk_url_kwarg = 'job_id'
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Get job and verify ownership
+        self.object = self.get_object()
+        
+        if self.object.employer != request.user:
+            messages.error(request, 'You do not have permission to edit this job.')
+            return redirect('dashboard:employer_my_jobs')
+        
+        # Check 7-day edit window
+        days_since_posted = (timezone.now() - self.object.posted_at).days
+        
+        # Disallow edits if the job is already marked expired
+        if self.object.status == 'expired':
+            messages.error(request, 'This job has been marked as expired and can no longer be edited.')
+            return redirect('jobs:job_detail', job_id=self.object.id)
+        
+        if days_since_posted > 7:
+            messages.error(request, f'You can only edit jobs within 7 days of posting. This job was posted {days_since_posted} days ago.')
+            return redirect('jobs:job_detail', job_id=self.object.id)
+        
+        # Get employer profile
+        try:
+            self.employer_profile = request.user.employer_profile_rel
+        except:
+            messages.error(request, 'Please complete your profile setup first.')
+            return redirect('dashboard:employer_settings')
+        
+        # Store days_since_posted for context
+        self.days_since_posted = days_since_posted
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_form_class(self):
+        from jobs.forms import JobPostForm
+        return JobPostForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_edit'] = True
+        context['job'] = self.object
+        context['company_name'] = self.employer_profile.company_name if self.employer_profile else ''
+        context['days_since_posted'] = self.days_since_posted
+        context['days_remaining'] = 7 - self.days_since_posted
+        return context
+    
+    def form_valid(self, form):
+        try:
+            updated_job = form.save(commit=False)
+            updated_job.employer = self.request.user
+            updated_job.company_name = self.employer_profile.company_name
+            # Don't change the posted_at date or status during edit
+            updated_job.save()
+            
+            messages.success(self.request, f'Job "{updated_job.title}" has been updated successfully!')
+            return redirect('jobs:job_detail', job_id=updated_job.id)
+        except Exception as e:
+            messages.error(self.request, f'Error updating job: {str(e)}')
+            return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        # Form has validation errors, will be displayed inline
+        return super().form_invalid(form)
 
 
 class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
