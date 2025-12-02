@@ -671,13 +671,18 @@
     display: none;
     align-items: center;
     gap: 15px;
-    padding: 15px;
-    background-color: white;
+    padding: 20px;
+    background-color: #f8f9fa;
     border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.modal-upload-area.has-file .file-attached {
+    display: flex;
 }
 
 .file-attached i.fa-file-pdf {
-    font-size: 32px;
+    font-size: 48px;
     color: #dc3545;
     flex-shrink: 0;
 }
@@ -689,16 +694,18 @@
 }
 
 .file-name {
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
     font-weight: 600;
     color: #2c3e50;
-    font-size: 14px;
+    font-size: 16px;
     word-break: break-word;
+    line-height: 1.4;
 }
 
 .file-size {
     color: #6c757d;
-    font-size: 13px;
+    font-size: 14px;
+    display: block;
 }
 
 .remove-file-btn {
@@ -758,6 +765,149 @@
     color: #6c757d;
     font-size: 12px;
     margin: 0;
+}
+
+/* Resume Default Badge */
+.default-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #28a745;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.default-badge i {
+    font-size: 10px;
+}
+
+/* Empty Resume State */
+.empty-resume-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.empty-resume-state i {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-resume-state h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0 0 10px 0;
+}
+
+.empty-resume-state p {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0 0 25px 0;
+}
+
+.empty-resume-state .btn-primary {
+    padding: 12px 30px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Field Hint Text */
+.field-hint {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Checkbox Label */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.checkbox-label:hover {
+    background-color: #e9ecef;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-label-text {
+    flex: 1;
+}
+
+.checkbox-label-text strong {
+    display: block;
+    color: #2c3e50;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+.checkbox-label-text .field-hint {
+    margin-top: 0;
+}
+
+/* Delete Confirmation Modal */
+.delete-confirm-modal .modal-title {
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delete-confirm-modal .modal-title i {
+    font-size: 24px;
+}
+
+.delete-confirm-modal .warning-text {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.delete-confirm-modal .warning-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #856404;
+}
+
+.delete-confirm-modal .btn-danger {
+    background-color: #dc3545;
+    border: none;
+    padding: 12px 30px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.delete-confirm-modal .btn-danger:hover {
+    background-color: #c82333;
 }
 
 /* Social Links */
