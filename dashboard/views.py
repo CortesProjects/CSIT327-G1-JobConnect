@@ -497,6 +497,53 @@ def toggle_job_alert_status(request, alert_id):
     
     return redirect('dashboard:applicant_job_alerts')
 
+
+class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
+    """
+    Toggle job alert active/inactive status.
+    POST-only view that supports both AJAX and regular form submissions.
+    """
+    
+    def get_object(self):
+        """Get the alert, ensuring user owns it"""
+        from jobs.models import JobAlert
+        alert_id = self.kwargs.get('alert_id')
+        return get_object_or_404(JobAlert, id=alert_id, user=self.request.user)
+    
+    def post(self, request, *args, **kwargs):
+        from django.http import JsonResponse
+        
+        alert = self.get_object()
+        alert.is_active = not alert.is_active
+        alert.save()
+        
+        status_text = 'activated' if alert.is_active else 'deactivated'
+        
+        # Handle AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'is_active': alert.is_active,
+                'message': f'Job alert {status_text} successfully!'
+            })
+        
+        # Handle regular form submission
+        messages.success(request, f'Job alert {status_text} successfully!')
+        return redirect('dashboard:applicant_job_alerts')
+    
+    def get(self, request, *args, **kwargs):
+        """Reject GET requests"""
+        from django.http import JsonResponse
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid request method.'
+            }, status=405)
+        
+        return redirect('dashboard:applicant_job_alerts')
+
+
 # Old function-based `applicant_settings` removed — use `ApplicantSettingsView` CBV
 # The CBV `ApplicantSettingsView` provides the same functionality and is defined
 # elsewhere in this module. Keeping this placeholder to document the removal.
