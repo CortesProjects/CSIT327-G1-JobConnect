@@ -96,83 +96,107 @@ class DashboardView(LoginRequiredMixin, View):
         return render(request, 'dashboard/employer/employer_overview.html', context)
 
 
-@login_required
-def applicant_job_alerts(request):
-    from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory, Job
-    from django.core.paginator import Paginator
 
-    user_alerts = JobAlert.objects.filter(user=request.user).order_by('-created_at')
+class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
+    """
+    Display job alerts and matching jobs for the applicant.
+    Shows all user's alerts and jobs that match active alert criteria.
+    """
+    template_name = 'dashboard/applicant/applicant_job_alerts.html'
     
-    
-    from django.db.models import Q
-
-    matching_jobs = set()
-    for alert in user_alerts.filter(is_active=True):
-        try:
-            
-            matches = alert.get_matching_jobs()
-            if matches is None:
-                matches = []
-            matching_jobs.update(matches)
-        except Exception:
-            
-            jobs_qs = Job.objects.filter(status='active').order_by('-posted_at')
-
-            if getattr(alert, 'job_title', None):
-                jobs_qs = jobs_qs.filter(title__icontains=alert.job_title)
-            if getattr(alert, 'location', None):
-                jobs_qs = jobs_qs.filter(location__icontains=alert.location)
-            if getattr(alert, 'job_type', None):
-                jobs_qs = jobs_qs.filter(job_type=alert.job_type)
-            if getattr(alert, 'job_category', None):
-                jobs_qs = jobs_qs.filter(category=alert.job_category)
-            if getattr(alert, 'min_salary', None):
-                jobs_qs = jobs_qs.filter(min_salary__gte=alert.min_salary)
-            if getattr(alert, 'max_salary', None):
-                jobs_qs = jobs_qs.filter(max_salary__lte=alert.max_salary)
-            if getattr(alert, 'keywords', None):
-                for kw in [k.strip() for k in alert.keywords.split(',') if k.strip()]:
-                    jobs_qs = jobs_qs.filter(
-                        Q(title__icontains=kw) | Q(description__icontains=kw) | Q(tags__icontains=kw)
-                    )
-
-            matching_jobs.update(list(jobs_qs))
-
-    alert_jobs = sorted(list(matching_jobs), key=lambda x: x.posted_at, reverse=True)
-
-    # Server-side search/filter for alert results
-    query = request.GET.get('query', '').strip()
-    if query:
-        qlower = query.lower()
-        alert_jobs = [j for j in alert_jobs if (j.title and qlower in j.title.lower()) or (getattr(j, 'description', '') and qlower in j.description.lower())]
-    
-    # Pagination
-    paginator = Paginator(alert_jobs, 10)  # 10 jobs per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    
-    # Get favorited job IDs for bookmark state
-    favorited_job_ids = []
-    if request.user.is_authenticated and request.user.user_type == 'applicant':
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory, Job
+        
+        # Get user's alerts
+        user_alerts = JobAlert.objects.filter(user=self.request.user).order_by('-created_at')
+        
+        # Get matching jobs from active alerts
+        matching_jobs = self._get_matching_jobs(user_alerts)
+        
+        # Apply search query filter
+        query = self.request.GET.get('query', '').strip()
+        if query:
+            matching_jobs = self._filter_jobs_by_query(matching_jobs, query)
+        
+        # Paginate alert jobs
+        page_obj = self._paginate_jobs(matching_jobs)
+        
+        # Get favorited job IDs for bookmark state
         favorited_job_ids = list(
-            FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
+            FavoriteJob.objects.filter(applicant=self.request.user).values_list('job_id', flat=True)
         )
+        
+        # Get active job types and categories for the modal
+        job_types = EmploymentType.objects.filter(is_active=True)
+        job_categories = JobCategory.objects.filter(is_active=True)
+        
+        context.update({
+            'user_alerts': user_alerts,
+            'alert_jobs': page_obj,
+            'has_configured_alerts': user_alerts.exists(),
+            'favorited_job_ids': favorited_job_ids,
+            'page_obj': page_obj,
+            'job_types': job_types,
+            'job_categories': job_categories,
+            'query': query,
+        })
+        return context
     
-    # Get active job types and categories for the modal
-    job_types = EmploymentType.objects.filter(is_active=True)
-    job_categories = JobCategory.objects.filter(is_active=True)
+    def _get_matching_jobs(self, user_alerts):
+        """Get all jobs matching active alerts"""
+        from jobs.models import Job
+        
+        matching_jobs = set()
+        for alert in user_alerts.filter(is_active=True):
+            try:
+                # Try to use alert's get_matching_jobs method if available
+                matches = alert.get_matching_jobs()
+                if matches is None:
+                    matches = []
+                matching_jobs.update(matches)
+            except Exception:
+                # Fallback to manual filtering
+                jobs_qs = Job.objects.filter(status='active').order_by('-posted_at')
+                
+                if getattr(alert, 'job_title', None):
+                    jobs_qs = jobs_qs.filter(title__icontains=alert.job_title)
+                if getattr(alert, 'location', None):
+                    jobs_qs = jobs_qs.filter(location__icontains=alert.location)
+                if getattr(alert, 'job_type', None):
+                    jobs_qs = jobs_qs.filter(job_type=alert.job_type)
+                if getattr(alert, 'job_category', None):
+                    jobs_qs = jobs_qs.filter(category=alert.job_category)
+                if getattr(alert, 'min_salary', None):
+                    jobs_qs = jobs_qs.filter(min_salary__gte=alert.min_salary)
+                if getattr(alert, 'max_salary', None):
+                    jobs_qs = jobs_qs.filter(max_salary__lte=alert.max_salary)
+                if getattr(alert, 'keywords', None):
+                    for kw in [k.strip() for k in alert.keywords.split(',') if k.strip()]:
+                        jobs_qs = jobs_qs.filter(
+                            Q(title__icontains=kw) | Q(description__icontains=kw) | Q(tags__icontains=kw)
+                        )
+                
+                matching_jobs.update(list(jobs_qs))
+        
+        # Sort by posted date (most recent first)
+        return sorted(list(matching_jobs), key=lambda x: x.posted_at, reverse=True)
     
-    context = {
-        'user_alerts': user_alerts,
-        'alert_jobs': page_obj,
-        'has_configured_alerts': user_alerts.exists(),
-        'favorited_job_ids': favorited_job_ids,
-        'page_obj': page_obj,
-        'job_types': job_types,
-        'job_categories': job_categories,
-        'query': query,
-    } 
-    return render(request, 'dashboard/applicant/applicant_job_alerts.html', context)
+    def _filter_jobs_by_query(self, jobs, query):
+        """Filter jobs by search query"""
+        qlower = query.lower()
+        return [
+            j for j in jobs 
+            if (j.title and qlower in j.title.lower()) or 
+               (getattr(j, 'description', '') and qlower in j.description.lower())
+        ]
+    
+    def _paginate_jobs(self, jobs):
+        """Paginate job list"""
+        from django.core.paginator import Paginator
+        paginator = Paginator(jobs, 10)  # 10 jobs per page
+        page_number = self.request.GET.get('page', 1)
+        return paginator.get_page(page_number)
 
 
 @login_required
