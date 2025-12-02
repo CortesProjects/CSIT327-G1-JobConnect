@@ -35,7 +35,7 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
     
     class Meta:
         model = ApplicantProfile
-        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level', 'resume']
+        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level']
         widgets = {
             'profile_image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'title': forms.TextInput(attrs={
@@ -60,10 +60,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             'education_level': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'resume': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': '.pdf,.doc,.docx'
-            }),
         }
         labels = {
             'profile_image': 'Profile Picture',
@@ -73,7 +69,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             'last_name': 'Last Name',
             'experience': 'Experience',
             'education_level': 'Education Level',
-            'resume': 'Resume/CV',
         }
     
     def __init__(self, *args, **kwargs):
@@ -289,33 +284,6 @@ class ApplicantProfilePrivacyForm(forms.ModelForm):
         labels = {
             'is_public': 'Make Profile Public',
         }
-
-
-class ApplicantResumeForm(forms.ModelForm):
-    """Form for resume upload"""
-    
-    class Meta:
-        model = ApplicantProfile
-        fields = ['resume']
-        widgets = {
-            'resume': forms.FileInput(attrs={'accept': '.pdf,.doc,.docx'}),
-        }
-        labels = {
-            'resume': 'Upload Resume',
-        }
-    
-    def clean_resume(self):
-        resume = self.cleaned_data.get('resume')
-        if resume:
-            # 5MB size limit
-            if resume.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Resume file cannot be larger than 5MB.")
-            # Check file extension
-            allowed_extensions = ['pdf', 'doc', 'docx']
-            file_extension = resume.name.split('.')[-1].lower()
-            if file_extension not in allowed_extensions:
-                raise forms.ValidationError(f"Only {', '.join(allowed_extensions).upper()} files are allowed.")
-        return resume
 
 
 # =====================================================

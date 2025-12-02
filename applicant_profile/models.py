@@ -35,14 +35,6 @@ class ApplicantProfile(models.Model):
         help_text="Professional title (e.g., 'Senior Frontend Developer')"
     )
     
-    resume = models.FileField(
-        upload_to='applicant_documents/resumes/',
-        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])],
-        blank=True,
-        null=True,
-        help_text="Resume/CV document (PDF, DOC, or DOCX)"
-    )
-    
     biography = models.TextField(
         blank=True,
         help_text="Brief 'About Me' or summary section"
@@ -173,8 +165,10 @@ class ApplicantProfile(models.Model):
     def is_complete(self):
         """Basic heuristic to determine if the applicant profile is complete."""
         required = [self.first_name, self.last_name]
+        # Check if user has at least one resume in the Resume model
+        has_resume = self.user.resumes.exists() if hasattr(self.user, 'resumes') else False
         # treat presence of either profile image or resume or contact number as further completeness
-        additional = any([bool(self.profile_image), bool(self.resume), bool(self.contact_number)])
+        additional = any([bool(self.profile_image), has_resume, bool(self.contact_number)])
         return all(required) and additional
 
     @property
