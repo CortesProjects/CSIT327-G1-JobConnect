@@ -67,6 +67,10 @@
     margin-bottom: 30px;
 }
 
+.job-alerts-list.hidden {
+    display: none !important;
+}
+
 /* Job Card */
 .job-card {
     display: flex;
@@ -246,6 +250,10 @@
     gap: 8px;
 }
 
+.pagination-container.hidden {
+    display: none !important;
+}
+
 .pagination-arrow,
 .pagination-number {
     display: flex;
@@ -282,6 +290,10 @@
     border-radius: 8px;
     padding: 60px 30px;
     text-align: center;
+}
+
+.empty-state.hidden {
+    display: none !important;
 }
 
 .empty-state-icon {
