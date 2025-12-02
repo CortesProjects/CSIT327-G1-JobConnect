@@ -31,6 +31,19 @@ document.addEventListener('DOMContentLoaded', function() {
         manageAlertsBtn.addEventListener('click', function() {
             alertsConfigSection.style.display = 'block';
             alertsConfigSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Hide job list when managing alerts
+            const jobListEl = document.querySelector('.job-alerts-list');
+            if (jobListEl) {
+                jobListEl.style.display = 'none';
+            }
+            
+            // Hide pagination when managing alerts
+            const paginationEl = document.querySelector('.pagination-container');
+            if (paginationEl) {
+                paginationEl.style.display = 'none';
+            }
+            
             // Hide empty state if present when opening alerts list
             const emptyStateEl = document.querySelector('.empty-state');
             if (emptyStateEl) {
@@ -53,11 +66,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeAlertsBtn) {
         closeAlertsBtn.addEventListener('click', function() {
             alertsConfigSection.style.display = 'none';
+            
+            // Restore job list visibility
+            const jobListEl = document.querySelector('.job-alerts-list');
+            if (jobListEl) {
+                jobListEl.style.display = 'block';
+            }
+            
+            // Restore pagination visibility
+            const paginationEl = document.querySelector('.pagination-container');
+            if (paginationEl) {
+                paginationEl.style.display = 'flex';
+            }
+            
             // If there are no matching jobs shown, restore the empty state
             const emptyStateEl = document.querySelector('.empty-state');
             if (emptyStateEl) {
                 // Determine if there are any job results on the page
-                const jobListEl = document.querySelector('.job-alerts-list');
                 const jobCards = document.querySelectorAll('.job-card');
                 const hasJobResults = (jobListEl && jobCards.length > 0);
 
