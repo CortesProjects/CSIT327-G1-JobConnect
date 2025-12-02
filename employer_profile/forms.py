@@ -129,6 +129,28 @@ class EmployerProfileFoundingInfoForm(forms.ModelForm):
             'organization_type', 'industry_type', 'team_size', 
             'year_established', 'company_website', 'company_vision'
         ]
+    
+    def clean_year_established(self):
+        from datetime import date
+        year_established = self.cleaned_data.get('year_established')
+        if year_established:
+            # Must be in the past
+            if year_established > date.today():
+                raise forms.ValidationError('Year established cannot be in the future.')
+            # Reasonable range check (e.g., not before 1800)
+            if year_established.year < 1800:
+                raise forms.ValidationError('Please enter a valid year of establishment.')
+        return year_established
+    
+    def clean_company_website(self):
+        url = self.cleaned_data.get('company_website', '').strip()
+        if url:
+            if not url.startswith(('http://', 'https://')):
+                url = 'https://' + url
+            # Basic URL validation
+            if len(url) > 500:
+                raise forms.ValidationError('Website URL is too long. Maximum 500 characters.')
+        return url
 
 # --- Step 3: Contact Form ---
 class EmployerProfileContactForm(forms.ModelForm):
@@ -162,3 +184,21 @@ class EmployerProfileContactForm(forms.ModelForm):
     class Meta:
         model = EmployerProfile
         fields = ['contact_phone_number', 'contact_email']
+    
+    def clean_contact_phone_number(self):
+        phone = self.cleaned_data.get('contact_phone_number', '').strip()
+        if not phone:
+            raise forms.ValidationError('Contact phone number is required.')
+        # Remove non-digit characters for validation
+        digits_only = ''.join(c for c in phone if c.isdigit())
+        if len(digits_only) < 10:
+            raise forms.ValidationError('Phone number must be at least 10 digits.')
+        if len(digits_only) > 15:
+            raise forms.ValidationError('Phone number cannot exceed 15 digits.')
+        return phone
+    
+    def clean_contact_email(self):
+        email = self.cleaned_data.get('contact_email', '').strip()
+        if not email:
+            raise forms.ValidationError('Contact email is required.')
+        return email

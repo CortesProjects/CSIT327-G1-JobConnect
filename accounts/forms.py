@@ -76,6 +76,19 @@ class ApplicantRegistrationForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('An account with this email already exists.')
         return email
+    
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name', '').strip()
+        if not full_name:
+            raise forms.ValidationError('Full name is required.')
+        if len(full_name) < 2:
+            raise forms.ValidationError('Full name must be at least 2 characters long.')
+        if len(full_name) > 300:
+            raise forms.ValidationError('Full name is too long. Maximum 300 characters.')
+        # Check for at least one space (first + last name)
+        if ' ' not in full_name:
+            raise forms.ValidationError('Please enter your full name (first and last name).')
+        return full_name
 
     def save(self, commit=True):
         user = super().save(commit=False)

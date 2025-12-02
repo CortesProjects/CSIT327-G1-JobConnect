@@ -194,3 +194,18 @@ class ContactInfoForm(forms.ModelForm):
             raise forms.ValidationError("Contact number cannot exceed 15 digits.")
         return contact_number
     
+    def clean_date_of_birth(self):
+        from datetime import date
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age < 16:
+                raise forms.ValidationError("You must be at least 16 years old to register.")
+            if age > 100:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+            # Ensure date is not in the future
+            if dob > today:
+                raise forms.ValidationError("Date of birth cannot be in the future.")
+        return dob
+    

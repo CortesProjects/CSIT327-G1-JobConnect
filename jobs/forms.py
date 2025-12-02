@@ -122,25 +122,54 @@ class JobPostForm(forms.ModelForm):
     def clean_description(self):
         description = self.cleaned_data.get('description')
         if not description or not description.strip():
-            raise ValidationError('Job description cannot be empty.')
+            raise ValidationError('Job description is required. Please provide details about the position.')
         
         # Remove HTML tags for length validation
         import re
         text_only = re.sub('<[^<]+?>', '', description)
         if len(text_only.strip()) < 50:
-            raise ValidationError('Description must be at least 50 characters.')
+            raise ValidationError('Job description must be at least 50 characters. Please provide more details about the role.')
+        if len(text_only.strip()) > 10000:
+            raise ValidationError('Job description is too long. Maximum 10,000 characters.')
         return description
 
+    def clean_responsibilities(self):
+        responsibilities = self.cleaned_data.get('responsibilities')
+        if responsibilities:
+            import re
+            text_only = re.sub('<[^<]+?>', '', responsibilities)
+            if len(text_only.strip()) > 5000:
+                raise ValidationError('Responsibilities section is too long. Maximum 5,000 characters.')
+        return responsibilities
+    
     def clean_location(self):
         location = self.cleaned_data.get('location')
         if not location or not location.strip():
-            raise ValidationError('Location cannot be empty.')
+            raise ValidationError('Job location is required. Please specify where this position is based.')
+        if len(location.strip()) > 200:
+            raise ValidationError('Location is too long. Maximum 200 characters.')
         return location.strip()
 
+    def clean_vacancies(self):
+        vacancies = self.cleaned_data.get('vacancies')
+        if vacancies is not None:
+            if vacancies < 1:
+                raise ValidationError('Number of vacancies must be at least 1.')
+            if vacancies > 1000:
+                raise ValidationError('Number of vacancies cannot exceed 1,000. Please contact support for bulk hiring.')
+        return vacancies
+    
     def clean_expiration_date(self):
         expiration_date = self.cleaned_data.get('expiration_date')
-        if expiration_date and expiration_date < date.today():
-            raise ValidationError('Deadline must be a future date.')
+        if not expiration_date:
+            raise ValidationError('Application deadline is required.')
+        if expiration_date < date.today():
+            raise ValidationError('Application deadline must be a future date.')
+        # Check if deadline is too far in future (e.g., more than 1 year)
+        from datetime import timedelta
+        max_date = date.today() + timedelta(days=365)
+        if expiration_date > max_date:
+            raise ValidationError('Application deadline cannot be more than 1 year in the future.')
         return expiration_date
 
     def clean(self):
@@ -464,9 +493,3 @@ class JobApplicationForm(forms.Form):
                 raise ValidationError('You have already applied for this job.')
         
         return cleaned_data
-
-    def save(self, commit=True):
-        """Save the Job instance with tags stored in the tags CharField."""
-        # Simply save the Job instance - tags are already in the tags field
-        job = super().save(commit=commit)
-        return job
