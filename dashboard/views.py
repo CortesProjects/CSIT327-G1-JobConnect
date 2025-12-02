@@ -917,6 +917,67 @@ def hire_candidate(request, application_id):
         return redirect('dashboard:employer_candidate_detail', application_id=application_id)
 
 
+class HireCandidateView(EmployerRequiredMixin, View):
+    """
+    Hire a candidate - creates/moves to Hired stage and updates application status.
+    POST-only action that verifies employer owns the job.
+    """
+    
+    def get_application(self):
+        """Get the application, ensuring employer owns the job"""
+        from jobs.models import JobApplication
+        from django.core.exceptions import PermissionDenied
+        
+        application_id = self.kwargs.get('application_id')
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != self.request.user.id:
+            raise PermissionDenied("You do not have permission to hire this candidate.")
+        
+        return application
+    
+    def post(self, request, *args, **kwargs):
+        from jobs.models import ApplicationStage
+        
+        try:
+            application = self.get_application()
+            
+            # Get or create "Hired" stage with is_system=True flag
+            hired_stage, created = ApplicationStage.objects.get_or_create(
+                job=application.job,
+                name='Hired',
+                defaults={
+                    'order': 9999,  # Put at the end
+                    'is_system': True  # Mark as system-generated
+                }
+            )
+            
+            # Update application
+            application.stage = hired_stage
+            application.status = 'hired'
+            application.hired_date = timezone.now().date()
+            application.save()
+            
+            messages.success(
+                request,
+                f'Successfully hired {application.applicant.applicant_profile_rel.full_name or application.applicant.email}!'
+            )
+            return redirect('dashboard:employer_job_applications', job_id=application.job.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error hiring candidate: {str(e)}')
+            return redirect('dashboard:employer_candidate_detail', application_id=self.kwargs.get('application_id'))
+    
+    def get(self, request, *args, **kwargs):
+        """Reject GET requests"""
+        messages.error(request, 'Invalid request method.')
+        return redirect('dashboard:dashboard')
+
+
 @login_required
 def toggle_save_candidate(request, application_id):
     """Toggle save/unsave status for a candidate"""
