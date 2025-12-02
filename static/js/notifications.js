@@ -65,7 +65,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchUnreadCount() {
-        fetch('/notifications/unread-count/')
+        fetch('/notifications/unread-count/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -96,7 +100,11 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         notificationsEmpty.style.display = 'none';
 
-        fetch('/notifications/')
+        fetch('/notifications/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
