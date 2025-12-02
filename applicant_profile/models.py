@@ -135,6 +135,11 @@ class ApplicantProfile(models.Model):
         help_text="Whether the applicant profile is visible to employers/public"
     )
     
+    setup_completed = models.BooleanField(
+        default=False,
+        help_text="Indicates whether the user has completed the initial profile setup wizard"
+    )
+    
     class Meta:
         verbose_name = 'Applicant Profile'
         verbose_name_plural = 'Applicant Profiles'
