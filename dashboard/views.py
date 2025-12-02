@@ -897,7 +897,7 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         return self.get(request, *args, **kwargs)
 
 #-----EMPLOYER VIEWS-----#
-class PublicEmployerProfileView(TemplateView):
+class PublicEmployerProfileView(ApplicantRequiredMixin, TemplateView):
     """
     Display public employer profile (read-only view).
     No login required - accessible to anyone.
