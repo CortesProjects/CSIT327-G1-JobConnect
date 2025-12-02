@@ -139,6 +139,26 @@ class ProfileDetailsForm(forms.ModelForm):
         self.fields['marital_status'].required = False
         self.fields['biography'].required = False
     
+    def clean_date_of_birth(self):
+        from datetime import date
+        dob = self.cleaned_data.get('date_of_birth')
+        if not dob:
+            raise forms.ValidationError("Date of birth is required.")
+        
+        today = date.today()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        
+        if age < 16:
+            raise forms.ValidationError("You must be at least 16 years old to register.")
+        if age > 100:
+            raise forms.ValidationError("Please enter a valid date of birth.")
+        
+        # Ensure date is not in the future
+        if dob > today:
+            raise forms.ValidationError("Date of birth cannot be in the future.")
+        
+        return dob
+    
 
 # Form for Step 3: Contact Information and Resume
 class ContactInfoForm(forms.ModelForm):
@@ -187,21 +207,6 @@ class ContactInfoForm(forms.ModelForm):
         if len(digits_only) > 15:
             raise forms.ValidationError("Contact number cannot exceed 15 digits.")
         return contact_number
-    
-    def clean_date_of_birth(self):
-        from datetime import date
-        dob = self.cleaned_data.get('date_of_birth')
-        if dob:
-            today = date.today()
-            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            if age < 16:
-                raise forms.ValidationError("You must be at least 16 years old to register.")
-            if age > 100:
-                raise forms.ValidationError("Please enter a valid date of birth.")
-            # Ensure date is not in the future
-            if dob > today:
-                raise forms.ValidationError("Date of birth cannot be in the future.")
-        return dob
 
 
 # Form for Step 4: Resume Upload (using new Resume model)
