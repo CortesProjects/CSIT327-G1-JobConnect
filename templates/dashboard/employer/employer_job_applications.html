@@ -8,7 +8,6 @@
 
 {% block dashboard_content %}
 <div class="job-applications-container">
-    <!-- Page Header with Breadcrumb -->
     <div>
         <div class="header-top">
             <nav class="breadcrumb">
@@ -32,7 +31,6 @@
                     <i class="fas fa-sort"></i>
                     <span>Sort</span>
                 </button>
-                <!-- Server-side Filter Form -->
                 <div class="filter-dropdown" id="filterDropdown">
                     <div class="dropdown-section">
                         <h3 class="dropdown-title">FILTER</h3>
@@ -65,12 +63,10 @@
                     </div>
                 </div>
 
-                <!-- Server-side Sort Form -->
                 <div class="sort-dropdown" id="sortDropdown">
                     <div class="dropdown-section">
                         <h3 class="dropdown-title">SORT</h3>
                         <form id="applicationsSortForm" method="get" action="">
-                            <!-- Preserve current filter values so sorting doesn't remove filters -->
                             <input type="hidden" name="education" value="{{ filter_form.data.education|default:'' }}">
                             <input type="hidden" name="experience" value="{{ filter_form.data.experience|default:'' }}">
                             <div class="sort-options">
@@ -103,9 +99,7 @@
         </div>
     </div>
 
-    <!-- Applications Grid -->
     <div class="applications-layout">
-        <!-- All Applications Column (Fixed) -->
         <div class="applications-column">
             <div class="column-header">
                 <div class="column-title-group">
@@ -128,7 +122,6 @@
             </div>
         </div>
 
-        <!-- Dynamic Custom Columns (e.g., Shortlisted, Interview, etc.) -->
         {% if custom_columns %}
             {% for column in custom_columns %}
             <div class="applications-column" data-stage-id="{{ column.id }}">
@@ -168,7 +161,6 @@
             {% endfor %}
         {% endif %}
 
-        <!-- System Columns (e.g., Hired - non-editable) -->
         {% if system_columns %}
             {% for column in system_columns %}
             <div class="applications-column system-column" data-stage-id="{{ column.id }}" style="background-color: #f0f9ff; border: 2px solid #28a745;">
@@ -180,7 +172,7 @@
                         </h2>
                         <span class="count-badge" style="background-color: #28a745;">{{ column.applications.count }}</span>
                     </div>
-                    <!-- No edit/delete menu for system columns -->
+                    
                 </div>
 
                 <div class="applications-list" data-stage-id="{{ column.id }}">

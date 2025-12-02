@@ -9,7 +9,6 @@
     margin-bottom: 16px;
 }
 
-/* Breadcrumb */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -41,7 +40,6 @@
     font-weight: 500;
 }
 
-/* Header Main */
 .header-main {
     display: flex;
     justify-content: space-between;
@@ -114,9 +112,6 @@
     color: #333;
 }
 
-/* ============================================
-   FILTER DROPDOWN
-   ============================================ */
 .filter-dropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -128,7 +123,6 @@
     min-width: 280px;
     z-index: 1000;
     padding: 16px;
-    /* Hidden by default using opacity/visibility so we can animate */
     opacity: 0;
     transform: translateY(-6px);
     visibility: hidden;
@@ -144,7 +138,6 @@
     transition-delay: 0s;
 }
 
-/* Sort dropdown uses same animation/behavior but sits closer to the right */
 .sort-dropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -276,9 +269,6 @@
     background: #B00909;
 }
 
-/* ============================================
-   SORT DROPDOWN
-   ============================================ */
 .sort-dropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -374,9 +364,6 @@
     font-weight: 400;
 }
 
-/* ============================================
-   KANBAN BOARD LAYOUT
-   ============================================ */
 .applications-layout {
     display: flex;
     gap: 20px;
@@ -405,9 +392,6 @@
     background: #AAA;
 }
 
-/* ============================================
-   COLUMN DESIGN
-   ============================================ */
 .applications-column {
     background: #F5F5F5;
     border-radius: 12px;
@@ -526,9 +510,6 @@
     color: #DC3545;
 }
 
-/* ============================================
-   APPLICATIONS LIST
-   ============================================ */
 .applications-list {
     padding: 16px;
     display: flex;
@@ -538,7 +519,6 @@
     flex: 1;
 }
 
-/* Empty State */
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -560,9 +540,6 @@
     margin: 0;
 }
 
-/* ============================================
-   APPLICATION CARD
-   ============================================ */
 .application-card {
     background: white;
     border-radius: 10px;
@@ -748,9 +725,6 @@
     font-size: 12px;
 }
 
-/* ============================================
-   CREATE NEW COLUMN
-   ============================================ */
 .create-column {
     display: flex;
     align-items: center;
@@ -792,9 +766,6 @@
     transform: scale(1.1);
 }
 
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
 @media (max-width: 768px) {
     .job-applications-container {
         background: white;
@@ -860,9 +831,6 @@
     }
 }
 
-/* ============================================
-   ADD STAGE MODAL
-   ============================================ */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -1035,7 +1003,6 @@
     box-shadow: none;
 }
 
-/* Delete Modal Specific Styles */
 .modal-small {
     max-width: 420px;
 }

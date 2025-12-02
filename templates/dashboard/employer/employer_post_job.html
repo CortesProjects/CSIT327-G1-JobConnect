@@ -24,7 +24,6 @@
     <form method="post" class="post-job-form" id="jobPostForm" novalidate>
         {% csrf_token %}
         
-        <!-- Job Title -->
         <div class="form-section">
             <div class="form-group full-width">
                 <label for="job_title">Job Title</label>
@@ -34,7 +33,6 @@
             </div>
         </div>
 
-        <!-- Tags, Job Role, and Location -->
         <div class="form-section two-columns">
             <div class="form-group">
                 <label for="tags">Tags</label>
@@ -47,7 +45,6 @@
             </div>
         </div>
         
-        <!-- Location -->
         <div class="form-section">
             <div class="form-group full-width">
                 <label for="location">Location <span class="required">*</span></label>
@@ -56,7 +53,6 @@
             </div>
         </div>
 
-        <!-- Salary Section -->
         <div class="form-section">
             <h3 class="section-title">Salary</h3>
             <div class="salary-row">
@@ -84,7 +80,6 @@
             </div>
         </div>
 
-        <!-- Advance Information Section -->
         <div class="form-section">
             <h3 class="section-title">Advance Information</h3>
             <div class="advance-info-row">
@@ -112,7 +107,6 @@
                 </div>
                 <div class="form-group">
                     <label for="expiration_date">Expiration Date</label>
-                    <!-- Use HTML date input so the browser posts a YYYY-MM-DD value that Django can parse -->
                     {{ form.expiration_date }}
                     <span class="error-message" id="expiration_date_error">{% if form.expiration_date.errors %}{{ form.expiration_date.errors|join:", " }}{% endif %}</span>
                 </div>
@@ -124,7 +118,6 @@
             </div>
         </div>
 
-        <!-- Description & Responsibility Section -->
         <div class="form-section">
             <h3 class="section-title">Description & Responsibility</h3>
             
@@ -189,7 +182,6 @@
             </div>
         </div>
 
-        <!-- Submit Button -->
         <div class="form-actions">
             {% if is_edit %}
             <a href="#" class="btn-cancel-form" id="cancelEditBtn"><i class="fas fa-times"></i> Cancel</a>

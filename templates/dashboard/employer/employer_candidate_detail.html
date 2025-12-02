@@ -8,7 +8,6 @@
 
 {% block dashboard_content %}
 <div class="candidate-detail-container">
-    <!-- Close Button -->
     {% comment %} If the page was opened from saved candidates, return there. Use GET param `from_page=saved`. {% endcomment %}
     {% if request.GET.from_page == 'saved' %}
         <button class="btn-close" data-redirect="{% url 'dashboard:employer_saved_candidates' %}">
@@ -20,7 +19,6 @@
         </button>
     {% endif %}
 
-    <!-- Candidate Header -->
     <div class="candidate-header">
         <div class="candidate-main-info">
             <div class="candidate-avatar">
@@ -60,11 +58,8 @@
         </div>
     </div>
 
-    <!-- Candidate Content -->
     <div class="candidate-content">
-        <!-- Left Column - Main Info -->
         <div class="content-main">
-            <!-- Biography Section -->
             <section class="content-section">
                 <h2 class="section-title">BIOGRAPHY</h2>
                 <div class="section-content">
@@ -76,7 +71,6 @@
                 </div>
             </section>
 
-            <!-- Cover Letter Section -->
             <section class="content-section">
                 <h2 class="section-title">COVER LETTER</h2>
                 <div class="section-content">
@@ -88,7 +82,6 @@
                 </div>
             </section>
 
-            <!-- Social Media Section -->
             {% if social_links %}
             <section class="content-section">
                 <h2 class="section-title">Follow on Social Media</h2>
@@ -121,9 +114,7 @@
             {% endif %}
         </div>
 
-        <!-- Right Column - Sidebar Info -->
         <div class="content-sidebar">
-            <!-- Contact Information -->
             <div class="info-card">
                 {% if profile.date_of_birth %}
                 <div class="info-row">
@@ -198,7 +189,6 @@
                 {% endif %}
             </div>
 
-            <!-- Location -->
             {% if profile.location %}
             <div class="info-card">
                 <div class="info-row">
@@ -216,7 +206,6 @@
             </div>
             {% endif %}
 
-            <!-- Contact Info -->
             {% if profile.contact_number %}
             <div class="info-card">
                 <div class="info-row">
@@ -231,7 +220,6 @@
             </div>
             {% endif %}
 
-            <!-- Email -->
             <div class="info-card">
                 <div class="info-row">
                     <div class="info-icon">
@@ -246,7 +234,6 @@
                 </div>
             </div>
 
-            <!-- Download Resume -->
             {% if profile.resume %}
             <div class="download-section">
                 <h3 class="download-title">Download Resume</h3>
@@ -274,7 +261,6 @@
     </div>
 </div>
 
-<!-- Hire Confirmation Modal -->
 <div class="modal-overlay" id="hireModal">
     <div class="modal-container modal-small">
         <div class="modal-header">

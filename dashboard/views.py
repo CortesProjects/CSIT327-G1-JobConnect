@@ -1,4 +1,3 @@
-# dashboards/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -29,10 +28,6 @@ from .forms import (
 )
 
 class DashboardView(LoginRequiredMixin, View):
-    """
-    Main dashboard view that routes users to their respective dashboard
-    based on user type (applicant, employer, or admin).
-    """
     
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -47,15 +42,12 @@ class DashboardView(LoginRequiredMixin, View):
             return render(request, 'home.html')
     
     def _render_applicant_dashboard(self, request):
-        """Render applicant dashboard with stats"""
         from jobs.models import JobApplication, FavoriteJob, JobAlert
         
         user = request.user
         applied_count = JobApplication.objects.filter(applicant=user).count()
         favorite_count = FavoriteJob.objects.filter(applicant=user).count()
         alerts_count = JobAlert.objects.filter(user=user).count()
-        
-        # Ensure profile exists
         try:
             profile = user.profile
         except Exception:
@@ -70,18 +62,15 @@ class DashboardView(LoginRequiredMixin, View):
         return render(request, 'dashboard/applicant/applicant_overview.html', context)
     
     def _render_employer_dashboard(self, request):
-        """Render employer dashboard with job stats"""
         from jobs.models import Job
         from django.db.models import Count
         from dashboard.models import SavedCandidate
         
-        # Fetch employer's jobs with application counts
         all_jobs = Job.objects.filter(employer=request.user)
         recent_jobs = all_jobs.annotate(
             applications_count=Count('applications')
         ).order_by('-posted_at')[:5]
         
-        # Get saved candidates count
         saved_candidates_count = SavedCandidate.objects.filter(employer=request.user).count()
         
         context = {
@@ -96,10 +85,6 @@ class DashboardView(LoginRequiredMixin, View):
 
 #-----APPLICANT VIEWS-----#
 class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
-    """
-    Search jobs for applicants with filters using Django form validation.
-    Matches the logic of the original applicant_search_jobs function-based view.
-    """
     model = Job
     template_name = 'dashboard/applicant/applicant_search_jobs.html'
     context_object_name = 'jobs'
@@ -109,20 +94,17 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
         from jobs.models import JobCategory, EducationLevel, ExperienceLevel, JobLevel
         from dashboard.forms import JobSearchForm
         from django.db.models import Q, Count
-        
-        # Get filter options from lookup tables (only active items)
+
         all_categories = JobCategory.objects.filter(is_active=True)
         all_educations = EducationLevel.objects.filter(is_active=True)
         all_experiences = ExperienceLevel.objects.filter(is_active=True)
         all_job_levels = JobLevel.objects.filter(is_active=True)
         
-        # Prepare choices for form fields
         category_choices = [('', 'Category')] + [(str(c.id), c.name) for c in all_categories]
         education_choices = [('', 'Education')] + [(str(e.id), e.name) for e in all_educations]
         experience_choices = [('', 'Experience')] + [(str(e.id), e.name) for e in all_experiences]
         job_level_choices = [('', 'Level')] + [(str(j.id), j.name) for j in all_job_levels]
         
-        # Initialize form with GET data and dynamic choices
         self.form = JobSearchForm(
             self.request.GET or None,
             category_choices=category_choices,
@@ -130,8 +112,7 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
             experience_choices=experience_choices,
             job_level_choices=job_level_choices
         )
-        
-        # Start with active jobs only with optimized queries
+
         jobs = Job.objects.filter(status='active').select_related(
             'employer',
             'category',
@@ -142,14 +123,11 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
             'salary_type'
         ).annotate(applications_count=Count('applications'))
         
-        # Apply filters only if form is valid
         if self.form.is_valid():
             cleaned_data = self.form.cleaned_data
             
-            # Keyword search
             query = cleaned_data.get('query')
             if query:
-                # Search title, description, company name, and tags field
                 jobs = jobs.filter(
                     Q(title__icontains=query) |
                     Q(description__icontains=query) |
@@ -157,27 +135,22 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
                     Q(tags__icontains=query)
                 ).distinct()
             
-            # Category filter (single-select)
             category_val = cleaned_data.get('category')
             if category_val:
                 jobs = jobs.filter(category_id=category_val)
             
-            # Education filter (single-select)
             education_val = cleaned_data.get('education')
             if education_val:
                 jobs = jobs.filter(education_id=education_val)
             
-            # Experience filter (single-select)
             experience_val = cleaned_data.get('experience')
             if experience_val:
                 jobs = jobs.filter(experience_id=experience_val)
             
-            # Job level filter (single-select)
             job_level_val = cleaned_data.get('job_level')
             if job_level_val:
                 jobs = jobs.filter(job_level_id=job_level_val)
             
-            # Salary filter
             salary_min = cleaned_data.get('salary_min')
             if salary_min:
                 jobs = jobs.filter(min_salary__gte=salary_min)
@@ -186,7 +159,6 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
             if salary_max:
                 jobs = jobs.filter(max_salary__lte=salary_max)
         
-        # Order by most recent
         return jobs.order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
@@ -194,16 +166,13 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
         
         context = super().get_context_data(**kwargs)
         
-        # Add the form to context
         context['form'] = self.form
         
-        # Get filter options from lookup tables (only active items)
         context['categories'] = JobCategory.objects.filter(is_active=True)
         context['educations'] = EducationLevel.objects.filter(is_active=True)
         context['experiences'] = ExperienceLevel.objects.filter(is_active=True)
         context['job_levels'] = JobLevel.objects.filter(is_active=True)
         
-        # Get favorited job IDs for the current applicant
         context['favorited_job_ids'] = list(
             FavoriteJob.objects.filter(applicant=self.request.user).values_list('job_id', flat=True)
         )
@@ -211,12 +180,7 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
         return context
 
 class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
-    """
-    Show favorite jobs for the current applicant.
-    Template expects 'favorites' to be a page of FavoriteJob objects so it can use
-    favorite.job inside each loop. Matches the original applicant_favorite_jobs function-based view.
-    """
-    model = None  # We'll set the queryset directly
+    model = None  
     template_name = 'dashboard/applicant/applicant_favorite_jobs.html'
     context_object_name = 'favorites'
     paginate_by = 10
@@ -224,7 +188,6 @@ class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
     def get_queryset(self):
         from jobs.models import FavoriteJob
         
-        # Query: applicant's favorites, with related Job data for efficiency
         favorites_qs = FavoriteJob.objects.filter(
             applicant=self.request.user
         ).select_related(
@@ -244,11 +207,9 @@ class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
         
         context = super().get_context_data(**kwargs)
         
-        # Single count to avoid repeated DB hits in template
         favorites_qs = self.get_queryset()
         context['favorite_count'] = favorites_qs.count()
         
-        # Job ID lists (keeps compatibility with existing templates/JS)
         context['favorited_job_ids'] = list(favorites_qs.values_list('job_id', flat=True))
         context['favorited_job_ids_page'] = list(
             context['page_obj'].object_list.values_list('job_id', flat=True)
@@ -257,10 +218,6 @@ class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
         return context
 
 class ApplicantAppliedJobsListView(ApplicantRequiredMixin, ListView):
-    """
-    Display all job applications submitted by the current applicant.
-    Shows application status, date applied, and job details.
-    """
     model = JobApplication
     template_name = 'dashboard/applicant/applicant_applied_jobs.html'
     context_object_name = 'applied_jobs'
@@ -286,36 +243,25 @@ class ApplicantAppliedJobsListView(ApplicantRequiredMixin, ListView):
         return context
 
 class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
-    """
-    Display job alerts and matching jobs for the applicant.
-    Shows all user's alerts and jobs that match active alert criteria.
-    """
     template_name = 'dashboard/applicant/applicant_job_alerts.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         from jobs.models import FavoriteJob, JobAlert, EmploymentType, JobCategory, Job
         
-        # Get user's alerts
         user_alerts = JobAlert.objects.filter(user=self.request.user).order_by('-created_at')
-        
-        # Get matching jobs from active alerts
         matching_jobs = self._get_matching_jobs(user_alerts)
         
-        # Apply search query filter
         query = self.request.GET.get('query', '').strip()
         if query:
             matching_jobs = self._filter_jobs_by_query(matching_jobs, query)
         
-        # Paginate alert jobs
         page_obj = self._paginate_jobs(matching_jobs)
         
-        # Get favorited job IDs for bookmark state
         favorited_job_ids = list(
             FavoriteJob.objects.filter(applicant=self.request.user).values_list('job_id', flat=True)
         )
         
-        # Get active job types and categories for the modal
         job_types = EmploymentType.objects.filter(is_active=True)
         job_categories = JobCategory.objects.filter(is_active=True)
         
@@ -332,19 +278,16 @@ class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
         return context
     
     def _get_matching_jobs(self, user_alerts):
-        """Get all jobs matching active alerts"""
         from jobs.models import Job
         
         matching_jobs = set()
         for alert in user_alerts.filter(is_active=True):
             try:
-                # Try to use alert's get_matching_jobs method if available
                 matches = alert.get_matching_jobs()
                 if matches is None:
                     matches = []
                 matching_jobs.update(matches)
             except Exception:
-                # Fallback to manual filtering
                 jobs_qs = Job.objects.filter(status='active').order_by('-posted_at')
                 
                 if getattr(alert, 'job_title', None):
@@ -367,11 +310,9 @@ class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
                 
                 matching_jobs.update(list(jobs_qs))
         
-        # Sort by posted date (most recent first)
         return sorted(list(matching_jobs), key=lambda x: x.posted_at, reverse=True)
     
     def _filter_jobs_by_query(self, jobs, query):
-        """Filter jobs by search query"""
         qlower = query.lower()
         return [
             j for j in jobs 
@@ -380,21 +321,16 @@ class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
         ]
     
     def _paginate_jobs(self, jobs):
-        """Paginate job list"""
         from django.core.paginator import Paginator
-        paginator = Paginator(jobs, 10)  # 10 jobs per page
+        paginator = Paginator(jobs, 10)  
         page_number = self.request.GET.get('page', 1)
         return paginator.get_page(page_number)
 
 class CreateJobAlertView(ApplicantRequiredMixin, FormView):
-    """
-    Create a new job alert for applicants.
-    Supports both AJAX and regular form submissions.
-    """
     template_name = 'dashboard/applicant/create_job_alert.html'
-    form_class = None  # Set dynamically
-    success_url = None  # Set dynamically
-    
+    form_class = None  
+    success_url = None 
+
     def get_form_class(self):
         from jobs.forms import JobAlertForm
         return JobAlertForm
@@ -405,12 +341,11 @@ class CreateJobAlertView(ApplicantRequiredMixin, FormView):
     def form_valid(self, form):
         from django.http import JsonResponse
         
-        # Save alert with current user
         alert = form.save(commit=False)
         alert.user = self.request.user
         alert.save()
         
-        # Handle AJAX requests
+        
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
@@ -418,42 +353,34 @@ class CreateJobAlertView(ApplicantRequiredMixin, FormView):
                 'alert_id': alert.id
             })
         
-        # Handle regular form submission
         messages.success(self.request, 'Job alert created successfully!')
         return super().form_valid(form)
     
     def form_invalid(self, form):
         from django.http import JsonResponse
         
-        # Handle AJAX requests
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
                 'errors': form.errors
             }, status=400)
         
-        # Handle regular form submission
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
 
 class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
-    """
-    Edit an existing job alert.
-    Supports both AJAX and regular form submissions.
-    GET with AJAX returns alert data as JSON for frontend to populate modal.
-    """
-    model = None  # Set dynamically
-    form_class = None  # Set dynamically
+
+    model = None 
+    form_class = None  
     template_name = 'dashboard/applicant/create_job_alert.html'
     pk_url_kwarg = 'alert_id'
-    success_url = None  # Set dynamically
+    success_url = None 
     
     def get_model(self):
         from jobs.models import JobAlert
         return JobAlert
     
     def get_queryset(self):
-        """Ensure user can only edit their own alerts"""
         from jobs.models import JobAlert
         return JobAlert.objects.filter(user=self.request.user)
     
@@ -465,13 +392,11 @@ class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
         return reverse('dashboard:applicant_job_alerts')
     
     def get(self, request, *args, **kwargs):
-        """Handle GET - for AJAX, return alert data as JSON"""
         from django.http import JsonResponse
         
         self.object = self.get_object()
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # Return alert data as JSON for AJAX requests
             return JsonResponse({
                 'success': True,
                 'alert': {
@@ -501,39 +426,30 @@ class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
         
         form.save()
         
-        # Handle AJAX requests
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'message': 'Job alert updated successfully!'
             })
         
-        # Handle regular form submission
         messages.success(self.request, 'Job alert updated successfully!')
         return super().form_valid(form)
     
     def form_invalid(self, form):
         from django.http import JsonResponse
         
-        # Handle AJAX requests
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
                 'errors': form.errors
             }, status=400)
         
-        # Handle regular form submission
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
 
 class DeleteJobAlertView(ApplicantRequiredMixin, View):
-    """
-    Delete a job alert.
-    POST-only view that supports both AJAX and regular form submissions.
-    """
-    
+
     def get_object(self):
-        """Get the alert, ensuring user owns it"""
         from jobs.models import JobAlert
         alert_id = self.kwargs.get('alert_id')
         return get_object_or_404(JobAlert, id=alert_id, user=self.request.user)
@@ -544,19 +460,16 @@ class DeleteJobAlertView(ApplicantRequiredMixin, View):
         alert = self.get_object()
         alert.delete()
         
-        # Handle AJAX requests
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'message': 'Job alert deleted successfully!'
             })
         
-        # Handle regular form submission
         messages.success(request, 'Job alert deleted successfully!')
         return redirect('dashboard:applicant_job_alerts')
     
     def get(self, request, *args, **kwargs):
-        """Reject GET requests"""
         from django.http import JsonResponse
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -568,13 +481,8 @@ class DeleteJobAlertView(ApplicantRequiredMixin, View):
         return redirect('dashboard:applicant_job_alerts')
 
 class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
-    """
-    Toggle job alert active/inactive status.
-    POST-only view that supports both AJAX and regular form submissions.
-    """
     
     def get_object(self):
-        """Get the alert, ensuring user owns it"""
         from jobs.models import JobAlert
         alert_id = self.kwargs.get('alert_id')
         return get_object_or_404(JobAlert, id=alert_id, user=self.request.user)
@@ -588,7 +496,6 @@ class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
         
         status_text = 'activated' if alert.is_active else 'deactivated'
         
-        # Handle AJAX requests
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
@@ -596,12 +503,10 @@ class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
                 'message': f'Job alert {status_text} successfully!'
             })
         
-        # Handle regular form submission
         messages.success(request, f'Job alert {status_text} successfully!')
         return redirect('dashboard:applicant_job_alerts')
     
     def get(self, request, *args, **kwargs):
-        """Reject GET requests"""
         from django.http import JsonResponse
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -613,13 +518,6 @@ class ToggleJobAlertStatusView(ApplicantRequiredMixin, View):
         return redirect('dashboard:applicant_job_alerts')
 
 class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
-    """
-    Applicant settings page handling multiple forms:
-    - Personal info, profile details, contact info, privacy
-    - Resume upload, password change, notification preferences
-    - Social links management, account deletion
-    Matches the logic of the original applicant_settings function-based view.
-    """
     template_name = 'dashboard/applicant/applicant_settings.html'
     
     def get_context_data(self, **kwargs):
@@ -628,7 +526,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         profile = get_object_or_404(ApplicantProfile, user=self.request.user)
         
-        # Get or create notification preferences
         notification_prefs, created = NotificationPreferences.objects.get_or_create(
             user=self.request.user,
             defaults={
@@ -638,7 +535,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
             }
         )
         
-        # Initialize all forms with current data
         context['profile'] = profile
         context['personal_info_form'] = ApplicantPersonalInfoForm(instance=profile)
         context['profile_details_form'] = ApplicantProfileDetailsForm(instance=profile)
@@ -700,16 +596,13 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         
         elif form_type == 'social_links_bulk':
             try:
-                # Get arrays from POST data
                 platforms = request.POST.getlist('platform[]')
                 urls = request.POST.getlist('url[]')
                 link_ids = request.POST.getlist('link_id[]')
                 
-                # Get existing social link IDs for this user
                 existing_ids = set(request.user.social_links.values_list('id', flat=True))
                 submitted_ids = set()
                 
-                # Process each submitted link
                 for i, (platform, url) in enumerate(zip(platforms, urls)):
                     if not platform or not url:
                         continue
@@ -717,7 +610,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                     link_id = link_ids[i] if i < len(link_ids) and link_ids[i] else None
                     
                     if link_id:
-                        # Update existing link
                         link_id = int(link_id)
                         submitted_ids.add(link_id)
                         social_link = UserSocialLink.objects.filter(id=link_id, user=request.user).first()
@@ -726,7 +618,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                             social_link.url = url
                             social_link.save()
                     else:
-                        # Create new link
                         social_link = UserSocialLink.objects.create(
                             user=request.user,
                             platform=platform,
@@ -734,7 +625,6 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                         )
                         submitted_ids.add(social_link.id)
                 
-                # Delete links that were removed (in existing but not in submitted)
                 ids_to_delete = existing_ids - submitted_ids
                 if ids_to_delete:
                     UserSocialLink.objects.filter(id__in=ids_to_delete, user=request.user).delete()
@@ -747,11 +637,9 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         elif form_type == 'social_link':
             social_link_id = request.POST.get('social_link_id')
             if social_link_id:
-                # Edit existing social link
                 social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
                 form = ApplicantSocialLinkForm(request.POST, instance=social_link)
             else:
-                # Add new social link
                 form = ApplicantSocialLinkForm(request.POST)
             
             if form.is_valid():
@@ -821,20 +709,18 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
             if password_form.is_valid():
                 try:
                     user = password_form.save()
-                    update_session_auth_hash(request, user)  # Keep user logged in
+                    update_session_auth_hash(request, user)  
                     messages.success(request, 'Password changed successfully!')
                     return redirect('dashboard:applicant_settings')
                 except Exception as e:
                     messages.error(request, f'Error changing password: {str(e)}')
             else:
-                # Display password form errors with field labels
                 for field, errors in password_form.errors.items():
                     field_label = password_form.fields.get(field).label if field in password_form.fields else field
                     for error in errors:
                         messages.error(request, f'{field_label}: {error}')
         
         elif form_type == 'notification_preferences':
-            # Update notification preferences
             notification_prefs.notify_shortlisted = request.POST.get('notify_shortlisted') == 'on'
             notification_prefs.notify_applications = request.POST.get('notify_applications') == 'on'
             notification_prefs.notify_job_alerts = request.POST.get('notify_job_alerts') == 'on'
@@ -843,13 +729,11 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
             return redirect('dashboard:applicant_settings')
         
         elif form_type == 'delete_account':
-            # Verify password
             password = request.POST.get('password')
             user = authenticate(username=request.user.username, password=password)
             
             if user is not None:
                 try:
-                    # Delete user account (cascades to profile and related data)
                     username = request.user.username
                     request.user.delete()
                     messages.success(request, f'Account {username} has been permanently deleted.')
@@ -860,16 +744,11 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
                 messages.error(request, 'Incorrect password. Account deletion cancelled.')
                 return redirect('dashboard:applicant_settings')
         
-        # Return context with all forms if no redirect happened
         return self.get(request, *args, **kwargs)
 
 #-----EMPLOYER VIEWS-----#
 class PublicEmployerProfileView(TemplateView):
-    """
-    Display public employer profile (read-only view).
-    No login required - accessible to anyone.
-    Shows only active jobs and hides sensitive statistics.
-    """
+    
     template_name = 'dashboard/employer/employer_profile.html'
     
     def get_context_data(self, **kwargs):
@@ -881,19 +760,15 @@ class PublicEmployerProfileView(TemplateView):
         User = get_user_model()
         employer_id = kwargs.get('employer_id')
         
-        # Get employer user
         employer = get_object_or_404(User, id=employer_id, user_type='employer')
         
-        # Get employer profile
         try:
             profile = employer.employer_profile_rel
         except:
             profile = None
         
-        # Get social links
         social_links = UserSocialLink.objects.filter(user=employer).order_by('platform')
         
-        # Get recent jobs with application counts (only active jobs for public view)
         recent_jobs = Job.objects.filter(
             employer=employer,
             status='active'
@@ -908,11 +783,10 @@ class PublicEmployerProfileView(TemplateView):
             applications_count=Count('applications')
         ).order_by('-posted_at')[:3]
         
-        # Calculate statistics (public view - only show active jobs)
         total_jobs = Job.objects.filter(employer=employer, status='active').count()
         active_jobs = total_jobs
-        total_applications = 0  # Hide application stats for public view
-        hired_count = 0  # Hide hiring stats for public view
+        total_applications = 0  
+        hired_count = 0  
         
         context.update({
             'profile': profile,
@@ -928,14 +802,9 @@ class PublicEmployerProfileView(TemplateView):
         return context
 
 class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
-    """
-    Show applications for a specific job posting (employer-only).
-    Handles stage management (add/edit/delete) and application filtering.
-    """
     template_name = 'dashboard/employer/employer_job_applications.html'
     
     def get_job(self):
-        """Get the job, ensuring employer owns it"""
         from jobs.models import Job
         from django.core.exceptions import PermissionDenied
         
@@ -948,7 +817,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         return job
     
     def post(self, request, *args, **kwargs):
-        """Handle stage management POST requests"""
         from jobs.models import ApplicationStage, JobApplication
         from django.db import models
         
@@ -957,7 +825,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         stage_name = request.POST.get('stage_name', '').strip()
         stage_id = request.POST.get('stage_id')
         
-        # Add new stage
         if form_type == 'add_stage' and stage_name:
             max_order = ApplicationStage.objects.filter(job=job).aggregate(
                 models.Max('order')
@@ -971,7 +838,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
             messages.success(request, f'Column "{stage_name}" added.')
             return redirect(request.get_full_path())
         
-        # Edit existing stage
         if form_type == 'edit_stage' and stage_id and stage_name:
             try:
                 stage = ApplicationStage.objects.get(id=stage_id, job=job)
@@ -985,7 +851,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
                 messages.error(request, 'Stage not found.')
             return redirect(request.get_full_path())
         
-        # Delete stage
         if form_type == 'delete_stage' and stage_id:
             try:
                 stage = ApplicationStage.objects.get(id=stage_id, job=job)
@@ -1002,7 +867,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         return redirect(request.get_full_path())
     
     def get_education_experience_choices(self):
-        """Get education and experience choices from ApplicantProfile model"""
         from applicant_profile.models import ApplicantProfile
         
         education_choices = list(getattr(ApplicantProfile, 'EDUCATION_LEVEL_CHOICES', []))
@@ -1016,7 +880,6 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         return education_choices, experience_choices
     
     def get_filtered_applications(self, job, filter_form):
-        """Get filtered and sorted applications queryset"""
         from jobs.models import JobApplication
         
         base_qs = JobApplication.objects.filter(job=job).select_related(
@@ -1027,23 +890,20 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         if filter_form.is_valid():
             cd = filter_form.cleaned_data
             
-            # Apply education filter
             education_val = cd.get('education')
             if education_val:
                 base_qs = base_qs.filter(applicant__applicant_profile_rel__education_level=education_val)
             
-            # Apply experience filter
             experience_val = cd.get('experience')
             if experience_val:
                 base_qs = base_qs.filter(applicant__applicant_profile_rel__experience=experience_val)
             
-            # Apply sorting
             sort_val = cd.get('sort', '').strip()
             if sort_val == 'oldest':
                 base_qs = base_qs.order_by('application_date')
             elif sort_val == 'name':
                 base_qs = base_qs.order_by('applicant__first_name', 'applicant__last_name')
-            else:  # 'newest' or default
+            else:
                 base_qs = base_qs.order_by('-application_date')
         else:
             base_qs = base_qs.order_by('-application_date')
@@ -1057,24 +917,16 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         
         context = super().get_context_data(**kwargs)
         job = self.get_job()
-        
-        # Get education and experience choices
         education_choices, experience_choices = self.get_education_experience_choices()
-        
-        # Initialize filter form
+
         filter_form = EmployerApplicationFilterForm(
             self.request.GET or None,
             education_choices=education_choices,
             experience_choices=experience_choices,
         )
         
-        # Get filtered applications
         base_qs = self.get_filtered_applications(job, filter_form)
-        
-        # Split into columns
         all_applications = base_qs.filter(stage__isnull=True)
-        
-        # Prefetch applications for stages with filters applied
         prefetch_apps = Prefetch('applications', queryset=base_qs)
         
         custom_stages = ApplicationStage.objects.filter(
@@ -1099,16 +951,10 @@ class EmployerJobApplicationsView(EmployerRequiredMixin, TemplateView):
         
         return context
 
-
 class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
-    """
-    Display detailed information about a candidate/applicant for a specific job application.
-    Employer must own the job to view candidate details.
-    """
     template_name = 'dashboard/employer/employer_candidate_detail.html'
     
     def get_application(self):
-        """Get the application, ensuring employer owns the job"""
         from jobs.models import JobApplication
         from django.core.exceptions import PermissionDenied
         
@@ -1122,7 +968,6 @@ class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
             id=application_id
         )
         
-        # Verify the employer owns the job this application is for
         if application.job.employer_id != self.request.user.id:
             raise PermissionDenied("You do not have permission to view this candidate.")
         
@@ -1133,14 +978,9 @@ class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
         
         context = super().get_context_data(**kwargs)
         application = self.get_application()
-        
-        # Get applicant profile
         profile = application.applicant.applicant_profile_rel
-        
-        # Get social links
         social_links = application.applicant.social_links.all()
         
-        # Check if candidate is saved
         is_saved = SavedCandidate.objects.filter(
             employer=self.request.user,
             application=application
@@ -1158,13 +998,8 @@ class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
         return context
 
 class HireCandidateView(EmployerRequiredMixin, View):
-    """
-    Hire a candidate - creates/moves to Hired stage and updates application status.
-    POST-only action that verifies employer owns the job.
-    """
     
     def get_application(self):
-        """Get the application, ensuring employer owns the job"""
         from jobs.models import JobApplication
         from django.core.exceptions import PermissionDenied
         
@@ -1174,7 +1009,6 @@ class HireCandidateView(EmployerRequiredMixin, View):
             id=application_id
         )
         
-        # Verify employer owns this job
         if application.job.employer_id != self.request.user.id:
             raise PermissionDenied("You do not have permission to hire this candidate.")
         
@@ -1185,18 +1019,15 @@ class HireCandidateView(EmployerRequiredMixin, View):
         
         try:
             application = self.get_application()
-            
-            # Get or create "Hired" stage with is_system=True flag
             hired_stage, created = ApplicationStage.objects.get_or_create(
                 job=application.job,
                 name='Hired',
                 defaults={
-                    'order': 9999,  # Put at the end
-                    'is_system': True  # Mark as system-generated
+                    'order': 9999, 
+                    'is_system': True 
                 }
             )
             
-            # Update application
             application.stage = hired_stage
             application.status = 'hired'
             application.hired_date = timezone.now().date()
@@ -1213,18 +1044,12 @@ class HireCandidateView(EmployerRequiredMixin, View):
             return redirect('dashboard:employer_candidate_detail', application_id=self.kwargs.get('application_id'))
     
     def get(self, request, *args, **kwargs):
-        """Reject GET requests"""
         messages.error(request, 'Invalid request method.')
         return redirect('dashboard:dashboard')
 
 class ToggleSaveCandidateView(EmployerRequiredMixin, View):
-    """
-    Toggle save/unsave status for a candidate.
-    POST-only action that verifies employer owns the job.
-    """
     
     def get_application(self):
-        """Get the application, ensuring employer owns the job"""
         from jobs.models import JobApplication
         
         application_id = self.kwargs.get('application_id')
@@ -1232,8 +1057,7 @@ class ToggleSaveCandidateView(EmployerRequiredMixin, View):
             JobApplication.objects.select_related('job'),
             id=application_id
         )
-        
-        # Verify employer owns this job
+
         if application.job.employer_id != self.request.user.id:
             messages.error(self.request, 'You do not have permission to save this candidate.')
             return None
@@ -1248,21 +1072,17 @@ class ToggleSaveCandidateView(EmployerRequiredMixin, View):
             if not application:
                 return redirect('dashboard:dashboard')
             
-            # Toggle save status
             saved_candidate, created = SavedCandidate.objects.get_or_create(
                 employer=request.user,
                 application=application
             )
             
             if not created:
-                # Already saved, so unsave it
                 saved_candidate.delete()
                 messages.success(request, 'Candidate removed from saved list.')
             else:
-                # Newly saved
                 messages.success(request, 'Candidate saved successfully!')
             
-            # Redirect back to the referring page
             referer = request.META.get('HTTP_REFERER')
             if referer:
                 return redirect(referer)
@@ -1278,19 +1098,11 @@ class ToggleSaveCandidateView(EmployerRequiredMixin, View):
                 return redirect('dashboard:dashboard')
     
     def get(self, request, *args, **kwargs):
-        """Reject GET requests"""
         messages.error(request, 'Invalid request method.')
         return redirect('dashboard:dashboard')
 
 class MoveApplicationStageView(EmployerRequiredMixin, View):
-    """
-    Move an application to a different stage (for drag-and-drop persistence).
-    POST-only AJAX/form action that verifies employer owns the job.
-    Supports both AJAX and regular POST requests.
-    """
-    
     def get_application(self):
-        """Get the application, ensuring employer owns the job"""
         from jobs.models import JobApplication
         from django.core.exceptions import PermissionDenied
         
@@ -1300,7 +1112,6 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
             id=application_id
         )
         
-        # Verify employer owns this job
         if application.job.employer_id != self.request.user.id:
             raise PermissionDenied("You do not have permission to modify this application.")
         
@@ -1312,16 +1123,12 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
         
         try:
             application = self.get_application()
-            
-            # Get target stage from POST data
             stage_id = request.POST.get('stage_id')
             
             if stage_id == '' or stage_id == 'null' or stage_id is None:
-                # Move to "All Applications" (no stage)
                 application.stage = None
                 stage = None
             else:
-                # Move to specific stage
                 stage = get_object_or_404(
                     ApplicationStage,
                     id=stage_id,
@@ -1331,7 +1138,6 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
             
             application.save()
             
-            # Notify applicant about stage change if moved to a significant stage
             if stage and stage.name.lower() in ['shortlisted', 'interview', 'offer']:
                 if stage.name.lower() == 'shortlisted':
                     notify_application_shortlisted(application.applicant, application.job, application)
@@ -1344,19 +1150,16 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
                 'stage_name': application.stage.name if application.stage else 'All Applications'
             }
             
-            # Check if AJAX request
             is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
                      request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
             
             if is_xhr:
                 return JsonResponse(response_data)
             
-            # Non-AJAX: set a success message and redirect
             messages.success(request, response_data['message'])
             return redirect(reverse('dashboard:employer_job_applications', args=[application.job.id]))
             
         except Exception as e:
-            # Check if AJAX request
             is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
                      request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
             
@@ -1373,7 +1176,6 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
         """Reject GET requests"""
         from django.http import JsonResponse
         
-        # Check if AJAX request
         is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
                  request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
         
@@ -1384,10 +1186,6 @@ class MoveApplicationStageView(EmployerRequiredMixin, View):
         return redirect('dashboard:dashboard')
 
 class EmployerJobListView(EmployerRequiredMixin, ListView):
-    """
-    Displays list of jobs posted by the current employer.
-    Allows filtering by job status (active, expired).
-    """
     model = Job
     template_name = 'dashboard/employer/employer_my_jobs.html'
     context_object_name = 'all_jobs'
@@ -1422,15 +1220,10 @@ class EmployerJobListView(EmployerRequiredMixin, ListView):
         return context
 
 class EmployerPostJobView(EmployerRequiredMixin, FormView):
-    """
-    Handle job posting creation.
-    Matches the logic of the original employer_post_job function-based view.
-    """
     template_name = 'dashboard/employer/employer_post_job.html'
-    form_class = None  # Will be set dynamically
+    form_class = None  
     
     def dispatch(self, request, *args, **kwargs):
-        # Get employer profile and verify company name exists
         try:
             self.employer_profile = request.user.employer_profile_rel
             if not self.employer_profile.company_name:
@@ -1459,28 +1252,21 @@ class EmployerPostJobView(EmployerRequiredMixin, FormView):
             job.status = 'active'
             job.save()
             
-            # Redirect with success query parameter
             return redirect(f"{reverse('dashboard:employer_post_job')}?success=true")
         except Exception as e:
             messages.error(self.request, f'Error posting job: {str(e)}')
             return self.form_invalid(form)
     
     def form_invalid(self, form):
-        # Do not push per-field errors to messages container; render form with inline errors
         return super().form_invalid(form)
 
 class EmployerSavedCandidatesView(EmployerRequiredMixin, ListView):
-    """
-    Display all saved candidates for the employer.
-    Matches the logic of the original employer_saved_candidates function-based view.
-    """
     template_name = 'dashboard/employer/employer_saved_candidates.html'
     context_object_name = 'saved_candidates'
     
     def get_queryset(self):
         from dashboard.models import SavedCandidate
         
-        # Get all saved candidates with related data
         return SavedCandidate.objects.filter(
             employer=self.request.user
         ).select_related(
@@ -1491,26 +1277,19 @@ class EmployerSavedCandidatesView(EmployerRequiredMixin, ListView):
         ).order_by('-saved_at')
 
 class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
-    """
-    Handle job editing (limited to 7 days after posting).
-    Matches the logic of the original employer_edit_job function-based view.
-    """
     model = Job
     template_name = 'dashboard/employer/employer_post_job.html'
     pk_url_kwarg = 'job_id'
     
     def dispatch(self, request, *args, **kwargs):
-        # Get job and verify ownership
         self.object = self.get_object()
         
         if self.object.employer != request.user:
             messages.error(request, 'You do not have permission to edit this job.')
             return redirect('dashboard:employer_my_jobs')
         
-        # Check 7-day edit window
         days_since_posted = (timezone.now() - self.object.posted_at).days
         
-        # Disallow edits if the job is already marked expired
         if self.object.status == 'expired':
             messages.error(request, 'This job has been marked as expired and can no longer be edited.')
             return redirect('jobs:job_detail', job_id=self.object.id)
@@ -1519,14 +1298,12 @@ class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
             messages.error(request, f'You can only edit jobs within 7 days of posting. This job was posted {days_since_posted} days ago.')
             return redirect('jobs:job_detail', job_id=self.object.id)
         
-        # Get employer profile
         try:
             self.employer_profile = request.user.employer_profile_rel
         except:
             messages.error(request, 'Please complete your profile setup first.')
             return redirect('dashboard:employer_settings')
         
-        # Store days_since_posted for context
         self.days_since_posted = days_since_posted
         
         return super().dispatch(request, *args, **kwargs)
@@ -1549,7 +1326,6 @@ class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
             updated_job = form.save(commit=False)
             updated_job.employer = self.request.user
             updated_job.company_name = self.employer_profile.company_name
-            # Don't change the posted_at date or status during edit
             updated_job.save()
             
             messages.success(self.request, f'Job "{updated_job.title}" has been updated successfully!')
@@ -1559,16 +1335,9 @@ class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
             return self.form_invalid(form)
     
     def form_invalid(self, form):
-        # Form has validation errors, will be displayed inline
         return super().form_invalid(form)
 
 class EmployerSettingsView(EmployerRequiredMixin, TemplateView):
-    """
-    Employer settings page handling multiple forms:
-    - Company info, founding info, contact info, business permit
-    - Password change, social links management
-    Matches the logic of the original employer_settings function-based view.
-    """
     template_name = 'dashboard/employer/employer_settings.html'
     
     def get_context_data(self, **kwargs):
@@ -1577,7 +1346,6 @@ class EmployerSettingsView(EmployerRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         profile = get_object_or_404(EmployerProfile, user=self.request.user)
         
-        # Initialize all forms with current data
         context['profile'] = profile
         context['company_info_form'] = EmployerCompanyInfoForm(instance=profile)
         context['founding_info_form'] = EmployerFoundingInfoForm(instance=profile)
@@ -1709,10 +1477,6 @@ class EmployerSettingsView(EmployerRequiredMixin, TemplateView):
         return self.get(request, *args, **kwargs)
 
 class EmployerProfileView(EmployerRequiredMixin, TemplateView):
-    """
-    Display employer profile with company information and statistics.
-    Matches the logic of the original employer_profile function-based view.
-    """
     template_name = 'dashboard/employer/employer_profile.html'
     
     def get_context_data(self, **kwargs):
@@ -1721,16 +1485,13 @@ class EmployerProfileView(EmployerRequiredMixin, TemplateView):
         
         context = super().get_context_data(**kwargs)
         
-        # Get employer profile
         try:
             profile = self.request.user.employer_profile_rel
         except:
             profile = None
         
-        # Get social links
         social_links = UserSocialLink.objects.filter(user=self.request.user).order_by('platform')
         
-        # Get recent jobs with application counts and related data
         recent_jobs = Job.objects.filter(
             employer=self.request.user
         ).select_related(
@@ -1744,11 +1505,9 @@ class EmployerProfileView(EmployerRequiredMixin, TemplateView):
             applications_count=Count('applications')
         ).order_by('-posted_at')[:3]
         
-        # Calculate statistics (optimized single query for total applications)
         total_jobs = Job.objects.filter(employer=self.request.user).count()
         active_jobs = Job.objects.filter(employer=self.request.user, status='active').count()
         
-        # Single query for total applications instead of looping
         total_applications = JobApplication.objects.filter(job__employer=self.request.user).count()
         hired_count = JobApplication.objects.filter(job__employer=self.request.user, status='hired').count()
         
@@ -1849,13 +1608,12 @@ def approve_employer(request, employer_id):
     return redirect('dashboard:admin_accept_reject_employer')
 
 @login_required
-@user_passes_test(lambda u: u.user_type == 'ADMIN')  # Only admins can reject
+@user_passes_test(lambda u: u.user_type == 'ADMIN')  
 def reject_employer(request, employer_id):
     if request.method == 'POST':
         employer = get_object_or_404(User, id=employer_id, user_type='employer')
         rejection_note = request.POST.get('rejection_note', 'Rejected by admin')
         
-        # Create or update verification record
         verification, created = UserVerification.objects.get_or_create(
             user=employer,
             defaults={
@@ -1903,7 +1661,6 @@ def admin_applicant_detail(request, applicant_id):
 
 @login_required
 def admin_job_postings(request):
-    # Only show jobs with status 'active' (lowercase)
     active_jobs = Job.objects.filter(status__in=['active', 'expired']).order_by('-posted_at')
 
     context = {
@@ -1915,12 +1672,11 @@ def admin_job_postings(request):
 def admin_job_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     
-    # Only admins can access
     if not request.user.is_staff:
         return redirect('accounts:login')
 
     context = {
         'job': job,
-        'can_edit_job': True,  # or your logic
+        'can_edit_job': True,  
     }
     return render(request, "dashboard/admin/admin_job_detail.html", context)

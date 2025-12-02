@@ -6,7 +6,6 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 
 class ApplicantSocialLinkForm(forms.ModelForm):
-    """Form for adding/editing social links (now using UserSocialLink)"""
     
     class Meta:
         model = UserSocialLink
@@ -31,7 +30,6 @@ class ApplicantSocialLinkForm(forms.ModelForm):
 
 
 class ApplicantPersonalInfoForm(forms.ModelForm):
-    """Form for Personal Information tab"""
     
     class Meta:
         model = ApplicantProfile
@@ -85,7 +83,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
         self.fields['experience'].required = False
         self.fields['education_level'].required = False
         
-        # Set choices for experience field
         self.fields['experience'].widget.choices = [
             ('', 'Select experience level'),
             ('0-1', '0-1 years (Entry Level)'),
@@ -95,7 +92,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             ('10+', '10+ years (Senior)'),
         ]
         
-        # Set choices for education field
         self.fields['education_level'].widget.choices = [
             ('', 'Select highest education level'),
             ('high_school', 'High School'),
@@ -124,10 +120,8 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
     
     def clean_profile_image(self):
         profile_image = self.cleaned_data.get('profile_image')
-        # If profile_image is False, it means no new file was uploaded (unchanged)
         if profile_image is False:
             return profile_image
-        # If profile_image exists and is not False, validate it
         if profile_image:
             # Check file size (max 5MB)
             if hasattr(profile_image, 'size') and profile_image.size > 5 * 1024 * 1024:
@@ -139,10 +133,9 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
     
     def clean_resume(self):
         resume = self.cleaned_data.get('resume')
-        # If resume is False, it means no new file was uploaded (unchanged)
+
         if resume is False:
             return resume
-        # If resume exists and is not False, validate it
         if resume:
             # Check file size (max 5MB)
             if hasattr(resume, 'size') and resume.size > 5 * 1024 * 1024:
@@ -159,7 +152,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
 
 
 class ApplicantProfileDetailsForm(forms.ModelForm):
-    """Form for Profile tab - extended profile details"""
     
     class Meta:
         model = ApplicantProfile
@@ -230,7 +222,6 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
 
 
 class ApplicantContactInfoForm(forms.ModelForm):
-    """Form for Account Settings - Contact Info"""
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
         label='Email'
@@ -258,7 +249,6 @@ class ApplicantContactInfoForm(forms.ModelForm):
     def clean_contact_number(self):
         contact_number = self.cleaned_data.get('contact_number', '').strip()
         if contact_number:
-            # Remove any non-digit characters for validation
             digits_only = ''.join(c for c in contact_number if c.isdigit())
             if len(digits_only) < 10:
                 raise forms.ValidationError("Contact number must be at least 10 digits.")
@@ -278,7 +268,6 @@ class ApplicantContactInfoForm(forms.ModelForm):
 
 
 class ApplicantProfilePrivacyForm(forms.ModelForm):
-    """Form for profile privacy settings"""
     
     class Meta:
         model = ApplicantProfile
@@ -323,7 +312,6 @@ class ApplicantResumeForm(forms.ModelForm):
 # =====================================================
 
 class EmployerCompanyInfoForm(forms.ModelForm):
-    """Form for Company Info tab"""
     
     class Meta:
         model = EmployerProfile
@@ -347,7 +335,6 @@ class EmployerCompanyInfoForm(forms.ModelForm):
 
 
 class EmployerFoundingInfoForm(forms.ModelForm):
-    """Form for Founding Info tab (now includes company location fields)."""
 
     class Meta:
         model = EmployerProfile
@@ -413,7 +400,6 @@ class EmployerFoundingInfoForm(forms.ModelForm):
             url = 'https://' + url
         return url
 
-    # Optional: normalize/trim location fields
     def clean_company_location_street(self):
         val = self.cleaned_data.get('company_location_street')
         return val.strip() if isinstance(val, str) else val
@@ -429,7 +415,7 @@ class EmployerFoundingInfoForm(forms.ModelForm):
 
 
 class EmployerContactInfoForm(forms.ModelForm):
-    """Form for Account Settings - Contact Info"""
+
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
         label='Contact Email'
@@ -471,7 +457,6 @@ class EmployerContactInfoForm(forms.ModelForm):
 
 
 class EmployerBusinessPermitForm(forms.ModelForm):
-    """Form for business permit upload"""
     
     class Meta:
         model = EmployerProfile
@@ -502,7 +487,6 @@ class EmployerBusinessPermitForm(forms.ModelForm):
 # =====================================================
 
 class JobSearchForm(forms.Form):
-    """Form for job search with filters and validation"""
     
     query = forms.CharField(
         max_length=200,
@@ -578,7 +562,6 @@ class JobSearchForm(forms.Form):
     )
     
     def __init__(self, *args, **kwargs):
-        # Extract choices from kwargs
         category_choices = kwargs.pop('category_choices', [])
         education_choices = kwargs.pop('education_choices', [])
         experience_choices = kwargs.pop('experience_choices', [])
@@ -586,20 +569,18 @@ class JobSearchForm(forms.Form):
         
         super().__init__(*args, **kwargs)
         
-        # Set dynamic choices for select fields
         self.fields['category'].choices = category_choices
         self.fields['education'].choices = education_choices
         self.fields['experience'].choices = experience_choices
         self.fields['job_level'].choices = job_level_choices
     
     def clean_query(self):
-        """Validate and sanitize search query"""
         query = self.cleaned_data.get('query', '').strip()
         if query:
-            # Limit query length
+            
             if len(query) > 200:
                 raise forms.ValidationError("Search query is too long. Maximum 200 characters.")
-            # Basic sanitization - remove dangerous characters
+           
             dangerous_chars = ['<', '>', '{', '}', '|', '\\', '^', '`']
             for char in dangerous_chars:
                 if char in query:
@@ -607,40 +588,36 @@ class JobSearchForm(forms.Form):
         return query
     
     def clean_salary_min(self):
-        """Validate minimum salary is reasonable"""
+        
         salary_min = self.cleaned_data.get('salary_min')
         if salary_min is not None:
             if salary_min < 0:
                 raise forms.ValidationError('Minimum salary cannot be negative.')
-            if salary_min > 100000000:  # 100M limit
+            if salary_min > 100000000:  
                 raise forms.ValidationError('Minimum salary value is unrealistic. Please enter a valid amount.')
         return salary_min
     
     def clean_salary_max(self):
-        """Validate maximum salary is reasonable"""
         salary_max = self.cleaned_data.get('salary_max')
         if salary_max is not None:
             if salary_max < 0:
                 raise forms.ValidationError('Maximum salary cannot be negative.')
-            if salary_max > 100000000:  # 100M limit
+            if salary_max > 100000000:  
                 raise forms.ValidationError('Maximum salary value is unrealistic. Please enter a valid amount.')
         return salary_max
     
     def clean(self):
-        """Cross-field validation"""
         cleaned_data = super().clean()
         salary_min = cleaned_data.get('salary_min')
         salary_max = cleaned_data.get('salary_max')
         
-        # Validate salary range
         if salary_min is not None and salary_max is not None:
             if salary_min > salary_max:
                 raise forms.ValidationError({
                     'salary_max': 'Maximum salary must be greater than or equal to minimum salary.'
                 })
             
-            # Check reasonable salary range
-            if salary_max - salary_min > 10000000:  # 10M difference limit
+            if salary_max - salary_min > 10000000:  
                 raise forms.ValidationError({
                     'salary_max': 'Salary range is too wide. Please enter a more specific range.'
                 })
@@ -649,7 +626,6 @@ class JobSearchForm(forms.Form):
 
 
 class EmployerApplicationFilterForm(forms.Form):
-    """Filter form for employer job applications (education, experience, and sort)."""
 
     education = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'filter-dropdown'}), label='Education')
     experience = forms.ChoiceField(required=False, widget=forms.Select(attrs={'class': 'filter-dropdown'}), label='Experience')
@@ -669,13 +645,11 @@ class EmployerApplicationFilterForm(forms.Form):
         education_choices = kwargs.pop('education_choices', [])
         experience_choices = kwargs.pop('experience_choices', [])
         super().__init__(*args, **kwargs)
-        # Provide defaults
         self.fields['education'].choices = [('', 'All Education Levels')] + list(education_choices)
         self.fields['experience'].choices = [('', 'All Experience Levels')] + list(experience_choices)
 
 
 class FavoriteJobForm(forms.Form):
-    """Form for favoriting/unfavoriting a job with validation"""
     
     job_id = forms.IntegerField(
         required=True,
@@ -701,19 +675,15 @@ class FavoriteJobForm(forms.Form):
         except Job.DoesNotExist:
             raise forms.ValidationError('Job not found.')
         
-        # Check if job is active
         if job.status != 'active':
             raise forms.ValidationError('This job is no longer available.')
         
-        # Store job instance for later use
         self.cleaned_data['job'] = job
         return job_id
     
     def clean(self):
-        """Additional validation"""
         cleaned_data = super().clean()
-        
-        # Validate user is an applicant
+    
         if self.user:
             if not hasattr(self.user, 'user_type') or self.user.user_type != 'applicant':
                 raise forms.ValidationError('Only applicants can favorite jobs.')

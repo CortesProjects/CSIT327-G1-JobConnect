@@ -8,7 +8,6 @@
 
 {% block dashboard_content %}
 <div class="employer-profile-container">
-    <!-- Back Button -->
     {% if not is_owner %}
     <div class="back-button-container">
         <a href="javascript:history.back()" class="back-btn">
@@ -17,7 +16,6 @@
     </div>
     {% endif %}
 
-    <!-- Banner Section with Company Logo -->
     <div class="profile-banner-section">
         <div class="banner-image-wrapper">
             {% if profile and profile.company_banner_image %}
@@ -49,12 +47,9 @@
         </div>
     </div>
 
-    <!-- Main Content Grid -->
     <div class="profile-content-wrapper">
-        <!-- LEFT COLUMN -->
         <div class="profile-main-column">
 
-            <!-- About Us -->
             <section class="profile-card">
                 <h2 class="section-title">About Us</h2>
                 <div class="section-content">
@@ -66,7 +61,6 @@
                 </div>
             </section>
 
-            <!-- Company Vision -->
             <section class="profile-card">
                 <h2 class="section-title">Company Vision</h2>
                 <div class="section-content">
@@ -78,7 +72,6 @@
                 </div>
             </section>
 
-            <!-- Recent Jobs -->
             {% if recent_jobs %}
             <section class="profile-card">
                 <h2 class="section-title">Recent Job Posts</h2>
@@ -116,7 +109,6 @@
             {% endif %}
         </div>
 
-        <!-- RIGHT SIDEBAR -->
         <div class="profile-sidebar-column">
 
             <!-- Company Stats -->
@@ -199,7 +191,6 @@
                 </div>
                 {% endif %}
 
-                {# LOCATION: nested if checks to be safe for template parsing #}
                 {% if profile %}
                     {% if profile.company_location_street or profile.company_location_city or profile.company_location_country %}
                     <div class="contact-item">
