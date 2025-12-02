@@ -19,7 +19,7 @@ urlpatterns = [
     path('applicant/settings/', views.ApplicantSettingsView.as_view(), name='applicant_settings'),
 
     # Employer URLs
-    path('employer/profile/', views.employer_profile, name='employer_profile'),
+    path('employer/profile/', views.EmployerProfileView.as_view(), name='employer_profile'),
     path('employer/profile/<int:employer_id>/', views.public_employer_profile, name='public_employer_profile'),
     path('employer/settings/', views.employer_settings, name='employer_settings'),  # single entry
     path('employer/post-job/', views.employer_post_job, name='employer_post_job'),
