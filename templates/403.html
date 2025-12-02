@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied | JobConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #CC0A0D 0%, #FFCFD0 100%);
+        }
+        .error-header {
+            padding: 20px 10%;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #CC0A0D;
+        }
+        .logo::before {
+            content: '';
+            width: 28px;
+            height: 28px;
+            background-image: url('{% static "img/logo.png" %}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: transparent;
+        }
+        .error-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+        }
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+        .error-code {
+            font-size: 140px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+        }
+        .error-title {
+            font-size: 36px;
+            color: #FFFFFF;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .error-message {
+            font-size: 18px;
+            color: #FFFFFF;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #FFFFFF;
+            color: #CC0A0D;
+        }
+        .btn-primary:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #FFFFFF;
+            border: 2px solid #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        @media (max-width: 768px) {
+            .error-code { font-size: 100px; }
+            .error-title { font-size: 28px; }
+            .error-message { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="error-header">
+        <div class="logo">JobConnect</div>
+    </header>
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-icon">🚫</div>
+            <div class="error-code">403</div>
+            <h1 class="error-title">Access Denied</h1>
+            <p class="error-message">
+                Sorry, you don't have permission to access this page. 
+                This area is restricted to authorized users only.
+                Please check your account type or contact an administrator.
+            </p>
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">Go to Homepage</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
