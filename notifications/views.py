@@ -9,16 +9,9 @@ from .models import Notification
 @login_required
 @require_http_methods(["GET"])
 def get_notifications(request):
-    """
-    Get all notifications for the current user.
-    Returns JSON with notifications list and unread count.
-    AJAX only - redirects to dashboard if accessed directly.
-    """
     try:
-        # Check if this is an AJAX request
         if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             from django.shortcuts import redirect
-            # Redirect based on user type
             if not request.user.is_authenticated:
                 return redirect('accounts:login')
             elif request.user.is_staff or request.user.is_superuser:
@@ -26,8 +19,8 @@ def get_notifications(request):
             else:
                 return redirect('dashboard:dashboard')
         
-        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:20]  # Last 20 notifications
-        
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:20] 
+
         notifications_data = []
         for notif in notifications:
             notifications_data.append({
@@ -63,15 +56,9 @@ def get_notifications(request):
 @login_required
 @require_http_methods(["GET"])
 def get_unread_count(request):
-    """
-    Get the count of unread notifications for the current user.
-    AJAX only - redirects to dashboard if accessed directly.
-    """
     try:
-        # Check if this is an AJAX request
         if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             from django.shortcuts import redirect
-            # Redirect based on user type
             if not request.user.is_authenticated:
                 return redirect('accounts:login')
             elif request.user.is_staff or request.user.is_superuser:
@@ -98,7 +85,6 @@ def get_unread_count(request):
 @login_required
 @require_http_methods(["POST"])
 def mark_as_read(request, notification_id):
-    """Mark a specific notification as read."""
     try:
         notification = Notification.objects.get(id=notification_id, user=request.user)
         notification.mark_as_read()
@@ -120,7 +106,6 @@ def mark_as_read(request, notification_id):
 @login_required
 @require_http_methods(["POST"])
 def mark_all_as_read(request):
-    """Mark all notifications as read for the current user."""
     updated_count = Notification.objects.filter(
         user=request.user,
         is_read=False
@@ -139,7 +124,6 @@ def mark_all_as_read(request):
 @login_required
 @require_http_methods(["POST"])
 def delete_notification(request, notification_id):
-    """Delete a specific notification."""
     try:
         notification = Notification.objects.get(id=notification_id, user=request.user)
         notification.delete()
@@ -159,7 +143,6 @@ def delete_notification(request, notification_id):
 
 
 def get_time_ago(dt):
-    """Convert datetime to human-readable time ago string."""
     from django.utils import timezone
     
     now = timezone.now()

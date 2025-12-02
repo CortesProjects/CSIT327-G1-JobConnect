@@ -11,7 +11,6 @@
 
 {% block dashboard_content %}
 <div class="job-detail-container">
-    <!-- Breadcrumb Navigation -->
     <nav class="breadcrumb">
         <a href="{% url breadcrumb_url %}"><i class="fas fa-home"></i> {{ breadcrumb_label }}</a>
         <span class="separator">/</span>
@@ -51,7 +50,6 @@
             </div>
             <div class="jd-right">
                 {% if user.is_authenticated and user.user_type == 'employer' and job.employer == user %}
-                    <!-- Employer View: View Applications + Actions Menu -->
                     <a href="{% url 'dashboard:employer_job_applications' job.id %}" class="btn-view-applications">
                         <i class="fas fa-users"></i> View Applications
                     </a>
@@ -78,7 +76,6 @@
                         </div>
                     </div>
                 {% else %}
-                    <!-- Applicant View: bookmark + Apply -->
                     {% if user.is_authenticated and user.user_type == 'applicant' %}
                     <form method="post" action="{% url 'jobs:toggle_favorite_job' job.id %}" class="favorite-form d-inline">
                         {% csrf_token %}
@@ -243,7 +240,6 @@
     </div>
 </div>
 
-<!-- Mark as Expired Modal -->
 <div id="markExpiredModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -261,7 +257,6 @@
     </div>
 </div>
 
-<!-- Delete Job Modal -->
 <div id="deleteJobModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -279,7 +274,6 @@
     </div>
 </div>
 
-<!-- Apply Modal Markup -->
 <div id="applyModal" class="apply-modal" aria-hidden="true">
     <div class="apply-modal-overlay" data-close></div>
     <div class="apply-modal-panel" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle">

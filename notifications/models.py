@@ -4,9 +4,6 @@ from utils.managers import NotificationManager
 
 
 class Notification(models.Model):
-    """
-    System notifications for users (job applications, status changes, etc.)
-    """
     NOTIFICATION_TYPES = [
         ('application_received', 'Application Received'),
         ('application_status', 'Application Status Update'),
@@ -56,7 +53,6 @@ class Notification(models.Model):
         help_text="When this notification was read"
     )
     
-    # Optional: Link to related objects
     related_job_id = models.IntegerField(
         null=True,
         blank=True,
@@ -68,7 +64,6 @@ class Notification(models.Model):
         help_text="ID of related application (if applicable)"
     )
     
-    # Custom manager with chainable queryset methods
     objects = NotificationManager()
     
     class Meta:

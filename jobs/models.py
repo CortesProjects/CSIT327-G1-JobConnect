@@ -8,7 +8,6 @@ from utils.managers import JobManager
 
 
 class JobCategory(models.Model):
-    """Job categories for classification."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the category")
     description = models.TextField(blank=True, help_text="Optional description of the category")
@@ -29,7 +28,6 @@ class JobCategory(models.Model):
 
 
 class EmploymentType(models.Model):
-    """Employment types (full-time, part-time, etc.)."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the employment type")
     is_active = models.BooleanField(default=True, help_text="Whether this type is currently available")
@@ -49,7 +47,6 @@ class EmploymentType(models.Model):
 
 
 class EducationLevel(models.Model):
-    """Education level requirements."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the education level")
     is_active = models.BooleanField(default=True, help_text="Whether this level is currently available")
@@ -69,7 +66,6 @@ class EducationLevel(models.Model):
 
 
 class ExperienceLevel(models.Model):
-    """Experience level requirements."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the experience level")
     min_years = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Minimum years of experience")
@@ -91,7 +87,6 @@ class ExperienceLevel(models.Model):
 
 
 class JobLevel(models.Model):
-    """Job seniority levels (entry, mid, senior, etc.)."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the job level")
     is_active = models.BooleanField(default=True, help_text="Whether this level is currently available")
@@ -111,7 +106,6 @@ class JobLevel(models.Model):
 
 
 class SalaryType(models.Model):
-    """Salary payment frequency (hourly, monthly, yearly)."""
     code = models.CharField(max_length=50, unique=True, help_text="Unique code for programmatic reference")
     name = models.CharField(max_length=100, help_text="Display name for the salary type")
     is_active = models.BooleanField(default=True, help_text="Whether this type is currently available")
@@ -128,9 +122,6 @@ class SalaryType(models.Model):
     
     def __str__(self):
         return self.name
-# ============================================================================
-# JOB MODEL
-# ============================================================================
 
 class Job(models.Model):
     
@@ -141,23 +132,19 @@ class Job(models.Model):
         ('draft', 'Draft'),
     ]
 
-    # Employer relationship
+
     employer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='jobs',
         limit_choices_to={'user_type': 'employer'}
     )
-    # Make company_name nullable in existing rows by providing a default and allowing blank.
-    # This avoids interactive migration prompts and preserves existing data.
+
     company_name = models.CharField(max_length=255, default='', blank=True)
 
-    # Required fields
     title = models.CharField(max_length=100)
     description = models.TextField(help_text="Minimum 50 characters")
     
-    # Foreign Key to JobCategory (job category)
-    # Nullable during migration, will be required after data migration
     category = models.ForeignKey(
         JobCategory,
         on_delete=models.PROTECT,
@@ -168,7 +155,6 @@ class Job(models.Model):
     )
     location = models.CharField(max_length=100)
     
-    # Salary information - Updated to NUMERIC(10, 2)
     min_salary = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
@@ -183,7 +169,7 @@ class Job(models.Model):
         blank=True,
         help_text="Maximum salary amount"
     )
-    # Nullable during migration
+
     salary_type = models.ForeignKey(
         SalaryType,
         on_delete=models.PROTECT,
@@ -193,7 +179,6 @@ class Job(models.Model):
         help_text="Salary payment frequency"
     )
     
-    # Advanced information - All Foreign Keys (nullable during migration)
     education = models.ForeignKey(
         EducationLevel,
         on_delete=models.PROTECT,
@@ -232,20 +217,13 @@ class Job(models.Model):
         help_text="Seniority level of the position"
     )
     
-    # Optional fields
     responsibilities = models.TextField(blank=True)
-    
-    # Legacy CharField field - keeping for backward compatibility during migration
-    # Will be removed after data migration to category ForeignKey
-    # Note: JOB_CATEGORIES constant removed, values stored in JobCategory table
     tags = models.CharField(max_length=255, blank=True, help_text="Legacy tags field, replaced by Many-to-Many Tag relationship")
     
-    # Status and metadata
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     posted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Custom manager with chainable queryset methods
     objects = JobManager()
     
     class Meta:
@@ -256,26 +234,21 @@ class Job(models.Model):
         ]
 
     def clean(self):
-        """Custom validation"""
         errors = {}
         
-        # Validate title
         if not self.title or not self.title.strip():
             errors['title'] = 'Job title cannot be empty.'
         elif len(self.title) > 100:
             errors['title'] = 'Job title cannot exceed 100 characters.'
             
-        # Validate description
         if not self.description or not self.description.strip():
             errors['description'] = 'Job description cannot be empty.'
         elif len(self.description.strip()) < 50:
             errors['description'] = 'Description must be at least 50 characters.'
             
-        # Validate location
         if not self.location or not self.location.strip():
             errors['location'] = 'Location cannot be empty.'
             
-        # Validate salary
         if self.min_salary and self.max_salary:
             if self.min_salary < 0:
                 errors['min_salary'] = 'Minimum salary cannot be negative.'
@@ -284,7 +257,6 @@ class Job(models.Model):
             if self.min_salary > self.max_salary:
                 errors['min_salary'] = 'Minimum salary cannot be greater than maximum salary.'
                 
-        # Validate expiration date
         if self.expiration_date:
             if self.expiration_date < date.today():
                 errors['expiration_date'] = 'Deadline must be a future date.'
@@ -293,11 +265,9 @@ class Job(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        # Update status based on expiration date
         if self.expiration_date and self.expiration_date < date.today():
             self.status = 'expired'
 
-        # Auto-fill company_name from the related employer or employer profile when missing.
         if not self.company_name or not str(self.company_name).strip():
             company = None
             try:
@@ -306,7 +276,6 @@ class Job(models.Model):
                 company = None
 
             if not company:
-                # Try common profile relation names (employerprofile, profile)
                 try:
                     profile = getattr(self.employer, 'employerprofile', None) or getattr(self.employer, 'profile', None)
                     if profile:
@@ -336,21 +305,15 @@ class Job(models.Model):
     
     @property
     def tag_list(self):
-        """Returns a list of tag names from the tags field."""
         if not self.tags:
             return []
         return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
     
     def get_tag_names(self):
-        """Returns comma-separated string of tag names."""
         return ', '.join(self.tag_list)
 
 
 class ApplicationStage(models.Model):
-    """
-    Represents a stage in the hiring pipeline for a specific job.
-    E.g., 'Shortlisted', 'Interview', 'Offer', 'Hired'
-    """
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
@@ -386,7 +349,6 @@ class ApplicationStage(models.Model):
 
 
 class JobApplication(models.Model):
-    """Links applicants to jobs and tracks application status."""
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('reviewed', 'Reviewed'),
@@ -407,7 +369,6 @@ class JobApplication(models.Model):
         related_name='applications'
     )
     
-    # Stage in the hiring pipeline (null = default "All Applications" column)
     stage = models.ForeignKey(
         'ApplicationStage',
         on_delete=models.SET_NULL,
@@ -417,7 +378,6 @@ class JobApplication(models.Model):
         help_text="Current stage in the hiring pipeline"
     )
     
-    # Core fields
     application_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20,
@@ -425,7 +385,6 @@ class JobApplication(models.Model):
         default='pending'
     )
     
-    # Optional fields
     applicant_notes = models.TextField(
         blank=True,
         help_text="Cover letter or additional notes from the applicant"
@@ -451,7 +410,6 @@ class JobApplication(models.Model):
         ]
     
     def save(self, *args, **kwargs):
-        # Auto-set hired_date when status changes to 'hired'
         if self.status == 'hired' and not self.hired_date:
             self.hired_date = date.today()
         super().save(*args, **kwargs)
@@ -461,7 +419,6 @@ class JobApplication(models.Model):
 
 
 class FavoriteJob(models.Model):
-    """Tracks jobs that applicants have marked as favorites."""
     applicant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -490,7 +447,6 @@ class FavoriteJob(models.Model):
 
 
 class JobAlert(models.Model):
-    """Stores user-defined job alert preferences for personalized job recommendations."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -569,26 +525,19 @@ class JobAlert(models.Model):
         """Returns queryset of active jobs matching this alert's criteria."""
         from django.db.models import Q
         
-        # Start with all active jobs
         jobs = Job.objects.filter(status='active', is_deleted=False)
         
-        # Filter by job title if specified
         if self.job_title:
             jobs = jobs.filter(title__icontains=self.job_title)
-        
-        # Filter by location if specified
         if self.location:
             jobs = jobs.filter(location__icontains=self.location)
         
-        # Filter by job type if specified
         if self.job_type:
             jobs = jobs.filter(job_type=self.job_type)
         
-        # Filter by job category if specified
         if self.job_category:
             jobs = jobs.filter(category=self.job_category)
         
-        # Filter by salary range if specified
         if self.min_salary:
             jobs = jobs.filter(
                 Q(min_salary__gte=self.min_salary) | Q(min_salary__isnull=True)
@@ -599,7 +548,6 @@ class JobAlert(models.Model):
                 Q(max_salary__lte=self.max_salary) | Q(max_salary__isnull=True)
             )
         
-        # Filter by keywords if specified
         if self.keywords:
             keyword_list = [k.strip() for k in self.keywords.split(',') if k.strip()]
             keyword_query = Q()

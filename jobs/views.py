@@ -14,29 +14,23 @@ def job_search(request):
     from decimal import Decimal, InvalidOperation
     from .models import JobCategory, EmploymentType, EducationLevel, ExperienceLevel, JobLevel
 
-    # GET parameters
     query = request.GET.get("query", "").strip()
     location = request.GET.get("location", "").strip()
 
-    # Some filters come as single-select (single value) and some as multi (getlist).
-    # We use getlist() for everything that could be multiple, then sanitize (remove empty strings).
     job_types = [v for v in request.GET.getlist("job_type") if v != ""]
     categories = [v for v in request.GET.getlist("category") if v != ""]
     educations = [v for v in request.GET.getlist("education") if v != ""]
     experiences = [v for v in request.GET.getlist("experience") if v != ""]
     job_levels = [v for v in request.GET.getlist("job_level") if v != ""]
 
-    # For the salary inputs the template uses names salary_min / salary_max
     salary_min_raw = request.GET.get("salary_min", "").strip()
     salary_max_raw = request.GET.get("salary_max", "").strip()
 
     sort = request.GET.get("sort", "recent")
 
-    # Start with active jobs only (exclude expired/closed)
     from django.utils import timezone
     today = timezone.localdate()
 
-    # Start with active jobs with optimized queries
     jobs = Job.objects.select_related(
         'employer',
         'category',
@@ -50,45 +44,35 @@ def job_search(request):
         expiration_date__gte=today,
     )
 
-    # 🔍 Keyword search
     if query:
         jobs = jobs.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
         )
 
-    # 📍 Location filter
     if location:
         jobs = jobs.filter(location__icontains=location)
 
-    # 🧩 Job type (checkbox or single-select)
     if job_types:
         jobs = jobs.filter(job_type_id__in=job_types)
 
-    # 🧩 Job category
     if categories:
         jobs = jobs.filter(category_id__in=categories)
 
-    # 🧩 Education level
     if educations:
         jobs = jobs.filter(education_id__in=educations)
 
-    # 🧩 Experience
     if experiences:
         jobs = jobs.filter(experience_id__in=experiences)
 
-    # 🧩 Job level
     if job_levels:
         jobs = jobs.filter(job_level_id__in=job_levels)
 
-    # 💰 Salary filter (use actual model fields min_salary / max_salary,
-    # parse to Decimal safely)
     if salary_min_raw:
         try:
             salary_min_val = Decimal(salary_min_raw)
             jobs = jobs.filter(min_salary__gte=salary_min_val)
         except (InvalidOperation, ValueError):
-            # ignore invalid numeric input
             pass
 
     if salary_max_raw:
@@ -98,7 +82,6 @@ def job_search(request):
         except (InvalidOperation, ValueError):
             pass
 
-    # DYNAMIC FILTER VALUES (from lookup tables)
     all_job_types = EmploymentType.objects.filter(is_active=True)
     all_categories = JobCategory.objects.filter(is_active=True)
     all_educations = EducationLevel.objects.filter(is_active=True)
@@ -106,15 +89,12 @@ def job_search(request):
     all_job_levels = JobLevel.objects.filter(is_active=True)
     all_locations = Job.objects.values_list("location", flat=True).distinct()
 
-    # Get favorited job IDs for logged-in applicants
     favorited_job_ids = []
     if request.user.is_authenticated and getattr(request.user, "user_type", "") == 'applicant':
         favorited_job_ids = list(
             FavoriteJob.objects.filter(applicant=request.user).values_list('job_id', flat=True)
         )
 
-    # --- Sorting (minimal insert) ---
-    # sorts: 'recent' (default), 'salary_low', 'salary_high'
     if sort == "salary_low":
         jobs = jobs.annotate(
             sort_salary=Coalesce('min_salary', 'max_salary', Value(0, output_field=DecimalField()))
@@ -125,7 +105,6 @@ def job_search(request):
         ).order_by('-sort_salary', '-posted_at')
     else:
         jobs = jobs.order_by('-posted_at')
-    # --- end sorting ---
 
 
     context = {
@@ -135,7 +114,6 @@ def job_search(request):
         "salary_min": salary_min_raw,
         "salary_max": salary_max_raw,
 
-        # Dynamic filters
         "job_types": all_job_types,
         "categories": all_categories,
         "educations": all_educations,
@@ -144,14 +122,12 @@ def job_search(request):
         "locations": all_locations,
         "sort": sort,
 
-        # Persist selected values (note: still strings — template compares with stringformat)
         "selected_job_types": job_types,
         "selected_categories": categories,
         "selected_educations": educations,
         "selected_experiences": experiences,
         "selected_job_levels": job_levels,
 
-        # Favorite status
         "favorited_job_ids": favorited_job_ids,
     }
 
@@ -189,7 +165,6 @@ def toggle_favorite_job(request, job_id):
         elif 'job_id' in errors:
             error_message = errors['job_id'][0]['message']
 
-        # If AJAX request, return JSON error
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
         if is_ajax:
             return JsonResponse({
@@ -197,30 +172,24 @@ def toggle_favorite_job(request, job_id):
                 'error': error_message
             }, status=400)
 
-        # Non-AJAX: set a message and redirect back
         from django.contrib import messages
         messages.error(request, error_message)
         from django.shortcuts import redirect
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    # Get validated job from form
     job = form.cleaned_data['job']
 
-    # Check if already favorited
     favorite = FavoriteJob.objects.filter(applicant=request.user, job=job).first()
 
     if favorite:
-        # Remove from favorites
         favorite.delete()
         is_favorited = False
         message = 'Job removed from favorites'
     else:
-        # Add to favorites
         FavoriteJob.objects.create(applicant=request.user, job=job)
         is_favorited = True
         message = 'Job added to favorites'
 
-    # If AJAX, return JSON response
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
     if is_ajax:
         return JsonResponse({
@@ -229,7 +198,6 @@ def toggle_favorite_job(request, job_id):
             'message': message
         })
 
-    # Non-AJAX: show a message and redirect back
     from django.contrib import messages
     from django.shortcuts import redirect
 
@@ -239,8 +207,6 @@ def toggle_favorite_job(request, job_id):
 
 
 def job_detail(request, job_id):
-    """Display detailed information about a specific job."""
-    # Fetch job with all related data
     job = get_object_or_404(
         Job.objects.select_related(
             'employer',
@@ -254,11 +220,10 @@ def job_detail(request, job_id):
         id=job_id
     )
     
-    # Determine breadcrumb source from referer or query param
     source = request.GET.get('from', '')
     referer = request.META.get('HTTP_REFERER', '')
     
-    breadcrumb_source = 'search'  # default
+    breadcrumb_source = 'search'  
     breadcrumb_label = 'Search Jobs'
     breadcrumb_url = 'dashboard:applicant_search_jobs'
     
@@ -273,7 +238,6 @@ def job_detail(request, job_id):
     elif 'recent' in referer:
         breadcrumb_source = 'recent'
     
-    # Map source to breadcrumb label and URL
     breadcrumb_map = {
         'applied': ('My Applications', 'dashboard:applicant_applied_jobs'),
         'favorites': ('Favorite Jobs', 'dashboard:applicant_favorite_jobs'),
@@ -286,7 +250,6 @@ def job_detail(request, job_id):
     if breadcrumb_source in breadcrumb_map:
         breadcrumb_label, breadcrumb_url = breadcrumb_map[breadcrumb_source]
     
-    # Check if user has favorited this job
     is_favorited = False
     has_applied = False
     resumes = []
@@ -297,40 +260,28 @@ def job_detail(request, job_id):
             job=job
         ).exists()
         
-        # Check if user has already applied
         from .models import JobApplication
         has_applied = JobApplication.objects.filter(
             applicant=request.user,
             job=job
         ).exists()
         
-        # Get applicant's resumes for the apply modal
-        # Currently using the single resume field from ApplicantProfile
         if hasattr(request.user, 'applicant_profile_rel'):
             profile = request.user.applicant_profile_rel
             if profile.resume:
-                # Create a simple object to pass to template
                 resumes = [{
-                    'id': 1,  # Dummy ID since we only have one resume field
+                    'id': 1,  
                     'name': profile.resume.name.split('/')[-1] if profile.resume.name else 'My Resume'
                 }]
     
-    # Determine which base template to use
     if request.user.is_authenticated and request.user.user_type == 'employer':
         base_template = 'dashboard/employer/employer_dashboard_base.html'
     else:
         base_template = 'dashboard/applicant/applicant_dashboard_base.html'
     
-    # Calculate days since job was posted (for edit window check)
     from django.utils import timezone
     days_since_posted = (timezone.now() - job.posted_at).days
     can_edit = days_since_posted <= 7
-    
-    # If `goto=applications` present and the current user is the job owner,
-    # perform a server-side redirect directly to the employer applications
-    # page. This causes an immediate HTTP redirect instead of relying on
-    # client-side JS. Note: server redirect does NOT leave the job detail
-    # URL in browser history (back will return to the previous page).
     goto = request.GET.get('goto', '')
     if goto == 'applications' and request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'employer' and job.employer == request.user:
         from django.shortcuts import redirect
@@ -347,10 +298,6 @@ def job_detail(request, job_id):
         'days_since_posted': days_since_posted,
         'can_edit_job': can_edit,
     }
-    # If the query param `goto=applications` was provided, and the current user
-    # is the job owner (employer), set a context flag so the template can
-    # perform a client-side redirect to the applications view while keeping
-    # the job detail in the browser history.
     goto = request.GET.get('goto', '')
     context['goto_applications'] = (goto == 'applications' and request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'employer')
     
@@ -360,18 +307,15 @@ def job_detail(request, job_id):
 @applicant_required
 @require_POST
 def apply_job(request, job_id):
-    """Handle job application submission with Django validation."""
     from .forms import JobApplicationForm
     from .models import JobApplication
     from django.contrib import messages
     
-    # Create form with POST data and current user
     form_data = request.POST.copy()
     form_data['job_id'] = job_id
     form = JobApplicationForm(data=form_data, user=request.user)
     
     if not form.is_valid():
-        # Get first error message
         error_message = 'Invalid application.'
         errors = form.errors
         
@@ -384,13 +328,11 @@ def apply_job(request, job_id):
         elif 'cover_letter' in errors:
             error_message = errors['cover_letter'][0]
         else:
-            # Get first field error
             for field, field_errors in errors.items():
                 if field_errors:
                     error_message = field_errors[0]
                     break
         
-        # If AJAX request, return JSON error; otherwise set message and redirect back
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
         if is_ajax:
             return JsonResponse({
@@ -403,12 +345,10 @@ def apply_job(request, job_id):
         messages.error(request, error_message)
         return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
     
-    # Get validated data
     job = form.cleaned_data['job']
     cover_letter = form.cleaned_data.get('cover_letter', '')
     
     try:
-        # Create job application
         application = JobApplication.objects.create(
             applicant=request.user,
             job=job,
@@ -416,10 +356,8 @@ def apply_job(request, job_id):
             status='pending'
         )
         
-        # Notify employer about new application
         notify_application_received(job.employer, request.user, job, application)
         
-        # If the request was AJAX, return JSON response; otherwise redirect back with message
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
         if is_ajax:
             return JsonResponse({
@@ -434,7 +372,6 @@ def apply_job(request, job_id):
         return redirect(request.META.get('HTTP_REFERER', reverse('jobs:job_detail', kwargs={'job_id': job_id})))
     
     except Exception as e:
-        # On errors, return JSON for AJAX or set message + redirect for normal requests
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
         error_msg = f'Failed to submit application: {str(e)}'
         if is_ajax:
@@ -452,11 +389,9 @@ def apply_job(request, job_id):
 @employer_required
 @require_POST
 def delete_job(request, job_id):
-    """Delete a job posting (employer only)."""
     from django.contrib import messages
     from django.shortcuts import redirect
     
-    # Get job
     job = get_object_or_404(Job, id=job_id)
     
     if job.employer != request.user:
@@ -470,8 +405,6 @@ def delete_job(request, job_id):
         job.delete()
         
         messages.success(request, f'Job "{job_title}" has been deleted successfully.')
-        
-        # Return JSON for AJAX requests
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
@@ -497,11 +430,9 @@ def delete_job(request, job_id):
 @employer_required
 @require_POST
 def mark_job_expired(request, job_id):
-    """Mark a job as expired (employer only)."""
     from django.contrib import messages
     from django.shortcuts import redirect
     
-    # Get job
     job = get_object_or_404(Job, id=job_id)
     
     if job.employer != request.user:
@@ -510,7 +441,6 @@ def mark_job_expired(request, job_id):
             'error': 'You do not have permission to modify this job.'
         }, status=403)
     
-    # Check if already expired
     if job.status == 'expired':
         return JsonResponse({
             'success': False,
@@ -518,28 +448,23 @@ def mark_job_expired(request, job_id):
         }, status=400)
     
     try:
-        # Set status and update the expiration_date to now so model logic and listings reflect when it was expired
         from django.utils import timezone
         job.status = 'expired'
         try:
-            # expiration_date is a DateField; set to today's date in current timezone
             job.expiration_date = timezone.localdate()
         except Exception:
-            # fallback to date.today
             from datetime import date as _date
             job.expiration_date = _date.today()
         job.save()
         
         messages.success(request, f'Job "{job.title}" has been marked as expired.')
         
-        # Return JSON for AJAX requests (no redirect - let frontend handle UI)
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'message': f'Job "{job.title}" marked as expired.'
             })
 
-        # Non-AJAX requests: redirect to job detail (existing behaviour)
         return redirect('jobs:job_detail', job_id=job_id)
     
     except Exception as e:
