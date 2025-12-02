@@ -1,9 +1,4 @@
-/**
- * Login Form - Dynamic Styling Only
- * All validation is handled by Django backend
- */
 document.addEventListener("DOMContentLoaded", function () {
-    // Password visibility toggle
     document.querySelectorAll(".password-toggle").forEach(toggle => {
         toggle.addEventListener("click", function () {
             const parentContainer = this.closest('.password-field'); 
@@ -21,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Clear error styling when user starts typing (visual feedback only)
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', function() {
             this.classList.remove('error');

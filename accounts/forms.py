@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model() 
 
-# --- Base Registration Form for both Applicant and Employer ---
 class ApplicantRegistrationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
@@ -85,7 +84,6 @@ class ApplicantRegistrationForm(UserCreationForm):
             raise forms.ValidationError('Full name must be at least 2 characters long.')
         if len(full_name) > 300:
             raise forms.ValidationError('Full name is too long. Maximum 300 characters.')
-        # Check for at least one space (first + last name)
         if ' ' not in full_name:
             raise forms.ValidationError('Please enter your full name (first and last name).')
         return full_name
@@ -98,7 +96,6 @@ class ApplicantRegistrationForm(UserCreationForm):
         user.set_name_from_full_name(self.cleaned_data['full_name'])
         user.user_type = self.cleaned_data.get('account_type', 'applicant') 
 
-        # Persist accepted terms flag if present on the form
         accepted = self.cleaned_data.get('terms_and_conditions')
         if accepted:
             user.accepted_terms = True

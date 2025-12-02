@@ -1,15 +1,10 @@
-/**
- * Registration Form - Dynamic Styling Only
- * All validation is handled by Django backend
- */
 document.addEventListener("DOMContentLoaded", function () {
     const accountTypeSelect = document.querySelector("#id_account_type");
-    
-    // Pre-select account type from URL parameter
+
     function preSelectAccountType() {
         const urlParams = new URLSearchParams(window.location.search);
-        const selectedType = urlParams.get('account_type'); 
-        
+        const selectedType = urlParams.get('account_type');
+
         if (selectedType && accountTypeSelect) {
             if (selectedType === 'applicant' || selectedType === 'employer') {
                 accountTypeSelect.value = selectedType;
@@ -17,12 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     preSelectAccountType();
-    
-    // Password visibility toggle
+
     document.querySelectorAll(".password-toggle").forEach(toggle => {
         toggle.addEventListener("click", function () {
-            const parentContainer = this.closest('.password-field'); 
-            const input = parentContainer.querySelector('input'); 
+            const parentContainer = this.closest('.password-field');
+            const input = parentContainer.querySelector('input');
 
             if (input && input.type === "password") {
                 input.type = "text";
@@ -36,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Clear error styling when user starts typing (visual feedback only)
     document.querySelectorAll('input, select').forEach(field => {
         field.addEventListener('input', function() {
             this.classList.remove('error');
