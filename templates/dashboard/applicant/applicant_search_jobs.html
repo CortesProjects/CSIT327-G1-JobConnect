@@ -14,7 +14,7 @@
     </div>
     <div>
         <form method="get" action="{% url 'dashboard:applicant_search_jobs' %}" id="searchFilterForm" novalidate>
-            <!-- Form-level errors -->
+            
             {% if form.non_field_errors %}
             <div class="form-errors">
                 {% for error in form.non_field_errors %}
@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            <!-- Hidden filters: shown only when the filter icon is toggled -->
+            
             <div id="filtersPanel" class="filters-row collapsed" aria-hidden="true">
                 <div class="filters-grid">
                     <div class="filter-field {% if form.category.errors %}has-error{% endif %}">
@@ -130,7 +130,6 @@
                 <tbody>
                     {% for job in jobs %}
                     <tr data-job-id="{{ job.id }}">
-                        <!-- Job Info Column -->
                         <td>
                             <div class="job-info-cell">
                                 <div class="job-logo">
@@ -150,7 +149,6 @@
                             </div>
                         </td>
 
-                        <!-- Location Column -->
                         <td>
                             <div class="meta-info">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -158,7 +156,6 @@
                             </div>
                         </td>
 
-                        <!-- Salary Column -->
                         <td>
                             <div class="meta-info">
                                 <i class="fas fa-money-bill-wave"></i>
@@ -166,7 +163,6 @@
                             </div>
                         </td>
 
-                        <!-- Posted Date Column -->
                         <td>
                             <div class="meta-info">
                                 <i class="fas fa-clock"></i>
@@ -174,7 +170,6 @@
                             </div>
                         </td>
 
-                        <!-- Actions Column -->
                         <td>
                             <div class="job-actions">
                                 <a href="{% url 'jobs:job_detail' job.id %}" class="btn-action btn-view" data-job-id="{{ job.id }}">
@@ -193,7 +188,7 @@
                 </tbody>
             </table>
 
-            <!-- Pagination -->
+            
             {% if page_obj.has_other_pages %}
             <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
                 {% if page_obj.has_previous %}
@@ -229,7 +224,7 @@
             {% endif %}
 
         {% else %}
-            <!-- Empty State -->
+            
             <div class="empty-state">
                 <div class="empty-icon">
                     <i class="fas fa-search"></i>

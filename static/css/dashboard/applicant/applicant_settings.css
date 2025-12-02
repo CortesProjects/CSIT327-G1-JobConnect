@@ -1,9 +1,3 @@
-/* =====================================================
-   APPLICANT SETTINGS PAGE STYLES
-   Color Palette: Primary #dc3545 (Red)
-===================================================== */
-
-/* Main Content Header */
 .main-content-header h2 {
     font-size: 24px;
     font-weight: 600;
@@ -11,7 +5,6 @@
     margin-bottom: 25px;
 }
 
-/* Settings Navigation Tabs */
 .settings-nav {
     display: flex;
     gap: 0;
@@ -53,7 +46,6 @@
     border-bottom: 2px solid var(--primary-color);
 }
 
-/* Tab Content */
 .tab-content {
     display: none;
 }
@@ -66,7 +58,6 @@
     display: none !important;
 }
 
-/* Settings Content - Legacy Support */
 .settings-content {
     display: none;
 }
@@ -75,7 +66,6 @@
     display: block;
 }
 
-/* Section Titles */
 .settings-content h3,
 .tab-content h3 {
     font-size: 18px;
@@ -96,7 +86,6 @@
     font-weight: 600;
 }
 
-/* Form Layout */
 .form-row {
     display: flex;
     gap: 30px;
@@ -124,7 +113,6 @@
     margin-bottom: 20px;
 }
 
-/* Form Groups */
 .form-group {
     margin-bottom: 20px;
 }
@@ -177,7 +165,6 @@
     flex: 1;
 }
 
-/* Profile Picture Upload */
 .profile-picture {
     flex-shrink: 0;
 }
@@ -351,8 +338,6 @@
     border: 3px solid #dc3545;
 }
 
-/* Resume Section */
-/* CV/Resume Section */
 .cv-resume-section h3 {
     font-size: 16px;
     font-weight: 600;
@@ -523,7 +508,6 @@
     font-size: 12px;
 }
 
-/* Resume Upload Modal */
 .modal {
     display: none;
     position: fixed;
@@ -760,7 +744,6 @@
     margin: 0;
 }
 
-/* Social Links */
 .social-links-form-section {
     display: flex;
     flex-direction: column;
@@ -897,7 +880,6 @@
     width: 100%;
 }
 
-/* Buttons */
 .btn-save {
     background-color: #dc3545;
     color: #ffffff;
@@ -1037,7 +1019,6 @@
     box-shadow: none;
 }
 
-/* Privacy Toggle */
 .privacy-toggle-row {
     display: flex;
     align-items: center;
@@ -1107,7 +1088,6 @@
     font-size: 14px;
 }
 
-/* Notifications */
 .notification-checkboxes {
     display: flex;
     flex-direction: column;
@@ -1134,7 +1114,6 @@
     margin: 0;
 }
 
-/* Delete Account Section */
 .delete-account-section {
     background-color: #fff5f5;
     border: 2px solid #dc3545;
@@ -1147,7 +1126,6 @@
     font-size: 14px;
 }
 
-/* Password Input with Icon */
 .input-with-icon {
     position: relative;
 }
@@ -1170,7 +1148,6 @@
     color: #dc3545;
 }
 
-/* File Input Styling */
 input[type="file"] {
     display: block !important;
     margin-top: 10px;
@@ -1200,11 +1177,6 @@ input[type="file"]::file-selector-button:hover {
     background-color: #c82333;
 }
 
-/* =====================================================
-   VALIDATION STYLES
-===================================================== */
-
-/* Error styling for form fields */
 input.error,
 select.error,
 textarea.error {
@@ -1219,7 +1191,6 @@ textarea.error:focus {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
-/* Error text styling */
 .error-text {
     color: #dc3545;
     font-size: 0.875rem;
@@ -1232,14 +1203,12 @@ textarea.error:focus {
     margin-top: 8px;
 }
 
-/* Success styling for valid fields */
 input.valid:not([type="file"]),
 select.valid,
 textarea.valid {
     border-color: #28a745;
 }
 
-/* Password strength meter and match indicator (UI-only) */
 .password-strength {
     margin-top: 10px;
     display: flex;
@@ -1299,7 +1268,6 @@ textarea.valid:focus {
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
-/* Notification Toast */
 .notification-toast {
     position: fixed;
     top: 80px;
@@ -1347,7 +1315,6 @@ textarea.valid:focus {
     color: #212529;
 }
 
-/* Loading state for forms */
 form.loading {
     opacity: 0.6;
     pointer-events: none;
@@ -1378,7 +1345,6 @@ form.loading button[type="submit"]::after {
     }
 }
 
-/* Field focus enhancement */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -1388,7 +1354,6 @@ form.loading button[type="submit"]::after {
     transition: all 0.2s ease;
 }
 
-/* Disabled field styling */
 input:disabled,
 select:disabled,
 textarea:disabled {
@@ -1397,7 +1362,6 @@ textarea:disabled {
     opacity: 0.7;
 }
 
-/* Required field indicator */
 .form-group label[for] {
     position: relative;
 }
@@ -1410,7 +1374,6 @@ textarea[required] + label::after {
     font-weight: bold;
 }
 
-/* Error States & Visual Feedback */
 input.error,
 select.error,
 textarea.error {
@@ -1432,7 +1395,6 @@ textarea.error:focus {
     display: block;
 }
 
-/* Success State */
 input.success,
 select.success,
 textarea.success {
@@ -1440,7 +1402,6 @@ textarea.success {
     background-color: #f0fff4;
 }
 
-/* Focus States for Better Accessibility */
 input:focus,
 select:focus,
 textarea:focus {
@@ -1449,7 +1410,6 @@ textarea:focus {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.1);
 }
 
-/* Messages Alert Styling */
 .messages-container {
     margin-bottom: 20px;
 }
@@ -1489,14 +1449,12 @@ textarea:focus {
     color: #0c5460;
 }
 
-/* Button Loading State */
 .btn-save:disabled,
 .btn-submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-/* Smooth Transitions for Dynamic Updates */
 .tab-content {
     animation: fadeIn 0.3s ease-in-out;
 }
@@ -1512,7 +1470,6 @@ textarea:focus {
     }
 }
 
-/* Input validation icons (optional enhancement) */
 .input-with-validation {
     position: relative;
 }
@@ -1527,7 +1484,6 @@ textarea:focus {
     font-weight: 900;
 }
 
-/* Delete Account Modal Styles */
 .delete-confirm-modal {
     max-width: 550px;
 }
@@ -1593,7 +1549,6 @@ textarea:focus {
     margin-right: 8px;
 }
 
-/* Notification Checkboxes */
 .notification-checkboxes {
     display: flex;
     flex-direction: column;
@@ -1639,7 +1594,6 @@ textarea:focus {
     opacity: 0.5;
 }
 
-/* Enhanced Privacy Toggle */
 .privacy-toggle-row {
     display: flex;
     flex-direction: column;
@@ -1667,7 +1621,6 @@ textarea:focus {
     line-height: 1.5;
 }
 
-/* Delete Warning Text */
 .delete-warning {
     color: #721c24;
     background-color: #f8d7da;
@@ -1678,7 +1631,6 @@ textarea:focus {
     line-height: 1.6;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .form-row {
         flex-direction: column;

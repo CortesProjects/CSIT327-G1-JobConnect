@@ -1,6 +1,3 @@
-/* Job Alerts Page Styles */
-
-/* Main Content Header */
 .main-content-header {
     display: flex;
     justify-content: space-between;
@@ -59,7 +56,6 @@
     margin-right: 8px;
 }
 
-/* Job Alerts List */
 .job-alerts-list {
     display: flex;
     flex-direction: column;
@@ -71,7 +67,6 @@
     display: none !important;
 }
 
-/* Job Card */
 .job-card {
     display: flex;
     justify-content: space-between;
@@ -128,7 +123,6 @@
     font-size: 12px;
 }
 
-/* Job Type Badge */
 .job-type-badge {
     display: inline-block;
     padding: 5px 10px;
@@ -161,7 +155,6 @@
     color: #f57c00;
 }
 
-/* Job Expiry */
 .job-expiry {
     font-size: 13px;
     color: #6c757d;
@@ -173,14 +166,12 @@
     font-weight: 500;
 }
 
-/* Job Card Action */
 .job-card-action {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Action Button */
 .action-btn {
     display: inline-block;
     background-color: transparent;
@@ -218,7 +209,6 @@
     font-size: 12px;
 }
 
-/* Favorite Button */
 .favorite-btn {
     background-color: transparent;
     color: #6c757d;
@@ -241,7 +231,6 @@
     color: #ffc107;
 }
 
-/* Pagination */
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -284,7 +273,6 @@
     font-size: 14px;
 }
 
-/* Empty State */
 .empty-state {
     background-color: #f8f9fa;
     border-radius: 8px;
@@ -337,7 +325,6 @@
     margin-right: 8px;
 }
 
-/* Alerts Configuration Section */
 .alerts-config-section {
     background-color: #f8f9fa;
     border-radius: 8px;
@@ -384,7 +371,6 @@
     gap: 15px;
 }
 
-/* Alert Card */
 .alert-card {
     display: flex;
     justify-content: space-between;
@@ -526,7 +512,6 @@
     border-color: #28a745;
 }
 
-/* Alert Modal */
 .alert-modal {
     display: none;
     position: fixed;
@@ -734,7 +719,6 @@
     display: none;
 }
 
-/* Delete Modal Specific Styles */
 .delete-modal-content {
     max-width: 500px;
 }
@@ -798,7 +782,6 @@
     cursor: not-allowed;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .alert-modal-content {
         margin: 20px;

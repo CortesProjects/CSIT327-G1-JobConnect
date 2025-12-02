@@ -18,7 +18,7 @@ def applicant_profile_setup_step1(request):
     
     context = {
         'form': form,
-        'is_setup_page': True, # Tells base.html to show the bar
+        'is_setup_page': True, 
         'progress_percent': 0,
     }
     return render(request, 'applicant_profile/applicant_profile_step1.html', context)
@@ -27,7 +27,6 @@ def applicant_profile_setup_step1(request):
 def applicant_profile_setup_step2(request):
     profile = request.user.applicant_profile_rel
     
-    # Previously enforced server-side progress gating; frontend now handles step access
 
     if request.method == 'POST':
         form = ProfileDetailsForm(request.POST, instance=profile)
@@ -39,7 +38,7 @@ def applicant_profile_setup_step2(request):
     
     context = {
         'form': form,
-        'is_setup_page': True, # Tells base.html to show the bar
+        'is_setup_page': True, 
         'progress_percent':33,
     }
     return render(request, 'applicant_profile/applicant_profile_step2.html', context)
@@ -47,8 +46,6 @@ def applicant_profile_setup_step2(request):
 @applicant_required
 def applicant_profile_setup_step3(request):
     profile = request.user.applicant_profile_rel
-
-    # Previously enforced server-side progress gating; frontend now handles step access
 
     if request.method == 'POST':
         form = ContactInfoForm(request.POST, request.FILES, instance=profile)
@@ -67,7 +64,7 @@ def applicant_profile_setup_step3(request):
 
 @applicant_required
 def applicant_profile_setup_complete(request):
-    """Displays the final completion page."""
+    
     context = {
         'is_setup_page': True,
         'progress_percent': 100
