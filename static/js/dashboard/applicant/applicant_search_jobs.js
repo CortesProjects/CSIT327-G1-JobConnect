@@ -63,15 +63,16 @@ function toggleBookmark(button, jobId) {
     const icon = button.querySelector('i');
     const isBookmarked = button.classList.contains('bookmarked');
     
+    // Disable button and show loading state
+    button.disabled = true;
+    const originalIcon = icon.className;
+    icon.className = 'fas fa-spinner fa-spin';
+    
     // Toggle visual state immediately for better UX
     if (isBookmarked) {
         button.classList.remove('bookmarked');
-        icon.classList.remove('fas');
-        icon.classList.add('far');
     } else {
         button.classList.add('bookmarked');
-        icon.classList.remove('far');
-        icon.classList.add('fas');
     }
     
     // TODO: Make AJAX request to save/remove bookmark in the backend
@@ -91,12 +92,21 @@ function toggleBookmark(button, jobId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Update icon based on new state
+            if (isBookmarked) {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            } else {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            }
+            button.disabled = false;
             showNotification(isBookmarked ? 'Bookmark removed' : 'Job bookmarked!');
         } else {
             // Revert on error
             button.classList.toggle('bookmarked');
-            icon.classList.toggle('fas');
-            icon.classList.toggle('far');
+            icon.className = originalIcon;
+            button.disabled = false;
             showNotification('Error: ' + data.message, 'error');
         }
     })
@@ -104,17 +114,26 @@ function toggleBookmark(button, jobId) {
         console.error('Bookmark error:', error);
         // Revert on error
         button.classList.toggle('bookmarked');
-        icon.classList.toggle('fas');
-        icon.classList.toggle('far');
+        icon.className = originalIcon;
+        button.disabled = false;
         showNotification('Failed to update bookmark', 'error');
     });
     */
     
-    // For now, just show a notification
-    showNotification(
-        isBookmarked ? 'Bookmark removed' : 'Job bookmarked!',
-        isBookmarked ? 'info' : 'success'
-    );
+    // For now, just show a notification and reset state
+    setTimeout(() => {
+        // Update icon based on new state
+        if (isBookmarked) {
+            icon.className = 'far fa-bookmark';
+        } else {
+            icon.className = 'fas fa-bookmark';
+        }
+        button.disabled = false;
+        showNotification(
+            isBookmarked ? 'Bookmark removed' : 'Job bookmarked!',
+            isBookmarked ? 'info' : 'success'
+        );
+    }, 500);
 }
 
 /**

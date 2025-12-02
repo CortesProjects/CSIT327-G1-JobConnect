@@ -186,6 +186,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function markNotificationAsRead(notificationId) {
+        // Find the notification item and show loading state
+        const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+        if (notificationItem) {
+            notificationItem.style.opacity = '0.6';
+            notificationItem.style.pointerEvents = 'none';
+        }
+        
         fetch(`/notifications/${notificationId}/mark-read/`, {
             method: 'POST',
             headers: {
@@ -201,10 +208,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadNotifications();
             }
         })
-        .catch(error => console.error('Error marking notification as read:', error));
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+            // Reset loading state on error
+            if (notificationItem) {
+                notificationItem.style.opacity = '1';
+                notificationItem.style.pointerEvents = 'auto';
+            }
+        });
     }
 
     function markAllNotificationsAsRead() {
+        // Disable button and show loading state
+        const originalText = markAllReadBtn.textContent;
+        markAllReadBtn.disabled = true;
+        markAllReadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marking...';
+        
         fetch('/notifications/mark-all-read/', {
             method: 'POST',
             headers: {
@@ -218,11 +237,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateBadge(0);
                 loadNotifications();
             }
+            // Reset button state
+            markAllReadBtn.disabled = false;
+            markAllReadBtn.textContent = originalText;
         })
-        .catch(error => console.error('Error marking all as read:', error));
+        .catch(error => {
+            console.error('Error marking all as read:', error);
+            // Reset button state on error
+            markAllReadBtn.disabled = false;
+            markAllReadBtn.textContent = originalText;
+        });
     }
 
     function deleteNotification(notificationId) {
+        // Find the notification item and show loading state
+        const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+        if (notificationItem) {
+            notificationItem.style.opacity = '0.6';
+            notificationItem.style.pointerEvents = 'none';
+        }
+        
         fetch(`/notifications/${notificationId}/delete/`, {
             method: 'POST',
             headers: {
@@ -237,7 +271,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadNotifications();
             }
         })
-        .catch(error => console.error('Error deleting notification:', error));
+        .catch(error => {
+            console.error('Error deleting notification:', error);
+            // Reset loading state on error
+            if (notificationItem) {
+                notificationItem.style.opacity = '1';
+                notificationItem.style.pointerEvents = 'auto';
+            }
+        });
     }
 
     function getCsrfToken() {

@@ -146,8 +146,11 @@ class JobTableManager {
         if (modal) {
             const confirmBtn = modal.querySelector('#confirmMarkExpired');
             confirmBtn.onclick = () => {
+                // Show loading state
+                this.setButtonLoading(confirmBtn, true, 'Mark as Expired');
+                
                 // Submit via AJAX so we can close the modal and update the UI without redirect
-                this.submitPost(`/jobs/${jobId}/mark-expired/`, jobId, modal);
+                this.submitPost(`/jobs/${jobId}/mark-expired/`, jobId, modal, confirmBtn);
             };
             modal.style.display = 'flex';
         }
@@ -162,8 +165,11 @@ class JobTableManager {
         if (modal) {
             const confirmBtn = modal.querySelector('#confirmDelete');
             confirmBtn.onclick = () => {
+                // Show loading state
+                this.setButtonLoading(confirmBtn, true, 'Delete');
+                
                 // Submit a POST form so Django performs all validation and handling server-side
-                this.submitPost(`/jobs/${jobId}/delete/`);
+                this.submitPost(`/jobs/${jobId}/delete/`, null, null, confirmBtn);
             };
             modal.style.display = 'flex';
         }
@@ -177,6 +183,20 @@ class JobTableManager {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
+    /**
+     * Set button loading state
+     * @param {HTMLElement} button - Button element
+     * @param {boolean} loading - Loading state
+     * @param {string} originalText - Original button text
+     */
+    setButtonLoading(button, loading, originalText) {
+        if (loading) {
+            button.disabled = true;
+            button.dataset.originalText = originalText || button.textContent;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        } else {
+            button.disabled = false;
+            button.textContent = button.dataset.originalText || originalText;
         }
     }
 
@@ -185,27 +205,16 @@ class JobTableManager {
      * @param {string} jobId - Job ID
      */
     // Submit a POST form to the given URL so Django handles validation and response.
+    submitPost(url, jobId = null, modal = null, button = null) {
+     */
+    // Submit a POST form to the given URL so Django handles validation and response.
     submitPost(url, jobId = null, modal = null) {
         // Use fetch to POST so we can handle JSON responses and avoid full redirects.
         const csrfToken = this.getCsrfToken();
-        const headers = {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        };
-        if (csrfToken) headers['X-CSRFToken'] = csrfToken;
-
-        const body = new URLSearchParams();
-        if (csrfToken) body.append('csrfmiddlewaretoken', csrfToken);
-
-        fetch(url, {
-            method: 'POST',
-            headers,
-            body: body.toString(),
-            credentials: 'same-origin'
-        }).then(async (res) => {
-            let data = null;
-            try { data = await res.json(); } catch(e){ /* non-json response */ }
             if (res.ok && data && data.success) {
+                // Reset button state
+                if (button) this.setButtonLoading(button, false);
+                
                 // Close modal if provided
                 if (modal) modal.style.display = 'none';
 
@@ -228,9 +237,32 @@ class JobTableManager {
                 // Show message
                 this.showMessage(data.message || 'Job marked as expired.', 'success');
             } else {
+                // Reset button state on error
+                if (button) this.setButtonLoading(button, false);
+                
                 const err = (data && data.error) ? data.error : 'Failed to mark job as expired.';
                 this.showMessage(err, 'error');
                 // keep modal open so user can retry or cancel
+            }           if (row) {
+                            const statusCol = row.querySelector('.col-status');
+                            if (statusCol) {
+                                statusCol.innerHTML = '<span class="status expired">✕ Expired</span>';
+                            }
+                            // Remove mark-expired button
+                            actionBtn.remove();
+                        }
+                    }
+                }
+
+                // Show message
+        }).catch((err) => {
+            // Reset button state on error
+            if (button) this.setButtonLoading(button, false);
+            
+            console.error('mark-expired error', err);
+            this.showMessage('Network error while marking job expired.', 'error');
+        });
+    }           // keep modal open so user can retry or cancel
             }
         }).catch((err) => {
             console.error('mark-expired error', err);

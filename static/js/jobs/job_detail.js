@@ -10,6 +10,18 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
+    // Show/hide loading state on button
+    function setButtonLoading(button, loading, originalText) {
+        if (loading) {
+            button.disabled = true;
+            button.dataset.originalText = originalText || button.textContent;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        } else {
+            button.disabled = false;
+            button.textContent = button.dataset.originalText || originalText;
+        }
+    }
+
     // Submit POST via AJAX to Django (server-side validation, no redirect)
     function submitPost(url, successCallback) {
         const token = getCookie('csrftoken');
@@ -114,8 +126,7 @@
         if (applyForm) {
             applyForm.addEventListener('submit', function() {
                 if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Applying...';
+                    setButtonLoading(submitBtn, true, 'Apply for Job');
                 }
             });
         }
@@ -173,31 +184,42 @@
                 const jobId = modal ? modal.dataset.jobId : null;
                 if (!jobId) return;
 
+                // Show loading state
+                setButtonLoading(btn, true, 'Mark as Expired');
+
                 // Submit to Django via AJAX
                 submitPost(`/jobs/${jobId}/mark-expired/`, function(data) {
+                    // Reset button state
+                    setButtonLoading(btn, false, 'Mark as Expired');
+                    
                     // Close modal
                     closeModalById('markExpiredModal');
                     
                     // Optimistic UI update
                     try { markJobExpiredUI(); } catch(e) {}
-                    
-                    // success: no blocking alert shown — UI updated and modal closed
-                });
-            });
-        });
-
         qsa('[data-confirm="delete"]').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const modal = qs('#deleteJobModal');
                 const jobId = modal ? modal.dataset.jobId : null;
                 if (!jobId) return;
 
+                // Show loading state
+                setButtonLoading(btn, true, 'Delete');
+
                 // Submit to Django via AJAX (delete should redirect to job list)
                 submitPost(`/jobs/${jobId}/delete/`, function(data) {
+                    // Keep loading state since we're redirecting
+                    
                     // Close modal
                     closeModalById('deleteJobModal');
                     
                     // For delete, redirect to My Jobs
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                });
+            });
+        });         // For delete, redirect to My Jobs
                     if (data.redirect_url) {
                         window.location.href = data.redirect_url;
                     }
