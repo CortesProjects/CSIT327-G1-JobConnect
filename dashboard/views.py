@@ -1039,6 +1039,73 @@ def toggle_save_candidate(request, application_id):
         else:
             return redirect('dashboard:dashboard')
 
+
+class ToggleSaveCandidateView(EmployerRequiredMixin, View):
+    """
+    Toggle save/unsave status for a candidate.
+    POST-only action that verifies employer owns the job.
+    """
+    
+    def get_application(self):
+        """Get the application, ensuring employer owns the job"""
+        from jobs.models import JobApplication
+        
+        application_id = self.kwargs.get('application_id')
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != self.request.user.id:
+            messages.error(self.request, 'You do not have permission to save this candidate.')
+            return None
+        
+        return application
+    
+    def post(self, request, *args, **kwargs):
+        from dashboard.models import SavedCandidate
+        
+        try:
+            application = self.get_application()
+            if not application:
+                return redirect('dashboard:dashboard')
+            
+            # Toggle save status
+            saved_candidate, created = SavedCandidate.objects.get_or_create(
+                employer=request.user,
+                application=application
+            )
+            
+            if not created:
+                # Already saved, so unsave it
+                saved_candidate.delete()
+                messages.success(request, 'Candidate removed from saved list.')
+            else:
+                # Newly saved
+                messages.success(request, 'Candidate saved successfully!')
+            
+            # Redirect back to the referring page
+            referer = request.META.get('HTTP_REFERER')
+            if referer:
+                return redirect(referer)
+            else:
+                return redirect('dashboard:employer_candidate_detail', application_id=self.kwargs.get('application_id'))
+            
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+            referer = request.META.get('HTTP_REFERER')
+            if referer:
+                return redirect(referer)
+            else:
+                return redirect('dashboard:dashboard')
+    
+    def get(self, request, *args, **kwargs):
+        """Reject GET requests"""
+        messages.error(request, 'Invalid request method.')
+        return redirect('dashboard:dashboard')
+
+
 @login_required
 def move_application_stage(request, application_id):
     """Move an application to a different stage (for drag-and-drop persistence)."""
