@@ -198,47 +198,55 @@ class ApplicantJobAlertsView(ApplicantRequiredMixin, TemplateView):
         return paginator.get_page(page_number)
 
 
-@login_required
-def create_job_alert(request):
-    """Create a new job alert."""
-    from jobs.forms import JobAlertForm
-    from django.http import JsonResponse
+class CreateJobAlertView(ApplicantRequiredMixin, FormView):
+    """
+    Create a new job alert for applicants.
+    Supports both AJAX and regular form submissions.
+    """
+    template_name = 'dashboard/applicant/create_job_alert.html'
+    form_class = None  # Set dynamically
+    success_url = None  # Set dynamically
     
-    if request.user.user_type != 'applicant':
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'error': 'Only applicants can create job alerts.'}, status=403)
-        messages.error(request, 'Only applicants can create job alerts.')
-        return redirect('dashboard:dashboard')
+    def get_form_class(self):
+        from jobs.forms import JobAlertForm
+        return JobAlertForm
     
-    if request.method == 'POST':
-        form = JobAlertForm(request.POST)
-        if form.is_valid():
-            alert = form.save(commit=False)
-            alert.user = request.user
-            alert.save()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Job alert created successfully!',
-                    'alert_id': alert.id
-                })
-            
-            messages.success(request, 'Job alert created successfully!')
-            return redirect('dashboard:applicant_job_alerts')
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': form.errors
-                }, status=400)
-            
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = JobAlertForm()
+    def get_success_url(self):
+        return reverse('dashboard:applicant_job_alerts')
     
-    context = {'form': form}
-    return render(request, 'dashboard/applicant/create_job_alert.html', context)
+    def form_valid(self, form):
+        from django.http import JsonResponse
+        
+        # Save alert with current user
+        alert = form.save(commit=False)
+        alert.user = self.request.user
+        alert.save()
+        
+        # Handle AJAX requests
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Job alert created successfully!',
+                'alert_id': alert.id
+            })
+        
+        # Handle regular form submission
+        messages.success(self.request, 'Job alert created successfully!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        from django.http import JsonResponse
+        
+        # Handle AJAX requests
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
+        
+        # Handle regular form submission
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
 
 
 @login_required
