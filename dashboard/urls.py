@@ -14,8 +14,9 @@ urlpatterns = [
     path('applicant/job-alerts/', views.ApplicantJobAlertsView.as_view(), name='applicant_job_alerts'),
     path('applicant/job-alerts/create/', views.CreateJobAlertView.as_view(), name='create_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/edit/', views.EditJobAlertView.as_view(), name='edit_job_alert'),
-    path('applicant/job-alerts/<int:alert_id>/delete/', views.delete_job_alert, name='delete_job_alert'),
+   path('applicant/job-alerts/<int:alert_id>/delete/', views.DeleteJobAlertView.as_view(), name='delete_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/toggle/', views.ToggleJobAlertStatusView.as_view(), name='toggle_job_alert_status'),
+
     path('applicant/settings/', views.ApplicantSettingsView.as_view(), name='applicant_settings'),
 
     # Employer URLs

@@ -426,6 +426,48 @@ def delete_job_alert(request, alert_id):
     return redirect('dashboard:applicant_job_alerts')
 
 
+class DeleteJobAlertView(ApplicantRequiredMixin, View):
+    """
+    Delete a job alert.
+    POST-only view that supports both AJAX and regular form submissions.
+    """
+    
+    def get_object(self):
+        """Get the alert, ensuring user owns it"""
+        from jobs.models import JobAlert
+        alert_id = self.kwargs.get('alert_id')
+        return get_object_or_404(JobAlert, id=alert_id, user=self.request.user)
+    
+    def post(self, request, *args, **kwargs):
+        from django.http import JsonResponse
+        
+        alert = self.get_object()
+        alert.delete()
+        
+        # Handle AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Job alert deleted successfully!'
+            })
+        
+        # Handle regular form submission
+        messages.success(request, 'Job alert deleted successfully!')
+        return redirect('dashboard:applicant_job_alerts')
+    
+    def get(self, request, *args, **kwargs):
+        """Reject GET requests"""
+        from django.http import JsonResponse
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid request method.'
+            }, status=405)
+        
+        return redirect('dashboard:applicant_job_alerts')
+
+
 @login_required
 def toggle_job_alert_status(request, alert_id):
     """Toggle job alert active/inactive status."""
