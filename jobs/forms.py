@@ -454,23 +454,18 @@ class JobApplicationForm(forms.Form):
     
     def clean_resume_id(self):
         """Validate resume exists and belongs to the applicant."""
+        from resumes.models import Resume
+        
         resume_id = self.cleaned_data.get('resume_id')
         
         if not resume_id:
-            # Check if applicant has a resume in their profile
-            if self.user and hasattr(self.user, 'applicant_profile_rel'):
-                profile = self.user.applicant_profile_rel
-                if not profile.resume:
-                    raise ValidationError('Please upload a resume to your profile before applying.')
-                # Use profile resume
-                self.cleaned_data['resume_file'] = profile.resume
-                return None
-            else:
-                raise ValidationError('Resume is required to apply for this job.')
+            raise ValidationError('Please select a resume to submit with your application.')
         
-        # If resume_id provided, validate it exists and belongs to user
-        # For now, we'll use the profile resume field
-        # In future, if you have a separate Resume model, validate here
+        try:
+            resume = Resume.objects.get(id=resume_id, user=self.user)
+            self.cleaned_data['resume'] = resume
+        except Resume.DoesNotExist:
+            raise ValidationError('Selected resume not found or does not belong to you.')
         
         return resume_id
     

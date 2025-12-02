@@ -29,6 +29,7 @@ urlpatterns = [
     path('dashboard/', include(('dashboard.urls', 'dashboard'), namespace='dashboard')),
     path("jobs/", include(("jobs.urls", "jobs"), namespace="jobs")),
     path('notifications/', include('notifications.urls')),
+    path('resumes/', include(('resumes.urls', 'resumes'), namespace='resumes')),
 ]
 
 # Custom error handlers

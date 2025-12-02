@@ -17,13 +17,39 @@ def upload_resume(request):
         if form.is_valid():
             resume = form.save(commit=False)
             resume.user = request.user
+            
+            # If setting as default, remove default from other resumes
+            if resume.is_default:
+                Resume.objects.filter(user=request.user, is_default=True).update(is_default=False)
+            
             resume.save()
+            
+            # Check if it's an AJAX request
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Resume "{resume.name}" uploaded successfully!'
+                })
+            
             messages.success(request, f'Resume "{resume.name}" uploaded successfully!')
             return redirect('dashboard:applicant_settings' + '#personal')
         else:
+            # Collect all errors
+            error_messages = []
             for field, errors in form.errors.items():
+                field_name = form.fields[field].label if field in form.fields else field
                 for error in errors:
-                    messages.error(request, f'{field}: {error}')
+                    error_messages.append(f'{field_name}: {error}')
+            
+            # Check if it's an AJAX request
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': error_messages
+                }, status=400)
+            
+            for error in error_messages:
+                messages.error(request, error)
             return redirect('dashboard:applicant_settings' + '#personal')
     else:
         form = ResumeUploadForm()

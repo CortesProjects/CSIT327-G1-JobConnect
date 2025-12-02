@@ -305,15 +305,8 @@ def job_detail(request, job_id):
         ).exists()
         
         # Get applicant's resumes for the apply modal
-        # Currently using the single resume field from ApplicantProfile
-        if hasattr(request.user, 'applicant_profile_rel'):
-            profile = request.user.applicant_profile_rel
-            if profile.resume:
-                # Create a simple object to pass to template
-                resumes = [{
-                    'id': 1,  # Dummy ID since we only have one resume field
-                    'name': profile.resume.name.split('/')[-1] if profile.resume.name else 'My Resume'
-                }]
+        from resumes.models import Resume
+        resumes = Resume.objects.filter(user=request.user).order_by('-is_default', '-uploaded_at')
     
     # Determine which base template to use
     if request.user.is_authenticated and request.user.user_type == 'employer':
@@ -406,12 +399,14 @@ def apply_job(request, job_id):
     # Get validated data
     job = form.cleaned_data['job']
     cover_letter = form.cleaned_data.get('cover_letter', '')
+    resume = form.cleaned_data.get('resume')
     
     try:
         # Create job application
         application = JobApplication.objects.create(
             applicant=request.user,
             job=job,
+            resume=resume,
             applicant_notes=cover_letter,
             status='pending'
         )

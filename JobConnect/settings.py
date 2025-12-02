@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'storages',
     'jobs',
     'notifications',
+    'resumes',
     'django.contrib.humanize',
 ]
 
