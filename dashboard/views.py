@@ -2233,3 +2233,61 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         
         # Return context with all forms if no redirect happened
         return self.get(request, *args, **kwargs)
+
+
+class EmployerProfileView(EmployerRequiredMixin, TemplateView):
+    """
+    Display employer profile with company information and statistics.
+    Matches the logic of the original employer_profile function-based view.
+    """
+    template_name = 'dashboard/employer/employer_profile.html'
+    
+    def get_context_data(self, **kwargs):
+        from jobs.models import Job, JobApplication
+        from django.db.models import Count
+        
+        context = super().get_context_data(**kwargs)
+        
+        # Get employer profile
+        try:
+            profile = self.request.user.employer_profile_rel
+        except:
+            profile = None
+        
+        # Get social links
+        social_links = UserSocialLink.objects.filter(user=self.request.user).order_by('platform')
+        
+        # Get recent jobs with application counts and related data
+        recent_jobs = Job.objects.filter(
+            employer=self.request.user
+        ).select_related(
+            'category',
+            'job_type',
+            'education',
+            'experience',
+            'job_level',
+            'salary_type'
+        ).annotate(
+            applications_count=Count('applications')
+        ).order_by('-posted_at')[:3]
+        
+        # Calculate statistics (optimized single query for total applications)
+        total_jobs = Job.objects.filter(employer=self.request.user).count()
+        active_jobs = Job.objects.filter(employer=self.request.user, status='active').count()
+        
+        # Single query for total applications instead of looping
+        total_applications = JobApplication.objects.filter(job__employer=self.request.user).count()
+        hired_count = JobApplication.objects.filter(job__employer=self.request.user, status='hired').count()
+        
+        context.update({
+            'profile': profile,
+            'social_links': social_links,
+            'recent_jobs': recent_jobs,
+            'total_jobs': total_jobs,
+            'active_jobs': active_jobs,
+            'total_applications': total_applications,
+            'hired_count': hired_count,
+            'is_owner': True,
+        })
+        
+        return context
