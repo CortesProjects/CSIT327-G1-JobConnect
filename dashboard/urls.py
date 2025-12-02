@@ -20,7 +20,7 @@ urlpatterns = [
 
     # Employer URLs
     path('employer/profile/', views.EmployerProfileView.as_view(), name='employer_profile'),
-    path('employer/profile/<int:employer_id>/', views.public_employer_profile, name='public_employer_profile'),
+    path('employer/profile/<int:employer_id>/', views.PublicEmployerProfileView.as_view(), name='public_employer_profile'),
     path('employer/settings/', views.EmployerSettingsView.as_view(), name='employer_settings'),
     path('employer/post-job/', views.EmployerPostJobView.as_view(), name='employer_post_job'),
     path('employer/edit-job/<int:job_id>/', views.EmployerEditJobView.as_view(), name='employer_edit_job'),
