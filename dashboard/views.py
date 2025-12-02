@@ -624,6 +624,7 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         from applicant_profile.models import NotificationPreferences
+        from resumes.models import Resume
         
         context = super().get_context_data(**kwargs)
         profile = get_object_or_404(ApplicantProfile, user=self.request.user)
@@ -638,6 +639,9 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
             }
         )
         
+        # Get all resumes for the user
+        resumes = Resume.objects.filter(user=self.request.user)
+        
         # Initialize all forms with current data
         context['profile'] = profile
         context['personal_info_form'] = ApplicantPersonalInfoForm(instance=profile)
@@ -649,6 +653,7 @@ class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
         context['social_link_form'] = ApplicantSocialLinkForm()
         context['social_links'] = self.request.user.social_links.all()
         context['notification_prefs'] = notification_prefs
+        context['resumes'] = resumes
         
         return context
     

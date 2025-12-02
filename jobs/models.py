@@ -426,6 +426,14 @@ class JobApplication(models.Model):
     )
     
     # Optional fields
+    resume = models.ForeignKey(
+        'resumes.Resume',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='applications',
+        help_text="Resume submitted with this application"
+    )
     applicant_notes = models.TextField(
         blank=True,
         help_text="Cover letter or additional notes from the applicant"
