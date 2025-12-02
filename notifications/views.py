@@ -14,41 +14,50 @@ def get_notifications(request):
     Returns JSON with notifications list and unread count.
     AJAX only - redirects to dashboard if accessed directly.
     """
-    # Check if this is an AJAX request
-    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        from django.shortcuts import redirect
-        # Redirect based on user type
-        if not request.user.is_authenticated:
-            return redirect('accounts:login')
-        elif request.user.is_staff or request.user.is_superuser:
-            return redirect('/admin/')
-        elif hasattr(request.user, 'employer_profile'):
-            return redirect('dashboard:employer_dashboard')
-        else:
-            return redirect('dashboard:applicant_dashboard')
-    
-    notifications = Notification.objects.filter(user=request.user)[:20]  # Last 20 notifications
-    
-    notifications_data = []
-    for notif in notifications:
-        notifications_data.append({
-            'id': notif.id,
-            'type': notif.notification_type,
-            'title': notif.title,
-            'message': notif.message,
-            'link': notif.link,
-            'is_read': notif.is_read,
-            'created_at': notif.created_at.isoformat(),
-            'time_ago': get_time_ago(notif.created_at),
+    try:
+        # Check if this is an AJAX request
+        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.shortcuts import redirect
+            # Redirect based on user type
+            if not request.user.is_authenticated:
+                return redirect('accounts:login')
+            elif request.user.is_staff or request.user.is_superuser:
+                return redirect('dashboard:admin_dashboards')
+            else:
+                return redirect('dashboard:dashboard')
+        
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:20]  # Last 20 notifications
+        
+        notifications_data = []
+        for notif in notifications:
+            notifications_data.append({
+                'id': notif.id,
+                'type': notif.notification_type,
+                'title': notif.title,
+                'message': notif.message,
+                'link': notif.link or '',
+                'is_read': notif.is_read,
+                'created_at': notif.created_at.isoformat(),
+                'time_ago': get_time_ago(notif.created_at),
+            })
+        
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        
+        return JsonResponse({
+            'success': True,
+            'notifications': notifications_data,
+            'unread_count': unread_count,
         })
-    
-    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-    
-    return JsonResponse({
-        'success': True,
-        'notifications': notifications_data,
-        'unread_count': unread_count,
-    })
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in get_notifications: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Failed to fetch notifications',
+            'notifications': [],
+            'unread_count': 0,
+        }, status=500)
 
 
 @login_required
@@ -58,24 +67,32 @@ def get_unread_count(request):
     Get the count of unread notifications for the current user.
     AJAX only - redirects to dashboard if accessed directly.
     """
-    # Check if this is an AJAX request
-    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        from django.shortcuts import redirect
-        # Redirect based on user type
-        if not request.user.is_authenticated:
-            return redirect('accounts:login')
-        elif request.user.is_staff or request.user.is_superuser:
-            return redirect('/admin/')
-        elif hasattr(request.user, 'employer_profile'):
-            return redirect('dashboard:employer_dashboard')
-        else:
-            return redirect('dashboard:applicant_dashboard')
-    
-    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-    return JsonResponse({
-        'success': True,
-        'unread_count': unread_count,
-    })
+    try:
+        # Check if this is an AJAX request
+        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.shortcuts import redirect
+            # Redirect based on user type
+            if not request.user.is_authenticated:
+                return redirect('accounts:login')
+            elif request.user.is_staff or request.user.is_superuser:
+                return redirect('dashboard:admin_dashboards')
+            else:
+                return redirect('dashboard:dashboard')
+        
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return JsonResponse({
+            'success': True,
+            'unread_count': unread_count,
+        })
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in get_unread_count: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Failed to fetch unread count',
+            'unread_count': 0,
+        }, status=500)
 
 
 @login_required
