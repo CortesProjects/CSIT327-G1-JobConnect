@@ -65,6 +65,17 @@ class ApplicantRegistrationForm(UserCreationForm):
             'account_type',
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make the account_type select show 'Select' as the empty placeholder
+        try:
+            if self.fields.get('account_type') and getattr(self.fields['account_type'], 'choices', None):
+                choices = list(self.fields['account_type'].choices)
+                if not choices or choices[0][0] != '':
+                    self.fields['account_type'].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
