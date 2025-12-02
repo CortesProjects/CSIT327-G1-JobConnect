@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
@@ -1981,3 +1981,255 @@ class ApplicantAppliedJobsListView(ApplicantRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['application_count'] = self.get_queryset().count()
         return context
+
+
+class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
+    """
+    Applicant settings page handling multiple forms:
+    - Personal info, profile details, contact info, privacy
+    - Resume upload, password change, notification preferences
+    - Social links management, account deletion
+    Matches the logic of the original applicant_settings function-based view.
+    """
+    template_name = 'dashboard/applicant/applicant_settings.html'
+    
+    def get_context_data(self, **kwargs):
+        from applicant_profile.models import NotificationPreferences
+        
+        context = super().get_context_data(**kwargs)
+        profile = get_object_or_404(ApplicantProfile, user=self.request.user)
+        
+        # Get or create notification preferences
+        notification_prefs, created = NotificationPreferences.objects.get_or_create(
+            user=self.request.user,
+            defaults={
+                'notify_shortlisted': True,
+                'notify_applications': True,
+                'notify_job_alerts': True
+            }
+        )
+        
+        # Initialize all forms with current data
+        context['profile'] = profile
+        context['personal_info_form'] = ApplicantPersonalInfoForm(instance=profile)
+        context['profile_details_form'] = ApplicantProfileDetailsForm(instance=profile)
+        context['contact_info_form'] = ApplicantContactInfoForm(instance=profile, user=self.request.user)
+        context['profile_privacy_form'] = ApplicantProfilePrivacyForm(instance=profile)
+        context['resume_form'] = ApplicantResumeForm(instance=profile)
+        context['password_form'] = PasswordChangeForm(self.request.user)
+        context['social_link_form'] = ApplicantSocialLinkForm()
+        context['social_links'] = self.request.user.social_links.all()
+        context['notification_prefs'] = notification_prefs
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        from applicant_profile.models import NotificationPreferences
+        from django.contrib.auth import authenticate
+        
+        profile = get_object_or_404(ApplicantProfile, user=request.user)
+        notification_prefs, _ = NotificationPreferences.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'notify_shortlisted': True,
+                'notify_applications': True,
+                'notify_job_alerts': True
+            }
+        )
+        
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'personal_info':
+            form = ApplicantPersonalInfoForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                try:
+                    form.save()
+                    messages.success(request, 'Personal information updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving personal information: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'profile_details':
+            form = ApplicantProfileDetailsForm(request.POST, instance=profile)
+            if form.is_valid():
+                try:
+                    form.save()
+                    messages.success(request, 'Profile details updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving profile details: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'social_links_bulk':
+            try:
+                # Get arrays from POST data
+                platforms = request.POST.getlist('platform[]')
+                urls = request.POST.getlist('url[]')
+                link_ids = request.POST.getlist('link_id[]')
+                
+                # Get existing social link IDs for this user
+                existing_ids = set(request.user.social_links.values_list('id', flat=True))
+                submitted_ids = set()
+                
+                # Process each submitted link
+                for i, (platform, url) in enumerate(zip(platforms, urls)):
+                    if not platform or not url:
+                        continue
+                    
+                    link_id = link_ids[i] if i < len(link_ids) and link_ids[i] else None
+                    
+                    if link_id:
+                        # Update existing link
+                        link_id = int(link_id)
+                        submitted_ids.add(link_id)
+                        social_link = UserSocialLink.objects.filter(id=link_id, user=request.user).first()
+                        if social_link:
+                            social_link.platform = platform
+                            social_link.url = url
+                            social_link.save()
+                    else:
+                        # Create new link
+                        social_link = UserSocialLink.objects.create(
+                            user=request.user,
+                            platform=platform,
+                            url=url
+                        )
+                        submitted_ids.add(social_link.id)
+                
+                # Delete links that were removed (in existing but not in submitted)
+                ids_to_delete = existing_ids - submitted_ids
+                if ids_to_delete:
+                    UserSocialLink.objects.filter(id__in=ids_to_delete, user=request.user).delete()
+                
+                messages.success(request, 'Social links updated successfully!')
+                return redirect('dashboard:applicant_settings')
+            except Exception as e:
+                messages.error(request, f'Error updating social links: {str(e)}')
+        
+        elif form_type == 'social_link':
+            social_link_id = request.POST.get('social_link_id')
+            if social_link_id:
+                # Edit existing social link
+                social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+                form = ApplicantSocialLinkForm(request.POST, instance=social_link)
+            else:
+                # Add new social link
+                form = ApplicantSocialLinkForm(request.POST)
+            
+            if form.is_valid():
+                social_link = form.save(commit=False)
+                social_link.user = request.user
+                social_link.save()
+                messages.success(request, 'Social link saved successfully!')
+                return redirect('dashboard:applicant_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'delete_social_link':
+            social_link_id = request.POST.get('social_link_id')
+            social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+            social_link.delete()
+            messages.success(request, 'Social link deleted successfully!')
+            return redirect('dashboard:applicant_settings')
+        
+        elif form_type == 'contact_info':
+            form = ApplicantContactInfoForm(request.POST, instance=profile, user=request.user)
+            if form.is_valid():
+                try:
+                    form.save()
+                    messages.success(request, 'Contact information updated successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving contact information: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'profile_privacy':
+            form = ApplicantProfilePrivacyForm(request.POST, instance=profile)
+            if form.is_valid():
+                try:
+                    form.save()
+                    status = 'public' if form.cleaned_data['is_public'] else 'private'
+                    messages.success(request, f'Profile privacy set to {status}!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error saving privacy settings: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'resume':
+            form = ApplicantResumeForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                try:
+                    form.save()
+                    messages.success(request, 'Resume uploaded successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error uploading resume: {str(e)}')
+            else:
+                for field, errors in form.errors.items():
+                    field_label = form.fields.get(field).label if field in form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'change_password':
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                try:
+                    user = password_form.save()
+                    update_session_auth_hash(request, user)  # Keep user logged in
+                    messages.success(request, 'Password changed successfully!')
+                    return redirect('dashboard:applicant_settings')
+                except Exception as e:
+                    messages.error(request, f'Error changing password: {str(e)}')
+            else:
+                # Display password form errors with field labels
+                for field, errors in password_form.errors.items():
+                    field_label = password_form.fields.get(field).label if field in password_form.fields else field
+                    for error in errors:
+                        messages.error(request, f'{field_label}: {error}')
+        
+        elif form_type == 'notification_preferences':
+            # Update notification preferences
+            notification_prefs.notify_shortlisted = request.POST.get('notify_shortlisted') == 'on'
+            notification_prefs.notify_applications = request.POST.get('notify_applications') == 'on'
+            notification_prefs.notify_job_alerts = request.POST.get('notify_job_alerts') == 'on'
+            notification_prefs.save()
+            messages.success(request, 'Notification preferences updated successfully!')
+            return redirect('dashboard:applicant_settings')
+        
+        elif form_type == 'delete_account':
+            # Verify password
+            password = request.POST.get('password')
+            user = authenticate(username=request.user.username, password=password)
+            
+            if user is not None:
+                try:
+                    # Delete user account (cascades to profile and related data)
+                    username = request.user.username
+                    request.user.delete()
+                    messages.success(request, f'Account {username} has been permanently deleted.')
+                    return redirect('home')
+                except Exception as e:
+                    messages.error(request, f'Error deleting account: {str(e)}')
+            else:
+                messages.error(request, 'Incorrect password. Account deletion cancelled.')
+                return redirect('dashboard:applicant_settings')
+        
+        # Return context with all forms if no redirect happened
+        return self.get(request, *args, **kwargs)
