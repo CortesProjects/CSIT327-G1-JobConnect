@@ -143,6 +143,11 @@ class EmployerProfile(models.Model):
         help_text="Automatically records the last time the profile was modified"
     )
     
+    setup_completed = models.BooleanField(
+        default=False,
+        help_text="Indicates whether the user has completed the initial profile setup wizard"
+    )
+    
     class Meta:
         verbose_name = 'Employer Profile'
         verbose_name_plural = 'Employer Profiles'

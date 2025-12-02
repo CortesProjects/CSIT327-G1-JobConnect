@@ -66,7 +66,6 @@ def employer_profile_setup_step2(request):
         messages.info(request, 'You have already completed your profile setup.')
         return redirect('dashboard:dashboard')
     
-    # Validate that step 1 is complete before allowing access to step 2
     if not is_employer_step1_complete(profile):
         messages.warning(request, 'Please complete Step 1 (Company Information) before proceeding to Step 2.')
         return redirect('employer_profile:employer_profile_setup_step1')
