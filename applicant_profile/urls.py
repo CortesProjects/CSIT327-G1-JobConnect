@@ -7,5 +7,6 @@ urlpatterns = [
     path('setup/personal-info/', views.applicant_profile_setup_step1, name='applicant_profile_setup_step1'),
     path('setup/profile-info/', views.applicant_profile_setup_step2, name='applicant_profile_setup_step2'),
     path('setup/contact/', views.applicant_profile_setup_step3, name='applicant_profile_setup_step3'),
+    path('setup/resume/', views.applicant_profile_setup_step4, name='applicant_profile_setup_step4'),
     path('setup/complete/', views.applicant_profile_setup_complete, name='applicant_profile_setup_complete'),
 ]

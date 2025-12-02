@@ -22,6 +22,10 @@
             <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
                 <i class="fas fa-phone icon-left"></i> Contact
             </a>
+
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step4' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step4' %}active{% endif %}">
+                <i class="fas fa-file-alt icon-left"></i> Resume
+            </a>
         </section>
 </div>
     <form method="post">

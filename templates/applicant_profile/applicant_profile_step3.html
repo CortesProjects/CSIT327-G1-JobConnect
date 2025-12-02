@@ -23,6 +23,10 @@
             <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
                 <i class="fas fa-phone icon-left"></i> Contact
             </a>
+
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step4' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step4' %}active{% endif %}">
+                <i class="fas fa-file-alt icon-left"></i> Resume
+            </a>
         </section>
 </div>
 
@@ -49,7 +53,7 @@
 
         <div class="form-navigation-row centered-nav">
             <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="btn btn-secondary">Previous</a>
-            <button type="submit" class="cta-btn save-next-btn">Finish Profile &rarr;</button>
+            <button type="submit" class="cta-btn save-next-btn">Next: Upload Resume &rarr;</button>
         </div>
     </form>
 </main>

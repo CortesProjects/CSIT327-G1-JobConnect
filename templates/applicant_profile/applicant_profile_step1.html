@@ -22,6 +22,9 @@
             <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step3' %}active{% endif %}">
                 <i class="fas fa-phone icon-left"></i> Contact
             </a>
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step4' %}" class="step-link {% if request.resolver_match.url_name == 'applicant_profile_setup_step4' %}active{% endif %}">
+                <i class="fas fa-file-alt icon-left"></i> Resume
+            </a>
         </section>
     </div>
     <form method="post" enctype="multipart/form-data" novalidate>
@@ -115,28 +118,6 @@
                     {{ form.education_level }}
                     <div id="education-level-error" class="error-text">{{ form.education_level.errors }}</div>
                 </div>
-            </div>
-
-            {# Resume Upload #}
-            <div class="field-container">
-                <label for="{{ form.resume.id_for_label }}">{{ form.resume.label }}</label>
-                <div class="upload-area resume-upload-area {% if form.instance.resume %}file-attached{% endif %}">
-                    <label for="{{ form.resume.id_for_label }}" class="upload-label-full-area">
-                        <div style="display: none;">
-                            {{ form.resume }}
-                        </div>
-                        <div class="upload-content-placeholder" {% if form.instance.resume %}style="display: none;"{% endif %}>
-                            <i class="fas fa-file-upload"></i>
-                            <h4>Browse file or drop here</h4>
-                            <p class="upload-hint">PDF, DOC, or DOCX only. Max file size 5 MB.</p>
-                        </div>
-                        <div class="file-attached-display" {% if form.instance.resume %}style="display: flex;"{% else %}style="display: none;"{% endif %}>
-                            <span class="file-name">{% if form.instance.resume %}{{ form.instance.resume.name|slice:"28:" }}{% endif %}</span>
-                            <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
-                        </div>
-                    </label>
-                </div>
-                <div id="resume-error" class="error-text">{{ form.resume.errors }}</div>
             </div>
         </div>
 

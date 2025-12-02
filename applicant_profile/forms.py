@@ -5,7 +5,7 @@ from applicant_profile.models import ApplicantProfile
 class PersonalInfoForm(forms.ModelForm):
     class Meta:
         model = ApplicantProfile
-        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level', 'resume']
+        fields = ['profile_image', 'title', 'first_name', 'middle_name', 'last_name', 'experience', 'education_level']
         widgets = {
             'profile_image': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -36,10 +36,6 @@ class PersonalInfoForm(forms.ModelForm):
                 'class': 'form-control',
                 'required': 'required'
             }),
-            'resume': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': '.pdf,.doc,.docx'
-            }),
         }
         labels = {
             'profile_image': 'Profile Picture (Optional)',
@@ -49,7 +45,6 @@ class PersonalInfoForm(forms.ModelForm):
             'last_name': 'Last Name *',
             'experience': 'Years of Experience *',
             'education_level': 'Education Level *',
-            'resume': 'Resume/CV *'
         }
     
     def __init__(self, *args, **kwargs):
@@ -62,7 +57,6 @@ class PersonalInfoForm(forms.ModelForm):
         self.fields['title'].required = False
         self.fields['experience'].required = True
         self.fields['education_level'].required = True
-        self.fields['resume'].required = True
     
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name', '').strip()
@@ -208,4 +202,68 @@ class ContactInfoForm(forms.ModelForm):
             if dob > today:
                 raise forms.ValidationError("Date of birth cannot be in the future.")
         return dob
+
+
+# Form for Step 4: Resume Upload (using new Resume model)
+class ResumeUploadSetupForm(forms.Form):
+    """Form for uploading first resume during profile setup."""
+    resume_name = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g., Software Engineer Resume',
+        }),
+        label='Resume Name *',
+        help_text='Give your resume a descriptive name'
+    )
+    
+    resume_file = forms.FileField(
+        required=True,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.pdf,.doc,.docx'
+        }),
+        label='Resume File (PDF, DOC, DOCX) *',
+        help_text='Upload your resume (max 5MB)'
+    )
+    
+    set_as_default = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'checked': 'checked'
+        }),
+        label='Set as default resume',
+        help_text='This resume will be pre-selected when applying to jobs'
+    )
+    
+    def clean_resume_name(self):
+        name = self.cleaned_data.get('resume_name', '').strip()
+        if not name:
+            raise forms.ValidationError('Resume name cannot be empty.')
+        if len(name) < 3:
+            raise forms.ValidationError('Resume name must be at least 3 characters long.')
+        if len(name) > 100:
+            raise forms.ValidationError('Resume name must not exceed 100 characters.')
+        return name
+    
+    def clean_resume_file(self):
+        file = self.cleaned_data.get('resume_file')
+        if not file:
+            raise forms.ValidationError('Please select a file to upload.')
+        
+        # Check file size (5MB limit)
+        if file.size > 5 * 1024 * 1024:
+            file_size_mb = round(file.size / (1024 * 1024), 2)
+            raise forms.ValidationError(f'File size ({file_size_mb}MB) exceeds the 5MB limit.')
+        
+        # Check file extension
+        allowed_extensions = ['.pdf', '.doc', '.docx']
+        file_extension = f'.{file.name.lower().split(".")[-1]}'
+        if file_extension not in allowed_extensions:
+            raise forms.ValidationError(f'File type "{file_extension}" is not allowed. Only PDF, DOC, and DOCX files are accepted.')
+        
+        return file
     
