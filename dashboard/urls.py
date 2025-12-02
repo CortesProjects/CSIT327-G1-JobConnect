@@ -5,7 +5,7 @@ from . import views
 app_name = 'dashboard'   # <-- important: enables {% url 'dashboard:...' %} in templates
 
 urlpatterns = [
-    path('', views.dashboard_view, name='dashboard'),
+    path('', views.DashboardView.as_view(), name='dashboard'),
 
     # Applicant URLs
     path('applicant/search-jobs/', views.ApplicantJobSearchView.as_view(), name='applicant_search_jobs'),
