@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, FormView
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.utils import notify_application_status_change, notify_application_shortlisted
@@ -1981,6 +1981,55 @@ class ApplicantAppliedJobsListView(ApplicantRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['application_count'] = self.get_queryset().count()
         return context
+
+
+class EmployerPostJobView(EmployerRequiredMixin, FormView):
+    """
+    Handle job posting creation.
+    Matches the logic of the original employer_post_job function-based view.
+    """
+    template_name = 'dashboard/employer/employer_post_job.html'
+    form_class = None  # Will be set dynamically
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Get employer profile and verify company name exists
+        try:
+            self.employer_profile = request.user.employer_profile_rel
+            if not self.employer_profile.company_name:
+                messages.warning(request, 'Please complete your company profile before posting a job.')
+                return redirect('dashboard:employer_settings')
+        except:
+            messages.error(request, 'Please complete your profile setup first.')
+            return redirect('dashboard:employer_settings')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_form_class(self):
+        from jobs.forms import JobPostForm
+        return JobPostForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_name'] = self.employer_profile.company_name if self.employer_profile else ''
+        return context
+    
+    def form_valid(self, form):
+        try:
+            job = form.save(commit=False)
+            job.employer = self.request.user
+            job.company_name = self.employer_profile.company_name
+            job.status = 'active'
+            job.save()
+            
+            # Redirect with success query parameter
+            return redirect(f"{reverse('dashboard:employer_post_job')}?success=true")
+        except Exception as e:
+            messages.error(self.request, f'Error posting job: {str(e)}')
+            return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        # Do not push per-field errors to messages container; render form with inline errors
+        return super().form_invalid(form)
 
 
 class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
