@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_setup/applicant_profile_create.css' %}">
+{% endblock %}
+
+{% block title %}Upload Resume - Profile Setup{% endblock %}
+
+{% block content %}
+
+<main class="profile-setup-container">
+    <div class="step-navigation-wrapper">
+        <section class="step-navigation">
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step1' %}" class="step-link">
+                <i class="fas fa-user icon-left"></i> Personal
+            </a>
+
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="step-link">
+                <i class="fas fa-id-card icon-left"></i> Profile
+            </a>
+
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="step-link">
+                <i class="fas fa-phone icon-left"></i> Contact
+            </a>
+
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step4' %}" class="step-link active">
+                <i class="fas fa-file-upload icon-left"></i> Resume
+            </a>
+        </section>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="resumeUploadForm">
+        {% csrf_token %}
+
+        <div class="form-section-card">
+            <h2>Upload Your Resume</h2>
+            <p class="section-hint">Upload your resume to complete your profile and start applying to jobs.</p>
+            
+            {% if has_resume %}
+            <div class="alert-info">
+                <i class="fas fa-info-circle"></i>
+                You already have a resume uploaded. You can upload another one or skip this step.
+            </div>
+            {% endif %}
+
+            <div class="field-container">
+                <label for="{{ form.resume_name.id_for_label }}">{{ form.resume_name.label }}</label>
+                {{ form.resume_name }}
+                {% if form.resume_name.help_text %}
+                <small class="form-text text-muted">{{ form.resume_name.help_text }}</small>
+                {% endif %}
+                <div class="error-message" id="resume-name-error"></div>
+            </div>
+
+            <div class="field-container">
+                <label for="{{ form.resume_file.id_for_label }}">{{ form.resume_file.label }}</label>
+                
+                <div class="upload-area resume-upload-area" id="uploadArea">
+                    <label for="{{ form.resume_file.id_for_label }}" class="upload-label-full-area">
+                        <div style="display: none;">
+                            {{ form.resume_file }}
+                        </div>
+                        <div class="upload-content-placeholder" id="uploadPrompt">
+                            <i class="fas fa-file-upload"></i>
+                            <h4>Browse file or drop here</h4>
+                            <p class="upload-hint">PDF, DOC, or DOCX only. Max file size 5 MB.</p>
+                        </div>
+                        <div class="file-attached-display" id="filePreview" style="display: none;">
+                            <span class="file-name" id="fileName"></span>
+                            <button type="button" class="remove-file-btn" id="removeFileBtn" onclick="event.stopPropagation(); removeFile();"><i class="fas fa-times"></i></button>
+                        </div>
+                    </label>
+                </div>
+                
+                {% if form.resume_file.help_text %}
+                <small class="form-text text-muted">{{ form.resume_file.help_text }}</small>
+                {% endif %}
+                <div class="error-message" id="resume-file-error"></div>
+            </div>
+
+            <div class="checkbox-field">
+                {{ form.set_as_default }}
+                <label for="{{ form.set_as_default.id_for_label }}">
+                    {{ form.set_as_default.label }}
+                </label>
+            </div>
+            {% if form.set_as_default.help_text %}
+            <small class="form-text text-muted" style="display: block; margin-top: -10px; margin-left: 28px;">{{ form.set_as_default.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-navigation-row centered-nav">
+            <a href="{% url 'applicant_profile:applicant_profile_setup_step3' %}" class="btn btn-secondary">Previous</a>
+            {% if has_resume %}
+            <a href="{% url 'applicant_profile:applicant_profile_setup_complete' %}" class="btn btn-outline-secondary">Skip</a>
+            {% endif %}
+            <button type="submit" class="cta-btn save-next-btn">Upload & Complete &rarr;</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile_setup/applicant_profile_create.js' %}"></script>
+{% endblock %}

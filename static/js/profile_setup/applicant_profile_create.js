@@ -105,4 +105,161 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+
+    // Step 4: Resume Upload Functionality
+    const resumeForm = document.getElementById('resumeUploadForm');
+    if (resumeForm) {
+        const resumeFileInput = resumeForm.querySelector('input[type="file"]');
+        const resumeUploadArea = document.getElementById('uploadArea');
+        const resumeUploadPrompt = document.getElementById('uploadPrompt');
+        const resumeFilePreview = document.getElementById('filePreview');
+        const resumeFileName = document.getElementById('fileName');
+        const resumeNameInput = resumeForm.querySelector('input[name="resume_name"]');
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Validate file
+        function validateResumeFile(file) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedExtensions = ['pdf', 'doc', 'docx'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (file.size > maxSize) {
+                return `File size (${formatFileSize(file.size)}) exceeds the 5MB limit.`;
+            }
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                return `File type ".${fileExtension}" is not allowed. Please upload PDF, DOC, or DOCX files only.`;
+            }
+
+            return null;
+        }
+
+        // Show error
+        function showResumeError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.add('active');
+            }
+        }
+
+        // Clear errors
+        function clearResumeErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('active');
+            });
+        }
+
+        // Display file
+        function displayResumeFile(file) {
+            const error = validateResumeFile(file);
+            if (error) {
+                showResumeError('resume-file-error', error);
+                resumeFileInput.value = '';
+                return;
+            }
+
+            clearResumeErrors();
+            resumeFileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+            resumeUploadArea.classList.add('file-attached');
+            resumeUploadPrompt.style.display = 'none';
+            resumeFilePreview.style.display = 'flex';
+        }
+
+        // Remove file
+        window.removeFile = function() {
+            resumeFileInput.value = '';
+            resumeUploadArea.classList.remove('file-attached');
+            resumeUploadPrompt.style.display = 'block';
+            resumeFilePreview.style.display = 'none';
+            clearResumeErrors();
+        };
+
+        // File input change
+        if (resumeFileInput) {
+            resumeFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    displayResumeFile(file);
+                } else {
+                    window.removeFile();
+                }
+            });
+        }
+
+        // Drag and drop
+        if (resumeUploadArea) {
+            resumeUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('drag-over');
+            });
+
+            resumeUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('drag-over');
+            });
+
+            resumeUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('drag-over');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    resumeFileInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    resumeFileInput.dispatchEvent(event);
+                }
+            });
+        }
+
+        // Form validation
+        resumeForm.addEventListener('submit', function(e) {
+            clearResumeErrors();
+            let hasErrors = false;
+
+            // Validate resume name
+            if (!resumeNameInput || !resumeNameInput.value.trim()) {
+                showResumeError('resume-name-error', 'Please enter a resume name.');
+                if (resumeNameInput) resumeNameInput.focus();
+                hasErrors = true;
+                e.preventDefault();
+                return;
+            }
+
+            // Validate file
+            if (!resumeFileInput || !resumeFileInput.files || resumeFileInput.files.length === 0) {
+                showResumeError('resume-file-error', 'Please select a file to upload.');
+                hasErrors = true;
+                e.preventDefault();
+                return;
+            }
+
+            if (!hasErrors) {
+                const submitBtn = resumeForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                }
+            }
+        });
+
+        // Clear error on input
+        if (resumeNameInput) {
+            resumeNameInput.addEventListener('input', function() {
+                clearResumeErrors();
+            });
+        }
+    }
 });
