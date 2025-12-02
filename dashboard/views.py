@@ -903,7 +903,7 @@ class PublicEmployerProfileView(TemplateView):
     No login required - accessible to anyone.
     Shows only active jobs and hides sensitive statistics.
     """
-    template_name = 'dashboard/employer/employer_profile.html'
+    template_name = 'dashboard/applicant/applicant_employer_profile.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

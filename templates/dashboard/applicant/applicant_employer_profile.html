@@ -1,0 +1,270 @@
+{% extends "dashboard/applicant/applicant_dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/employer/employer_profile.css' %}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="employer-profile-container">
+    <!-- Back Button -->
+    {% if not is_owner %}
+    <div class="back-button-container">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Job
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Banner Section with Company Logo -->
+    <div class="profile-banner-section">
+        <div class="banner-image-wrapper">
+            {% if profile and profile.company_banner_image %}
+                <img src="{{ profile.company_banner_image.url }}" alt="Company Banner" class="banner-image">
+            {% else %}
+                <div class="banner-placeholder"></div>
+            {% endif %}
+        </div>
+
+        <div class="company-header-info">
+            <div class="company-logo-container">
+                {% if profile and profile.company_profile_image %}
+                    <img src="{{ profile.company_profile_image.url }}" alt="{{ profile.company_name }}" class="company-logo-img">
+                {% else %}
+                    <div class="company-logo-placeholder">
+                        <i class="fas fa-building"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="company-title-section">
+                <h1 class="company-name">{{ profile.company_name|default:"Company Name" }}</h1>
+                <p class="company-industry">{{ profile.get_industry_type_display|default:"Information Technology (IT)" }}</p>
+            </div>
+
+            {% if is_owner %}
+                <a href="{% url 'dashboard:employer_settings' %}" class="edit-btn btn btn-primary">Edit Profile</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="profile-content-wrapper">
+        <!-- LEFT COLUMN -->
+        <div class="profile-main-column">
+
+            <!-- About Us -->
+            <section class="profile-card">
+                <h2 class="section-title">About Us</h2>
+                <div class="section-content">
+                    {% if profile and profile.about_us %}
+                        {{ profile.about_us|linebreaks }}
+                    {% else %}
+                        <p>Welcome to our company profile. We are dedicated to providing excellent services and creating meaningful opportunities for talented professionals.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Company Vision -->
+            <section class="profile-card">
+                <h2 class="section-title">Company Vision</h2>
+                <div class="section-content">
+                    {% if profile and profile.company_vision %}
+                        {{ profile.company_vision|linebreaks }}
+                    {% else %}
+                        <p>Our vision is to be a leader in our industry, fostering innovation and creating value for our clients and employees.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Recent Jobs -->
+            {% if recent_jobs %}
+            <section class="profile-card">
+                <h2 class="section-title">Recent Job Posts</h2>
+                <div class="job-posts-list">
+                    {% for job in recent_jobs %}
+                    <a href="{% url 'jobs:job_detail' job.id %}?from=myjobs" class="job-post-card">
+                        <div class="job-card-icon">
+                            {% if profile and profile.company_profile_image %}
+                                <img src="{{ profile.company_profile_image.url }}" alt="{{ profile.company_name }}">
+                            {% else %}
+                                <i class="fas fa-briefcase"></i>
+                            {% endif %}
+                        </div>
+                        <div class="job-card-content">
+                            <h3 class="job-card-title">{{ job.title }}</h3>
+                            <div class="job-card-meta">
+                                <span><i class="fas fa-briefcase"></i> {{ job.job_type.name|default:"Full Time" }}</span>
+                                <span><i class="fas fa-dollar-sign"></i>
+                                    {% if job.min_salary and job.max_salary %}
+                                        ${{ job.min_salary|floatformat:0 }}-${{ job.max_salary|floatformat:0 }}
+                                    {% else %}
+                                        Negotiable
+                                    {% endif %}
+                                </span>
+                                <span><i class="fas fa-users"></i> {{ job.applications_count|default:0 }} Applications</span>
+                            </div>
+                        </div>
+                        <span class="job-status-badge {% if job.status == 'active' %}active{% else %}inactive{% endif %}">
+                            {{ job.status|title }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="profile-sidebar-column">
+
+            <!-- Company Stats -->
+            <div class="stats-card">
+
+                {% if profile.year_established %}
+                <div class="stat-item">
+                    <div class="stat-icon founded"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="stat-details">
+                        <p class="stat-label">FOUNDED IN</p>
+                        <p class="stat-value">{{ profile.year_established|date:"d F, Y" }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.organization_type %}
+                <div class="stat-item">
+                    <div class="stat-icon org-type"><i class="fas fa-building"></i></div>
+                    <div class="stat-details">
+                        <p class="stat-label">ORGANIZATION TYPE</p>
+                        <p class="stat-value">{{ profile.get_organization_type_display }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.team_size %}
+                <div class="stat-item">
+                    <div class="stat-icon team-size"><i class="fas fa-users"></i></div>
+                    <div class="stat-details">
+                        <p class="stat-label">TEAM SIZE</p>
+                        <p class="stat-value">{{ profile.get_team_size_display }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.industry_type %}
+                <div class="stat-item">
+                    <div class="stat-icon industry"><i class="fas fa-industry"></i></div>
+                    <div class="stat-details">
+                        <p class="stat-label">INDUSTRY TYPES</p>
+                        <p class="stat-value">{{ profile.get_industry_type_display }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contact Information -->
+            <div class="contact-info-card">
+                <h3 class="contact-title">Contact Information</h3>
+
+                {% if profile.company_website %}
+                <div class="contact-item">
+                    <div class="contact-icon website"><i class="fas fa-globe"></i></div>
+                    <div class="contact-details">
+                        <p class="contact-label">WEBSITE</p>
+                        <a href="{{ profile.company_website }}" target="_blank" class="contact-value-link">
+                            {{ profile.company_website }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.contact_phone_number %}
+                <div class="contact-item">
+                    <div class="contact-icon phone"><i class="fas fa-phone"></i></div>
+                    <div class="contact-details">
+                        <p class="contact-label">PHONE</p>
+                        <p class="contact-value">{{ profile.contact_phone_number }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.contact_email %}
+                <div class="contact-item">
+                    <div class="contact-icon email"><i class="fas fa-envelope"></i></div>
+                    <div class="contact-details">
+                        <p class="contact-label">EMAIL ADDRESS</p>
+                        <p class="contact-value">{{ profile.contact_email }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# LOCATION: nested if checks to be safe for template parsing #}
+                {% if profile %}
+                    {% if profile.company_location_street or profile.company_location_city or profile.company_location_country %}
+                    <div class="contact-item">
+                        <div class="contact-icon location" aria-hidden="true">
+                            <!-- Inline SVG pin (reliable across environments) -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+                                <path d="M12 2C8.686 2 6 4.686 6 8c0 4.667 6 12 6 12s6-7.333 6-12c0-3.314-2.686-6-6-6z" />
+                                <circle cx="12" cy="8" r="2.2" />
+                            </svg>
+                        </div>
+                        <div class="contact-details">
+                            <p class="contact-label">LOCATION</p>
+                            <p class="contact-value">
+                                {% if profile.company_location_street %}
+                                    {{ profile.company_location_street }}
+                                {% endif %}
+                                {% if profile.company_location_city %}
+                                    {% if profile.company_location_street %}, {% endif %}
+                                    {{ profile.company_location_city }}
+                                {% endif %}
+                                {% if profile.company_location_country %}
+                                    {% if profile.company_location_street or profile.company_location_city %}, {% endif %}
+                                    {{ profile.company_location_country }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Social Media -->
+                <div class="social-media-section">
+                    <p class="social-title">Follow us on:</p>
+                    <div class="social-links-row">
+                        {% if social_links %}
+                            {% for link in social_links %}
+                                <a href="{{ link.url }}" target="_blank" class="social-icon-link {{ link.platform }}">
+                                    {% if link.platform == 'facebook' %}
+                                        <i class="fab fa-facebook-f"></i>
+                                    {% elif link.platform == 'twitter' %}
+                                        <i class="fab fa-twitter"></i>
+                                    {% elif link.platform == 'linkedin' %}
+                                        <i class="fab fa-linkedin-in"></i>
+                                    {% elif link.platform == 'instagram' %}
+                                        <i class="fab fa-instagram"></i>
+                                    {% elif link.platform == 'youtube' %}
+                                        <i class="fab fa-youtube"></i>
+                                    {% else %}
+                                        <i class="fas fa-link"></i>
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <a href="#" class="social-icon-link facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-icon-link twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-icon-link instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-icon-link youtube"><i class="fab fa-youtube"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/dashboard/employer/employer_profile.js' %}"></script>
+{% endblock %}
