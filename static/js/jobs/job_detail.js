@@ -89,6 +89,10 @@
         const closeEls = applyModal ? qsa('[data-close]', applyModal) : [];
         const applyForm = applyModal ? qs('#applyForm', applyModal) : null;
         const submitBtn = applyModal ? qs('#submitApplyBtn', applyModal) : null;
+        const resumeSelect = applyModal ? qs('#resumeSelect', applyModal) : null;
+        const coverLetter = applyModal ? qs('#coverLetter', applyModal) : null;
+        const charCount = applyModal ? qs('#charCount', applyModal) : null;
+        const resumeError = applyModal ? qs('#resumeError', applyModal) : null;
 
         function openApplyModal(jobId) {
             if (!applyModal) return;
@@ -96,6 +100,15 @@
             applyModal.setAttribute('aria-hidden', 'false');
             if (applyForm) applyForm.dataset.jobId = jobId || '';
             document.body.style.overflow = 'hidden';
+            
+            // Clear previous errors
+            if (resumeError) {
+                resumeError.textContent = '';
+                resumeError.classList.remove('active');
+            }
+            
+            // Reset form validation states
+            if (resumeSelect) resumeSelect.style.borderColor = '';
         }
 
         function closeApplyModal() {
@@ -123,12 +136,58 @@
             overlay.addEventListener('click', closeApplyModal);
         }
 
-        if (applyForm) {
-            applyForm.addEventListener('submit', function() {
-                if (submitBtn) {
-                    setButtonLoading(submitBtn, true, 'Apply for Job');
+        // Character counter for cover letter
+        if (coverLetter && charCount) {
+            coverLetter.addEventListener('input', function() {
+                const count = coverLetter.value.length;
+                charCount.textContent = count;
+                
+                // Change color when approaching limit
+                if (count > 4500) {
+                    charCount.style.color = '#dc3545';
+                } else if (count > 4000) {
+                    charCount.style.color = '#f59e0b';
+                } else {
+                    charCount.style.color = '#6b7280';
                 }
             });
+        }
+
+        // Form validation and submission
+        if (applyForm) {
+            applyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate resume selection
+                if (resumeSelect && !resumeSelect.value) {
+                    if (resumeError) {
+                        resumeError.textContent = 'Please select a resume to submit with your application.';
+                        resumeError.classList.add('active');
+                    }
+                    resumeSelect.style.borderColor = '#dc3545';
+                    resumeSelect.focus();
+                    return;
+                }
+                
+                // Show loading state
+                if (submitBtn) {
+                    setButtonLoading(submitBtn, true, 'Submit Application');
+                }
+                
+                // Submit the form
+                applyForm.submit();
+            });
+            
+            // Clear error when resume is selected
+            if (resumeSelect) {
+                resumeSelect.addEventListener('change', function() {
+                    if (resumeError) {
+                        resumeError.textContent = '';
+                        resumeError.classList.remove('active');
+                    }
+                    resumeSelect.style.borderColor = '';
+                });
+            }
         }
 
         // Action menu (employers)
