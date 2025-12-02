@@ -1792,8 +1792,8 @@ class EmployerJobListView(EmployerRequiredMixin, ListView):
 
 class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
     """
-    Advanced job search view for applicants.
-    Supports filtering by keyword, location, salary, job type, experience level, and category.
+    Search jobs for applicants with filters using Django form validation.
+    Matches the logic of the original applicant_search_jobs function-based view.
     """
     model = Job
     template_name = 'dashboard/applicant/applicant_search_jobs.html'
@@ -1801,95 +1801,155 @@ class ApplicantJobSearchView(ApplicantRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Job.objects.filter(status='active').order_by('-posted_at')
+        from jobs.models import JobCategory, EducationLevel, ExperienceLevel, JobLevel
+        from dashboard.forms import JobSearchForm
+        from django.db.models import Q, Count
         
-        # Search keyword
-        keyword = self.request.GET.get('keyword', '').strip()
-        if keyword:
-            queryset = queryset.filter(
-                Q(title__icontains=keyword) |
-                Q(description__icontains=keyword) |
-                Q(requirements__icontains=keyword)
-            )
+        # Get filter options from lookup tables (only active items)
+        all_categories = JobCategory.objects.filter(is_active=True)
+        all_educations = EducationLevel.objects.filter(is_active=True)
+        all_experiences = ExperienceLevel.objects.filter(is_active=True)
+        all_job_levels = JobLevel.objects.filter(is_active=True)
         
-        # Location filter
-        location = self.request.GET.get('location', '').strip()
-        if location:
-            queryset = queryset.filter(location__icontains=location)
+        # Prepare choices for form fields
+        category_choices = [('', 'Category')] + [(str(c.id), c.name) for c in all_categories]
+        education_choices = [('', 'Education')] + [(str(e.id), e.name) for e in all_educations]
+        experience_choices = [('', 'Experience')] + [(str(e.id), e.name) for e in all_experiences]
+        job_level_choices = [('', 'Level')] + [(str(j.id), j.name) for j in all_job_levels]
         
-        # Salary range filter
-        min_salary = self.request.GET.get('min_salary', '').strip()
-        max_salary = self.request.GET.get('max_salary', '').strip()
-        if min_salary:
-            try:
-                queryset = queryset.filter(salary_min__gte=int(min_salary))
-            except ValueError:
-                pass
-        if max_salary:
-            try:
-                queryset = queryset.filter(salary_max__lte=int(max_salary))
-            except ValueError:
-                pass
+        # Initialize form with GET data and dynamic choices
+        self.form = JobSearchForm(
+            self.request.GET or None,
+            category_choices=category_choices,
+            education_choices=education_choices,
+            experience_choices=experience_choices,
+            job_level_choices=job_level_choices
+        )
         
-        # Job type filter
-        job_type = self.request.GET.get('job_type', '').strip()
-        if job_type:
-            queryset = queryset.filter(job_type=job_type)
+        # Start with active jobs only with optimized queries
+        jobs = Job.objects.filter(status='active').select_related(
+            'employer',
+            'category',
+            'job_type',
+            'education',
+            'experience',
+            'job_level',
+            'salary_type'
+        ).annotate(applications_count=Count('applications'))
         
-        # Experience level filter
-        experience_level = self.request.GET.get('experience_level', '').strip()
-        if experience_level:
-            queryset = queryset.filter(experience_level=experience_level)
+        # Apply filters only if form is valid
+        if self.form.is_valid():
+            cleaned_data = self.form.cleaned_data
+            
+            # Keyword search
+            query = cleaned_data.get('query')
+            if query:
+                # Search title, description, company name, and tags field
+                jobs = jobs.filter(
+                    Q(title__icontains=query) |
+                    Q(description__icontains=query) |
+                    Q(company_name__icontains=query) |
+                    Q(tags__icontains=query)
+                ).distinct()
+            
+            # Category filter (single-select)
+            category_val = cleaned_data.get('category')
+            if category_val:
+                jobs = jobs.filter(category_id=category_val)
+            
+            # Education filter (single-select)
+            education_val = cleaned_data.get('education')
+            if education_val:
+                jobs = jobs.filter(education_id=education_val)
+            
+            # Experience filter (single-select)
+            experience_val = cleaned_data.get('experience')
+            if experience_val:
+                jobs = jobs.filter(experience_id=experience_val)
+            
+            # Job level filter (single-select)
+            job_level_val = cleaned_data.get('job_level')
+            if job_level_val:
+                jobs = jobs.filter(job_level_id=job_level_val)
+            
+            # Salary filter
+            salary_min = cleaned_data.get('salary_min')
+            if salary_min:
+                jobs = jobs.filter(min_salary__gte=salary_min)
+            
+            salary_max = cleaned_data.get('salary_max')
+            if salary_max:
+                jobs = jobs.filter(max_salary__lte=salary_max)
         
-        # Category filter
-        category = self.request.GET.get('category', '').strip()
-        if category:
-            queryset = queryset.filter(category=category)
-        
-        return queryset
+        # Order by most recent
+        return jobs.order_by('-posted_at')
 
     def get_context_data(self, **kwargs):
+        from jobs.models import JobCategory, EducationLevel, ExperienceLevel, JobLevel, FavoriteJob
+        
         context = super().get_context_data(**kwargs)
         
-        # Pass filter values back to template
-        context['keyword'] = self.request.GET.get('keyword', '')
-        context['location'] = self.request.GET.get('location', '')
-        context['min_salary'] = self.request.GET.get('min_salary', '')
-        context['max_salary'] = self.request.GET.get('max_salary', '')
-        context['job_type'] = self.request.GET.get('job_type', '')
-        context['experience_level'] = self.request.GET.get('experience_level', '')
-        context['category'] = self.request.GET.get('category', '')
+        # Add the form to context
+        context['form'] = self.form
         
-        # Job type choices for filter dropdown
-        context['job_types'] = Job.JOB_TYPE_CHOICES
-        context['experience_levels'] = Job.EXPERIENCE_LEVEL_CHOICES
-        context['categories'] = Job.CATEGORY_CHOICES
+        # Get filter options from lookup tables (only active items)
+        context['categories'] = JobCategory.objects.filter(is_active=True)
+        context['educations'] = EducationLevel.objects.filter(is_active=True)
+        context['experiences'] = ExperienceLevel.objects.filter(is_active=True)
+        context['job_levels'] = JobLevel.objects.filter(is_active=True)
         
-        # Count results
-        context['total_results'] = self.get_queryset().count()
+        # Get favorited job IDs for the current applicant
+        context['favorited_job_ids'] = list(
+            FavoriteJob.objects.filter(applicant=self.request.user).values_list('job_id', flat=True)
+        )
         
         return context
 
 
 class ApplicantFavoriteJobsView(ApplicantRequiredMixin, ListView):
     """
-    Displays jobs favorited by the current applicant.
+    Show favorite jobs for the current applicant.
+    Template expects 'favorites' to be a page of FavoriteJob objects so it can use
+    favorite.job inside each loop. Matches the original applicant_favorite_jobs function-based view.
     """
-    model = Job
+    model = None  # We'll set the queryset directly
     template_name = 'dashboard/applicant/applicant_favorite_jobs.html'
-    context_object_name = 'jobs'
+    context_object_name = 'favorites'
     paginate_by = 10
 
     def get_queryset(self):
         from jobs.models import FavoriteJob
-        favorite_job_ids = FavoriteJob.objects.filter(
-            user=self.request.user
-        ).values_list('job_id', flat=True)
-        return Job.objects.filter(id__in=favorite_job_ids).order_by('-posted_at')
+        
+        # Query: applicant's favorites, with related Job data for efficiency
+        favorites_qs = FavoriteJob.objects.filter(
+            applicant=self.request.user
+        ).select_related(
+            'job',
+            'job__employer',
+            'job__category',
+            'job__job_type',
+            'job__education',
+            'job__experience',
+            'job__job_level'
+        ).order_by('-created_at')
+        
+        return favorites_qs
 
     def get_context_data(self, **kwargs):
+        from jobs.models import FavoriteJob
+        
         context = super().get_context_data(**kwargs)
-        context['total_favorites'] = self.get_queryset().count()
+        
+        # Single count to avoid repeated DB hits in template
+        favorites_qs = self.get_queryset()
+        context['favorite_count'] = favorites_qs.count()
+        
+        # Job ID lists (keeps compatibility with existing templates/JS)
+        context['favorited_job_ids'] = list(favorites_qs.values_list('job_id', flat=True))
+        context['favorited_job_ids_page'] = list(
+            context['page_obj'].object_list.values_list('job_id', flat=True)
+        )
+        
         return context
 
 
