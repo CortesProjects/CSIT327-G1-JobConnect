@@ -32,7 +32,11 @@ def job_search(request):
 
     sort = request.GET.get("sort", "recent")
 
-    # Start with all jobs with optimized queries
+    # Start with active jobs only (exclude expired/closed)
+    from django.utils import timezone
+    today = timezone.localdate()
+
+    # Start with active jobs with optimized queries
     jobs = Job.objects.select_related(
         'employer',
         'category',
@@ -41,7 +45,10 @@ def job_search(request):
         'experience',
         'job_level',
         'salary_type'
-    ).all()
+    ).filter(
+        status='active',
+        expiration_date__gte=today,
+    )
 
     # 🔍 Keyword search
     if query:
