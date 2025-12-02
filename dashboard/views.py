@@ -807,6 +807,64 @@ def employer_candidate_detail(request, application_id):
     return render(request, 'dashboard/employer/employer_candidate_detail.html', context)
 
 
+class EmployerCandidateDetailView(EmployerRequiredMixin, TemplateView):
+    """
+    Display detailed information about a candidate/applicant for a specific job application.
+    Employer must own the job to view candidate details.
+    """
+    template_name = 'dashboard/employer/employer_candidate_detail.html'
+    
+    def get_application(self):
+        """Get the application, ensuring employer owns the job"""
+        from jobs.models import JobApplication
+        from django.core.exceptions import PermissionDenied
+        
+        application_id = self.kwargs.get('application_id')
+        application = get_object_or_404(
+            JobApplication.objects.select_related(
+                'applicant',
+                'applicant__applicant_profile_rel',
+                'job'
+            ),
+            id=application_id
+        )
+        
+        # Verify the employer owns the job this application is for
+        if application.job.employer_id != self.request.user.id:
+            raise PermissionDenied("You do not have permission to view this candidate.")
+        
+        return application
+    
+    def get_context_data(self, **kwargs):
+        from dashboard.models import SavedCandidate
+        
+        context = super().get_context_data(**kwargs)
+        application = self.get_application()
+        
+        # Get applicant profile
+        profile = application.applicant.applicant_profile_rel
+        
+        # Get social links
+        social_links = application.applicant.social_links.all()
+        
+        # Check if candidate is saved
+        is_saved = SavedCandidate.objects.filter(
+            employer=self.request.user,
+            application=application
+        ).exists()
+        
+        context.update({
+            'application': application,
+            'applicant': application.applicant,
+            'profile': profile,
+            'social_links': social_links,
+            'job': application.job,
+            'is_saved': is_saved,
+        })
+        
+        return context
+
+
 @login_required
 def hire_candidate(request, application_id):
     """Hire a candidate - creates/moves to Hired stage and updates application status."""
