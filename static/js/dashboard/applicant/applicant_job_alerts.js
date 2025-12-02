@@ -15,8 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeAlertsBtn = document.getElementById('closeAlertsBtn');
     const alertsConfigSection = document.getElementById('alertsConfigSection');
     
+    // Delete modal elements
+    const deleteModal = document.getElementById('deleteAlertModal');
+    const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+    const deleteModalCancelBtn = document.getElementById('deleteModalCancelBtn');
+    const deleteModalConfirmBtn = document.getElementById('deleteModalConfirmBtn');
+    const deleteAlertNameEl = document.getElementById('deleteAlertName');
+    
     let currentAlertId = null;
     let isEditMode = false;
+    let alertToDelete = null;
 
     // Show/hide alerts configuration section
     if (manageAlertsBtn) {
@@ -89,6 +97,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Delete alert buttons
+    document.querySelectorAll('.alert-action-btn.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const alertId = this.getAttribute('data-alert-id');
+            const alertName = this.getAttribute('data-alert-name');
+            openDeleteModal(alertId, alertName);
+        });
+    });
+
     // Close modal
     if (modalCloseBtn) {
         modalCloseBtn.addEventListener('click', closeModal);
@@ -104,6 +122,27 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
     });
+
+    // Delete modal event listeners
+    if (deleteModalCloseBtn) {
+        deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    if (deleteModalCancelBtn) {
+        deleteModalCancelBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    if (deleteModalConfirmBtn) {
+        deleteModalConfirmBtn.addEventListener('click', confirmDeleteAlert);
+    }
+
+    if (deleteModal) {
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+    }
 
     // Handle form submission
     if (alertForm) {
@@ -406,6 +445,81 @@ document.addEventListener('DOMContentLoaded', function() {
                 toast.remove();
             }, 300);
         }, 3000);
+    }
+
+    /**
+     * Open delete confirmation modal
+     */
+    function openDeleteModal(alertId, alertName) {
+        alertToDelete = alertId;
+        if (deleteAlertNameEl) {
+            deleteAlertNameEl.textContent = alertName;
+        }
+        if (deleteModal) {
+            deleteModal.classList.add('show');
+        }
+    }
+
+    /**
+     * Close delete confirmation modal
+     */
+    function closeDeleteModal() {
+        if (deleteModal) {
+            deleteModal.classList.remove('show');
+        }
+        alertToDelete = null;
+    }
+
+    /**
+     * Confirm and execute alert deletion
+     */
+    function confirmDeleteAlert() {
+        if (!alertToDelete) return;
+
+        const btnText = deleteModalConfirmBtn.querySelector('.btn-text');
+        const btnSpinner = deleteModalConfirmBtn.querySelector('.btn-spinner');
+        
+        // Show loading state
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'inline-block';
+        deleteModalConfirmBtn.disabled = true;
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const deleteUrl = `/dashboard/applicant/job-alerts/${alertToDelete}/delete/`;
+
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `csrfmiddlewaretoken=${csrfToken}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeDeleteModal();
+                showSuccessToast(data.message || 'Job alert deleted successfully!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            } else {
+                showError(data.error || 'Failed to delete alert.');
+                // Reset button state
+                btnText.style.display = 'inline';
+                btnSpinner.style.display = 'none';
+                deleteModalConfirmBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('An error occurred while deleting the alert.');
+            // Reset button state
+            btnText.style.display = 'inline';
+            btnSpinner.style.display = 'none';
+            deleteModalConfirmBtn.disabled = false;
+        });
     }
 
     // Add CSS animations

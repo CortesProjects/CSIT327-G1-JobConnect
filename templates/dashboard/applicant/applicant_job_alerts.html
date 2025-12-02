@@ -82,12 +82,9 @@
                 <button class="alert-action-btn edit-btn" data-alert-id="{{ alert.id }}" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <form method="post" action="{% url 'dashboard:delete_job_alert' alert.id %}" class="delete-alert-form d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="alert-action-btn delete-btn" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </form>
+                <button class="alert-action-btn delete-btn" data-alert-id="{{ alert.id }}" data-alert-name="{{ alert.alert_name }}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
         {% endfor %}
@@ -249,6 +246,35 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Delete Alert Confirmation Modal -->
+<div class="alert-modal" id="deleteAlertModal">
+    <div class="alert-modal-content delete-modal-content">
+        <div class="alert-modal-header delete-modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Delete Job Alert</h3>
+            <button class="modal-close-btn" id="deleteModalCloseBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="alert-modal-body">
+            <p class="delete-warning-text">
+                Are you sure you want to delete the alert "<strong id="deleteAlertName"></strong>"?
+            </p>
+            <p class="delete-info-text">
+                <i class="fas fa-info-circle"></i> This action cannot be undone. You will stop receiving notifications for this alert.
+            </p>
+        </div>
+        <div class="alert-modal-footer">
+            <button type="button" class="btn btn-secondary" id="deleteModalCancelBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="deleteModalConfirmBtn">
+                <span class="btn-text">Delete Alert</span>
+                <span class="btn-spinner" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
+        </div>
     </div>
 </div>
 
