@@ -285,25 +285,53 @@
     <div class="apply-modal-panel" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle">
         <button class="apply-modal-close" data-close aria-label="Close">&times;</button>
         <div class="apply-modal-body">
-            <h3 id="applyModalTitle">Apply Job: {{ job.title }}</h3>
+            <div class="apply-modal-header">
+                <h3 id="applyModalTitle">Apply for Position</h3>
+                <p class="apply-modal-subtitle">{{ job.title }} at {{ job.company_name }}</p>
+            </div>
             <form id="applyForm" class="apply-form" method="post" action="{% url 'jobs:apply_job' job.id %}">
                 {% csrf_token %}
-                <label class="field-label">Choose Resume</label>
-                <select id="resumeSelect" name="resume_id" class="field-select">
-                    <option value="">Select...</option>
-                    {% if resumes %}
-                        {% for r in resumes %}
-                            <option value="{{ r.id }}">{{ r.name }}</option>
-                        {% endfor %}
-                    {% endif %}
-                </select>
+                
+                <div class="form-field">
+                    <label class="field-label" for="resumeSelect">
+                        Choose Resume <span class="required">*</span>
+                    </label>
+                    <select id="resumeSelect" name="resume_id" class="field-select" required>
+                        <option value="">-- Select a resume --</option>
+                        {% if resumes %}
+                            {% for r in resumes %}
+                                <option value="{{ r.id }}" {% if r.is_default %}selected{% endif %}>
+                                    {{ r.name }}{% if r.is_default %} (Default){% endif %}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No resumes available - Please upload one in settings</option>
+                        {% endif %}
+                    </select>
+                    <div class="field-error" id="resumeError"></div>
+                </div>
 
-                <label class="field-label">Cover Letter</label>
-                <textarea id="coverLetter" name="cover_letter" class="field-textarea" placeholder="Write down your biography here. Let the employers know who you are..."></textarea>
+                <div class="form-field">
+                    <label class="field-label" for="coverLetter">
+                        Cover Letter <span class="optional">(Optional)</span>
+                    </label>
+                    <textarea 
+                        id="coverLetter" 
+                        name="cover_letter" 
+                        class="field-textarea" 
+                        placeholder="Tell the employer why you're the perfect fit for this role. Highlight your relevant skills, experience, and enthusiasm for the position..."
+                        maxlength="5000"
+                    ></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 5000 characters
+                    </div>
+                </div>
 
                 <div class="apply-modal-actions">
                     <button type="button" class="btn btn-cancel" data-close>Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="submitApplyBtn">Apply Now <i class="fas fa-arrow-right"></i></button>
+                    <button type="submit" class="btn btn-primary" id="submitApplyBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Application
+                    </button>
                 </div>
             </form>
         </div>
