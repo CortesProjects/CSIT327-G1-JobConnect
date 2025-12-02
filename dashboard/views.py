@@ -309,6 +309,97 @@ def edit_job_alert(request, alert_id):
     return render(request, 'dashboard/applicant/create_job_alert.html', context)
 
 
+class EditJobAlertView(ApplicantRequiredMixin, UpdateView):
+    """
+    Edit an existing job alert.
+    Supports both AJAX and regular form submissions.
+    GET with AJAX returns alert data as JSON for frontend to populate modal.
+    """
+    model = None  # Set dynamically
+    form_class = None  # Set dynamically
+    template_name = 'dashboard/applicant/create_job_alert.html'
+    pk_url_kwarg = 'alert_id'
+    success_url = None  # Set dynamically
+    
+    def get_model(self):
+        from jobs.models import JobAlert
+        return JobAlert
+    
+    def get_queryset(self):
+        """Ensure user can only edit their own alerts"""
+        from jobs.models import JobAlert
+        return JobAlert.objects.filter(user=self.request.user)
+    
+    def get_form_class(self):
+        from jobs.forms import JobAlertForm
+        return JobAlertForm
+    
+    def get_success_url(self):
+        return reverse('dashboard:applicant_job_alerts')
+    
+    def get(self, request, *args, **kwargs):
+        """Handle GET - for AJAX, return alert data as JSON"""
+        from django.http import JsonResponse
+        
+        self.object = self.get_object()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Return alert data as JSON for AJAX requests
+            return JsonResponse({
+                'success': True,
+                'alert': {
+                    'id': self.object.id,
+                    'alert_name': self.object.alert_name,
+                    'job_title': self.object.job_title,
+                    'location': self.object.location,
+                    'job_type': self.object.job_type.id if self.object.job_type else None,
+                    'job_category': self.object.job_category.id if self.object.job_category else None,
+                    'min_salary': str(self.object.min_salary) if self.object.min_salary else '',
+                    'max_salary': str(self.object.max_salary) if self.object.max_salary else '',
+                    'keywords': self.object.keywords,
+                    'is_active': self.object.is_active
+                }
+            })
+        
+        return super().get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_edit'] = True
+        context['alert'] = self.object
+        return context
+    
+    def form_valid(self, form):
+        from django.http import JsonResponse
+        
+        form.save()
+        
+        # Handle AJAX requests
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Job alert updated successfully!'
+            })
+        
+        # Handle regular form submission
+        messages.success(self.request, 'Job alert updated successfully!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        from django.http import JsonResponse
+        
+        # Handle AJAX requests
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
+        
+        # Handle regular form submission
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+
 @login_required
 def delete_job_alert(request, alert_id):
     """Delete a job alert."""
