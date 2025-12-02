@@ -22,6 +22,16 @@ class ApplicantSocialLinkForm(forms.ModelForm):
             'platform': 'Social Platform',
             'url': 'Profile URL',
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Friendly placeholder for platform select
+        try:
+            if self.fields.get('platform') and getattr(self.fields['platform'], 'choices', None):
+                choices = list(self.fields['platform'].choices)
+                if not choices or choices[0][0] != '':
+                    self.fields['platform'].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
     
     def clean_url(self):
         url = self.cleaned_data.get('url')
@@ -394,6 +404,18 @@ class EmployerFoundingInfoForm(forms.ModelForm):
         val = self.cleaned_data.get('company_location_country')
         return val.strip() if isinstance(val, str) else val
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure select placeholders are user-friendly
+        try:
+            for fname in ('organization_type', 'industry_type', 'team_size'):
+                if self.fields.get(fname) and getattr(self.fields[fname], 'choices', None):
+                    choices = list(self.fields[fname].choices)
+                    if not choices or choices[0][0] != '':
+                        self.fields[fname].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
+
 
 
 class EmployerContactInfoForm(forms.ModelForm):
@@ -555,10 +577,17 @@ class JobSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         
         # Set dynamic choices for select fields
-        self.fields['category'].choices = category_choices
-        self.fields['education'].choices = education_choices
-        self.fields['experience'].choices = experience_choices
-        self.fields['job_level'].choices = job_level_choices
+        # Ensure user-friendly empty placeholder is present
+        def _ensure_select(choices):
+            choices = list(choices or [])
+            if not choices or choices[0][0] != '':
+                return [('', 'Select')] + choices
+            return choices
+
+        self.fields['category'].choices = _ensure_select(category_choices)
+        self.fields['education'].choices = _ensure_select(education_choices)
+        self.fields['experience'].choices = _ensure_select(experience_choices)
+        self.fields['job_level'].choices = _ensure_select(job_level_choices)
     
     def clean_query(self):
         """Validate and sanitize search query"""

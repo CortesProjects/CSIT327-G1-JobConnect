@@ -129,6 +129,18 @@ class EmployerProfileFoundingInfoForm(forms.ModelForm):
             'organization_type', 'industry_type', 'team_size', 
             'year_established', 'company_website', 'company_vision'
         ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make select placeholders friendlier: show 'Select' instead of dashes
+        try:
+            for fname in ('organization_type', 'industry_type', 'team_size'):
+                if self.fields.get(fname) and getattr(self.fields[fname], 'choices', None):
+                    choices = list(self.fields[fname].choices)
+                    if not choices or choices[0][0] != '':
+                        self.fields[fname].choices = [('', 'Select')] + choices
+        except Exception:
+            # conservative: if something unexpected, leave choices unchanged
+            pass
     
     def clean_organization_type(self):
         org_type = self.cleaned_data.get('organization_type')

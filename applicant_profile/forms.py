@@ -57,6 +57,21 @@ class PersonalInfoForm(forms.ModelForm):
         self.fields['title'].required = False
         self.fields['experience'].required = True
         self.fields['education_level'].required = True
+        # Make the select placeholders friendlier: show 'Select' instead of dashes
+        try:
+            # Prepend an empty choice with label 'Select' for choice fields
+            if self.fields.get('experience') and self.fields['experience'].choices:
+                choices = list(self.fields['experience'].choices)
+                if not choices or choices[0][0] != '':
+                    self.fields['experience'].choices = [('', 'Select')] + choices
+
+            if self.fields.get('education_level') and self.fields['education_level'].choices:
+                choices = list(self.fields['education_level'].choices)
+                if not choices or choices[0][0] != '':
+                    self.fields['education_level'].choices = [('', 'Select')] + choices
+        except Exception:
+            # Be conservative: if choices manipulation fails, do nothing
+            pass
     
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name', '').strip()
@@ -138,6 +153,15 @@ class ProfileDetailsForm(forms.ModelForm):
         self.fields['gender'].required = False
         self.fields['marital_status'].required = False
         self.fields['biography'].required = False
+        # Ensure select placeholders are friendly
+        try:
+            for fname in ('gender', 'marital_status'):
+                if self.fields.get(fname) and getattr(self.fields[fname], 'choices', None):
+                    choices = list(self.fields[fname].choices)
+                    if not choices or choices[0][0] != '':
+                        self.fields[fname].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
     
     def clean_date_of_birth(self):
         from datetime import date
