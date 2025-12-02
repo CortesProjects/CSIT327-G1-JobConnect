@@ -94,17 +94,24 @@ class JobPostForm(forms.ModelForm):
         # If the model fields are present on the form, set their querysets
         if 'category' in self.fields:
             self.fields['category'].queryset = JobCategory.objects.filter(is_active=True)
+            # User-friendly empty label for selects
+            self.fields['category'].empty_label = 'Select'
         if 'job_type' in self.fields:
             # ModelChoiceField will be created for ForeignKey fields
             self.fields['job_type'].queryset = EmploymentType.objects.filter(is_active=True)
+            self.fields['job_type'].empty_label = 'Select'
         if 'education' in self.fields:
             self.fields['education'].queryset = EducationLevel.objects.filter(is_active=True)
+            self.fields['education'].empty_label = 'Select'
         if 'experience' in self.fields:
             self.fields['experience'].queryset = ExperienceLevel.objects.filter(is_active=True)
+            self.fields['experience'].empty_label = 'Select'
         if 'job_level' in self.fields:
             self.fields['job_level'].queryset = JobLevel.objects.filter(is_active=True)
+            self.fields['job_level'].empty_label = 'Select'
         if 'salary_type' in self.fields:
             self.fields['salary_type'].queryset = SalaryType.objects.filter(is_active=True)
+            self.fields['salary_type'].empty_label = 'Select'
 
         # Vacancies should be a numeric input rather than a select
         self.fields['vacancies'].widget = forms.NumberInput(attrs={
