@@ -1187,6 +1187,109 @@ def move_application_stage(request, application_id):
             return redirect(referer)
         return redirect('dashboard:dashboard')
 
+
+class MoveApplicationStageView(EmployerRequiredMixin, View):
+    """
+    Move an application to a different stage (for drag-and-drop persistence).
+    POST-only AJAX/form action that verifies employer owns the job.
+    Supports both AJAX and regular POST requests.
+    """
+    
+    def get_application(self):
+        """Get the application, ensuring employer owns the job"""
+        from jobs.models import JobApplication
+        from django.core.exceptions import PermissionDenied
+        
+        application_id = self.kwargs.get('application_id')
+        application = get_object_or_404(
+            JobApplication.objects.select_related('job'),
+            id=application_id
+        )
+        
+        # Verify employer owns this job
+        if application.job.employer_id != self.request.user.id:
+            raise PermissionDenied("You do not have permission to modify this application.")
+        
+        return application
+    
+    def post(self, request, *args, **kwargs):
+        from django.http import JsonResponse
+        from jobs.models import ApplicationStage
+        
+        try:
+            application = self.get_application()
+            
+            # Get target stage from POST data
+            stage_id = request.POST.get('stage_id')
+            
+            if stage_id == '' or stage_id == 'null' or stage_id is None:
+                # Move to "All Applications" (no stage)
+                application.stage = None
+                stage = None
+            else:
+                # Move to specific stage
+                stage = get_object_or_404(
+                    ApplicationStage,
+                    id=stage_id,
+                    job=application.job
+                )
+                application.stage = stage
+            
+            application.save()
+            
+            # Notify applicant about stage change if moved to a significant stage
+            if stage and stage.name.lower() in ['shortlisted', 'interview', 'offer']:
+                if stage.name.lower() == 'shortlisted':
+                    notify_application_shortlisted(application.applicant, application.job, application)
+                else:
+                    notify_application_status_change(application.applicant, application.job, stage.name.lower())
+            
+            response_data = {
+                'success': True,
+                'message': 'Application moved successfully',
+                'stage_name': application.stage.name if application.stage else 'All Applications'
+            }
+            
+            # Check if AJAX request
+            is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
+                     request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
+            
+            if is_xhr:
+                return JsonResponse(response_data)
+            
+            # Non-AJAX: set a success message and redirect
+            messages.success(request, response_data['message'])
+            return redirect(reverse('dashboard:employer_job_applications', args=[application.job.id]))
+            
+        except Exception as e:
+            # Check if AJAX request
+            is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
+                     request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
+            
+            if is_xhr:
+                return JsonResponse({'success': False, 'error': str(e)}, status=400)
+            
+            messages.error(request, f'Error moving application: {str(e)}')
+            referer = request.META.get('HTTP_REFERER')
+            if referer:
+                return redirect(referer)
+            return redirect('dashboard:dashboard')
+    
+    def get(self, request, *args, **kwargs):
+        """Reject GET requests"""
+        from django.http import JsonResponse
+        
+        # Check if AJAX request
+        is_xhr = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
+                 request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest')
+        
+        if is_xhr:
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        
+        messages.error(request, 'Invalid request method.')
+        return redirect('dashboard:dashboard')
+
+
 #------------------------------------------
 #              Admin Stuff
 #------------------------------------------
