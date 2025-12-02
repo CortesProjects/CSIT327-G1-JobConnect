@@ -30,3 +30,8 @@ urlpatterns = [
     path("jobs/", include(("jobs.urls", "jobs"), namespace="jobs")),
     path('notifications/', include('notifications.urls')),
 ]
+
+# Custom error handlers
+handler404 = 'JobConnect.views.custom_404'
+handler403 = 'JobConnect.views.custom_403'
+handler500 = 'JobConnect.views.custom_500'
