@@ -606,6 +606,26 @@ class JobSearchForm(forms.Form):
                     raise forms.ValidationError("Search query contains invalid characters.")
         return query
     
+    def clean_salary_min(self):
+        """Validate minimum salary is reasonable"""
+        salary_min = self.cleaned_data.get('salary_min')
+        if salary_min is not None:
+            if salary_min < 0:
+                raise forms.ValidationError('Minimum salary cannot be negative.')
+            if salary_min > 100000000:  # 100M limit
+                raise forms.ValidationError('Minimum salary value is unrealistic. Please enter a valid amount.')
+        return salary_min
+    
+    def clean_salary_max(self):
+        """Validate maximum salary is reasonable"""
+        salary_max = self.cleaned_data.get('salary_max')
+        if salary_max is not None:
+            if salary_max < 0:
+                raise forms.ValidationError('Maximum salary cannot be negative.')
+            if salary_max > 100000000:  # 100M limit
+                raise forms.ValidationError('Maximum salary value is unrealistic. Please enter a valid amount.')
+        return salary_max
+    
     def clean(self):
         """Cross-field validation"""
         cleaned_data = super().clean()
@@ -613,7 +633,7 @@ class JobSearchForm(forms.Form):
         salary_max = cleaned_data.get('salary_max')
         
         # Validate salary range
-        if salary_min and salary_max:
+        if salary_min is not None and salary_max is not None:
             if salary_min > salary_max:
                 raise forms.ValidationError({
                     'salary_max': 'Maximum salary must be greater than or equal to minimum salary.'
@@ -624,17 +644,6 @@ class JobSearchForm(forms.Form):
                 raise forms.ValidationError({
                     'salary_max': 'Salary range is too wide. Please enter a more specific range.'
                 })
-        
-        # Validate salary values are reasonable
-        if salary_min and salary_min > 100000000:  # 100M limit
-            raise forms.ValidationError({
-                'salary_min': 'Minimum salary value is unrealistic. Please enter a valid amount.'
-            })
-        
-        if salary_max and salary_max > 100000000:  # 100M limit
-            raise forms.ValidationError({
-                'salary_max': 'Maximum salary value is unrealistic. Please enter a valid amount.'
-            })
         
         return cleaned_data
 
