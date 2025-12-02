@@ -35,19 +35,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hide job list when managing alerts
             const jobListEl = document.querySelector('.job-alerts-list');
             if (jobListEl) {
-                jobListEl.style.display = 'none';
+                jobListEl.classList.add('hidden');
             }
             
             // Hide pagination when managing alerts
             const paginationEl = document.querySelector('.pagination-container');
             if (paginationEl) {
-                paginationEl.style.display = 'none';
+                paginationEl.classList.add('hidden');
             }
             
             // Hide empty state if present when opening alerts list
             const emptyStateEl = document.querySelector('.empty-state');
             if (emptyStateEl) {
-                emptyStateEl.style.display = 'none';
+                emptyStateEl.classList.add('hidden');
             }
         });
     }
@@ -70,13 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Restore job list visibility
             const jobListEl = document.querySelector('.job-alerts-list');
             if (jobListEl) {
-                jobListEl.style.display = 'block';
+                jobListEl.classList.remove('hidden');
             }
             
             // Restore pagination visibility
             const paginationEl = document.querySelector('.pagination-container');
             if (paginationEl) {
-                paginationEl.style.display = 'flex';
+                paginationEl.classList.remove('hidden');
             }
             
             // If there are no matching jobs shown, restore the empty state
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show empty state when there are no job results (even if alerts exist)
                 if (!hasJobResults) {
-                    emptyStateEl.style.display = 'block';
+                    emptyStateEl.classList.remove('hidden');
                 }
             }
         });
