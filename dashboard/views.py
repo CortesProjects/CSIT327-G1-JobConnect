@@ -2127,6 +2127,153 @@ class EmployerEditJobView(EmployerRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
+class EmployerSettingsView(EmployerRequiredMixin, TemplateView):
+    """
+    Employer settings page handling multiple forms:
+    - Company info, founding info, contact info, business permit
+    - Password change, social links management
+    Matches the logic of the original employer_settings function-based view.
+    """
+    template_name = 'dashboard/employer/employer_settings.html'
+    
+    def get_context_data(self, **kwargs):
+        from employer_profile.models import EmployerProfile
+        
+        context = super().get_context_data(**kwargs)
+        profile = get_object_or_404(EmployerProfile, user=self.request.user)
+        
+        # Initialize all forms with current data
+        context['profile'] = profile
+        context['company_info_form'] = EmployerCompanyInfoForm(instance=profile)
+        context['founding_info_form'] = EmployerFoundingInfoForm(instance=profile)
+        context['contact_info_form'] = EmployerContactInfoForm(instance=profile, user=self.request.user)
+        context['business_permit_form'] = EmployerBusinessPermitForm(instance=profile)
+        context['password_form'] = PasswordChangeForm(user=self.request.user)
+        context['social_link_form'] = ApplicantSocialLinkForm()
+        context['social_links'] = self.request.user.social_links.all()
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        from employer_profile.models import EmployerProfile
+        
+        profile = get_object_or_404(EmployerProfile, user=request.user)
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'company_info':
+            form = EmployerCompanyInfoForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Company information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'founding_info':
+            form = EmployerFoundingInfoForm(request.POST, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Founding information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'contact_info':
+            form = EmployerContactInfoForm(request.POST, instance=profile, user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Contact information updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'business_permit':
+            form = EmployerBusinessPermitForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Business permit updated successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'social_links_bulk':
+            try:
+                platforms = request.POST.getlist('platform[]')
+                urls = request.POST.getlist('url[]')
+                link_ids = request.POST.getlist('link_id[]')
+                
+                existing_ids = set(request.user.social_links.values_list('id', flat=True))
+                submitted_ids = set()
+                
+                for i, (platform, url) in enumerate(zip(platforms, urls)):
+                    if not platform or not url:
+                        continue
+                    
+                    link_id = link_ids[i] if i < len(link_ids) and link_ids[i] else None
+                    
+                    if link_id:
+                        link_id = int(link_id)
+                        submitted_ids.add(link_id)
+                        social_link = UserSocialLink.objects.filter(id=link_id, user=request.user).first()
+                        if social_link:
+                            social_link.platform = platform
+                            social_link.url = url
+                            social_link.save()
+                    else:
+                        social_link = UserSocialLink.objects.create(
+                            user=request.user,
+                            platform=platform,
+                            url=url
+                        )
+                        submitted_ids.add(social_link.id)
+                
+                ids_to_delete = existing_ids - submitted_ids
+                if ids_to_delete:
+                    UserSocialLink.objects.filter(id__in=ids_to_delete, user=request.user).delete()
+                
+                messages.success(request, 'Social links updated successfully!')
+                return redirect('dashboard:employer_settings')
+            except Exception as e:
+                messages.error(request, f'Error updating social links: {str(e)}')
+        
+        elif form_type == 'social_link':
+            social_link_id = request.POST.get('social_link_id')
+            if social_link_id:
+                social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+                form = ApplicantSocialLinkForm(request.POST, instance=social_link)
+            else:
+                form = ApplicantSocialLinkForm(request.POST)
+            
+            if form.is_valid():
+                social_link = form.save(commit=False)
+                social_link.user = request.user
+                social_link.save()
+                messages.success(request, 'Social link saved successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        
+        elif form_type == 'delete_social_link':
+            social_link_id = request.POST.get('social_link_id')
+            social_link = get_object_or_404(UserSocialLink, id=social_link_id, user=request.user)
+            social_link.delete()
+            messages.success(request, 'Social link deleted successfully!')
+            return redirect('dashboard:employer_settings')
+        
+        elif form_type == 'change_password':
+            form = PasswordChangeForm(user=request.user, data=request.POST)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Password changed successfully!')
+                return redirect('dashboard:employer_settings')
+            else:
+                for error in form.errors.values():
+                    messages.error(request, error[0])
+        
+        return self.get(request, *args, **kwargs)
+
+
 class ApplicantSettingsView(ApplicantRequiredMixin, TemplateView):
     """
     Applicant settings page handling multiple forms:
