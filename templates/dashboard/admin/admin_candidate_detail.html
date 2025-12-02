@@ -223,15 +223,15 @@
             </div>
 
             <!-- Download Resume -->
-            {% if profile.resume %}
+            {% if application and application.resume %}
             <div class="download-section">
                 <h3 class="download-title">Download Resume</h3>
-                <a href="{{ profile.resume.url }}" target="_blank" class="btn-download-resume" style="text-decoration: none;">
+                <a href="{{ application.resume.file.url }}" target="_blank" class="btn-download-resume" style="text-decoration: none;">
                     <div class="resume-info">
-                        <i class="fas fa-file-{% if profile.resume.url|slice:'-4:' == '.pdf' %}pdf{% else %}alt{% endif %}"></i>
+                        <i class="fas fa-file-{% if application.resume.file.url|slice:'-4:' == '.pdf' %}pdf{% else %}alt{% endif %}"></i>
                         <div>
-                            <div class="resume-name">{{ profile.full_name|default:"Resume" }}</div>
-                            <div class="resume-format">{{ profile.resume.url|slice:"-3:"|upper }}</div>
+                            <div class="resume-name">{{ application.resume.name }}</div>
+                            <div class="resume-format">{{ application.resume.file.url|slice:"-3:"|upper }}</div>
                         </div>
                     </div>
                     <i class="fas fa-download"></i>
@@ -242,7 +242,7 @@
                 <h3 class="download-title">Download Resume</h3>
                 <div class="text-muted text-center py-3">
                     <i class="fas fa-file-slash"></i>
-                    <p>No resume uploaded</p>
+                    <p>No resume submitted with application</p>
                 </div>
             </div>
             {% endif %}
