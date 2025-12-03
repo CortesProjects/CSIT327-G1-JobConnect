@@ -39,12 +39,12 @@
                 <div class="field-container">
                     <label for="{{ form.nationality.id_for_label }}">{{ form.nationality.label }}</label>
                     {{ form.nationality }}
-                    <div id="nationality-error" class="error-text"></div>
+                    <div id="nationality-error" class="error-text">{{ form.nationality.errors }}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
                     {{ form.date_of_birth }}
-                    <div id="date-of-birth-error" class="error-text"></div>
+                    <div id="date-of-birth-error" class="error-text">{{ form.date_of_birth.errors }}</div>
                 </div>
             </div>
 
@@ -52,12 +52,12 @@
                 <div class="field-container">
                     <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
                     {{ form.gender }}
-                    <div id="gender-error" class="error-text"></div>
+                    <div id="gender-error" class="error-text">{{ form.gender.errors }}</div>
                 </div>
                 <div class="field-container">
                     <label for="{{ form.marital_status.id_for_label }}">{{ form.marital_status.label }}</label>
                     {{ form.marital_status }}
-                    <div id="marital-status-error" class="error-text"></div>
+                    <div id="marital-status-error" class="error-text">{{ form.marital_status.errors }}</div>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
                 <div class="field-container">
                     <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
                     {{ form.location }}
-                    <div id="location-error" class="error-text"></div>
+                    <div id="location-error" class="error-text">{{ form.location.errors }}</div>
                 </div>
                 <div class="field-container">&nbsp;</div>
             </div>
@@ -74,7 +74,7 @@
                 <label for="{{ form.biography.id_for_label }}">{{ form.biography.label }}</label>
                 {{ form.biography }}
                 <small class="form-text text-muted">Tell us about yourself and your career goals</small>
-                <div id="biography-error" class="error-text"></div>
+                <div id="biography-error" class="error-text">{{ form.biography.errors }}</div>
             </div>
         </div>
 

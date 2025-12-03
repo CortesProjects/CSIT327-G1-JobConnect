@@ -50,7 +50,7 @@
                 {% if form.resume_name.help_text %}
                 <small class="form-text text-muted">{{ form.resume_name.help_text }}</small>
                 {% endif %}
-                <div class="error-message" id="resume-name-error"></div>
+                <div class="error-message" id="resume-name-error">{{ form.resume_name.errors }}</div>
             </div>
 
             <div class="field-container">
@@ -76,7 +76,7 @@
                 {% if form.resume_file.help_text %}
                 <small class="form-text text-muted">{{ form.resume_file.help_text }}</small>
                 {% endif %}
-                <div class="error-message" id="resume-file-error"></div>
+                <div class="error-message" id="resume-file-error">{{ form.resume_file.errors }}</div>
             </div>
 
             <div class="checkbox-field">
