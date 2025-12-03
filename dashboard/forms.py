@@ -216,7 +216,12 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
 class ApplicantContactInfoForm(forms.ModelForm):
     """Form for Account Settings - Contact Info"""
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email address...',
+            'readonly': 'readonly',
+            'style': 'background-color: #f0f0f0; cursor: not-allowed;'
+        }),
         label='Email'
     )
     
@@ -400,7 +405,12 @@ class EmployerFoundingInfoForm(forms.ModelForm):
 class EmployerContactInfoForm(forms.ModelForm):
     """Form for Account Settings - Contact Info"""
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email address...',
+            'readonly': 'readonly',
+            'style': 'background-color: #f0f0f0; cursor: not-allowed;'
+        }),
         label='Contact Email'
     )
     
