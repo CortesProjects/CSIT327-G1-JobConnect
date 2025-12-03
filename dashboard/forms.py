@@ -86,7 +86,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
         self.fields['middle_name'].required = False
         self.fields['profile_image'].required = False
         self.fields['title'].required = False
-        self.fields['resume'].required = False
         self.fields['experience'].required = False
         self.fields['education_level'].required = False
         
@@ -141,26 +140,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             if hasattr(profile_image, 'content_type') and profile_image.content_type not in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']:
                 raise forms.ValidationError("Only JPG, PNG, and GIF images are allowed.")
         return profile_image
-    
-    def clean_resume(self):
-        resume = self.cleaned_data.get('resume')
-        # If resume is False, it means no new file was uploaded (unchanged)
-        if resume is False:
-            return resume
-        # If resume exists and is not False, validate it
-        if resume:
-            # Check file size (max 5MB)
-            if hasattr(resume, 'size') and resume.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Resume file size must be less than 5MB.")
-            # Check file type
-            allowed_types = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ]
-            if hasattr(resume, 'content_type') and resume.content_type not in allowed_types:
-                raise forms.ValidationError("Only PDF, DOC, and DOCX files are allowed.")
-        return resume
 
 
 class ApplicantProfileDetailsForm(forms.ModelForm):
