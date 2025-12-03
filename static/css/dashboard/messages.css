@@ -1,0 +1,15 @@
+.messages-page { padding: 24px; }
+.page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.conversation-items { list-style:none; padding:0; margin:0; }
+.conversation-row { border-radius:10px; background:#fff; margin-bottom:10px; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
+.conversation-row a { display:flex; justify-content:space-between; padding:16px; color:inherit; text-decoration:none; }
+.conv-title { font-weight:600; }
+.conv-snippet { color:#666; margin-top:6px; }
+.conv-unread { background:#ff5a5f; color:#fff; padding:3px 8px; border-radius:12px; font-size:12px; margin-left:8px; }
+.conversation-thread { max-height:60vh; overflow:auto; padding:12px; background:#fbfbfb; border-radius:8px; margin-bottom:12px; }
+.message { margin-bottom:12px; padding:12px; border-radius:10px; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.03); }
+.message.mine { background:#eaf5ff; align-self:flex-end; }
+.message .meta small { color:#999; margin-left:8px; }
+.reply-form textarea { width:100%; min-height:80px; margin-bottom:8px; }
+.empty-state { color:#777; padding:24px; text-align:center; }
+.badge { background:#efefef; border-radius:12px; padding:4px 8px; font-size:12px; color:#333; }

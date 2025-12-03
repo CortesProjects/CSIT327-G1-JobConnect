@@ -4,12 +4,47 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard/dashboard_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard/applicant/applicant_dashboard.css' %}">
+{# optional messages CSS, will gracefully load if file exists #}
+<link rel="stylesheet" href="{% static 'css/dashboard/messages.css' %}">
 {% endblock %}
 
 {% block extra_js %}
+{{ block.super }}
 <script src="{% static 'js/dashboard/dashboard.js' %}"></script>
-</body>
-</html>
+
+<script>
+/*
+  Fetch unread messages count and update the badge in the sidebar.
+  Uses the messages_unread_counts endpoint (dashboard:messages_unread_counts).
+*/
+async function fetchUnreadMessages() {
+  try {
+    const resp = await fetch("{% url 'dashboard:messages_unread_counts' %}");
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const badge = document.getElementById('inbox-unread-badge');
+    if (!badge) return;
+    const count = data.total_unread || 0;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.textContent = '';
+      badge.style.display = 'none';
+    }
+  } catch (err) {
+    // Fail silently (console for debugging)
+    console.error('Failed to fetch unread messages:', err);
+  }
+}
+
+// Refresh on page load
+document.addEventListener('DOMContentLoaded', function() {
+  fetchUnreadMessages();
+  // optional: refresh every 60 seconds
+  // setInterval(fetchUnreadMessages, 60000);
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -48,6 +83,16 @@
                         <span>Job Alert</span>
                     </a>
                 </li>
+
+                {# -- Messages nav item (added) -- #}
+                <li>
+                    <a href="{% url 'dashboard:inbox' %}" class="{% if request.resolver_match.url_name == 'inbox' or request.resolver_match.url_name == 'conversation' or request.resolver_match.url_name == 'compose' %}active{% endif %}">
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                        <span id="inbox-unread-badge" class="sidebar-badge" style="display:none; margin-left:8px;"></span>
+                    </a>
+                </li>
+
                 <li>
                     <a href="{% url 'dashboard:applicant_settings' %}" class="{% if request.resolver_match.url_name == 'applicant_settings' %}active{% endif %}">
                         <i class="fas fa-cog"></i>

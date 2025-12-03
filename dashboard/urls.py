@@ -7,6 +7,14 @@ app_name = 'dashboard'   # <-- important: enables {% url 'dashboard:...' %} in t
 urlpatterns = [
     path('', views.DashboardView.as_view(), name='dashboard'),
 
+    # Messaging URLs
+    path('messages/', views.InboxView.as_view(), name='inbox'),
+    path('messages/compose/', views.ComposeView.as_view(), name='compose'),
+    path('messages/compose/<int:recipient_id>/', views.ComposeView.as_view(), name='compose_to'),
+    path('messages/conversation/<int:convo_id>/', views.ConversationView.as_view(), name='conversation'),
+    path('messages/unread_counts/', views.messages_unread_counts, name='messages_unread_counts'),
+
+
     # Applicant URLs
     path('applicant/search-jobs/', views.ApplicantJobSearchView.as_view(), name='applicant_search_jobs'),
     path('applicant/applied-jobs/', views.ApplicantAppliedJobsListView.as_view(), name='applicant_applied_jobs'),
@@ -14,7 +22,7 @@ urlpatterns = [
     path('applicant/job-alerts/', views.ApplicantJobAlertsView.as_view(), name='applicant_job_alerts'),
     path('applicant/job-alerts/create/', views.CreateJobAlertView.as_view(), name='create_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/edit/', views.EditJobAlertView.as_view(), name='edit_job_alert'),
-   path('applicant/job-alerts/<int:alert_id>/delete/', views.DeleteJobAlertView.as_view(), name='delete_job_alert'),
+    path('applicant/job-alerts/<int:alert_id>/delete/', views.DeleteJobAlertView.as_view(), name='delete_job_alert'),
     path('applicant/job-alerts/<int:alert_id>/toggle/', views.ToggleJobAlertStatusView.as_view(), name='toggle_job_alert_status'),
 
     path('applicant/settings/', views.ApplicantSettingsView.as_view(), name='applicant_settings'),
