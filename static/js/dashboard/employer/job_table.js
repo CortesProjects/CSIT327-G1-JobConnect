@@ -149,8 +149,8 @@ class JobTableManager {
                 // Show loading state
                 this.setButtonLoading(confirmBtn, true, 'Mark as Expired');
                 
-                // Submit via AJAX so we can close the modal and update the UI without redirect
-                this.submitPost(`/jobs/${jobId}/mark-expired/`, jobId, modal, confirmBtn);
+                // Submit via AJAX
+                this.submitMarkExpired(`/jobs/${jobId}/mark-expired/`, jobId, modal, confirmBtn);
             };
             modal.style.display = 'flex';
         }
@@ -168,21 +168,13 @@ class JobTableManager {
                 // Show loading state
                 this.setButtonLoading(confirmBtn, true, 'Delete');
                 
-                // Submit a POST form so Django performs all validation and handling server-side
-                this.submitPost(`/jobs/${jobId}/delete/`, null, null, confirmBtn);
+                // Submit delete request
+                this.submitDelete(`/jobs/${jobId}/delete/`, jobId, modal, confirmBtn);
             };
             modal.style.display = 'flex';
         }
     }
 
-    /**
-     * Close modal
-     * @param {string} modalId - Modal ID
-     */
-    closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'none';
     /**
      * Set button loading state
      * @param {HTMLElement} button - Button element
@@ -201,36 +193,43 @@ class JobTableManager {
     }
 
     /**
-     * Mark job as expired via AJAX
+     * Submit mark as expired request
+     * @param {string} url - URL to submit to
      * @param {string} jobId - Job ID
+     * @param {HTMLElement} modal - Modal element
+     * @param {HTMLElement} button - Button element
      */
-    // Submit a POST form to the given URL so Django handles validation and response.
-    submitPost(url, jobId = null, modal = null, button = null) {
-     */
-    // Submit a POST form to the given URL so Django handles validation and response.
-    submitPost(url, jobId = null, modal = null) {
-        // Use fetch to POST so we can handle JSON responses and avoid full redirects.
+    submitMarkExpired(url, jobId, modal, button) {
         const csrfToken = this.getCsrfToken();
-            if (res.ok && data && data.success) {
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            credentials: 'same-origin'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
                 // Reset button state
-                if (button) this.setButtonLoading(button, false);
+                this.setButtonLoading(button, false);
                 
-                // Close modal if provided
-                if (modal) modal.style.display = 'none';
+                // Close modal
+                modal.style.display = 'none';
 
                 // Update UI: find the row and set status to expired
-                if (jobId) {
-                    const actionBtn = document.querySelector(`.action-mark-expired[data-job-id="${jobId}"]`);
-                    if (actionBtn) {
-                        const row = actionBtn.closest('.jt-row');
-                        if (row) {
-                            const statusCol = row.querySelector('.col-status');
-                            if (statusCol) {
-                                statusCol.innerHTML = '<span class="status expired">✕ Expired</span>';
-                            }
-                            // Remove mark-expired button
-                            actionBtn.remove();
+                const actionBtn = document.querySelector(`.action-mark-expired[data-job-id="${jobId}"]`);
+                if (actionBtn) {
+                    const row = actionBtn.closest('.jt-row');
+                    if (row) {
+                        const statusCol = row.querySelector('.col-status');
+                        if (statusCol) {
+                            statusCol.innerHTML = '<span class="status expired">✕ Expired</span>';
                         }
+                        // Remove mark-expired button from dropdown
+                        actionBtn.remove();
                     }
                 }
 
@@ -238,43 +237,80 @@ class JobTableManager {
                 this.showMessage(data.message || 'Job marked as expired.', 'success');
             } else {
                 // Reset button state on error
-                if (button) this.setButtonLoading(button, false);
+                this.setButtonLoading(button, false);
                 
                 const err = (data && data.error) ? data.error : 'Failed to mark job as expired.';
                 this.showMessage(err, 'error');
-                // keep modal open so user can retry or cancel
-            }           if (row) {
-                            const statusCol = row.querySelector('.col-status');
-                            if (statusCol) {
-                                statusCol.innerHTML = '<span class="status expired">✕ Expired</span>';
-                            }
-                            // Remove mark-expired button
-                            actionBtn.remove();
-                        }
-                    }
-                }
-
-                // Show message
-        }).catch((err) => {
-            // Reset button state on error
-            if (button) this.setButtonLoading(button, false);
-            
-            console.error('mark-expired error', err);
-            this.showMessage('Network error while marking job expired.', 'error');
-        });
-    }           // keep modal open so user can retry or cancel
             }
-        }).catch((err) => {
-            console.error('mark-expired error', err);
+        })
+        .catch((err) => {
+            // Reset button state on error
+            this.setButtonLoading(button, false);
+            
+            console.error('Mark expired error:', err);
             this.showMessage('Network error while marking job expired.', 'error');
         });
     }
 
     /**
-     * Delete job via AJAX
+     * Submit delete request
+     * @param {string} url - URL to submit to
      * @param {string} jobId - Job ID
+     * @param {HTMLElement} modal - Modal element
+     * @param {HTMLElement} button - Button element
      */
-    // deleteJob removed — use submitPost(url) instead to let Django validate and process the request.
+    submitDelete(url, jobId, modal, button) {
+        const csrfToken = this.getCsrfToken();
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            credentials: 'same-origin'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Reset button state
+                this.setButtonLoading(button, false);
+                
+                // Close modal
+                modal.style.display = 'none';
+
+                // Remove the row from UI
+                const actionBtn = document.querySelector(`.action-delete[data-job-id="${jobId}"]`);
+                if (actionBtn) {
+                    const row = actionBtn.closest('.jt-row');
+                    if (row) {
+                        row.style.transition = 'opacity 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                }
+
+                // Show message
+                this.showMessage(data.message || 'Job deleted successfully.', 'success');
+                
+                // Reload page after 1 second to refresh the list
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                // Reset button state on error
+                this.setButtonLoading(button, false);
+                
+                const err = (data && data.error) ? data.error : 'Failed to delete job.';
+                this.showMessage(err, 'error');
+            }
+        })
+        .catch((err) => {
+            // Reset button state on error
+            this.setButtonLoading(button, false);
+            
+            console.error('Delete error:', err);
+            this.showMessage('Network error while deleting job.', 'error');
+        });
+    }
 
     /**
      * Get CSRF token from cookie
