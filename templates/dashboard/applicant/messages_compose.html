@@ -1,0 +1,378 @@
+{% extends "dashboard/applicant/applicant_dashboard_base.html" %}
+{% load static %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/dashboard/messages.css' %}">
+  <style>
+    /* Scoped styling for compose page */
+    .compose-card {
+      max-width: 900px;
+      margin: 28px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(20,20,40,0.06);
+      padding: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .compose-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .compose-header h2 {
+      margin:0;
+      font-size: 1.6rem;
+      color: #222;
+    }
+
+    .compose-header .hint {
+      color: #666;
+      font-size: .95rem;
+    }
+
+    .compose-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 880px) {
+      .compose-grid { grid-template-columns: 1fr; }
+    }
+
+    .compose-form-row { margin-bottom: 14px; }
+    .compose-form-row label {
+      display:block;
+      font-weight:600;
+      margin-bottom:6px;
+      color:#333;
+      font-size:.95rem;
+    }
+
+    .compose-input,
+    .compose-textarea {
+      width:100%;
+      border-radius:8px;
+      padding:10px 12px;
+      border:1px solid #e6e6ef;
+      font-size: .98rem;
+      background: #fbfbff;
+      outline: none;
+      transition: box-shadow .12s, border-color .12s;
+    }
+
+    /* 🔴 Red focus border */
+    .compose-input:focus,
+    .compose-textarea:focus {
+      box-shadow: 0 6px 18px rgba(230,57,70,0.12);
+      border-color: #e63946;
+    }
+
+    .compose-textarea {
+      min-height: 220px;
+      resize: vertical;
+    }
+
+    /* File row styling */
+    .file-row { display:flex; gap:10px; align-items:center; }
+
+    /* 🔴 Red file button */
+    .file-choose {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#fff;
+      border:1px dashed #e63946;
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      color:#e63946;
+      font-weight:600;
+      font-size:.95rem;
+      transition: 120ms;
+    }
+
+    .file-choose:hover {
+      background: rgba(230,57,70,0.08);
+    }
+
+    .file-name {
+      color:#555;
+      font-size:.95rem;
+      max-width:200px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .compose-actions {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-end;
+      margin-top: 8px;
+    }
+
+    /* 🔴 Primary red send button */
+    .btn {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(230,57,70,0.18);
+      transition: 120ms;
+    }
+
+    .btn:hover {
+      background: #cc2f3b;
+      box-shadow: 0 6px 22px rgba(230,57,70,0.26);
+    }
+
+    /* 🔴 Secondary outline button */
+    .btn.secondary {
+      background: transparent;
+      color: #e63946;
+      border: 1px solid #e63946;
+      box-shadow: none;
+      font-weight:600;
+      padding: 9px 14px;
+    }
+
+    .btn.secondary:hover {
+      background: rgba(230,57,70,0.08);
+    }
+
+    /* Red-accent info box */
+    .sidebar-note {
+      font-size: .95rem;
+      color: #444;
+      background: #fff5f5;
+      border:1px solid rgba(230,57,70,0.15);
+      padding: 12px;
+      border-radius:8px;
+    }
+
+    .errors {
+      color: #c30010;
+      font-size: .9rem;
+      margin-bottom:8px;
+    }
+
+    /* don't override other fields unexpectedly */
+    #id_recipient_id,
+    #id_recipient_email,
+    #id_subject,
+    #id_body {
+      font-family: inherit;
+    }
+  </style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="compose-card">
+  <div class="compose-header">
+    <div>
+      <h2>Compose Message</h2>
+      <div class="hint">Send a direct message to another user.</div>
+    </div>
+    <div>
+      <a class="btn secondary" href="{% url 'dashboard:inbox' %}">← Back to Inbox</a>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="compose-form" id="composeForm" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="compose-grid">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="compose-form-row">
+          <label for="id_recipient_email">Recipient email</label>
+
+          {% if form.recipient_email %}
+            {{ form.recipient_email }}
+          {% else %}
+            <input
+              type="email"
+              id="id_recipient_email"
+              name="recipient_email"
+              class="compose-input"
+              placeholder="recipient@example.com"
+              value="{{ form.initial.recipient_email|default_if_none:'' }}"
+              autocomplete="email"
+              required
+            >
+          {% endif %}
+
+          {# keep old hidden id (if your form still provides it) so existing backend code that expects recipient_id won't break #}
+          {% if form.recipient_id %}
+            {{ form.recipient_id }}
+          {% endif %}
+
+          {% if form.recipient_email and form.recipient_email.errors %}
+            <div class="errors">{{ form.recipient_email.errors }}</div>
+          {% elif form.recipient_id and form.recipient_id.errors %}
+            <div class="errors">{{ form.recipient_id.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="compose-form-row">
+          <label for="id_subject">Subject</label>
+          {% if form.subject %}
+            {{ form.subject }}
+          {% else %}
+            <input type="text" id="id_subject" name="subject" class="compose-input" placeholder="Subject (optional)">
+          {% endif %}
+          {% if form.subject and form.subject.errors %}
+            <div class="errors">{{ form.subject.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="compose-form-row">
+          <label for="id_body">Message</label>
+          {% if form.body %}
+            {{ form.body }}
+          {% else %}
+            <textarea id="id_body" name="body" class="compose-textarea" rows="6" placeholder="Write your message..."></textarea>
+          {% endif %}
+          {% if form.body and form.body.errors %}
+            <div class="errors">{{ form.body.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="compose-actions">
+          <button type="submit" class="btn" id="sendBtn">Send</button>
+          <a class="btn secondary" href="{% url 'dashboard:inbox' %}">Cancel</a>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <aside>
+        <div style="margin-bottom:12px;">
+          <label style="font-weight:600;display:block;margin-bottom:6px;">Attachment</label>
+
+          <div class="file-row">
+            <label class="file-choose" for="id_attachment" id="fileChooseBtn">📎 Attach file</label>
+            <div class="file-name" id="fileName">No file chosen</div>
+          </div>
+
+          {# Render file input if form provides it; otherwise add a compatible file input #}
+          {% if form.attachment %}
+            {{ form.attachment }}
+          {% else %}
+            <input type="file" id="id_attachment" name="attachment" style="display:none;">
+          {% endif %}
+
+          {% if form.attachment and form.attachment.errors %}
+            <div class="errors">{{ form.attachment.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="sidebar-note">
+          <strong>Tips</strong>
+          <ul style="margin:8px 0 0 16px; padding:0;">
+            <li>Use a clear subject to help recipients prioritize.</li>
+            <li>Attach PDFs or images only (max 10MB).</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function(){
+    // Add class names to subject/body for consistent styling (works whether fields were rendered by form or by our plain inputs)
+    function safeAddClass(id, cls){
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (!el.classList.contains(cls)) el.classList.add(cls);
+      if (el.tagName && el.tagName.toLowerCase() === 'textarea') el.style.resize = 'vertical';
+    }
+    safeAddClass('id_subject','compose-input');
+    safeAddClass('id_body','compose-textarea');
+    safeAddClass('id_recipient_email','compose-input');
+
+    // Custom file upload UI
+    var fileInput = document.getElementById('id_attachment');
+    if (fileInput) {
+      // hide if not already hidden by the form widget
+      fileInput.style.display = 'none';
+      var choose = document.getElementById('fileChooseBtn');
+      var fileName = document.getElementById('fileName');
+
+      choose.addEventListener('click', function(e){
+        e.preventDefault();
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function(){
+        if (fileInput.files && fileInput.files.length > 0) {
+          fileName.textContent = fileInput.files[0].name;
+        } else {
+          fileName.textContent = 'No file chosen';
+        }
+      });
+    }
+
+    // Basic client-side validation
+    var form = document.getElementById('composeForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e){
+      var sendBtn = document.getElementById('sendBtn');
+
+      // Grab email input (either from form field or raw input)
+      var recipientEl = document.getElementById('id_recipient_email') || document.getElementById('id_recipient_id');
+      var bodyEl = document.getElementById('id_body');
+
+      // simple inline error handling
+      var errors = [];
+
+      // validate recipient email if present
+      if (recipientEl) {
+        var val = recipientEl.value ? recipientEl.value.trim() : '';
+        if (!val) {
+          errors.push('Recipient email is required.');
+        } else {
+          // If it's an email input we can do a simple regex check
+          if (recipientEl.type === 'email') {
+            var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(val)) {
+              errors.push('Please enter a valid email address.');
+            }
+          }
+        }
+      }
+
+      if (!bodyEl || (bodyEl && !bodyEl.value.trim())) {
+        errors.push('Message body cannot be empty.');
+      }
+
+      if (errors.length) {
+        e.preventDefault();
+        alert(errors.join('\\n'));
+        return false;
+      }
+
+      // disable send button to prevent double-post
+      if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.7';
+      }
+    }, false);
+  })();
+</script>
+{% endblock %}

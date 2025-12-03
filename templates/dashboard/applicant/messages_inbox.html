@@ -1,0 +1,117 @@
+{% extends "dashboard/applicant/applicant_dashboard_base.html" %}
+{% load static %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard/messages.css' %}">
+
+<style>
+  /* 🔴 Red Compose button */
+  .page-header .btn {
+    background: #e63946;
+    color: #fff !important;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(230,57,70,0.18);
+    text-decoration: none;
+    border: none;
+    transition: 150ms ease;
+  }
+  .page-header .btn:hover {
+    background: #cc2f3b;
+    box-shadow: 0 4px 16px rgba(230,57,70,0.28);
+  }
+
+  /* ✨ Hover effects for conversation rows */
+  .conversation-row a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: 180ms ease;
+  }
+
+  .conversation-row a:hover {
+    background: #fff5f5; /* light red tint */
+    border-color: rgba(230,57,70,0.25);
+    box-shadow: 0 4px 14px rgba(230,57,70,0.12);
+    transform: translateY(-3px);
+    cursor: pointer;
+  }
+
+  /* Prevent text highlight jitter */
+  .conversation-row a * {
+    pointer-events: none;
+  }
+
+  /* 🔥 Highlight unread conversation row */
+  .conversation-row.unread a {
+    background: #fff6f7;
+    border-left: 4px solid #e63946;
+    border-color: rgba(230,57,70,0.35);
+  }
+
+  .conversation-row.unread .conv-title {
+    color: #d12f3d;
+    font-weight: 700;
+  }
+
+  /* Unread badge */
+  .conv-unread {
+    background: #e63946;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="messages-page container">
+  <div class="page-header">
+    <h2>Inbox</h2>
+    <a class="btn" href="{% url 'dashboard:compose' %}">Compose</a>
+  </div>
+
+  <div class="messages-list">
+    {% if conversations %}
+      <ul class="conversation-items">
+        {% for item in conversations %}
+          <!-- Add unread class when user has unread messages -->
+          <li class="conversation-row {% if item.unread_count %}unread{% endif %}">
+            <a href="{% url 'dashboard:conversation' item.conversation.id %}">
+              <div class="conv-left">
+                <div class="conv-title">
+                  {{ item.other_display|default:item.other.email }}
+
+                  {% if item.unread_count %}
+                    <span class="conv-unread">{{ item.unread_count }}</span>
+                  {% endif %}
+                </div>
+
+                <div class="conv-snippet">
+                  {{ item.last_message.body|default:"(no messages yet)"|truncatechars:80 }}
+                </div>
+              </div>
+
+              <div class="conv-meta">
+                {% if item.last_message %}
+                  <small>{{ item.last_message.created_at }}</small>
+                {% endif %}
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state">No conversations yet. Start a conversation by clicking Compose.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

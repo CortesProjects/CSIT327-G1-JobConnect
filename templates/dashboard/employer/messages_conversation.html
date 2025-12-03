@@ -1,0 +1,363 @@
+{% extends "dashboard/employer/employer_dashboard_base.html" %}
+{% load static %}
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/dashboard/messages.css' %}">
+  <style>
+    /* ----------------------------
+       Polished unified conversation
+       ---------------------------- */
+    .conversation-wrapper {
+      max-width: 980px;
+      margin: 20px auto;
+      padding: 0 12px;
+    }
+
+    .conv-top {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 18px;
+    }
+
+    .back-btn {
+      background:#fff;
+      color:#e63946;
+      border:1px solid rgba(230,57,70,0.12);
+      padding:9px 12px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:700;
+      box-shadow: inset 0 -1px rgba(0,0,0,0.02);
+    }
+    .back-btn:hover { background: rgba(230,57,70,0.04); transform:translateY(-1px); }
+
+    .conv-title {
+      flex:1;
+      text-align:center;
+      font-size:1.55rem;
+      font-weight:700;
+      color:#1f1f1f;
+      letter-spacing: -0.2px;
+    }
+
+    /* card that contains both thread + composer */
+    .conversation-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fffefe 100%);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 14px 40px rgba(20,20,40,0.06);
+      border:1px solid rgba(0,0,0,0.03);
+      overflow: hidden;
+    }
+
+    /* Thread area */
+    .thread {
+      max-height: 460px;
+      overflow:auto;
+      padding: 8px;
+      margin-bottom: 14px;
+      scroll-behavior: smooth;
+    }
+
+    /* Message bubbles */
+    .message-row { display:flex; margin:12px 0; align-items:flex-start; gap:10px; }
+    .avatar {
+      width:44px; height:44px; border-radius:50%;
+      display:inline-block; flex:0 0 44px; background:#efefef; overflow:hidden;
+      align-self:flex-start;
+      box-shadow: 0 3px 10px rgba(16,16,30,0.04);
+    }
+    .bubble {
+      max-width:78%;
+      padding:12px 14px;
+      border-radius:12px;
+      line-height:1.45;
+      word-wrap:break-word;
+      box-shadow: 0 6px 18px rgba(18,18,40,0.03);
+      border:1px solid rgba(0,0,0,0.03);
+    }
+
+    /* other people's bubbles (left) */
+    .message-row.theirs { justify-content:flex-start; }
+    .message-row.theirs .bubble {
+      background: #ffffff;
+      color:#222;
+      border-radius:12px 12px 12px 6px;
+    }
+
+    /* mine (right) */
+    .message-row.mine { justify-content:flex-end; }
+    .message-row.mine .bubble {
+      background: linear-gradient(180deg, #f3f6ff 0%, #eef3ff 100%);
+      border:1px solid rgba(43,43,122,0.06);
+      color:#1a1a2e;
+      border-radius:12px 12px 6px 12px;
+    }
+
+    .meta-row { display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+    .sender { font-weight:700; font-size:.98rem; color:#111; }
+    .time { font-size:.82rem; color:#7b7b90; }
+
+    /* Composer area integrated visually into the card */
+    .composer {
+      display:flex;
+      gap:18px;
+      align-items:flex-start;
+    }
+    @media (max-width:880px) { .composer { flex-direction:column; } }
+
+    .composer-left { flex:1; }
+    .composer-right { width:260px; flex:0 0 260px; }
+
+    .composer-textarea {
+      width:100%;
+      min-height:120px;
+      border-radius:12px;
+      padding:12px 14px;
+      border:1px solid #e7e7f0;
+      font-size:1rem;
+      background:#fff;
+      outline:none;
+      transition:box-shadow .12s, border-color .12s;
+      resize:vertical;
+    }
+    .composer-textarea:focus { border-color:#e63946; box-shadow:0 10px 30px rgba(230,57,70,0.06); }
+
+    .composer-actions {
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .file-choose {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:8px;
+      border:1px dashed rgba(230,57,70,0.22);
+      color:#e63946;
+      background:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .file-name { color:#666; font-size:.95rem; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* primary button (red) */
+    .btn-send {
+      background:#e63946;
+      color:#fff;
+      border:none;
+      padding:10px 18px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow: 0 10px 30px rgba(230,57,70,0.14);
+      transition: transform .08s ease, box-shadow .08s;
+    }
+    .btn-send:hover { transform:translateY(-2px); box-shadow:0 14px 36px rgba(230,57,70,0.18); }
+    .btn-send:disabled { opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    /* small nice divider rather than notes box */
+    .right-panel {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .info-card {
+      background: linear-gradient(180deg, #fff 0%, #fff 100%);
+      border-radius:10px;
+      padding:10px;
+      border:1px solid rgba(0,0,0,0.03);
+      color:#444;
+      font-size:.95rem;
+    }
+
+    /* Scrollbar styling (subtle) */
+    .thread::-webkit-scrollbar { width:10px; }
+    .thread::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.06); border-radius:8px; }
+    .thread::-webkit-scrollbar-track { background: transparent; }
+  </style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="conversation-wrapper">
+  <div class="conv-top">
+    <a class="back-btn" href="{% url 'dashboard:inbox' %}">← Back to Inbox</a>
+    <div class="conv-title">Conversation with {{ other_display|default:other.email }}</div>
+    <div style="width:48px;"></div>
+  </div>
+
+  <div class="conversation-card" role="region" aria-label="Conversation">
+    <div id="thread" class="thread" aria-live="polite">
+      {% if messages %}
+        {% for m in messages %}
+          <div class="message-row {% if m.sender == user %}mine{% else %}theirs{% endif %}" data-message-id="{{ m.id }}">
+            {% if m.sender != user %}
+              <div class="avatar" title="{{ m.sender.full_name|default:m.sender.email }}">
+                {# optional: show initials if no avatar image available #}
+                {% if m.sender.profile_image %}
+                  <img src="{{ m.sender.profile_image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#bdbdbd;">
+                    {{ m.sender.full_name|default:m.sender.email|slice:":1"|upper }}
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div style="width:44px;"></div>
+            {% endif %}
+
+            <div class="bubble">
+              <div class="meta-row">
+                <div class="sender">{{ m.sender.full_name|default:m.sender.email }}</div>
+                <div class="time">{{ m.created_at }}</div>
+              </div>
+
+              <div class="message-body">{{ m.body|linebreaksbr }}</div>
+
+              {% if m.attachment %}
+                <div style="margin-top:10px;">
+                  <a href="{{ m.attachment.url }}" target="_blank" style="font-weight:700;color:#e63946;text-decoration:none;">📎 Download attachment</a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="padding:28px;text-align:center;color:#6b6b80;">No messages yet. Start the conversation below.</div>
+      {% endif %}
+    </div>
+
+    <div class="composer" style="margin-top:10px;">
+      <div class="composer-left">
+        <form id="reply-form" method="post" enctype="multipart/form-data" class="reply-form" autocomplete="off">
+          {% csrf_token %}
+          <label for="id_body" style="display:block;font-weight:700;margin-bottom:8px;color:#333;">Message</label>
+
+          {% if reply_form.body %}
+            {{ reply_form.body }}
+          {% else %}
+            <textarea id="id_body" name="body" class="composer-textarea" placeholder="Write your message..."></textarea>
+          {% endif %}
+          {% if reply_form.body.errors %}
+            <div style="color:#c30010;margin-top:6px;">{{ reply_form.body.errors }}</div>
+          {% endif %}
+
+          <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+            <label class="file-choose" for="id_attachment" id="fileChooseBtn">📎 Attach</label>
+            <div class="file-name" id="fileName">No file chosen</div>
+          </div>
+
+          {% if reply_form.attachment %}
+            {{ reply_form.attachment }}
+          {% else %}
+            <input type="file" id="id_attachment" name="attachment" style="display:none;">
+          {% endif %}
+          {% if reply_form.attachment.errors %}
+            <div style="color:#c30010;margin-top:6px;">{{ reply_form.attachment.errors }}</div>
+          {% endif %}
+
+          <div class="composer-actions">
+            <button type="submit" class="btn-send" id="sendBtn">Send</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="composer-right">
+        <div class="info-card" style="text-align:center;">
+          <strong style="display:block;margin-bottom:6px;color:#222;">Pro tip</strong>
+          <div style="color:#666; font-size:.95rem; line-height:1.4;">
+            Keep messages concise. Attach resume or portfolio only when necessary.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Ensure textarea & widgets have our classes (in case Django rendered widgets differently)
+  var ta = document.getElementById('id_body');
+  if (ta) ta.classList.add('composer-textarea');
+
+  // Wire custom file chooser
+  var fileInput = document.getElementById('id_attachment');
+  var choose = document.getElementById('fileChooseBtn');
+  var fileName = document.getElementById('fileName');
+  if (choose && fileInput) {
+    fileInput.style.display = 'none';
+    choose.addEventListener('click', function(e){
+      e.preventDefault();
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', function(){
+      if (fileInput.files && fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+      } else {
+        fileName.textContent = 'No file chosen';
+      }
+    });
+  }
+
+  // Auto-scroll to bottom of thread
+  function scrollBottom(){
+    var thread = document.getElementById('thread');
+    if (!thread) return;
+    thread.scrollTop = thread.scrollHeight;
+  }
+  scrollBottom();
+
+  // AJAX submit for replies
+  var form = document.getElementById('reply-form');
+  if (!form) return;
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    var data = new FormData(form);
+    try {
+      const res = await fetch("", {
+        method: "POST",
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        body: data
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        // optimistic append
+        var thread = document.getElementById('thread');
+        var wrapper = document.createElement('div');
+        wrapper.className = 'message-row mine';
+        wrapper.innerHTML = [
+          '<div style="width:44px;"></div>',
+          '<div class="bubble"><div class="meta-row"><div class="sender">{{ request.user.full_name|default:request.user.email }}</div>',
+          '<div class="time">' + (new Date(json.created_at)).toLocaleString() + '</div></div>',
+          '<div class="message-body"></div></div>'
+        ].join('');
+        wrapper.querySelector('.message-body').textContent = json.body || (document.getElementById('id_body') ? document.getElementById('id_body').value : '');
+        thread.appendChild(wrapper);
+        scrollBottom();
+        form.reset();
+        if (fileName) fileName.textContent = 'No file chosen';
+      } else {
+        alert('Send failed: ' + (json.error || 'unknown error'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while sending message.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    }
+  });
+})();
+</script>
+{% endblock %}
