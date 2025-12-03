@@ -88,8 +88,18 @@ class JobTableManager {
             return;
         }
         
-        // Navigate to job detail page
-        window.location.href = `/jobs/${jobId}/`;
+        // Determine the source page for breadcrumb
+        const currentPath = window.location.pathname;
+        let fromParam = 'myjobs'; // default for employer
+        
+        if (currentPath.includes('/overview') || currentPath.includes('/dashboard/employer/')) {
+            fromParam = 'overview';
+        } else if (currentPath.includes('/my-jobs')) {
+            fromParam = 'myjobs';
+        }
+        
+        // Navigate to job detail page with source parameter
+        window.location.href = `/jobs/${jobId}/?from=${fromParam}`;
     }
 
     /**
