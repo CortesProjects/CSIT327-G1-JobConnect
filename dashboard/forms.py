@@ -24,6 +24,17 @@ class ApplicantSocialLinkForm(forms.ModelForm):
             'url': 'Profile URL',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Friendly placeholder for platform select
+        try:
+            if self.fields.get('platform') and getattr(self.fields['platform'], 'choices', None):
+                choices = list(self.fields['platform'].choices)
+                if not choices or choices[0][0] != '':
+                    self.fields['platform'].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
+    
     def clean_url(self):
         url = self.cleaned_data.get('url')
         if url and not url.startswith(('http://', 'https://')):
@@ -78,9 +89,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
         self.fields['middle_name'].required = False
         self.fields['profile_image'].required = False
         self.fields['title'].required = False
-        # resume may not be in this model but keep safe guard in case
-        if 'resume' in self.fields:
-            self.fields['resume'].required = False
         self.fields['experience'].required = False
         self.fields['education_level'].required = False
 
@@ -137,26 +145,6 @@ class ApplicantPersonalInfoForm(forms.ModelForm):
             if hasattr(profile_image, 'content_type') and profile_image.content_type not in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']:
                 raise forms.ValidationError("Only JPG, PNG, and GIF images are allowed.")
         return profile_image
-
-    def clean_resume(self):
-        resume = self.cleaned_data.get('resume')
-        # If resume is False, it means no new file was uploaded (unchanged)
-        if resume is False:
-            return resume
-        # If resume exists and is not False, validate it
-        if resume:
-            # Check file size (max 5MB)
-            if hasattr(resume, 'size') and resume.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Resume file size must be less than 5MB.")
-            # Check file type
-            allowed_types = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ]
-            if hasattr(resume, 'content_type') and resume.content_type not in allowed_types:
-                raise forms.ValidationError("Only PDF, DOC, and DOCX files are allowed.")
-        return resume
 
 
 class ApplicantProfileDetailsForm(forms.ModelForm):
@@ -233,7 +221,12 @@ class ApplicantProfileDetailsForm(forms.ModelForm):
 class ApplicantContactInfoForm(forms.ModelForm):
     """Form for Account Settings - Contact Info"""
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email address...',
+            'readonly': 'readonly',
+            'style': 'background-color: #f0f0f0; cursor: not-allowed;'
+        }),
         label='Email'
     )
 
@@ -400,11 +393,28 @@ class EmployerFoundingInfoForm(forms.ModelForm):
         val = self.cleaned_data.get('company_location_country')
         return val.strip() if isinstance(val, str) else val
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure select placeholders are user-friendly
+        try:
+            for fname in ('organization_type', 'industry_type', 'team_size'):
+                if self.fields.get(fname) and getattr(self.fields[fname], 'choices', None):
+                    choices = list(self.fields[fname].choices)
+                    if not choices or choices[0][0] != '':
+                        self.fields[fname].choices = [('', 'Select')] + choices
+        except Exception:
+            pass
+
 
 class EmployerContactInfoForm(forms.ModelForm):
     """Form for Account Settings - Contact Info"""
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address...'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email address...',
+            'readonly': 'readonly',
+            'style': 'background-color: #f0f0f0; cursor: not-allowed;'
+        }),
         label='Contact Email'
     )
 
@@ -560,11 +570,18 @@ class JobSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set dynamic choices for select fields
-        self.fields['category'].choices = category_choices
-        self.fields['education'].choices = education_choices
-        self.fields['experience'].choices = experience_choices
-        self.fields['job_level'].choices = job_level_choices
+        # Ensure user-friendly empty placeholder is present
+        def _ensure_select(choices):
+            choices = list(choices or [])
+            if not choices or choices[0][0] != '':
+                return [('', 'Select')] + choices
+            return choices
 
+        self.fields['category'].choices = _ensure_select(category_choices)
+        self.fields['education'].choices = _ensure_select(education_choices)
+        self.fields['experience'].choices = _ensure_select(experience_choices)
+        self.fields['job_level'].choices = _ensure_select(job_level_choices)
+    
     def clean_query(self):
         """Validate and sanitize search query"""
         query = self.cleaned_data.get('query', '').strip()

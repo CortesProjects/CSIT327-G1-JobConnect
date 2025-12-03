@@ -129,17 +129,52 @@ class EmployerProfileFoundingInfoForm(forms.ModelForm):
             'organization_type', 'industry_type', 'team_size', 
             'year_established', 'company_website', 'company_vision'
         ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make select placeholders friendlier: show 'Select' instead of dashes
+        try:
+            for fname in ('organization_type', 'industry_type', 'team_size'):
+                if self.fields.get(fname) and getattr(self.fields[fname], 'choices', None):
+                    choices = list(self.fields[fname].choices)
+                    if not choices or choices[0][0] != '':
+                        self.fields[fname].choices = [('', 'Select')] + choices
+        except Exception:
+            # conservative: if something unexpected, leave choices unchanged
+            pass
+    
+    def clean_organization_type(self):
+        org_type = self.cleaned_data.get('organization_type')
+        if not org_type:
+            raise forms.ValidationError('Organization type is required.')
+        return org_type
+    
+    def clean_industry_type(self):
+        industry = self.cleaned_data.get('industry_type')
+        if not industry:
+            raise forms.ValidationError('Industry type is required.')
+        return industry
+    
+    def clean_team_size(self):
+        team_size = self.cleaned_data.get('team_size')
+        if not team_size:
+            raise forms.ValidationError('Team size is required.')
+        return team_size
     
     def clean_year_established(self):
         from datetime import date
         year_established = self.cleaned_data.get('year_established')
-        if year_established:
-            # Must be in the past
-            if year_established > date.today():
-                raise forms.ValidationError('Year established cannot be in the future.')
-            # Reasonable range check (e.g., not before 1800)
-            if year_established.year < 1800:
-                raise forms.ValidationError('Please enter a valid year of establishment.')
+        
+        if not year_established:
+            raise forms.ValidationError('Year established is required.')
+        
+        # Must be in the past
+        if year_established > date.today():
+            raise forms.ValidationError('Year established cannot be in the future.')
+        
+        # Reasonable range check (e.g., not before 1800)
+        if year_established.year < 1800:
+            raise forms.ValidationError('Please enter a valid year of establishment (after 1800).')
+        
         return year_established
     
     def clean_company_website(self):
