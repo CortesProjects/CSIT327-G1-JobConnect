@@ -17,33 +17,80 @@
     <div class="applicants-list">
       {% if applicants %}
         {% for applicant in applicants %}
-          <div class="applicant-card">
-            <div class="applicant-left">
-              {% if applicant.applicant_profile_rel.image %}
-                <img src="{{ applicant.applicant_profile_rel.image.url }}" class="profile-image" alt="Profile Image">
-              {% else %}
-                <img src="{% static 'defaults/default-avatar.png' %}" class="profile-image" alt="Default Image">
-              {% endif %}
-              <div>
-                <h4 class="applicant-name">
-                  {{ applicant.first_name }} {% if applicant.middle_name %}{{ applicant.middle_name }} {% endif %}{{ applicant.last_name }}
-                </h4>
-                <div class="applicant-info">
-                  <span><i class="fas fa-map-marker-alt"></i> {{ applicant.applicant_profile_rel.location|default:"N/A" }}</span>
-                  <span><i class="fas fa-dollar-sign"></i> {{ applicant.applicant_profile_rel.year_level|default:"Unknown" }} Years experience</span>
+          {# make a safe local reference to the related profile object #}
+          {% with profile=applicant.applicant_profile_rel %}
+            <div class="applicant-card">
+              <div class="applicant-left">
+                {# Profile image: try several likely attribute names #}
+                {% if profile %}
+                    {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" class="profile-image" alt="Profile Image">
+                    {% elif profile.image %}
+                        <img src="{{ profile.image.url }}" class="profile-image" alt="Profile Image">
+                    {% else %}
+                        <img src="{% static 'img/default-avatar.png' %}" class="profile-image" alt="Default Image">
+                    {% endif %}
+                {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" class="profile-image" alt="Default Image">
+                {% endif %}
+
+                <div>
+                  {# Name: prefer profile full name, then applicant.full_name, then email #}
+                  <h4 class="applicant-name">
+                    {% if profile and profile.full_name %}
+                        {{ profile.full_name }}
+                    {% elif applicant.full_name %}
+                        {{ applicant.full_name }}
+                    {% elif applicant.first_name or applicant.last_name %}
+                        {{ applicant.first_name }}{% if applicant.middle_name %} {{ applicant.middle_name }}{% endif %} {{ applicant.last_name }}
+                    {% else %}
+                        {{ applicant.name|default:applicant.email }}
+                    {% endif %}
+                  </h4>
+
+                  <div class="applicant-info">
+                    {# Location: try a few profile fields #}
+                    <span>
+                      <i class="fas fa-map-marker-alt"></i>
+                      {% if profile %}
+                        {{ profile.location|default:profile.location_city|default:profile.location_street|default:"N/A" }}
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </span>
+
+                    {# Experience/year-level: try common names #}
+                    <span>
+                      <i class="fas fa-dollar-sign"></i>
+                      {% if profile %}
+                        {% if profile.experience %}
+                          {{ profile.experience }}
+                        {% elif profile.years_experience %}
+                          {{ profile.years_experience }}
+                        {% elif profile.year_level %}
+                          {{ profile.year_level }}
+                        {% else %}
+                          Unknown
+                        {% endif %}
+                      {% else %}
+                        Unknown
+                      {% endif %}
+                      Years experience
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="applicant-right">
-              <a href="{% url 'dashboard:admin_applicant_detail' applicant.id %}" class="view-btn">
-                  View Profile <i class="fas fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
 
+              <div class="applicant-right">
+                <a href="{% url 'dashboard:admin_applicant_detail' applicant.id %}" class="view-btn">
+                    View Profile <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          {% endwith %}
         {% endfor %}
       {% else %}
-        <p>No applicants have viewed yet.</p>
+        <p>No applicants found.</p>
       {% endif %}
     </div>
 </div>
