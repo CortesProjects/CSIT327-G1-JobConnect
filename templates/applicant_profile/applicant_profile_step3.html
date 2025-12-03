@@ -40,20 +40,20 @@
             <div class="field-container">
                 <label for="{{ form.contact_number.id_for_label }}">{{ form.contact_number.label }}</label>
                 {{ form.contact_number }}
-                <div id="contact-number-error" class="error-text"></div>
+                <div id="contact-number-error" class="error-text">{{ form.contact_number.errors }}</div>
             </div>
 
             <div class="field-container">
                 <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
                 {{ form.email }}
                 <small class="form-text text-muted">Email is linked to your account</small>
-                <div id="email-error" class="error-text"></div>
+                <div id="email-error" class="error-text">{{ form.email.errors }}</div>
             </div>
         </div>
 
         <div class="form-navigation-row centered-nav">
             <a href="{% url 'applicant_profile:applicant_profile_setup_step2' %}" class="btn btn-secondary">Previous</a>
-            <button type="submit" class="cta-btn save-next-btn">Next: Upload Resume &rarr;</button>
+            <button type="submit" class="cta-btn save-next-btn">Save & Next &rarr;</button>
         </div>
     </form>
 </main>
