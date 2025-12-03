@@ -24,10 +24,17 @@
     <div class="candidate-header">
         <div class="candidate-main-info">
             <div class="candidate-avatar">
-                {% if profile.profile_image %}
-                    <img src="{{ profile.profile_image.url }}" alt="{{ profile.full_name }}">
+                {# Profile image: try several likely attribute names #}
+                {% if profile %}
+                    {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" class="profile-image" alt="Profile Image">
+                    {% elif profile.image %}
+                        <img src="{{ profile.image.url }}" class="profile-image" alt="Profile Image">
+                    {% else %}
+                        <img src="{% static 'img/default-avatar.png' %}" class="profile-image" alt="Default Image">
+                    {% endif %}
                 {% else %}
-                    <img src="{% static 'img/avatar-placeholder.png' %}" alt="{{ profile.full_name }}">
+                    <img src="{% static 'img/default-avatar.png' %}" class="profile-image" alt="Default Image">
                 {% endif %}
             </div>
             <div class="candidate-details">
