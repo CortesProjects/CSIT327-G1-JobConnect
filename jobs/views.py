@@ -258,18 +258,26 @@ def job_detail(request, job_id):
     source = request.GET.get('from', '')
     referer = request.META.get('HTTP_REFERER', '')
     
-    breadcrumb_source = 'search'  # default
-    breadcrumb_label = 'Search Jobs'
-    breadcrumb_url = 'dashboard:applicant_search_jobs'
+    # Set default breadcrumb based on user type
+    if request.user.is_authenticated and request.user.user_type == 'employer':
+        breadcrumb_source = 'overview'  # default for employer
+        breadcrumb_label = 'Overview'
+        breadcrumb_url = 'dashboard:dashboard'
+    else:
+        breadcrumb_source = 'search'  # default for applicant
+        breadcrumb_label = 'Search Jobs'
+        breadcrumb_url = 'dashboard:applicant_search_jobs'
     
     if source:
         breadcrumb_source = source
+    elif 'my-jobs' in referer or 'myjobs' in referer:
+        breadcrumb_source = 'myjobs'
+    elif 'overview' in referer or ('/employer/' in referer and 'my-jobs' not in referer):
+        breadcrumb_source = 'overview'
     elif 'applied' in referer or 'applications' in referer:
         breadcrumb_source = 'applied'
     elif 'favorite' in referer:
         breadcrumb_source = 'favorites'
-    elif 'my-jobs' in referer or 'myjobs' in referer:
-        breadcrumb_source = 'myjobs'
     elif 'recent' in referer:
         breadcrumb_source = 'recent'
     
@@ -280,7 +288,8 @@ def job_detail(request, job_id):
         'search': ('Search Jobs', 'dashboard:applicant_search_jobs'),
         'alert': ('Job Alerts', 'dashboard:applicant_dashboard'),
         'myjobs': ('My Jobs', 'dashboard:employer_my_jobs'),
-        'recent': ('Recently Posted', 'dashboard:employer_dashboard'),
+        'overview': ('Overview', 'dashboard:dashboard'),
+        'recent': ('Recently Posted', 'dashboard:dashboard'),
     }
     
     if breadcrumb_source in breadcrumb_map:
