@@ -111,39 +111,44 @@
             </div>
         </form>
 
-        <div class="cv-resume-section">
-            <h3>Your CV/Resume</h3>
+       <div class="cv-resume-section">
+           <h3>Your CV/Resume</h3>
             <div class="resume-list">
+
                 {% if resumes %}
                     {% for resume in resumes %}
                     <div class="resume-card" data-resume-id="{{ resume.id }}">
+
                         <i class="fas fa-file-pdf"></i>
+
                         <div class="resume-info">
                             <p class="resume-title">{{ resume.name }}</p>
-                            <small class="resume-size">{{ resume.file.size|filesizeformat }} • Uploaded {{ resume.uploaded_at|date:"M d, Y" }}</small>
+                            <small class="resume-size">
+                                {{ resume.file.size|filesizeformat }} • Uploaded {{ resume.uploaded_at|date:"M d, Y" }}
+                            </small>
+
                             {% if resume.is_default %}
-                                <span class="default-badge"><i class="fas fa-star"></i> Default</span>
+                                <span class="default-badge">
+                                    <i class="fas fa-star"></i> DEFAULT
+                                </span>
                             {% endif %}
                         </div>
-                        <button type="button" class="action-menu-btn" onclick="toggleResumeMenu(this)">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
-                        <div class="action-menu">
-                            <a href="{{ resume.file.url }}" target="_blank" class="menu-item view">
-                                <i class="fas fa-eye"></i> View Resume
-                            </a>
-                            <a href="{{ resume.file.url }}" download class="menu-item download">
-                                <i class="fas fa-download"></i> Download
-                            </a>
-                            {% if not resume.is_default %}
-                            <button type="button" class="menu-item set-default" onclick="setDefaultResume({{ resume.id }})">
-                                <i class="fas fa-star"></i> Set as Default
+
+                        <!-- ⭐ INSTANT DELETE BUTTON (replaces 3-dots menu) -->
+                        <form method="post"
+                              action="{% url 'dashboard:applicant_settings' %}"
+                              class="resume-delete-form"
+                              onsubmit="return confirmDeleteResume(event, '{{ resume.name|escapejs }}')">
+
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="resume_delete">
+                            <input type="hidden" name="resume_id" value="{{ resume.id }}">
+
+                            <button type="submit" class="btn-icon-action delete-btn" title="Delete Resume">
+                                <i class="fas fa-trash"></i>
                             </button>
-                            {% endif %}
-                            <button type="button" class="menu-item delete" onclick="confirmDeleteResume({{ resume.id }}, '{{ resume.name }}')">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </div>
+                        </form>
+
                     </div>
                     {% endfor %}
                 {% else %}
@@ -153,7 +158,8 @@
                         <small>Upload your first resume to start applying for jobs</small>
                     </div>
                 {% endif %}
-                
+
+                <!-- Add Resume Box -->
                 <div class="add-resume-card" onclick="openResumeModal()">
                     <i class="fas fa-plus-circle"></i>
                     <div class="add-resume-card-info">
@@ -163,6 +169,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- Resume Upload Modal -->
         <div class="modal" id="resumeModal">
@@ -603,5 +610,20 @@
 
 <!-- Load applicant settings UI-only script (validation is server-side) -->
 <script src="{% static 'js/dashboard/applicant/applicant_settings.js' %}"></script>
+
+<script>
+function confirmDeleteResume(evt, resumeName) {
+    const ok = confirm(
+        `Are you sure you want to delete "${resumeName}"?\nThis action cannot be undone.`
+    );
+
+    if (!ok) {
+        evt.preventDefault();
+        return false;
+    }
+    return true;
+}
+</script>
+
 
 {% endblock %}
