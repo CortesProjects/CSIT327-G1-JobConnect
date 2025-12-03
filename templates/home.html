@@ -126,7 +126,13 @@
                 {% for job in featured_jobs %}
                 <div class="job-card">
                     <div class="job-info-left">
-                        <span class="company-logo bg-dark">{{ job.company_name|default:job.employer.first_name|first|upper }}</span>
+                        <div class="company-logo">
+                            {% if job.employer.employer_profile_rel and job.employer.employer_profile_rel.company_profile_image %}
+                                <img src="{{ job.employer.employer_profile_rel.company_profile_image.url }}" alt="{{ job.company_name }}">
+                            {% else %}
+                                <span class="company-logo bg-dark">{{ job.company_name|default:job.employer.first_name|first|upper }}</span>
+                            {% endif %}
+                        </div>
                         <div class="job-details">
                             <div class="job-title-line">
                                 <h4>{{ job.title }}</h4>
